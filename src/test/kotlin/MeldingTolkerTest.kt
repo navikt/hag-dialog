@@ -17,10 +17,11 @@ import java.util.UUID
 class MeldingTolkerTest :
     FunSpec({
         test("Opprett dialog ved gyldig sykmelding") {
+            val orgnr = Orgnr.genererGyldig()
             val sykmelding =
                 Sykmelding(
                     sykmeldingId = UUID.randomUUID(),
-                    orgnr = Orgnr.genererGyldig(),
+                    orgnr = orgnr,
                     foedselsdato = LocalDate.of(1990, 1, 1),
                     fulltNavn = "OLA NORDMANN",
                     sykmeldingsperioder =
@@ -37,7 +38,7 @@ class MeldingTolkerTest :
             val unleashFeatureTogglesMock = mockk<UnleashFeatureToggles>()
 
             every { dialogportenServiceMock.opprettNyDialogMedSykmelding(any()) } returns "123"
-            every { unleashFeatureTogglesMock.skalOppretteDialogVedMottattSykmelding() } returns true
+            every { unleashFeatureTogglesMock.skalOppretteDialogVedMottattSykmelding(orgnr) } returns true
 
             val meldingTolker =
                 MeldingTolker(

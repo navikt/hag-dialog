@@ -1,8 +1,10 @@
 package no.nav.helsearbeidsgiver.utils
 
 import io.getunleash.DefaultUnleash
+import io.getunleash.UnleashContext
 import io.getunleash.util.UnleashConfig
 import no.nav.helsearbeidsgiver.Env
+import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 
 class UnleashFeatureToggles {
     private val apiKey = Env.Unleash.apiKey
@@ -21,9 +23,10 @@ class UnleashFeatureToggles {
                 .build(),
         )
 
-    fun skalOppretteDialogVedMottattSykmelding(): Boolean =
+    fun skalOppretteDialogVedMottattSykmelding(orgnr: Orgnr): Boolean =
         defaultUnleash.isEnabled(
             "opprett-dialog-ved-mottatt-sykmelding",
+            UnleashContext.builder().addProperty("orgnr", orgnr.toString()).build(),
             false,
         )
 }
