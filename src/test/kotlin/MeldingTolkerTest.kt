@@ -1,5 +1,7 @@
 import io.kotest.core.spec.style.FunSpec
+import io.mockk.Runs
 import io.mockk.every
+import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
@@ -38,6 +40,7 @@ class MeldingTolkerTest :
             val unleashFeatureTogglesMock = mockk<UnleashFeatureToggles>()
 
             every { dialogportenServiceMock.opprettNyDialogMedSykmelding(any()) } returns "123"
+            every { dialogportenServiceMock.oppdaterDialogMedSoknad(any()) } just Runs
             every { unleashFeatureTogglesMock.skalOppretteDialogVedMottattSykmelding(orgnr) } returns true
 
             val meldingTolker =

@@ -29,4 +29,12 @@ class UnleashFeatureToggles {
             UnleashContext.builder().addProperty("orgnr", orgnr.toString()).build(),
             false,
         )
+
+    // TODO: Opprette flagg i Unleash
+    fun skalOppdatereDialogVedMottattSoknad(orgnr: Orgnr): Boolean =
+        defaultUnleash.isEnabled(
+            "oppdater-dialog-ved-mottatt-soknad",
+            UnleashContext.builder().addProperty("orgnr", orgnr.toString()).build(),
+            false,
+        )
 }
