@@ -23,7 +23,7 @@ class DialogportenService(
         }
 
     fun oppdaterDialogMedSoknad(sykmelding: Sykmelding) { // TODO: Endre tilbake til soknad
-        //val dialogId = dialogDao.hentDialogId(soknad.sykmeldingId)
+        // val dialogId = dialogDao.hentDialogId(soknad.sykmeldingId)
         val dialogId = UUID.fromString("0196c429-124f-75c5-a7e7-61735a9ca051") // TODO: Hente dialogId fra database
         runBlocking {
             dialogportenClient.oppdaterDialogMedSoknad(
