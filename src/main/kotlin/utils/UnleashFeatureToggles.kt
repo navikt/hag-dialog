@@ -30,7 +30,6 @@ class UnleashFeatureToggles {
             false,
         )
 
-    // TODO: Opprette flagg i Unleash
     fun skalOppdatereDialogVedMottattSoknad(orgnr: Orgnr): Boolean =
         defaultUnleash.isEnabled(
             "oppdater-dialog-ved-mottatt-soknad",

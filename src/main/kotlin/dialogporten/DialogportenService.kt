@@ -2,6 +2,7 @@ package no.nav.helsearbeidsgiver.dialogporten
 
 import kotlinx.coroutines.runBlocking
 import no.nav.helsearbeidsgiver.Env
+import no.nav.helsearbeidsgiver.kafka.Sykepengesoknad
 import no.nav.helsearbeidsgiver.kafka.Sykmelding
 import no.nav.helsearbeidsgiver.kafka.Sykmeldingsperiode
 import no.nav.helsearbeidsgiver.utils.tilNorskFormat
@@ -22,13 +23,11 @@ class DialogportenService(
                 )
         }
 
-    fun oppdaterDialogMedSoknad(sykmelding: Sykmelding) { // TODO: Endre tilbake til soknad
-        // val dialogId = dialogDao.hentDialogId(soknad.sykmeldingId)
-        val dialogId = UUID.fromString("0196c429-124f-75c5-a7e7-61735a9ca051") // TODO: Hente dialogId fra database
+    fun oppdaterDialogMedSykepengesoknad(sykepengesoknad: Sykepengesoknad) {
         runBlocking {
-            dialogportenClient.oppdaterDialogMedSoknad(
-                dialogId = dialogId,
-                soknadJsonUrl = "${Env.navArbeidsgiverApiBaseUrl}/soknad/${sykmelding.sykmeldingId}", // TODO: Bruk soknadId fra melding
+            dialogportenClient.oppdaterDialogMedSykepengesoknad(
+                dialogId = UUID.randomUUID(), // TODO: Hent dialogId fra database,
+                soknadJsonUrl = "${Env.navArbeidsgiverApiBaseUrl}/soknad/${sykepengesoknad.soknadId}",
             )
         }
     }

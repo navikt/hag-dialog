@@ -25,8 +25,8 @@ data class Sykmelding(
 ) : Melding()
 
 @Serializable
-@SerialName("Soknad")
-data class Soknad(
+@SerialName("Sykepengesoknad")
+data class Sykepengesoknad(
     val soknadId: UUID,
     val sykmeldingId: UUID,
     val orgnr: Orgnr,
