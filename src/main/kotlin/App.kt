@@ -18,6 +18,9 @@ fun main() {
 fun startServer() {
     val logger = LoggerFactory.getLogger("App")
 
+    logger.info("Setter opp database...")
+    DatabaseConfig().init()
+
     logger.info("Setter opp Unleash...")
     val unleashFeatureToggles = UnleashFeatureToggles()
     val authClient = AuthClient()

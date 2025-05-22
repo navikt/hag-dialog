@@ -20,6 +20,15 @@ object Env {
         val kafkaKeystorePath = "KAFKA_KEYSTORE_PATH".fromEnv()
     }
 
+    object Database {
+        val url = "NAIS_DATABASE_DIALOG_DIALOG_JDBC_URL".fromEnv()
+        val username = "NAIS_DATABASE_DIALOG_DIALOG_USERNAME".fromEnv()
+        val password = "NAIS_DATABASE_DIALOG_DIALOG_PASSWORD".fromEnv()
+        val name = "NAIS_DATABASE_DIALOG_DIALOG_DATABASE".fromEnv()
+        val host = "NAIS_DATABASE_DIALOG_DIALOG_HOST".fromEnv()
+        val port = "NAIS_DATABASE_DIALOG_DIALOG_PORT".fromEnv()
+    }
+
     val navArbeidsgiverApiBaseUrl = "NAV_ARBEIDSGIVER_API_BASEURL".fromEnv()
     val altinnBaseUrl = "ALTINN_3_BASE_URL".fromEnv()
     val altinnImRessurs = "ALTINN_IM_RESSURS".fromEnv()
@@ -28,7 +37,7 @@ object Env {
 
     val dialogportenScope = "DIALOGPORTEN_SCOPE".fromEnv()
 
-    fun String.fromEnv(): String =
+    private fun String.fromEnv(): String =
         System.getenv(this)
             ?: appConfig.propertyOrNull(this)?.getString()
             ?: throw RuntimeException("Missing required environment variable \"$this\".")

@@ -47,6 +47,8 @@ dependencies {
     val kafkaVersion: String by project
     val logbackVersion: String by project
     val logbackEncoderVersion: String by project
+    val flywayVersion: String by project
+    val hikariVersion: String by project
     implementation("ch.qos.logback:logback-classic:$logbackVersion")
     implementation("net.logstash.logback:logstash-logback-encoder:$logbackEncoderVersion")
     implementation("io.getunleash:unleash-client-java:$unleashVersion")
@@ -57,6 +59,8 @@ dependencies {
     implementation("io.ktor:ktor-client-content-negotiation")
     implementation("io.ktor:ktor-client-core")
     implementation("io.ktor:ktor-serialization-kotlinx-json")
+    implementation("org.flywaydb:flyway-core:$flywayVersion")
+    implementation("com.zaxxer:HikariCP:$hikariVersion")
 
 
 
