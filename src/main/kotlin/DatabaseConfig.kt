@@ -38,6 +38,7 @@ class DatabaseConfig(
             Flyway
                 .configure()
                 .validateMigrationNaming(true)
+                .sqlMigrationSeparator("__")
                 .dataSource(dataSource)
                 .load()
         flyway.migrate()
