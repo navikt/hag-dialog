@@ -3,6 +3,7 @@ package no.nav.helsearbeidsgiver
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
 import org.flywaydb.core.Flyway
+import org.jetbrains.exposed.sql.Database as ExposedDatabase
 
 class DatabaseConfig(
     url: String? = Env.Database.url,
@@ -15,9 +16,10 @@ class DatabaseConfig(
 
     private val jdbcUrl = url ?: "jdbc:postgresql://%s:%s/%s".format(host, port, dbName)
 
-    fun init() {
+    fun init(): ExposedDatabase {
         val dataSource = postgresDataSource()
         runMigrate(dataSource)
+        return ExposedDatabase.connect(dataSource)
     }
 
     private fun postgresDataSource(): HikariDataSource {

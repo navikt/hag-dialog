@@ -19,7 +19,11 @@ fun startServer() {
     val logger = LoggerFactory.getLogger("App")
 
     logger.info("Setter opp database...")
-    DatabaseConfig().init()
+    val database = Database()
+
+    logger.info("Migrering starter...")
+    database.migrate()
+    logger.info("Migrering ferdig.")
 
     logger.info("Setter opp Unleash...")
     val unleashFeatureToggles = UnleashFeatureToggles()
