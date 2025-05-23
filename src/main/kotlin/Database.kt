@@ -62,4 +62,3 @@ private class Secrets {
             Env.Database.name,
         )
 }
-

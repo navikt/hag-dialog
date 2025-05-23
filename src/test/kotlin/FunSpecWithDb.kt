@@ -1,29 +1,29 @@
 import com.zaxxer.hikari.HikariConfig
 import io.kotest.core.spec.style.FunSpec
+import no.nav.helsearbeidsgiver.Database
 import org.flywaydb.core.Flyway
 import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.deleteAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.testcontainers.containers.PostgreSQLContainer
 import org.jetbrains.exposed.sql.Database as ExposedDatabase
-import no.nav.helsearbeidsgiver.Database
 
 abstract class FunSpecWithDb(
     table: List<Table>,
     body: FunSpec.(ExposedDatabase) -> Unit,
 ) : FunSpec({
-    val db =
-        Database(dbConfig())
-            .configureFlyway()
+        val db =
+            Database(dbConfig())
+                .configureFlyway()
 
-    beforeTest {
-        transaction {
-            table.forEach { it.deleteAll() }
+        beforeTest {
+            transaction {
+                table.forEach { it.deleteAll() }
+            }
         }
-    }
 
-    body(db.db)
-})
+        body(db.db)
+    })
 
 fun postgresContainer(): PostgreSQLContainer<Nothing> =
     PostgreSQLContainer<Nothing>("postgres:17").apply {
@@ -66,4 +66,3 @@ private fun Database.configureFlyway(): Database =
             .also(Flyway::clean)
             .migrate()
     }
-

@@ -22,7 +22,7 @@ class TestRepo(
 class DialogRepositoryTest :
     FunSpecWithDb(listOf(DialogEntitet), { db ->
 
-        //val inntektsmeldingRepo = DialogRepository(db)
+        // val inntektsmeldingRepo = DialogRepository(db)
         val testRepo = TestRepo(db)
 
         test("skal lagre inntektsmeldingskjema og inntektsmelding") {
