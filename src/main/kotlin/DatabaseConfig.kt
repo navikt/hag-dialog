@@ -37,7 +37,6 @@ class DatabaseConfig(
         val flyway =
             Flyway
                 .configure()
-                .validateMigrationNaming(true)
                 .dataSource(dataSource)
                 .load()
         flyway.migrate()
