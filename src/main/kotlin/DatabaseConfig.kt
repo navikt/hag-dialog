@@ -36,7 +36,8 @@ class DatabaseConfig(
     private fun runMigrate(dataSource: HikariDataSource) {
         val flyway =
             Flyway
-                .configure()
+                .configure(ClassLoader.getSystemClassLoader())
+                .validateMigrationNaming(true)
                 .dataSource(dataSource)
                 .load()
         flyway.migrate()
