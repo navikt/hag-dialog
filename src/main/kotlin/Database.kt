@@ -9,7 +9,7 @@ class Database(
     private val config: HikariConfig,
 ) {
     constructor() : this(
-        dbConfig(Secrets()),
+        dbConfig(),
     )
 
     val dataSource by lazy { HikariDataSource(config) }
@@ -35,11 +35,11 @@ class Database(
     }
 }
 
-private fun dbConfig(secrets: Secrets): HikariConfig =
+private fun dbConfig(): HikariConfig =
     HikariConfig().apply {
-        jdbcUrl = secrets.url
-        username = secrets.username
-        password = secrets.password
+        jdbcUrl = Env.Database.url
+        username = Env.Database.username
+        password = Env.Database.password
         maximumPoolSize = 5
     }
 
@@ -50,15 +50,3 @@ private fun migrationConfig(config: HikariConfig): HikariConfig =
         password = config.password
         maximumPoolSize = 3
     }
-
-private class Secrets {
-    val username = Env.Database.username
-    val password = Env.Database.password
-
-    val url =
-        "jdbc:postgresql://%s:%s/%s".format(
-            Env.Database.host,
-            Env.Database.port,
-            Env.Database.name,
-        )
-}
