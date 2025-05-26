@@ -25,8 +25,6 @@ object Env {
         val username = "NAIS_DATABASE_DIALOG_DIALOG_USERNAME".fromEnv()
         val password = "NAIS_DATABASE_DIALOG_DIALOG_PASSWORD".fromEnv()
         val name = "NAIS_DATABASE_DIALOG_DIALOG_DATABASE".fromEnv()
-        val host = "NAIS_DATABASE_DIALOG_DIALOG_HOST".fromEnv()
-        val port = "NAIS_DATABASE_DIALOG_DIALOG_PORT".fromEnv()
     }
 
     val navArbeidsgiverApiBaseUrl = "NAV_ARBEIDSGIVER_API_BASEURL".fromEnv()
