@@ -15,21 +15,15 @@ class Database(
     val dataSource by lazy { HikariDataSource(config) }
     val db by lazy { ExposedDatabase.connect(dataSource) }
 
-    fun migrate(location: String? = null) {
-        migrationConfig(config)
+    fun migrate() {
+        config
             .let(::HikariDataSource)
             .also { dataSource ->
                 Flyway
                     .configure()
                     .dataSource(dataSource)
                     .lockRetryCount(50)
-                    .let {
-                        if (location != null) {
-                            it.locations("filesystem:$location")
-                        } else {
-                            it
-                        }
-                    }.load()
+                    .load()
                     .migrate()
             }.close()
     }
@@ -40,13 +34,5 @@ private fun dbConfig(): HikariConfig =
         jdbcUrl = Env.Database.url
         username = Env.Database.username
         password = Env.Database.password
-        maximumPoolSize = 5
-    }
-
-private fun migrationConfig(config: HikariConfig): HikariConfig =
-    HikariConfig().apply {
-        jdbcUrl = config.jdbcUrl
-        username = config.username
-        password = config.password
         maximumPoolSize = 3
     }
