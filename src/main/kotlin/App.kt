@@ -18,6 +18,13 @@ fun main() {
 fun startServer() {
     val logger = LoggerFactory.getLogger("App")
 
+    logger.info("Setter opp database...")
+    val database = Database()
+
+    logger.info("Migrering starter...")
+    database.migrate()
+    logger.info("Migrering ferdig.")
+
     logger.info("Setter opp Unleash...")
     val unleashFeatureToggles = UnleashFeatureToggles()
     val authClient = AuthClient()
