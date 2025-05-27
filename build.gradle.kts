@@ -1,3 +1,4 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -5,6 +6,7 @@ plugins {
     kotlin("plugin.serialization")
     id("org.jmailen.kotlinter")
     id("io.ktor.plugin") version "3.1.2"
+    id("com.gradleup.shadow") version "8.3.6"
     application
 }
 
@@ -69,8 +71,6 @@ dependencies {
     implementation("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
     implementation("org.jetbrains.exposed:exposed-json:$exposedVersion")
 
-
-
     // Test dependencies
     val kotestVersion: String by project
     val mockkVersion: String by project
@@ -82,6 +82,12 @@ dependencies {
     testImplementation("org.testcontainers:postgresql:$testcontainersVersion")
 }
 
-tasks.test {
-    useJUnitPlatform()
+tasks {
+    named<ShadowJar>("shadowJar") {
+        mergeServiceFiles()
+        archiveBaseName.set("${project.name}-all")
+    }
+    withType<Test> {
+        useJUnitPlatform()
+    }
 }
