@@ -54,6 +54,7 @@ private fun Database.configureFlyway(): Database =
     also {
         Flyway
             .configure()
+            .validateMigrationNaming(true)
             .dataSource(it.dataSource)
             .failOnMissingLocations(true)
             .cleanDisabled(false)
