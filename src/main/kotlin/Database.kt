@@ -22,7 +22,6 @@ class Database(
                 Flyway
                     .configure()
                     .dataSource(dataSource)
-                    .lockRetryCount(50)
                     .load()
                     .migrate()
             }.close()

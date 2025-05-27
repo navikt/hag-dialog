@@ -21,10 +21,11 @@ object Env {
     }
 
     object Database {
-        val url = "NAIS_DATABASE_DIALOG_DIALOG_JDBC_URL".fromEnv()
-        val username = "NAIS_DATABASE_DIALOG_DIALOG_USERNAME".fromEnv()
-        val password = "NAIS_DATABASE_DIALOG_DIALOG_PASSWORD".fromEnv()
-        val name = "NAIS_DATABASE_DIALOG_DIALOG_DATABASE".fromEnv()
+        private val databasePrefix = "NAIS_DATABASE_DIALOG_DIALOG"
+        val url = "${databasePrefix}_JDBC_URL".fromEnv()
+        val username = "${databasePrefix}_USERNAME".fromEnv()
+        val password = "${databasePrefix}_PASSWORD".fromEnv()
+        val name = "${databasePrefix}_DATABASE".fromEnv()
     }
 
     val navArbeidsgiverApiBaseUrl = "NAV_ARBEIDSGIVER_API_BASEURL".fromEnv()

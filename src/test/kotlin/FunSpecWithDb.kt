@@ -25,11 +25,6 @@ abstract class FunSpecWithDb(
         body(db.db)
     })
 
-fun postgresContainer(): PostgreSQLContainer<Nothing> =
-    PostgreSQLContainer<Nothing>("postgres:17").apply {
-        setCommand("postgres", "-c", "fsync=off", "-c", "log_statement=all", "-c", "wal_level=logical")
-    }
-
 private fun PostgreSQLContainer<Nothing>.setupAndStart(): PostgreSQLContainer<Nothing> =
     apply {
         withReuse(true)
@@ -41,7 +36,7 @@ private fun PostgreSQLContainer<Nothing>.setupAndStart(): PostgreSQLContainer<No
     }
 
 private fun dbConfig(): HikariConfig {
-    val postgres = postgresContainer().setupAndStart()
+    val postgres = PostgreSQLContainer<Nothing>("postgres:17").setupAndStart()
     return HikariConfig().apply {
         jdbcUrl = postgres.jdbcUrl
         username = postgres.username
