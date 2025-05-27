@@ -21,6 +21,7 @@ class Database(
             .also { dataSource ->
                 Flyway
                     .configure()
+                    .sqlMigrationPrefix("V")
                     .validateMigrationNaming(true)
                     .dataSource(dataSource)
                     .load()
