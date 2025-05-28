@@ -27,7 +27,7 @@ class AuthClient {
         try {
             httpClient
                 .submitForm(
-                    url = Env.Nav.naisTokenEndpoint,
+                    url = Env.Nais.tokenEndpoint,
                     formParameters =
                         parameters {
                             append("identity_provider", "maskinporten")

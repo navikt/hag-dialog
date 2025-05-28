@@ -43,7 +43,7 @@ class DialogportenService(
                     dialogTittel = "Sykepenger for ${sykmelding.fulltNavn} (f. ${sykmelding.foedselsdato.tilNorskFormat()})",
                     dialogSammendrag = sykmelding.sykmeldingsperioder.getSykmeldingsPerioderString(),
                     sykmeldingId = sykmelding.sykmeldingId,
-                    sykmeldingJsonUrl = "${"arbeidsgiver.baseUrl".fromEnv()}/sykmelding/${sykmelding.sykmeldingId}",
+                    sykmeldingJsonUrl = "${Env.Nav.arbeidsgiverApiBaseUrl}/sykmelding/${sykmelding.sykmeldingId}",
                 )
         }.toUuid()
 

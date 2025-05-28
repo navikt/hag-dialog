@@ -29,14 +29,19 @@ object Env {
     }
 
     object Nav {
-        val arbeidsgiverApiBaseUrl = "arbeidsgiver.baseUrl".fromEnv()
-        val naisTokenEndpoint = "NAIS_TOKEN_ENDPOINT".fromEnv()
+        val arbeidsgiverApiBaseUrl = "arbeidsgiver.apiBaseUrl".fromEnv()
+    }
+
+    object Nais {
+        val tokenEndpoint = "NAIS_TOKEN_ENDPOINT".fromEnv()
     }
 
     object Altinn {
         val altinnBaseUrl = "ALTINN_3_BASE_URL".fromEnv()
         val altinnImRessurs = "ALTINN_IM_RESSURS".fromEnv()
-        val tokenAltinn3ExchangeEndpoint = "${"ALTINN_3_BASE_URL".fromEnv()}/authentication/api/v1/exchange/maskinporten"
+        val altinnSykmeldingRessurs = "ALTINN_SYKMELDING_RESSURS".fromEnv()
+        val tokenAltinn3ExchangeEndpoint =
+            "${"ALTINN_3_BASE_URL".fromEnv()}/authentication/api/v1/exchange/maskinporten"
         val dialogportenScope = "DIALOGPORTEN_SCOPE".fromEnv()
     }
 

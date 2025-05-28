@@ -1,3 +1,4 @@
+import no.nav.helsearbeidsgiver.kafka.Sykepengesoknad
 import no.nav.helsearbeidsgiver.kafka.Sykmelding
 import no.nav.helsearbeidsgiver.kafka.Sykmeldingsperiode
 import no.nav.helsearbeidsgiver.utils.test.wrapper.genererGyldig
@@ -21,3 +22,9 @@ val sykmelding =
                 ),
             ),
     )
+
+val sykepengesoknad = Sykepengesoknad(
+    sykmeldingId = sykmelding.sykmeldingId,
+    orgnr = orgnr,
+    soknadId = UUID.randomUUID(),
+)
