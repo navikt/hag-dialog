@@ -44,7 +44,7 @@ class DialogportenService(
                     sykmeldingId = sykmelding.sykmeldingId,
                     sykmeldingJsonUrl = "${Env.Nav.arbeidsgiverApiBaseUrl}/sykmelding/${sykmelding.sykmeldingId}",
                 )
-        }.toUuid()
+        }.also { logger().info("Opprettet dialog og fikk følgende respons tilbake: $it") }.toUuid()
 
     private fun oppdaterDialogMedSykepengesoknad(
         dialogId: UUID,
