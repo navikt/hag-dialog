@@ -40,8 +40,9 @@ class DialogportenServiceTest :
 
             dialogportenService.behandleSykmelding(sykmelding)
 
+            // TODO: erstatt https://sykepenger1-api.ekstern.dev.nav.no med ${Env.Nav.arbeidsgiverApiBaseUrl}
             val forventetUrl =
-                "https://sykepenger1-api.ekstern.dev.nav.no/sykmelding/${sykepengesoknad.sykmeldingId}" // TODO: erstatt med ${Env.Nav.arbeidsgiverApiBaseUrl}
+                "https://sykepenger1-api.ekstern.dev.nav.no/sykmelding/${sykepengesoknad.sykmeldingId}"
             coVerify(exactly = 1) {
                 dialogportenClientMock.opprettDialogMedSykmelding(
                     orgnr = sykmelding.orgnr.toString(),
