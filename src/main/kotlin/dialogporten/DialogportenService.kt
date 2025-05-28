@@ -3,7 +3,6 @@ package no.nav.helsearbeidsgiver.dialogporten
 import kotlinx.coroutines.runBlocking
 import no.nav.helsearbeidsgiver.DialogRepository
 import no.nav.helsearbeidsgiver.Env
-import no.nav.helsearbeidsgiver.Env.fromEnv
 import no.nav.helsearbeidsgiver.kafka.Sykepengesoknad
 import no.nav.helsearbeidsgiver.kafka.Sykmelding
 import no.nav.helsearbeidsgiver.kafka.Sykmeldingsperiode

@@ -23,8 +23,9 @@ val sykmelding =
             ),
     )
 
-val sykepengesoknad = Sykepengesoknad(
-    sykmeldingId = sykmelding.sykmeldingId,
-    orgnr = orgnr,
-    soknadId = UUID.randomUUID(),
-)
+val sykepengesoknad =
+    Sykepengesoknad(
+        sykmeldingId = sykmelding.sykmeldingId,
+        orgnr = orgnr,
+        soknadId = UUID.randomUUID(),
+    )

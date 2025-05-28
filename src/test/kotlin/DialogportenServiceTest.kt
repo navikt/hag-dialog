@@ -54,7 +54,7 @@ class DialogportenServiceTest :
             verify(exactly = 1) {
                 dialogRepositoryMock.lagreDialog(
                     dialogId = dialogId,
-                    sykmeldingId = sykepengesoknad.sykmeldingId
+                    sykmeldingId = sykepengesoknad.sykmeldingId,
                 )
             }
         }
