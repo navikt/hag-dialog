@@ -1,17 +1,41 @@
 package no.nav.helsearbeidsgiver.dialogporten
 
 import kotlinx.coroutines.runBlocking
+import no.nav.helsearbeidsgiver.DialogRepository
 import no.nav.helsearbeidsgiver.Env
+import no.nav.helsearbeidsgiver.Env.fromEnv
 import no.nav.helsearbeidsgiver.kafka.Sykepengesoknad
 import no.nav.helsearbeidsgiver.kafka.Sykmelding
 import no.nav.helsearbeidsgiver.kafka.Sykmeldingsperiode
+import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.tilNorskFormat
+import no.nav.helsearbeidsgiver.utils.toUuid
 import java.util.UUID
 
 class DialogportenService(
     private val dialogportenClient: DialogportenClient,
+    private val dialogRepository: DialogRepository,
 ) {
-    fun opprettNyDialogMedSykmelding(sykmelding: Sykmelding): String =
+    private val logger = logger()
+
+    fun behandleSykmelding(sykmelding: Sykmelding) {
+        val dialogId = opprettNyDialogMedSykmelding(sykmelding)
+        dialogRepository.lagreDialog(dialogId = dialogId, sykmeldingId = sykmelding.sykmeldingId)
+    }
+
+    fun behandleSykepengesoknad(sykepengesoknad: Sykepengesoknad) {
+        when (val dialogId = dialogRepository.finnDialogId(sykmeldingId = sykepengesoknad.sykmeldingId)) {
+            null ->
+                logger.warn(
+                    "Fant ikke dialog for sykmeldingId ${sykepengesoknad.sykmeldingId}. " +
+                        "Klarer derfor ikke oppdatere dialogen med sykepengesøknad ${sykepengesoknad.soknadId}.",
+                )
+
+            else -> oppdaterDialogMedSykepengesoknad(dialogId = dialogId, sykepengesoknad = sykepengesoknad)
+        }
+    }
+
+    private fun opprettNyDialogMedSykmelding(sykmelding: Sykmelding): UUID =
         runBlocking {
             dialogportenClient
                 .opprettDialogMedSykmelding(
@@ -19,15 +43,18 @@ class DialogportenService(
                     dialogTittel = "Sykepenger for ${sykmelding.fulltNavn} (f. ${sykmelding.foedselsdato.tilNorskFormat()})",
                     dialogSammendrag = sykmelding.sykmeldingsperioder.getSykmeldingsPerioderString(),
                     sykmeldingId = sykmelding.sykmeldingId,
-                    sykmeldingJsonUrl = "${Env.navArbeidsgiverApiBaseUrl}/sykmelding/${sykmelding.sykmeldingId}",
+                    sykmeldingJsonUrl = "${"arbeidsgiver.baseUrl".fromEnv()}/sykmelding/${sykmelding.sykmeldingId}",
                 )
-        }
+        }.toUuid()
 
-    fun oppdaterDialogMedSykepengesoknad(sykepengesoknad: Sykepengesoknad) {
+    private fun oppdaterDialogMedSykepengesoknad(
+        dialogId: UUID,
+        sykepengesoknad: Sykepengesoknad,
+    ) {
         runBlocking {
             dialogportenClient.oppdaterDialogMedSykepengesoknad(
-                dialogId = UUID.randomUUID(), // TODO: Hent dialogId fra database,
-                soknadJsonUrl = "${Env.navArbeidsgiverApiBaseUrl}/soknad/${sykepengesoknad.soknadId}",
+                dialogId = dialogId,
+                soknadJsonUrl = "${Env.Nav.arbeidsgiverApiBaseUrl}/soknad/${sykepengesoknad.soknadId}",
             )
         }
     }

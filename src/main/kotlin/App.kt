@@ -32,10 +32,13 @@ fun startServer() {
     logger.info("Setter opp DialogportenService...")
     val dialogportenClient =
         DialogportenClient(
-            baseUrl = Env.altinnBaseUrl,
-            ressurs = Env.altinnImRessurs,
+            baseUrl = Env.Altinn.altinnBaseUrl,
+            ressurs = Env.Altinn.altinnImRessurs,
             getToken = authClient.dialogportenTokenGetter(),
         )
+
+    logger.info("Setter opp DialogRepository...")
+    val dialogRepository = DialogRepository(database.db)
 
     logger.info("Starter server...")
     embeddedServer(
@@ -46,7 +49,11 @@ fun startServer() {
                 meldingTolker =
                     MeldingTolker(
                         unleashFeatureToggles = unleashFeatureToggles,
-                        dialogportenService = DialogportenService(dialogportenClient),
+                        dialogportenService =
+                            DialogportenService(
+                                dialogportenClient,
+                                dialogRepository,
+                            ),
                     ),
             )
         },

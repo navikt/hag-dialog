@@ -27,7 +27,7 @@ class AuthClient {
         try {
             httpClient
                 .submitForm(
-                    url = Env.tokenEndpoint,
+                    url = Env.Nav.naisTokenEndpoint,
                     formParameters =
                         parameters {
                             append("identity_provider", "maskinporten")
@@ -40,7 +40,7 @@ class AuthClient {
 
     suspend fun altinnExchange(token: String): String =
         httpClient
-            .get(Env.tokenAltinn3ExchangeEndpoint) {
+            .get(Env.Altinn.tokenAltinn3ExchangeEndpoint) {
                 bearerAuth(token)
             }.bodyAsText()
             .replace("\"", "")
@@ -64,4 +64,4 @@ private fun AuthClient.hentAltinnToken(target: String): () -> String {
     }
 }
 
-fun AuthClient.dialogportenTokenGetter() = hentAltinnToken(Env.dialogportenScope)
+fun AuthClient.dialogportenTokenGetter() = hentAltinnToken(Env.Altinn.dialogportenScope)
