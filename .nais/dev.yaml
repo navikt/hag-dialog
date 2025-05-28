@@ -55,7 +55,7 @@ spec:
     - name: ALTINN_3_BASE_URL
       value: "https://platform.tt02.altinn.no"
     - name: ALTINN_IM_RESSURS
-      value: "nav_system_sykepenger_inntektsmelding"
+      value: "nav_sykepenger_inntektsmelding-nedlasting"
     - name: DIALOGPORTEN_SCOPE
       value: "digdir:dialogporten.serviceprovider"
     - name: NAV_ARBEIDSGIVER_API_BASEURL
