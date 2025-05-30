@@ -28,14 +28,23 @@ class MeldingTolker(
                 is Sykmelding -> {
                     if (unleashFeatureToggles.skalOppretteDialogVedMottattSykmelding(orgnr = dekodetMelding.orgnr)) {
                         logger.info("Oppretter dialog for sykmelding.")
-                        dialogportenService.opprettNyDialogMedSykmelding(dekodetMelding)
+                        dialogportenService.behandleSykmelding(sykmelding = dekodetMelding)
                     } else {
                         logger.info("Feature toggle for dialogopprettelse for sykmelding er avskrudd, ignorerer melding.")
                     }
                 }
+
+                is Sykepengesoknad -> {
+                    if (unleashFeatureToggles.skalOppdatereDialogVedMottattSoknad(orgnr = dekodetMelding.orgnr)) {
+                        logger.info("Oppdaterer dialog med sykepengesøknad.")
+                        dialogportenService.behandleSykepengesoknad(sykepengesoknad = dekodetMelding)
+                    } else {
+                        logger.info("Feature toggle for oppdatering av dialog med sykepengesøknad er avskrudd, ignorerer melding.")
+                    }
+                }
             }
         }.getOrElse { e ->
-            sikkerLogger.error("Klarte ikke opprette dialog. Avbryter.", e)
+            sikkerLogger.error("Klarte ikke opprette/oppdatere dialog. Avbryter.", e)
             throw e
         }
     }
