@@ -34,7 +34,7 @@ class DialogportenServiceTest :
                     any(),
                     any(),
                 )
-            } returns dialogId.toString()
+            } returns "\"$dialogId\"" // Svaret fra Dialogporten er en UUID-string som er omsluttet av anførselstegn
 
             every { dialogRepositoryMock.lagreDialog(any(), any()) } just Runs
 
