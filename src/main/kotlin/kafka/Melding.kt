@@ -25,6 +25,14 @@ data class Sykmelding(
 ) : Melding()
 
 @Serializable
+@SerialName("Sykepengesoknad")
+data class Sykepengesoknad(
+    val soknadId: UUID,
+    val sykmeldingId: UUID,
+    val orgnr: Orgnr,
+) : Melding()
+
+@Serializable
 data class Sykmeldingsperiode(
     val fom: LocalDate,
     val tom: LocalDate,

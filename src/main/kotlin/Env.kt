@@ -28,15 +28,23 @@ object Env {
         val name = "${databasePrefix}_DATABASE".fromEnv()
     }
 
-    val navArbeidsgiverApiBaseUrl = "NAV_ARBEIDSGIVER_API_BASEURL".fromEnv()
-    val altinnBaseUrl = "ALTINN_3_BASE_URL".fromEnv()
-    val altinnImRessurs = "ALTINN_IM_RESSURS".fromEnv()
-    val tokenEndpoint = "NAIS_TOKEN_ENDPOINT".fromEnv()
-    val tokenAltinn3ExchangeEndpoint = "${"ALTINN_3_BASE_URL".fromEnv()}/authentication/api/v1/exchange/maskinporten"
+    object Nav {
+        val arbeidsgiverApiBaseUrl = "arbeidsgiver.apiBaseUrl".fromEnv()
+    }
 
-    val dialogportenScope = "DIALOGPORTEN_SCOPE".fromEnv()
+    object Nais {
+        val tokenEndpoint = "NAIS_TOKEN_ENDPOINT".fromEnv()
+    }
 
-    private fun String.fromEnv(): String =
+    object Altinn {
+        val baseUrl = "ALTINN_3_BASE_URL".fromEnv()
+        val imRessurs = "ALTINN_IM_RESSURS".fromEnv()
+        val tokenAltinn3ExchangeEndpoint =
+            "${"ALTINN_3_BASE_URL".fromEnv()}/authentication/api/v1/exchange/maskinporten"
+        val dialogportenScope = "DIALOGPORTEN_SCOPE".fromEnv()
+    }
+
+    fun String.fromEnv(): String =
         System.getenv(this)
             ?: appConfig.propertyOrNull(this)?.getString()
             ?: throw RuntimeException("Missing required environment variable \"$this\".")
