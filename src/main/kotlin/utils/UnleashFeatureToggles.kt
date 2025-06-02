@@ -30,7 +30,7 @@ class UnleashFeatureToggles {
             false,
         )
 
-    fun skalOppdatereDialogVedMottattSoknad(orgnr: Orgnr): Boolean =
+    fun skalOppdatereDialogVedMottattSoeknad(orgnr: Orgnr): Boolean =
         defaultUnleash.isEnabled(
             "oppdater-dialog-ved-mottatt-soknad",
             UnleashContext.builder().addProperty("orgnr", orgnr.toString()).build(),

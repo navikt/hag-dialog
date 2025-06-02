@@ -33,14 +33,14 @@ class MeldingTolkerTest :
         }
 
         test("Behandle gyldig sykepengesøknad") {
-            val sykepengesoknad = sykepengesoknad
-            val melding = sykepengesoknad.toJson(Melding.serializer()).toString()
+            val sykepengesoeknad = sykepengesoeknad
+            val melding = sykepengesoeknad.toJson(Melding.serializer()).toString()
 
             val dialogportenServiceMock = mockk<DialogportenService>()
             val unleashFeatureTogglesMock = mockk<UnleashFeatureToggles>()
 
             every { dialogportenServiceMock.oppdaterDialog(any()) } just Runs
-            every { unleashFeatureTogglesMock.skalOppdatereDialogVedMottattSoknad(sykepengesoknad.orgnr) } returns true
+            every { unleashFeatureTogglesMock.skalOppdatereDialogVedMottattSoeknad(sykepengesoeknad.orgnr) } returns true
 
             val meldingTolker =
                 MeldingTolker(
@@ -50,6 +50,6 @@ class MeldingTolkerTest :
 
             meldingTolker.lesMelding(melding)
 
-            verify(exactly = 1) { dialogportenServiceMock.oppdaterDialog(sykepengesoknad) }
+            verify(exactly = 1) { dialogportenServiceMock.oppdaterDialog(sykepengesoeknad) }
         }
     })

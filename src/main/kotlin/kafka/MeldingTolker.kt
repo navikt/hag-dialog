@@ -34,10 +34,10 @@ class MeldingTolker(
                     }
                 }
 
-                is Sykepengesoknad -> {
-                    if (unleashFeatureToggles.skalOppdatereDialogVedMottattSoknad(orgnr = dekodetMelding.orgnr)) {
+                is Sykepengesoeknad -> {
+                    if (unleashFeatureToggles.skalOppdatereDialogVedMottattSoeknad(orgnr = dekodetMelding.orgnr)) {
                         logger.info("Oppdaterer dialog med sykepengesøknad.")
-                        dialogportenService.oppdaterDialog(sykepengesoknad = dekodetMelding)
+                        dialogportenService.oppdaterDialog(sykepengesoeknad = dekodetMelding)
                     } else {
                         logger.info("Feature toggle for oppdatering av dialog med sykepengesøknad er avskrudd, ignorerer melding.")
                     }
