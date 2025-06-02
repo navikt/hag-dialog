@@ -28,7 +28,7 @@ class DialogportenService(
         if (dialogId == null) {
             logger.warn(
                 "Fant ikke dialog for sykmeldingId ${sykepengesoknad.sykmeldingId}. " +
-                        "Klarer derfor ikke oppdatere dialogen med sykepengesøknad ${sykepengesoknad.soknadId}.",
+                    "Klarer derfor ikke oppdatere dialogen med sykepengesøknad ${sykepengesoknad.soknadId}.",
             )
         } else {
             oppdaterDialogMedSykepengesoknad(dialogId = dialogId, sykepengesoknad = sykepengesoknad)
