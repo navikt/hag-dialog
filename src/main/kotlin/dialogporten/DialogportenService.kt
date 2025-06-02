@@ -6,9 +6,10 @@ import no.nav.helsearbeidsgiver.Env
 import no.nav.helsearbeidsgiver.kafka.Sykepengesoknad
 import no.nav.helsearbeidsgiver.kafka.Sykmelding
 import no.nav.helsearbeidsgiver.kafka.Sykmeldingsperiode
+import no.nav.helsearbeidsgiver.utils.json.fromJson
+import no.nav.helsearbeidsgiver.utils.json.serializer.UuidSerializer
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.tilNorskFormat
-import no.nav.helsearbeidsgiver.utils.toUuid
 import java.util.UUID
 
 class DialogportenService(
@@ -17,20 +18,20 @@ class DialogportenService(
 ) {
     private val logger = logger()
 
-    fun behandleSykmelding(sykmelding: Sykmelding) {
+    fun opprettOgLagreDialog(sykmelding: Sykmelding) {
         val dialogId = opprettNyDialogMedSykmelding(sykmelding)
         dialogRepository.lagreDialog(dialogId = dialogId, sykmeldingId = sykmelding.sykmeldingId)
     }
 
-    fun behandleSykepengesoknad(sykepengesoknad: Sykepengesoknad) {
-        when (val dialogId = dialogRepository.finnDialogId(sykmeldingId = sykepengesoknad.sykmeldingId)) {
-            null ->
-                logger.warn(
-                    "Fant ikke dialog for sykmeldingId ${sykepengesoknad.sykmeldingId}. " +
+    fun oppdaterDialog(sykepengesoknad: Sykepengesoknad) {
+        val dialogId = dialogRepository.finnDialogId(sykmeldingId = sykepengesoknad.sykmeldingId)
+        if (dialogId == null) {
+            logger.warn(
+                "Fant ikke dialog for sykmeldingId ${sykepengesoknad.sykmeldingId}. " +
                         "Klarer derfor ikke oppdatere dialogen med sykepengesøknad ${sykepengesoknad.soknadId}.",
-                )
-
-            else -> oppdaterDialogMedSykepengesoknad(dialogId = dialogId, sykepengesoknad = sykepengesoknad)
+            )
+        } else {
+            oppdaterDialogMedSykepengesoknad(dialogId = dialogId, sykepengesoknad = sykepengesoknad)
         }
     }
 
@@ -44,8 +45,7 @@ class DialogportenService(
                     sykmeldingId = sykmelding.sykmeldingId,
                     sykmeldingJsonUrl = "${Env.Nav.arbeidsgiverApiBaseUrl}/sykmelding/${sykmelding.sykmeldingId}",
                 )
-        }.removeSurrounding("\"")
-            .toUuid()
+        }.fromJson(UuidSerializer)
 
     private fun oppdaterDialogMedSykepengesoknad(
         dialogId: UUID,

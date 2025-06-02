@@ -18,7 +18,7 @@ class MeldingTolkerTest :
             val dialogportenServiceMock = mockk<DialogportenService>()
             val unleashFeatureTogglesMock = mockk<UnleashFeatureToggles>()
 
-            every { dialogportenServiceMock.behandleSykmelding(any()) } just Runs
+            every { dialogportenServiceMock.opprettOgLagreDialog(any()) } just Runs
             every { unleashFeatureTogglesMock.skalOppretteDialogVedMottattSykmelding(sykmelding.orgnr) } returns true
 
             val meldingTolker =
@@ -29,7 +29,7 @@ class MeldingTolkerTest :
 
             meldingTolker.lesMelding(melding)
 
-            verify(exactly = 1) { dialogportenServiceMock.behandleSykmelding(sykmelding) }
+            verify(exactly = 1) { dialogportenServiceMock.opprettOgLagreDialog(sykmelding) }
         }
 
         test("Behandle gyldig sykepengesøknad") {
@@ -39,7 +39,7 @@ class MeldingTolkerTest :
             val dialogportenServiceMock = mockk<DialogportenService>()
             val unleashFeatureTogglesMock = mockk<UnleashFeatureToggles>()
 
-            every { dialogportenServiceMock.behandleSykepengesoknad(any()) } just Runs
+            every { dialogportenServiceMock.oppdaterDialog(any()) } just Runs
             every { unleashFeatureTogglesMock.skalOppdatereDialogVedMottattSoknad(sykepengesoknad.orgnr) } returns true
 
             val meldingTolker =
@@ -50,6 +50,6 @@ class MeldingTolkerTest :
 
             meldingTolker.lesMelding(melding)
 
-            verify(exactly = 1) { dialogportenServiceMock.behandleSykepengesoknad(sykepengesoknad) }
+            verify(exactly = 1) { dialogportenServiceMock.oppdaterDialog(sykepengesoknad) }
         }
     })

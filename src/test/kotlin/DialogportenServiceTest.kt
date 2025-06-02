@@ -11,6 +11,7 @@ import no.nav.helsearbeidsgiver.DialogRepository
 import no.nav.helsearbeidsgiver.Env
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenClient
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
+import no.nav.helsearbeidsgiver.utils.json.toJson
 import java.util.UUID
 
 class DialogportenServiceTest :
@@ -34,11 +35,11 @@ class DialogportenServiceTest :
                     any(),
                     any(),
                 )
-            } returns "\"$dialogId\"" // Svaret fra Dialogporten er en UUID-string som er omsluttet av anførselstegn
+            } returns dialogId.toJson().toString()
 
             every { dialogRepositoryMock.lagreDialog(any(), any()) } just Runs
 
-            dialogportenService.behandleSykmelding(sykmelding)
+            dialogportenService.opprettOgLagreDialog(sykmelding)
 
             val forventetUrl =
                 "${Env.Nav.arbeidsgiverApiBaseUrl}/sykmelding/${sykmelding.sykmeldingId}"
@@ -48,7 +49,7 @@ class DialogportenServiceTest :
                     dialogTittel = any(),
                     dialogSammendrag = any(),
                     sykmeldingId = sykepengesoknad.sykmeldingId,
-                    forventetUrl,
+                    sykmeldingJsonUrl = forventetUrl,
                 )
             }
             verify(exactly = 1) {
@@ -71,7 +72,7 @@ class DialogportenServiceTest :
                 )
             } just Runs
 
-            dialogportenService.behandleSykepengesoknad(sykepengesoknad)
+            dialogportenService.oppdaterDialog(sykepengesoknad)
 
             verify(exactly = 1) { dialogRepositoryMock.finnDialogId(sykepengesoknad.sykmeldingId) }
 
@@ -87,7 +88,7 @@ class DialogportenServiceTest :
         test("behandler ignorerer sykepengesøknad dersom vi ikke finner tilhørende dialog i databasen") {
             every { dialogRepositoryMock.finnDialogId(any()) } returns null
 
-            dialogportenService.behandleSykepengesoknad(sykepengesoknad)
+            dialogportenService.oppdaterDialog(sykepengesoknad)
 
             verify(exactly = 1) { dialogRepositoryMock.finnDialogId(sykepengesoknad.sykmeldingId) }
 

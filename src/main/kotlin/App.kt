@@ -32,8 +32,8 @@ fun startServer() {
     logger.info("Setter opp DialogportenService...")
     val dialogportenClient =
         DialogportenClient(
-            baseUrl = Env.Altinn.altinnBaseUrl,
-            ressurs = Env.Altinn.altinnImRessurs,
+            baseUrl = Env.Altinn.baseUrl,
+            ressurs = Env.Altinn.imRessurs,
             getToken = authClient.dialogportenTokenGetter(),
         )
 
