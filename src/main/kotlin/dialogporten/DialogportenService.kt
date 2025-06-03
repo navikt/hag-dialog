@@ -3,7 +3,7 @@ package no.nav.helsearbeidsgiver.dialogporten
 import kotlinx.coroutines.runBlocking
 import no.nav.helsearbeidsgiver.DialogRepository
 import no.nav.helsearbeidsgiver.Env
-import no.nav.helsearbeidsgiver.kafka.Sykepengesoknad
+import no.nav.helsearbeidsgiver.kafka.Sykepengesoeknad
 import no.nav.helsearbeidsgiver.kafka.Sykmelding
 import no.nav.helsearbeidsgiver.kafka.Sykmeldingsperiode
 import no.nav.helsearbeidsgiver.utils.json.fromJson
@@ -23,15 +23,15 @@ class DialogportenService(
         dialogRepository.lagreDialog(dialogId = dialogId, sykmeldingId = sykmelding.sykmeldingId)
     }
 
-    fun oppdaterDialog(sykepengesoknad: Sykepengesoknad) {
-        val dialogId = dialogRepository.finnDialogId(sykmeldingId = sykepengesoknad.sykmeldingId)
+    fun oppdaterDialog(sykepengesoeknad: Sykepengesoeknad) {
+        val dialogId = dialogRepository.finnDialogId(sykmeldingId = sykepengesoeknad.sykmeldingId)
         if (dialogId == null) {
             logger.warn(
-                "Fant ikke dialog for sykmeldingId ${sykepengesoknad.sykmeldingId}. " +
-                    "Klarer derfor ikke oppdatere dialogen med sykepengesøknad ${sykepengesoknad.soknadId}.",
+                "Fant ikke dialog for sykmeldingId ${sykepengesoeknad.sykmeldingId}. " +
+                    "Klarer derfor ikke oppdatere dialogen med sykepengesøknad ${sykepengesoeknad.soeknadId}.",
             )
         } else {
-            oppdaterDialogMedSykepengesoknad(dialogId = dialogId, sykepengesoknad = sykepengesoknad)
+            oppdaterDialogMedSykepengesoeknad(dialogId = dialogId, sykepengesoeknad = sykepengesoeknad)
         }
     }
 
@@ -47,14 +47,14 @@ class DialogportenService(
                 )
         }.fromJson(UuidSerializer)
 
-    private fun oppdaterDialogMedSykepengesoknad(
+    private fun oppdaterDialogMedSykepengesoeknad(
         dialogId: UUID,
-        sykepengesoknad: Sykepengesoknad,
+        sykepengesoeknad: Sykepengesoeknad,
     ) {
         runBlocking {
-            dialogportenClient.oppdaterDialogMedSykepengesoknad(
+            dialogportenClient.oppdaterDialogMedSykepengesoeknad(
                 dialogId = dialogId,
-                soknadJsonUrl = "${Env.Nav.arbeidsgiverApiBaseUrl}/soknad/${sykepengesoknad.soknadId}",
+                soeknadJsonUrl = "${Env.Nav.arbeidsgiverApiBaseUrl}/sykepengesoeknad/${sykepengesoeknad.soeknadId}",
             )
         }
     }
