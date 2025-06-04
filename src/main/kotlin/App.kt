@@ -33,7 +33,7 @@ fun startServer() {
     val dialogportenClient =
         DialogportenClient(
             baseUrl = Env.Altinn.baseUrl,
-            ressurs = Env.Altinn.imRessurs,
+            ressurs = Env.Altinn.dialogportenRessurs,
             getToken = authClient.dialogportenTokenGetter(),
         )
 
