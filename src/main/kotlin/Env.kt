@@ -38,7 +38,7 @@ object Env {
 
     object Altinn {
         val baseUrl = "ALTINN_3_BASE_URL".fromEnv()
-        val imRessurs = "ALTINN_IM_RESSURS".fromEnv()
+        val dialogportenRessurs = "ALTINN_DIALOGPORTEN_RESSURS".fromEnv()
         val tokenAltinn3ExchangeEndpoint =
             "${"ALTINN_3_BASE_URL".fromEnv()}/authentication/api/v1/exchange/maskinporten"
         val dialogportenScope = "DIALOGPORTEN_SCOPE".fromEnv()
