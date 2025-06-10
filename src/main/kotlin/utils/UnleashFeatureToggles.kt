@@ -36,4 +36,11 @@ class UnleashFeatureToggles {
             UnleashContext.builder().addProperty("orgnr", orgnr.toString()).build(),
             false,
         )
+
+    fun skalOppdatereDialogVedMottattInntektsmeldingForespoersel(orgnr: Orgnr): Boolean =
+        defaultUnleash.isEnabled(
+            "forespor-inntektsmelding-via-dialogporten",
+            UnleashContext.builder().addProperty("orgnr", orgnr.toString()).build(),
+            false,
+        )
 }

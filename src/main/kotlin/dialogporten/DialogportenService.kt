@@ -3,6 +3,7 @@ package no.nav.helsearbeidsgiver.dialogporten
 import kotlinx.coroutines.runBlocking
 import no.nav.helsearbeidsgiver.DialogRepository
 import no.nav.helsearbeidsgiver.Env
+import no.nav.helsearbeidsgiver.kafka.Inntektsmeldingforespoersel
 import no.nav.helsearbeidsgiver.kafka.Sykepengesoeknad
 import no.nav.helsearbeidsgiver.kafka.Sykmelding
 import no.nav.helsearbeidsgiver.kafka.Sykmeldingsperiode
@@ -23,7 +24,7 @@ class DialogportenService(
         dialogRepository.lagreDialog(dialogId = dialogId, sykmeldingId = sykmelding.sykmeldingId)
     }
 
-    fun oppdaterDialog(sykepengesoeknad: Sykepengesoeknad) {
+    fun oppdaterDialogMedSykepengesoeknad(sykepengesoeknad: Sykepengesoeknad) {
         val dialogId = dialogRepository.finnDialogId(sykmeldingId = sykepengesoeknad.sykmeldingId)
         if (dialogId == null) {
             logger.warn(
@@ -31,7 +32,30 @@ class DialogportenService(
                     "Klarer derfor ikke oppdatere dialogen med sykepengesøknad ${sykepengesoeknad.soeknadId}.",
             )
         } else {
-            oppdaterDialogMedSykepengesoeknad(dialogId = dialogId, sykepengesoeknad = sykepengesoeknad)
+            runBlocking {
+                dialogportenClient.oppdaterDialogMedSykepengesoeknad(
+                    dialogId = dialogId,
+                    soeknadJsonUrl = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/sykepengesoeknad/${sykepengesoeknad.soeknadId}",
+                )
+            }
+        }
+    }
+
+    fun oppdaterDialogMedInntektsmeldingforespoersel(inntektsmeldingforespoersel: Inntektsmeldingforespoersel) {
+        val dialogId = dialogRepository.finnDialogId(sykmeldingId = inntektsmeldingforespoersel.sykmeldingId)
+        if (dialogId == null) {
+            logger.warn(
+                "Fant ikke dialog for sykmeldingId ${inntektsmeldingforespoersel.sykmeldingId}. " +
+                    "Klarer derfor ikke oppdatere dialogen med inntektsmeldingforespørsel ${inntektsmeldingforespoersel.forespoerselId}.",
+            )
+        } else {
+            runBlocking {
+                dialogportenClient.oppdaterDialogMedInntektsmeldingforespoersel(
+                    dialogId = dialogId,
+                    forespoerselUrl = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/forespoersel/${inntektsmeldingforespoersel.forespoerselId}",
+                    forespoerselDokumentasjonUrl = Env.Nav.arbeidsgiverSykepengerApiSwaggerUrl,
+                )
+            }
         }
     }
 
@@ -43,21 +67,9 @@ class DialogportenService(
                     dialogTittel = "Sykepenger for ${sykmelding.fulltNavn} (f. ${sykmelding.foedselsdato.tilNorskFormat()})",
                     dialogSammendrag = sykmelding.sykmeldingsperioder.getSykmeldingsPerioderString(),
                     sykmeldingId = sykmelding.sykmeldingId,
-                    sykmeldingJsonUrl = "${Env.Nav.arbeidsgiverApiBaseUrl}/sykmelding/${sykmelding.sykmeldingId}",
+                    sykmeldingJsonUrl = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/sykmelding/${sykmelding.sykmeldingId}",
                 )
         }.fromJson(UuidSerializer)
-
-    private fun oppdaterDialogMedSykepengesoeknad(
-        dialogId: UUID,
-        sykepengesoeknad: Sykepengesoeknad,
-    ) {
-        runBlocking {
-            dialogportenClient.oppdaterDialogMedSykepengesoeknad(
-                dialogId = dialogId,
-                soeknadJsonUrl = "${Env.Nav.arbeidsgiverApiBaseUrl}/sykepengesoeknad/${sykepengesoeknad.soeknadId}",
-            )
-        }
-    }
 
     private fun List<Sykmeldingsperiode>.getSykmeldingsPerioderString(): String =
         when (size) {

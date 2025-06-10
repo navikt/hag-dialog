@@ -33,13 +33,12 @@ class MeldingTolkerTest :
         }
 
         test("Behandle gyldig sykepengesøknad") {
-            val sykepengesoeknad = sykepengesoeknad
             val melding = sykepengesoeknad.toJson(Melding.serializer()).toString()
 
             val dialogportenServiceMock = mockk<DialogportenService>()
             val unleashFeatureTogglesMock = mockk<UnleashFeatureToggles>()
 
-            every { dialogportenServiceMock.oppdaterDialog(any()) } just Runs
+            every { dialogportenServiceMock.oppdaterDialogMedSykepengesoeknad(any()) } just Runs
             every { unleashFeatureTogglesMock.skalOppdatereDialogVedMottattSoeknad(sykepengesoeknad.orgnr) } returns true
 
             val meldingTolker =
@@ -50,6 +49,27 @@ class MeldingTolkerTest :
 
             meldingTolker.lesMelding(melding)
 
-            verify(exactly = 1) { dialogportenServiceMock.oppdaterDialog(sykepengesoeknad) }
+            verify(exactly = 1) { dialogportenServiceMock.oppdaterDialogMedSykepengesoeknad(sykepengesoeknad) }
+        }
+
+        test("Behandle gyldig forespørsel om inntektsmelding") {
+            val melding = inntektsmeldingforespoersel.toJson(Melding.serializer()).toString()
+
+            val dialogportenServiceMock = mockk<DialogportenService>()
+            val unleashFeatureTogglesMock = mockk<UnleashFeatureToggles>()
+
+            every { dialogportenServiceMock.oppdaterDialogMedInntektsmeldingforespoersel(any()) } just Runs
+            every { unleashFeatureTogglesMock.skalOppdatereDialogVedMottattInntektsmeldingForespoersel(sykepengesoeknad.orgnr) } returns
+                true
+
+            val meldingTolker =
+                MeldingTolker(
+                    unleashFeatureToggles = unleashFeatureTogglesMock,
+                    dialogportenService = dialogportenServiceMock,
+                )
+
+            meldingTolker.lesMelding(melding)
+
+            verify(exactly = 1) { dialogportenServiceMock.oppdaterDialogMedInntektsmeldingforespoersel(inntektsmeldingforespoersel) }
         }
     })
