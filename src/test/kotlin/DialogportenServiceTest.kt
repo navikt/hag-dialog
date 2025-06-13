@@ -25,7 +25,7 @@ class DialogportenServiceTest :
         val dialogRepositoryMock = mockk<DialogRepository>()
         val dialogportenService = DialogportenService(dialogportenClientMock, dialogRepositoryMock)
 
-        test("behandler sykmelding") {
+        test("oppretter dialog med sykmelding og lagrer dialogId i databasen") {
             val dialogId = UUID.randomUUID()
             coEvery {
                 dialogportenClientMock.opprettDialogMedSykmelding(
@@ -60,7 +60,7 @@ class DialogportenServiceTest :
             }
         }
 
-        test("behandler sykepengesøknad") {
+        test("oppdaterer dialog med sykepengesøknad") {
             val dialogId = UUID.randomUUID()
 
             every { dialogRepositoryMock.finnDialogId(any()) } returns dialogId
@@ -85,7 +85,7 @@ class DialogportenServiceTest :
             }
         }
 
-        test("behandler inntektsmeldingforespørsel") {
+        test("oppdaterer dialog med inntektsmeldingsforespørsel") {
             val dialogId = UUID.randomUUID()
 
             every { dialogRepositoryMock.finnDialogId(any()) } returns dialogId
