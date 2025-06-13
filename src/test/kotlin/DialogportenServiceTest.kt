@@ -102,7 +102,8 @@ class DialogportenServiceTest :
 
             verify(exactly = 1) { dialogRepositoryMock.finnDialogId(inntektsmeldingsforespoersel.sykmeldingId) }
 
-            val forventetForespoerselUrl = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/forespoersel/${inntektsmeldingsforespoersel.forespoerselId}"
+            val forventetForespoerselUrl =
+                "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/forespoersel/${inntektsmeldingsforespoersel.forespoerselId}"
             val forventetDokumentasjonUrl = Env.Nav.arbeidsgiverSykepengerApiSwaggerUrl
 
             coVerify(exactly = 1) {
