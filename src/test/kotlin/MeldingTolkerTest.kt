@@ -12,7 +12,7 @@ import no.nav.helsearbeidsgiver.utils.json.toJson
 
 class MeldingTolkerTest :
     FunSpec({
-        test("Behandle gyldig sykmelding") {
+        test("tolker melding om sykmelding og opprett dialog") {
             val melding = sykmelding.toJson(Melding.serializer()).toString()
 
             val dialogportenServiceMock = mockk<DialogportenService>()
@@ -32,7 +32,7 @@ class MeldingTolkerTest :
             verify(exactly = 1) { dialogportenServiceMock.opprettOgLagreDialog(sykmelding) }
         }
 
-        test("Behandle gyldig sykepengesøknad") {
+        test("tolker sykepengesøknad og oppdaterer dialog") {
             val melding = sykepengesoeknad.toJson(Melding.serializer()).toString()
 
             val dialogportenServiceMock = mockk<DialogportenService>()
@@ -52,7 +52,7 @@ class MeldingTolkerTest :
             verify(exactly = 1) { dialogportenServiceMock.oppdaterDialogMedSykepengesoeknad(sykepengesoeknad) }
         }
 
-        test("Behandle gyldig forespørsel om inntektsmelding") {
+        test("tolker inntektsmeldingsforespoersel og oppdaterer dialog") {
             val melding = inntektsmeldingsforespoersel.toJson(Melding.serializer()).toString()
 
             val dialogportenServiceMock = mockk<DialogportenService>()
