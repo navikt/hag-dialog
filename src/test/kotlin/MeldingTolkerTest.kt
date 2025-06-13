@@ -12,7 +12,7 @@ import no.nav.helsearbeidsgiver.utils.json.toJson
 
 class MeldingTolkerTest :
     FunSpec({
-        test("Behandle gyldig sykmelding") {
+        test("tolker melding om sykmelding og opprett dialog") {
             val melding = sykmelding.toJson(Melding.serializer()).toString()
 
             val dialogportenServiceMock = mockk<DialogportenService>()
@@ -32,14 +32,13 @@ class MeldingTolkerTest :
             verify(exactly = 1) { dialogportenServiceMock.opprettOgLagreDialog(sykmelding) }
         }
 
-        test("Behandle gyldig sykepengesøknad") {
-            val sykepengesoeknad = sykepengesoeknad
+        test("tolker sykepengesøknad og oppdaterer dialog") {
             val melding = sykepengesoeknad.toJson(Melding.serializer()).toString()
 
             val dialogportenServiceMock = mockk<DialogportenService>()
             val unleashFeatureTogglesMock = mockk<UnleashFeatureToggles>()
 
-            every { dialogportenServiceMock.oppdaterDialog(any()) } just Runs
+            every { dialogportenServiceMock.oppdaterDialogMedSykepengesoeknad(any()) } just Runs
             every { unleashFeatureTogglesMock.skalOppdatereDialogVedMottattSoeknad(sykepengesoeknad.orgnr) } returns true
 
             val meldingTolker =
@@ -50,6 +49,27 @@ class MeldingTolkerTest :
 
             meldingTolker.lesMelding(melding)
 
-            verify(exactly = 1) { dialogportenServiceMock.oppdaterDialog(sykepengesoeknad) }
+            verify(exactly = 1) { dialogportenServiceMock.oppdaterDialogMedSykepengesoeknad(sykepengesoeknad) }
+        }
+
+        test("tolker inntektsmeldingsforespoersel og oppdaterer dialog") {
+            val melding = inntektsmeldingsforespoersel.toJson(Melding.serializer()).toString()
+
+            val dialogportenServiceMock = mockk<DialogportenService>()
+            val unleashFeatureTogglesMock = mockk<UnleashFeatureToggles>()
+
+            every { dialogportenServiceMock.oppdaterDialogMedInntektsmeldingsforespoersel(any()) } just Runs
+            every { unleashFeatureTogglesMock.skalOppdatereDialogVedMottattInntektsmeldingsforespoersel(sykepengesoeknad.orgnr) } returns
+                true
+
+            val meldingTolker =
+                MeldingTolker(
+                    unleashFeatureToggles = unleashFeatureTogglesMock,
+                    dialogportenService = dialogportenServiceMock,
+                )
+
+            meldingTolker.lesMelding(melding)
+
+            verify(exactly = 1) { dialogportenServiceMock.oppdaterDialogMedInntektsmeldingsforespoersel(inntektsmeldingsforespoersel) }
         }
     })

@@ -1,3 +1,4 @@
+import no.nav.helsearbeidsgiver.kafka.Inntektsmeldingsforespoersel
 import no.nav.helsearbeidsgiver.kafka.Sykepengesoeknad
 import no.nav.helsearbeidsgiver.kafka.Sykmelding
 import no.nav.helsearbeidsgiver.kafka.Sykmeldingsperiode
@@ -28,4 +29,11 @@ val sykepengesoeknad =
         sykmeldingId = sykmelding.sykmeldingId,
         orgnr = orgnr,
         soeknadId = UUID.randomUUID(),
+    )
+
+val inntektsmeldingsforespoersel =
+    Inntektsmeldingsforespoersel(
+        forespoerselId = UUID.randomUUID(),
+        sykmeldingId = sykmelding.sykmeldingId,
+        orgnr = orgnr,
     )

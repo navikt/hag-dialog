@@ -19,6 +19,9 @@ spec:
     limits:
       memory: "1024Mi"
   observability:
+    logging:
+      destinations:
+        - id: loki
     autoInstrumentation:
       enabled: true
       runtime: java
