@@ -53,7 +53,7 @@ class DialogportenService(
                 dialogportenClient.oppdaterDialogMedInntektsmeldingsforespoersel(
                     dialogId = dialogId,
                     forespoerselUrl = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/forespoersel/${inntektsmeldingsforespoersel.forespoerselId}",
-                    forespoerselDokumentasjonUrl = Env.Nav.arbeidsgiverSykepengerApiSwaggerUrl,
+                    forespoerselDokumentasjonUrl = "${Env.Nav.arbeidsgiverApiBaseUrl}/swagger",
                 )
             }
         }

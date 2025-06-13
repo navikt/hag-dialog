@@ -104,7 +104,7 @@ class DialogportenServiceTest :
 
             val forventetForespoerselUrl =
                 "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/forespoersel/${inntektsmeldingsforespoersel.forespoerselId}"
-            val forventetDokumentasjonUrl = Env.Nav.arbeidsgiverSykepengerApiSwaggerUrl
+            val forventetDokumentasjonUrl = "${Env.Nav.arbeidsgiverApiBaseUrl}/swagger"
 
             coVerify(exactly = 1) {
                 dialogportenClientMock.oppdaterDialogMedInntektsmeldingsforespoersel(

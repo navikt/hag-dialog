@@ -30,7 +30,6 @@ object Env {
 
     object Nav {
         val arbeidsgiverApiBaseUrl = "arbeidsgiver.apiBaseUrl".fromEnv()
-        val arbeidsgiverSykepengerApiSwaggerUrl = "arbeidsgiver.apiSwaggerUrl".fromEnv()
     }
 
     object Nais {
