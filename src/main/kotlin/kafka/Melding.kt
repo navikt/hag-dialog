@@ -33,8 +33,8 @@ data class Sykepengesoeknad(
 ) : Melding()
 
 @Serializable
-@SerialName("Inntektsmeldingforespoersel")
-data class Inntektsmeldingforespoersel(
+@SerialName("Inntektsmeldingsforespoersel")
+data class Inntektsmeldingsforespoersel(
     val forespoerselId: UUID,
     val sykmeldingId: UUID,
     val orgnr: Orgnr,

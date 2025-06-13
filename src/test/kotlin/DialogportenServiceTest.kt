@@ -91,22 +91,22 @@ class DialogportenServiceTest :
             every { dialogRepositoryMock.finnDialogId(any()) } returns dialogId
 
             coEvery {
-                dialogportenClientMock.oppdaterDialogMedInntektsmeldingforespoersel(
+                dialogportenClientMock.oppdaterDialogMedInntektsmeldingsforespoersel(
                     any(),
                     any(),
                     any(),
                 )
             } just Runs
 
-            dialogportenService.oppdaterDialogMedInntektsmeldingforespoersel(inntektsmeldingforespoersel)
+            dialogportenService.oppdaterDialogMedInntektsmeldingsforespoersel(inntektsmeldingsforespoersel)
 
-            verify(exactly = 1) { dialogRepositoryMock.finnDialogId(inntektsmeldingforespoersel.sykmeldingId) }
+            verify(exactly = 1) { dialogRepositoryMock.finnDialogId(inntektsmeldingsforespoersel.sykmeldingId) }
 
-            val forventetForespoerselUrl = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/forespoersel/${inntektsmeldingforespoersel.forespoerselId}"
+            val forventetForespoerselUrl = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/forespoersel/${inntektsmeldingsforespoersel.forespoerselId}"
             val forventetDokumentasjonUrl = Env.Nav.arbeidsgiverSykepengerApiSwaggerUrl
 
             coVerify(exactly = 1) {
-                dialogportenClientMock.oppdaterDialogMedInntektsmeldingforespoersel(
+                dialogportenClientMock.oppdaterDialogMedInntektsmeldingsforespoersel(
                     dialogId,
                     forventetForespoerselUrl,
                     forventetDokumentasjonUrl,
@@ -132,12 +132,12 @@ class DialogportenServiceTest :
         test("ignorerer inntektsmeldingforespørsel dersom vi ikke finner tilhørende dialog i databasen") {
             every { dialogRepositoryMock.finnDialogId(any()) } returns null
 
-            dialogportenService.oppdaterDialogMedInntektsmeldingforespoersel(inntektsmeldingforespoersel)
+            dialogportenService.oppdaterDialogMedInntektsmeldingsforespoersel(inntektsmeldingsforespoersel)
 
-            verify(exactly = 1) { dialogRepositoryMock.finnDialogId(inntektsmeldingforespoersel.sykmeldingId) }
+            verify(exactly = 1) { dialogRepositoryMock.finnDialogId(inntektsmeldingsforespoersel.sykmeldingId) }
 
             coVerify(exactly = 0) {
-                dialogportenClientMock.oppdaterDialogMedInntektsmeldingforespoersel(
+                dialogportenClientMock.oppdaterDialogMedInntektsmeldingsforespoersel(
                     any(),
                     any(),
                     any(),

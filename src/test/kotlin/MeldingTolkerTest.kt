@@ -53,13 +53,13 @@ class MeldingTolkerTest :
         }
 
         test("Behandle gyldig forespørsel om inntektsmelding") {
-            val melding = inntektsmeldingforespoersel.toJson(Melding.serializer()).toString()
+            val melding = inntektsmeldingsforespoersel.toJson(Melding.serializer()).toString()
 
             val dialogportenServiceMock = mockk<DialogportenService>()
             val unleashFeatureTogglesMock = mockk<UnleashFeatureToggles>()
 
-            every { dialogportenServiceMock.oppdaterDialogMedInntektsmeldingforespoersel(any()) } just Runs
-            every { unleashFeatureTogglesMock.skalOppdatereDialogVedMottattInntektsmeldingForespoersel(sykepengesoeknad.orgnr) } returns
+            every { dialogportenServiceMock.oppdaterDialogMedInntektsmeldingsforespoersel(any()) } just Runs
+            every { unleashFeatureTogglesMock.skalOppdatereDialogVedMottattInntektsmeldingsforespoersel(sykepengesoeknad.orgnr) } returns
                 true
 
             val meldingTolker =
@@ -70,6 +70,6 @@ class MeldingTolkerTest :
 
             meldingTolker.lesMelding(melding)
 
-            verify(exactly = 1) { dialogportenServiceMock.oppdaterDialogMedInntektsmeldingforespoersel(inntektsmeldingforespoersel) }
+            verify(exactly = 1) { dialogportenServiceMock.oppdaterDialogMedInntektsmeldingsforespoersel(inntektsmeldingsforespoersel) }
         }
     })

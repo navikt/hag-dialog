@@ -3,7 +3,7 @@ package no.nav.helsearbeidsgiver.dialogporten
 import kotlinx.coroutines.runBlocking
 import no.nav.helsearbeidsgiver.DialogRepository
 import no.nav.helsearbeidsgiver.Env
-import no.nav.helsearbeidsgiver.kafka.Inntektsmeldingforespoersel
+import no.nav.helsearbeidsgiver.kafka.Inntektsmeldingsforespoersel
 import no.nav.helsearbeidsgiver.kafka.Sykepengesoeknad
 import no.nav.helsearbeidsgiver.kafka.Sykmelding
 import no.nav.helsearbeidsgiver.kafka.Sykmeldingsperiode
@@ -41,18 +41,18 @@ class DialogportenService(
         }
     }
 
-    fun oppdaterDialogMedInntektsmeldingforespoersel(inntektsmeldingforespoersel: Inntektsmeldingforespoersel) {
-        val dialogId = dialogRepository.finnDialogId(sykmeldingId = inntektsmeldingforespoersel.sykmeldingId)
+    fun oppdaterDialogMedInntektsmeldingsforespoersel(inntektsmeldingsforespoersel: Inntektsmeldingsforespoersel) {
+        val dialogId = dialogRepository.finnDialogId(sykmeldingId = inntektsmeldingsforespoersel.sykmeldingId)
         if (dialogId == null) {
             logger.warn(
-                "Fant ikke dialog for sykmeldingId ${inntektsmeldingforespoersel.sykmeldingId}. " +
-                    "Klarer derfor ikke oppdatere dialogen med inntektsmeldingforespørsel ${inntektsmeldingforespoersel.forespoerselId}.",
+                "Fant ikke dialog for sykmeldingId ${inntektsmeldingsforespoersel.sykmeldingId}. " +
+                    "Klarer derfor ikke oppdatere dialogen med inntektsmeldingforespørsel ${inntektsmeldingsforespoersel.forespoerselId}.",
             )
         } else {
             runBlocking {
-                dialogportenClient.oppdaterDialogMedInntektsmeldingforespoersel(
+                dialogportenClient.oppdaterDialogMedInntektsmeldingsforespoersel(
                     dialogId = dialogId,
-                    forespoerselUrl = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/forespoersel/${inntektsmeldingforespoersel.forespoerselId}",
+                    forespoerselUrl = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/forespoersel/${inntektsmeldingsforespoersel.forespoerselId}",
                     forespoerselDokumentasjonUrl = Env.Nav.arbeidsgiverSykepengerApiSwaggerUrl,
                 )
             }
