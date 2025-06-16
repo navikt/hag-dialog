@@ -27,29 +27,33 @@ class MeldingTolker(
             when (dekodetMelding) {
                 is Sykmelding -> {
                     if (unleashFeatureToggles.skalOppretteDialogVedMottattSykmelding(orgnr = dekodetMelding.orgnr)) {
-                        logger.info("Oppretter dialog for sykmelding.")
                         dialogportenService.opprettOgLagreDialog(sykmelding = dekodetMelding)
                     } else {
-                        logger.info("Feature toggle for dialogopprettelse for sykmelding er avskrudd, ignorerer melding.")
+                        logger.info(
+                            "Feature toggle for dialogopprettelse for sykmelding er avskrudd, " +
+                                "ignorerer melding for sykmeldingId ${dekodetMelding.sykmeldingId}.",
+                        )
                     }
                 }
 
                 is Sykepengesoeknad -> {
                     if (unleashFeatureToggles.skalOppdatereDialogVedMottattSoeknad(orgnr = dekodetMelding.orgnr)) {
-                        logger.info("Oppdaterer dialog med sykepengesøknad.")
                         dialogportenService.oppdaterDialogMedSykepengesoeknad(sykepengesoeknad = dekodetMelding)
                     } else {
-                        logger.info("Feature toggle for oppdatering av dialog med sykepengesøknad er avskrudd, ignorerer melding.")
+                        logger.info(
+                            "Feature toggle for oppdatering av dialog med sykepengesøknad er avskrudd, " +
+                                "ignorerer melding for sykepengesøknadId ${dekodetMelding.soeknadId}.",
+                        )
                     }
                 }
 
                 is Inntektsmeldingsforespoersel -> {
                     if (unleashFeatureToggles.skalOppdatereDialogVedMottattInntektsmeldingsforespoersel(orgnr = dekodetMelding.orgnr)) {
-                        logger.info("Oppdaterer dialog med forespørsel om inntektsmelding.")
                         dialogportenService.oppdaterDialogMedInntektsmeldingsforespoersel(inntektsmeldingsforespoersel = dekodetMelding)
                     } else {
                         logger.info(
-                            "Feature toggle for oppdatering av dialog med forespørsel om inntektsmelding er avskrudd, ignorerer melding.",
+                            "Feature toggle for oppdatering av dialog med forespørsel om inntektsmelding er avskrudd, " +
+                                "ignorerer melding for forespørselId ${dekodetMelding.forespoerselId}.",
                         )
                     }
                 }
