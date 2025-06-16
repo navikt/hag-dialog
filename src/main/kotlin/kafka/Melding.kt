@@ -2,6 +2,7 @@
 
 package no.nav.helsearbeidsgiver.kafka
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateSerializer
@@ -14,6 +15,7 @@ import java.util.UUID
 sealed class Melding
 
 @Serializable
+@SerialName("Sykmelding")
 data class Sykmelding(
     val sykmeldingId: UUID,
     val orgnr: Orgnr,
@@ -23,6 +25,7 @@ data class Sykmelding(
 ) : Melding()
 
 @Serializable
+@SerialName("Sykepengesoeknad")
 data class Sykepengesoeknad(
     val soeknadId: UUID,
     val sykmeldingId: UUID,
@@ -30,6 +33,7 @@ data class Sykepengesoeknad(
 ) : Melding()
 
 @Serializable
+@SerialName("Inntektsmeldingsforespoersel")
 data class Inntektsmeldingsforespoersel(
     val forespoerselId: UUID,
     val sykmeldingId: UUID,
