@@ -22,6 +22,7 @@ class DialogportenService(
     fun opprettOgLagreDialog(sykmelding: Sykmelding) {
         val dialogId = opprettNyDialogMedSykmelding(sykmelding)
         dialogRepository.lagreDialog(dialogId = dialogId, sykmeldingId = sykmelding.sykmeldingId)
+        logger.info("Opprettet dialog $dialogId for sykmelding ${sykmelding.sykmeldingId}.")
     }
 
     fun oppdaterDialogMedSykepengesoeknad(sykepengesoeknad: Sykepengesoeknad) {
@@ -38,6 +39,9 @@ class DialogportenService(
                     soeknadJsonUrl = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/sykepengesoeknad/${sykepengesoeknad.soeknadId}",
                 )
             }
+            logger.info(
+                "Oppdaterte dialog $dialogId tilhørende sykmelding ${sykepengesoeknad.sykmeldingId} med sykepengesøknad ${sykepengesoeknad.soeknadId}.",
+            )
         }
     }
 
@@ -56,6 +60,10 @@ class DialogportenService(
                     forespoerselDokumentasjonUrl = "${Env.Nav.arbeidsgiverApiBaseUrl}/swagger",
                 )
             }
+            logger.info(
+                "Oppdaterte dialog $dialogId tilhørende sykmelding ${inntektsmeldingsforespoersel.sykmeldingId} " +
+                    "med forespørsel om inntektsmelding med id ${inntektsmeldingsforespoersel.forespoerselId}.",
+            )
         }
     }
 
