@@ -37,6 +37,9 @@ spec:
     outbound:
       external:
         - host: helsearbeidsgiver-unleash-api.nav.cloud.nais.io
+      rules:
+        - application: logging
+          namespace: nais-system
   maskinporten:
     enabled: true
     scopes:

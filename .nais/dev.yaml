@@ -38,6 +38,9 @@ spec:
       external:
         - host: platform.tt02.altinn.no
         - host: helsearbeidsgiver-unleash-api.nav.cloud.nais.io
+      rules:
+        - application: logging
+          namespace: nais-system
   maskinporten:
     enabled: true
     scopes:
