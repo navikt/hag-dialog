@@ -3,6 +3,7 @@ package no.nav.helsearbeidsgiver.dialogporten
 import kotlinx.coroutines.runBlocking
 import no.nav.helsearbeidsgiver.DialogRepository
 import no.nav.helsearbeidsgiver.Env
+import no.nav.helsearbeidsgiver.kafka.Inntektsmelding
 import no.nav.helsearbeidsgiver.kafka.Inntektsmeldingsforespoersel
 import no.nav.helsearbeidsgiver.kafka.Sykepengesoeknad
 import no.nav.helsearbeidsgiver.kafka.Sykmelding
@@ -63,6 +64,27 @@ class DialogportenService(
             logger.info(
                 "Oppdaterte dialog $dialogId tilhørende sykmelding ${inntektsmeldingsforespoersel.sykmeldingId} " +
                     "med forespørsel om inntektsmelding med id ${inntektsmeldingsforespoersel.forespoerselId}.",
+            )
+        }
+    }
+
+    fun oppdaterDialogMedInntektsmelding(inntektsmelding: Inntektsmelding) {
+        val dialogId = dialogRepository.finnDialogId(sykmeldingId = inntektsmelding.sykmeldingId)
+        if (dialogId == null) {
+            logger.warn(
+                "Fant ikke dialog for sykmeldingId ${inntektsmelding.sykmeldingId}. " +
+                    "Klarer derfor ikke oppdatere dialogen med inntektsmelding.",
+            )
+        } else {
+            runBlocking {
+                dialogportenClient.oppdaterDialogMedInntektsmelding(
+                    dialogId = dialogId,
+                    inntektsmeldingUrl = "${Env.Nav.arbeidsgiverApiBaseUrl}/swagger",
+                    relatertForespoerselId = inntektsmelding.forespoerselId,
+                )
+            }
+            logger.info(
+                "Oppdaterte dialog $dialogId tilhørende sykmelding ${inntektsmelding.sykmeldingId} med inntektsmelding.",
             )
         }
     }

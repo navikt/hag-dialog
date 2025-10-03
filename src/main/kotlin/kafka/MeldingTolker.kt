@@ -57,6 +57,12 @@ class MeldingTolker(
                         )
                     }
                 }
+                is Inntektsmelding -> {
+                    dialogportenService.oppdaterDialogMedInntektsmelding(dekodetMelding)
+                    logger.info(
+                        "Ignorerer inntektsmelding med id ${dekodetMelding.innsendingsId} fordi den ikke skal lagres eller behandles.",
+                    )
+                }
             }
         }.getOrElse { e ->
             sikkerLogger.error("Klarte ikke opprette/oppdatere dialog. Avbryter.", e)
