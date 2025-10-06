@@ -2,10 +2,19 @@ import no.nav.helsearbeidsgiver.kafka.Inntektsmeldingsforespoersel
 import no.nav.helsearbeidsgiver.kafka.Sykepengesoeknad
 import no.nav.helsearbeidsgiver.kafka.Sykmelding
 import no.nav.helsearbeidsgiver.kafka.Sykmeldingsperiode
+import no.nav.helsearbeidsgiver.utils.json.toJson
 import no.nav.helsearbeidsgiver.utils.test.wrapper.genererGyldig
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import java.time.LocalDate
 import java.util.UUID
+
+fun main() {
+    println(sykmelding.toJson(Sykmelding.serializer()).toString())
+    println(sykepengesoeknad.toJson(Sykepengesoeknad.serializer()).toString())
+    println(
+        inntektsmeldingsforespoersel.toJson(Inntektsmeldingsforespoersel.serializer()).toString(),
+    )
+}
 
 val orgnr = Orgnr.genererGyldig()
 

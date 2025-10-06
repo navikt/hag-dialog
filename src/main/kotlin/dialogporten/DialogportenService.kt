@@ -80,7 +80,6 @@ class DialogportenService(
                 dialogportenClient.oppdaterDialogMedInntektsmelding(
                     dialogId = dialogId,
                     inntektsmeldingUrl = "${Env.Nav.arbeidsgiverApiBaseUrl}/swagger",
-                    relatertForespoerselId = inntektsmelding.forespoerselId,
                 )
             }
             logger.info(
