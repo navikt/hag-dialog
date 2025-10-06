@@ -3,8 +3,10 @@ package no.nav.helsearbeidsgiver.dialogporten
 import kotlinx.coroutines.runBlocking
 import no.nav.helsearbeidsgiver.DialogRepository
 import no.nav.helsearbeidsgiver.Env
+import no.nav.helsearbeidsgiver.dialogporten.domene.Transmission
 import no.nav.helsearbeidsgiver.kafka.Inntektsmelding
 import no.nav.helsearbeidsgiver.kafka.Inntektsmeldingsforespoersel
+import no.nav.helsearbeidsgiver.kafka.Status
 import no.nav.helsearbeidsgiver.kafka.Sykepengesoeknad
 import no.nav.helsearbeidsgiver.kafka.Sykmelding
 import no.nav.helsearbeidsgiver.kafka.Sykmeldingsperiode
@@ -70,6 +72,13 @@ class DialogportenService(
 
     fun oppdaterDialogMedInntektsmelding(inntektsmelding: Inntektsmelding) {
         val dialogId = dialogRepository.finnDialogId(sykmeldingId = inntektsmelding.sykmeldingId)
+
+        val transmissionType =
+            when (inntektsmelding.status) {
+                Status.MOTTATT -> Transmission.TransmissionType.Submission
+                Status.AVVVIST -> Transmission.TransmissionType.Rejection
+                Status.GODKJENT -> Transmission.TransmissionType.Acceptance
+            }
         if (dialogId == null) {
             logger.warn(
                 "Fant ikke dialog for sykmeldingId ${inntektsmelding.sykmeldingId}. " +
@@ -80,6 +89,7 @@ class DialogportenService(
                 dialogportenClient.oppdaterDialogMedInntektsmelding(
                     dialogId = dialogId,
                     inntektsmeldingUrl = "${Env.Nav.arbeidsgiverApiBaseUrl}/swagger",
+                    transmissionType = transmissionType,
                 )
             }
             logger.info(
