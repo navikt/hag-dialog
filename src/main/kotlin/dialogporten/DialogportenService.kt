@@ -3,12 +3,14 @@ package no.nav.helsearbeidsgiver.dialogporten
 import kotlinx.coroutines.runBlocking
 import no.nav.helsearbeidsgiver.DialogRepository
 import no.nav.helsearbeidsgiver.Env
+import no.nav.helsearbeidsgiver.dialogporten.domene.Content
+import no.nav.helsearbeidsgiver.dialogporten.domene.CreateDialogRequest
+import no.nav.helsearbeidsgiver.dialogporten.domene.DialogStatus
+import no.nav.helsearbeidsgiver.dialogporten.domene.lagContentValue
 import no.nav.helsearbeidsgiver.kafka.Inntektsmeldingsforespoersel
 import no.nav.helsearbeidsgiver.kafka.Sykepengesoeknad
 import no.nav.helsearbeidsgiver.kafka.Sykmelding
 import no.nav.helsearbeidsgiver.kafka.Sykmeldingsperiode
-import no.nav.helsearbeidsgiver.utils.json.fromJson
-import no.nav.helsearbeidsgiver.utils.json.serializer.UuidSerializer
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.tilNorskFormat
 import java.util.UUID
@@ -16,6 +18,8 @@ import java.util.UUID
 class DialogportenService(
     private val dialogportenClient: DialogportenClient,
     private val dialogRepository: DialogRepository,
+    private val dialogportenKlient: DialogportenKlient,
+    private val ressurs: String,
 ) {
     private val logger = logger()
 
@@ -69,15 +73,27 @@ class DialogportenService(
 
     private fun opprettNyDialogMedSykmelding(sykmelding: Sykmelding): UUID =
         runBlocking {
-            dialogportenClient
-                .opprettDialogMedSykmelding(
-                    orgnr = sykmelding.orgnr.toString(),
-                    dialogTittel = "Sykepenger for ${sykmelding.fulltNavn} (f. ${sykmelding.foedselsdato.tilNorskFormat()})",
-                    dialogSammendrag = sykmelding.sykmeldingsperioder.getSykmeldingsPerioderString(),
-                    sykmeldingId = sykmelding.sykmeldingId,
-                    sykmeldingJsonUrl = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/sykmelding/${sykmelding.sykmeldingId}",
+            val request =
+                CreateDialogRequest(
+                    serviceResource = ressurs,
+                    party = "urn:altinn:organization:identifier-no:${sykmelding.orgnr}",
+                    externalRefererence = sykmelding.sykmeldingId.toString(),
+                    status = DialogStatus.New,
+                    content =
+                        Content(
+                            title =
+                                "Sykepenger for ${sykmelding.fulltNavn} (f. ${sykmelding.foedselsdato.tilNorskFormat()})"
+                                    .lagContentValue(),
+                            summary =
+                                sykmelding.sykmeldingsperioder
+                                    .getSykmeldingsPerioderString()
+                                    .lagContentValue(),
+                        ),
+                    transmissions = emptyList(),
+                    isApiOnly = true,
                 )
-        }.fromJson(UuidSerializer)
+            dialogportenKlient.createDialog(request)
+        }
 
     private fun List<Sykmeldingsperiode>.getSykmeldingsPerioderString(): String =
         when (size) {
