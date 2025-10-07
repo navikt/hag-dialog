@@ -75,7 +75,7 @@ class DialogportenService(
         runBlocking {
             val request =
                 CreateDialogRequest(
-                    serviceResource = ressurs,
+                    serviceResource = "urn:altinn:resource:$ressurs",
                     party = "urn:altinn:organization:identifier-no:${sykmelding.orgnr}",
                     externalRefererence = sykmelding.sykmeldingId.toString(),
                     status = DialogStatus.New,
