@@ -4,6 +4,7 @@ import io.mockk.Runs
 import io.mockk.clearAllMocks
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.coVerifySequence
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
@@ -13,6 +14,7 @@ import no.nav.helsearbeidsgiver.Env
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenClient
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenKlient
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
+import no.nav.helsearbeidsgiver.dialogporten.domene.ApiAction
 import no.nav.helsearbeidsgiver.dialogporten.domene.Content
 import no.nav.helsearbeidsgiver.dialogporten.domene.CreateDialogRequest
 import no.nav.helsearbeidsgiver.dialogporten.domene.DialogStatus
@@ -74,7 +76,7 @@ class DialogportenServiceTest :
                                     vedleggType = Transmission.ExtendedType.SYKMELDING,
                                     vedleggNavn = "Sykmelding.json",
                                     vedleggUrl = forventetUrl,
-                                    vedleggMediaType = ContentType.Application.Json.contentType,
+                                    vedleggMediaType = ContentType.Application.Json.toString(),
                                     vedleggConsumerType = Transmission.AttachmentUrlConsumerType.Api,
                                 ),
                             ),
@@ -110,7 +112,7 @@ class DialogportenServiceTest :
             coVerify(exactly = 1) {
                 dialogportenKlientMock.addTransmission(
                     dialogId,
-                    any(),
+                    any<Transmission>(),
                 )
             }
         }
@@ -121,27 +123,25 @@ class DialogportenServiceTest :
             every { dialogRepositoryMock.finnDialogId(any()) } returns dialogId
 
             coEvery {
-                dialogportenClientMock.oppdaterDialogMedInntektsmeldingsforespoersel(
-                    any(),
+                dialogportenKlientMock.addTransmission(
                     any(),
                     any(),
                 )
+            } returns UUID.randomUUID()
+            coEvery {
+                dialogportenKlientMock.addAction(any(), any())
             } just Runs
 
             dialogportenService.oppdaterDialogMedInntektsmeldingsforespoersel(inntektsmeldingsforespoersel)
 
             verify(exactly = 1) { dialogRepositoryMock.finnDialogId(inntektsmeldingsforespoersel.sykmeldingId) }
 
-            val forventetForespoerselUrl =
-                "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/forespoersel/${inntektsmeldingsforespoersel.forespoerselId}"
-            val forventetDokumentasjonUrl = "${Env.Nav.arbeidsgiverApiBaseUrl}/swagger"
-
-            coVerify(exactly = 1) {
-                dialogportenClientMock.oppdaterDialogMedInntektsmeldingsforespoersel(
+            coVerifySequence {
+                dialogportenKlientMock.addTransmission(
                     dialogId,
-                    forventetForespoerselUrl,
-                    forventetDokumentasjonUrl,
+                    any<Transmission>(),
                 )
+                dialogportenKlientMock.addAction(dialogId, any<ApiAction>())
             }
         }
 
@@ -153,7 +153,7 @@ class DialogportenServiceTest :
             verify(exactly = 1) { dialogRepositoryMock.finnDialogId(sykepengesoeknad.sykmeldingId) }
 
             coVerify(exactly = 0) {
-                dialogportenClientMock.oppdaterDialogMedSykepengesoeknad(
+                dialogportenKlientMock.addTransmission(
                     any(),
                     any(),
                 )
@@ -168,8 +168,7 @@ class DialogportenServiceTest :
             verify(exactly = 1) { dialogRepositoryMock.finnDialogId(inntektsmeldingsforespoersel.sykmeldingId) }
 
             coVerify(exactly = 0) {
-                dialogportenClientMock.oppdaterDialogMedInntektsmeldingsforespoersel(
-                    any(),
+                dialogportenKlientMock.addTransmission(
                     any(),
                     any(),
                 )

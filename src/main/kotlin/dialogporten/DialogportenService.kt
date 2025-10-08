@@ -4,6 +4,7 @@ import io.ktor.http.ContentType
 import kotlinx.coroutines.runBlocking
 import no.nav.helsearbeidsgiver.DialogRepository
 import no.nav.helsearbeidsgiver.Env
+import no.nav.helsearbeidsgiver.dialogporten.domene.ApiAction
 import no.nav.helsearbeidsgiver.dialogporten.domene.Content
 import no.nav.helsearbeidsgiver.dialogporten.domene.ContentValueItem
 import no.nav.helsearbeidsgiver.dialogporten.domene.CreateDialogRequest
@@ -49,7 +50,7 @@ class DialogportenService(
                             vedleggType = Transmission.ExtendedType.SYKEPENGESOEKNAD,
                             vedleggNavn = "soeknad-om-sykepenger.json",
                             vedleggUrl = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/sykepengesoeknad/${sykepengesoeknad.soeknadId}",
-                            vedleggMediaType = "application/json",
+                            vedleggMediaType = ContentType.Application.Json.toString(),
                             vedleggConsumerType = Transmission.AttachmentUrlConsumerType.Api,
                         ),
                     )
@@ -71,16 +72,39 @@ class DialogportenService(
             )
         } else {
             runBlocking {
-                dialogportenClient.oppdaterDialogMedInntektsmeldingsforespoersel(
-                    dialogId = dialogId,
-                    forespoerselUrl = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/forespoersel/${inntektsmeldingsforespoersel.forespoerselId}",
-                    forespoerselDokumentasjonUrl = "${Env.Nav.arbeidsgiverApiBaseUrl}/swagger",
+                val transmissionId =
+                    dialogportenKlient.addTransmission(
+                        dialogId,
+                        lagVedleggTransmission(
+                            transmissionTittel = "Forespørsel om inntektsmelding",
+                            vedleggType = Transmission.ExtendedType.INNTEKTSMELDING,
+                            vedleggNavn = "Inntektsmeldingforespoersel.json",
+                            vedleggUrl = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/forespoersel/${inntektsmeldingsforespoersel.forespoerselId}",
+                            vedleggMediaType = ContentType.Application.Json.toString(),
+                            vedleggConsumerType = Transmission.AttachmentUrlConsumerType.Api,
+                        ),
+                    )
+
+                dialogportenKlient.addAction(
+                    dialogId,
+                    ApiAction(
+                        name = "Send inn inntektsmelding",
+                        endpoints =
+                            listOf(
+                                ApiAction.Endpoint(
+                                    url = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/inntektsmelding",
+                                    httpMethod = ApiAction.HttpMethod.POST,
+                                    documentationUrl = "${Env.Nav.arbeidsgiverApiBaseUrl}/swagger",
+                                ),
+                            ),
+                    ),
+                )
+                logger.info(
+                    "Oppdaterte dialog $dialogId for sykmelding ${inntektsmeldingsforespoersel.sykmeldingId} " +
+                        "med forespørsel om inntektsmelding med id ${inntektsmeldingsforespoersel.forespoerselId}." +
+                        "Lagt til transmission $transmissionId.",
                 )
             }
-            logger.info(
-                "Oppdaterte dialog $dialogId tilhørende sykmelding ${inntektsmeldingsforespoersel.sykmeldingId} " +
-                    "med forespørsel om inntektsmelding med id ${inntektsmeldingsforespoersel.forespoerselId}.",
-            )
         }
     }
 
@@ -109,7 +133,7 @@ class DialogportenService(
                                 vedleggType = Transmission.ExtendedType.SYKMELDING,
                                 vedleggNavn = "Sykmelding.json",
                                 vedleggUrl = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/sykmelding/${sykmelding.sykmeldingId}",
-                                vedleggMediaType = ContentType.Application.Json.contentType,
+                                vedleggMediaType = ContentType.Application.Json.toString(),
                                 vedleggConsumerType = Transmission.AttachmentUrlConsumerType.Api,
                             ),
                         ),
