@@ -10,6 +10,7 @@ import io.mockk.verify
 import no.nav.helsearbeidsgiver.DialogRepository
 import no.nav.helsearbeidsgiver.Env
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenClient
+import no.nav.helsearbeidsgiver.dialogporten.DialogportenKlient
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
 import java.util.UUID
 
@@ -22,8 +23,8 @@ class DialogportenServiceTest :
 
         val dialogportenClientMock = mockk<DialogportenClient>()
         val dialogRepositoryMock = mockk<DialogRepository>()
-
-        val dialogportenService = DialogportenService(dialogportenClientMock, dialogRepositoryMock, mockk(), "testressurs")
+        val dialogportenKlientMock = mockk<DialogportenKlient>()
+        val dialogportenService = DialogportenService(dialogportenClientMock, dialogRepositoryMock, dialogportenKlientMock, "testressurs")
 
 //        test("oppretter dialog med sykmelding og lagrer dialogId i databasen") {
 //            val dialogId = UUID.randomUUID()
@@ -66,11 +67,11 @@ class DialogportenServiceTest :
             every { dialogRepositoryMock.finnDialogId(any()) } returns dialogId
 
             coEvery {
-                dialogportenClientMock.oppdaterDialogMedSykepengesoeknad(
+                dialogportenKlientMock.addTransmission(
                     any(),
                     any(),
                 )
-            } just Runs
+            } returns UUID.randomUUID()
 
             dialogportenService.oppdaterDialogMedSykepengesoeknad(sykepengesoeknad)
 
@@ -78,9 +79,9 @@ class DialogportenServiceTest :
 
             val forventetUrl = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/sykepengesoeknad/${sykepengesoeknad.soeknadId}"
             coVerify(exactly = 1) {
-                dialogportenClientMock.oppdaterDialogMedSykepengesoeknad(
+                dialogportenKlientMock.addTransmission(
                     dialogId,
-                    forventetUrl,
+                    any(),
                 )
             }
         }

@@ -41,14 +41,24 @@ class DialogportenService(
             )
         } else {
             runBlocking {
-                dialogportenClient.oppdaterDialogMedSykepengesoeknad(
-                    dialogId = dialogId,
-                    soeknadJsonUrl = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/sykepengesoeknad/${sykepengesoeknad.soeknadId}",
+                val transmissionId =
+                    dialogportenKlient.addTransmission(
+                        dialogId,
+                        lagVedleggTransmission(
+                            transmissionTittel = "Søknad om sykepenger",
+                            vedleggType = Transmission.ExtendedType.SYKEPENGESOEKNAD,
+                            vedleggNavn = "soeknad-om-sykepenger.json",
+                            vedleggUrl = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/sykepengesoeknad/${sykepengesoeknad.soeknadId}",
+                            vedleggMediaType = "application/json",
+                            vedleggConsumerType = Transmission.AttachmentUrlConsumerType.Api,
+                        ),
+                    )
+                logger.info(
+                    "Oppdaterte dialog $dialogId for sykmelding ${sykepengesoeknad.sykmeldingId}" +
+                        " med sykepengesøknad ${sykepengesoeknad.soeknadId}. " +
+                        "Lagt til transmission $transmissionId.",
                 )
             }
-            logger.info(
-                "Oppdaterte dialog $dialogId tilhørende sykmelding ${sykepengesoeknad.sykmeldingId} med sykepengesøknad ${sykepengesoeknad.soeknadId}.",
-            )
         }
     }
 
