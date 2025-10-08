@@ -117,16 +117,9 @@ class DialogportenService(
                 )
             dialogportenKlient.createDialog(request)
         }
-
-    private fun List<Sykmeldingsperiode>.getSykmeldingsPerioderString(): String =
-        when (size) {
-            1 -> "Sykmeldingsperiode ${first().fom.tilNorskFormat()} – ${first().tom.tilNorskFormat()}"
-            else ->
-                "Sykmeldingsperioder ${first().fom.tilNorskFormat()} – (...) – ${last().tom.tilNorskFormat()}"
-        }
 }
 
-private fun lagVedleggTransmission(
+fun lagVedleggTransmission(
     transmissionTittel: String,
     transmissionSammendrag: String? = null,
     vedleggType: Transmission.ExtendedType,
@@ -159,3 +152,10 @@ private fun lagVedleggTransmission(
                 ),
             ),
     )
+
+fun List<Sykmeldingsperiode>.getSykmeldingsPerioderString(): String =
+    when (size) {
+        1 -> "Sykmeldingsperiode ${first().fom.tilNorskFormat()} – ${first().tom.tilNorskFormat()}"
+        else ->
+            "Sykmeldingsperioder ${first().fom.tilNorskFormat()} – (...) – ${last().tom.tilNorskFormat()}"
+    }
