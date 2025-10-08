@@ -1,11 +1,14 @@
 package no.nav.helsearbeidsgiver.dialogporten
 
+import io.ktor.http.ContentType
 import kotlinx.coroutines.runBlocking
 import no.nav.helsearbeidsgiver.DialogRepository
 import no.nav.helsearbeidsgiver.Env
 import no.nav.helsearbeidsgiver.dialogporten.domene.Content
+import no.nav.helsearbeidsgiver.dialogporten.domene.ContentValueItem
 import no.nav.helsearbeidsgiver.dialogporten.domene.CreateDialogRequest
 import no.nav.helsearbeidsgiver.dialogporten.domene.DialogStatus
+import no.nav.helsearbeidsgiver.dialogporten.domene.Transmission
 import no.nav.helsearbeidsgiver.dialogporten.domene.lagContentValue
 import no.nav.helsearbeidsgiver.kafka.Inntektsmeldingsforespoersel
 import no.nav.helsearbeidsgiver.kafka.Sykepengesoeknad
@@ -89,7 +92,17 @@ class DialogportenService(
                                     .getSykmeldingsPerioderString()
                                     .lagContentValue(),
                         ),
-                    transmissions = emptyList(),
+                    transmissions =
+                        listOf(
+                            lagVedleggTransmission(
+                                transmissionTittel = "Sykmelding",
+                                vedleggType = Transmission.ExtendedType.SYKMELDING,
+                                vedleggNavn = "Sykmelding.json",
+                                vedleggUrl = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/sykmelding/${sykmelding.sykmeldingId}",
+                                vedleggMediaType = ContentType.Application.Json.contentType,
+                                vedleggConsumerType = Transmission.AttachmentUrlConsumerType.Api,
+                            ),
+                        ),
                     isApiOnly = true,
                 )
             dialogportenKlient.createDialog(request)
@@ -102,3 +115,37 @@ class DialogportenService(
                 "Sykmeldingsperioder ${first().fom.tilNorskFormat()} – (...) – ${last().tom.tilNorskFormat()}"
         }
 }
+
+private fun lagVedleggTransmission(
+    transmissionTittel: String,
+    transmissionSammendrag: String? = null,
+    vedleggType: Transmission.ExtendedType,
+    vedleggNavn: String,
+    vedleggUrl: String,
+    vedleggMediaType: String,
+    vedleggConsumerType: Transmission.AttachmentUrlConsumerType,
+): Transmission =
+    Transmission(
+        type = Transmission.TransmissionType.Information,
+        extendedType = vedleggType,
+        sender = Transmission.Sender("ServiceOwner"),
+        content =
+            Content(
+                title = transmissionTittel.lagContentValue(),
+                summary = transmissionSammendrag?.lagContentValue(),
+            ),
+        attachments =
+            listOf(
+                Transmission.Attachment(
+                    displayName = listOf(ContentValueItem(vedleggNavn)),
+                    urls =
+                        listOf(
+                            Transmission.Url(
+                                url = vedleggUrl,
+                                mediaType = vedleggMediaType,
+                                consumerType = vedleggConsumerType,
+                            ),
+                        ),
+                ),
+            ),
+    )
