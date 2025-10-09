@@ -3,6 +3,8 @@ package no.nav.helsearbeidsgiver
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import io.ktor.server.routing.routing
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import no.nav.helsearbeidsgiver.auth.AuthClient
 import no.nav.helsearbeidsgiver.auth.dialogportenTokenGetter
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenClient
@@ -51,17 +53,19 @@ fun startServer() {
             routing {
                 naisRoutes(HelsesjekkService(database.db))
             }
-            startKafkaConsumer(
-                meldingTolker =
-                    MeldingTolker(
-                        unleashFeatureToggles = unleashFeatureToggles,
-                        dialogportenService =
-                            DialogportenService(
-                                dialogportenClient,
-                                dialogRepository,
-                            ),
-                    ),
-            )
+            launch(Dispatchers.Default) {
+                startKafkaConsumer(
+                    meldingTolker =
+                        MeldingTolker(
+                            unleashFeatureToggles = unleashFeatureToggles,
+                            dialogportenService =
+                                DialogportenService(
+                                    dialogportenClient,
+                                    dialogRepository,
+                                ),
+                        ),
+                )
+            }
         },
     ).start(wait = true)
 }
