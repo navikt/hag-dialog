@@ -107,7 +107,6 @@ class DialogportenServiceTest :
 
             verify(exactly = 1) { dialogRepositoryMock.finnDialogId(sykepengesoeknad.sykmeldingId) }
 
-            val forventetUrl = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/sykepengesoeknad/${sykepengesoeknad.soeknadId}"
             coVerify(exactly = 1) {
                 dialogportenClientMock.addTransmission(
                     dialogId,
