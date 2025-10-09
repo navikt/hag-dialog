@@ -7,10 +7,10 @@ import no.nav.helsearbeidsgiver.Env
 import no.nav.helsearbeidsgiver.dialogporten.domene.ApiAction
 import no.nav.helsearbeidsgiver.dialogporten.domene.Content
 import no.nav.helsearbeidsgiver.dialogporten.domene.ContentValueItem
-import no.nav.helsearbeidsgiver.dialogporten.domene.CreateDialogRequest
+import no.nav.helsearbeidsgiver.dialogporten.domene.Dialog
 import no.nav.helsearbeidsgiver.dialogporten.domene.DialogStatus
 import no.nav.helsearbeidsgiver.dialogporten.domene.Transmission
-import no.nav.helsearbeidsgiver.dialogporten.domene.lagContentValue
+import no.nav.helsearbeidsgiver.dialogporten.domene.create
 import no.nav.helsearbeidsgiver.kafka.Inntektsmeldingsforespoersel
 import no.nav.helsearbeidsgiver.kafka.Sykepengesoeknad
 import no.nav.helsearbeidsgiver.kafka.Sykmelding
@@ -20,9 +20,8 @@ import no.nav.helsearbeidsgiver.utils.tilNorskFormat
 import java.util.UUID
 
 class DialogportenService(
-    private val dialogportenClient: DialogportenClient,
     private val dialogRepository: DialogRepository,
-    private val dialogportenKlient: DialogportenKlient,
+    private val dialogportenClient: DialogportenClient,
     private val ressurs: String,
 ) {
     private val logger = logger()
@@ -43,15 +42,16 @@ class DialogportenService(
         } else {
             runBlocking {
                 val transmissionId =
-                    dialogportenKlient.addTransmission(
+                    dialogportenClient.addTransmission(
                         dialogId,
-                        lagVedleggTransmission(
+                        lagTransmissionMedVedlegg(
                             transmissionTittel = "Søknad om sykepenger",
-                            vedleggType = Transmission.ExtendedType.SYKEPENGESOEKNAD,
+                            extendedType = LpsApiExtendedType.SYKEPENGESOEKNAD,
                             vedleggNavn = "soeknad-om-sykepenger.json",
                             vedleggUrl = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/sykepengesoeknad/${sykepengesoeknad.soeknadId}",
                             vedleggMediaType = ContentType.Application.Json.toString(),
                             vedleggConsumerType = Transmission.AttachmentUrlConsumerType.Api,
+                            type = Transmission.TransmissionType.Information,
                         ),
                     )
                 logger.info(
@@ -73,19 +73,20 @@ class DialogportenService(
         } else {
             runBlocking {
                 val transmissionId =
-                    dialogportenKlient.addTransmission(
+                    dialogportenClient.addTransmission(
                         dialogId,
-                        lagVedleggTransmission(
+                        lagTransmissionMedVedlegg(
                             transmissionTittel = "Forespørsel om inntektsmelding",
-                            vedleggType = Transmission.ExtendedType.INNTEKTSMELDING,
+                            extendedType = LpsApiExtendedType.INNTEKTSMELDING,
                             vedleggNavn = "Inntektsmeldingforespoersel.json",
                             vedleggUrl = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/forespoersel/${inntektsmeldingsforespoersel.forespoerselId}",
                             vedleggMediaType = ContentType.Application.Json.toString(),
                             vedleggConsumerType = Transmission.AttachmentUrlConsumerType.Api,
+                            type = Transmission.TransmissionType.Request,
                         ),
                     )
 
-                dialogportenKlient.addAction(
+                dialogportenClient.addAction(
                     dialogId,
                     ApiAction(
                         name = "Send inn inntektsmelding",
@@ -97,6 +98,7 @@ class DialogportenService(
                                     documentationUrl = "${Env.Nav.arbeidsgiverApiBaseUrl}/swagger",
                                 ),
                             ),
+                        action = ApiAction.Action.WRITE.value,
                     ),
                 )
                 logger.info(
@@ -111,55 +113,55 @@ class DialogportenService(
     private fun opprettNyDialogMedSykmelding(sykmelding: Sykmelding): UUID =
         runBlocking {
             val request =
-                CreateDialogRequest(
+                Dialog(
                     serviceResource = "urn:altinn:resource:$ressurs",
                     party = "urn:altinn:organization:identifier-no:${sykmelding.orgnr}",
                     externalRefererence = sykmelding.sykmeldingId.toString(),
                     status = DialogStatus.New,
                     content =
-                        Content(
+                        Content.create(
                             title =
-                                "Sykepenger for ${sykmelding.fulltNavn} (f. ${sykmelding.foedselsdato.tilNorskFormat()})"
-                                    .lagContentValue(),
+                                "Sykepenger for ${sykmelding.fulltNavn} (f. ${sykmelding.foedselsdato.tilNorskFormat()})",
                             summary =
                                 sykmelding.sykmeldingsperioder
-                                    .getSykmeldingsPerioderString()
-                                    .lagContentValue(),
+                                    .getSykmeldingsPerioderString(),
                         ),
                     transmissions =
                         listOf(
-                            lagVedleggTransmission(
+                            lagTransmissionMedVedlegg(
                                 transmissionTittel = "Sykmelding",
-                                vedleggType = Transmission.ExtendedType.SYKMELDING,
+                                extendedType = LpsApiExtendedType.SYKMELDING,
                                 vedleggNavn = "Sykmelding.json",
                                 vedleggUrl = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/sykmelding/${sykmelding.sykmeldingId}",
                                 vedleggMediaType = ContentType.Application.Json.toString(),
                                 vedleggConsumerType = Transmission.AttachmentUrlConsumerType.Api,
+                                type = Transmission.TransmissionType.Information,
                             ),
                         ),
                     isApiOnly = true,
                 )
-            dialogportenKlient.createDialog(request)
+            dialogportenClient.createDialog(request)
         }
 }
 
-fun lagVedleggTransmission(
+fun lagTransmissionMedVedlegg(
     transmissionTittel: String,
     transmissionSammendrag: String? = null,
-    vedleggType: Transmission.ExtendedType,
+    extendedType: LpsApiExtendedType,
     vedleggNavn: String,
     vedleggUrl: String,
     vedleggMediaType: String,
     vedleggConsumerType: Transmission.AttachmentUrlConsumerType,
+    type: Transmission.TransmissionType,
 ): Transmission =
     Transmission(
-        type = Transmission.TransmissionType.Information,
-        extendedType = vedleggType,
+        type = type,
+        extendedType = extendedType.toString(),
         sender = Transmission.Sender("ServiceOwner"),
         content =
-            Content(
-                title = transmissionTittel.lagContentValue(),
-                summary = transmissionSammendrag?.lagContentValue(),
+            Content.create(
+                title = transmissionTittel,
+                summary = transmissionSammendrag,
             ),
         attachments =
             listOf(

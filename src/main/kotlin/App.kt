@@ -5,7 +5,6 @@ import io.ktor.server.netty.Netty
 import no.nav.helsearbeidsgiver.auth.AuthClient
 import no.nav.helsearbeidsgiver.auth.dialogportenTokenGetter
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenClient
-import no.nav.helsearbeidsgiver.dialogporten.DialogportenKlient
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
 import no.nav.helsearbeidsgiver.kafka.MeldingTolker
 import no.nav.helsearbeidsgiver.kafka.startKafkaConsumer
@@ -31,15 +30,9 @@ fun startServer() {
     val authClient = AuthClient()
 
     logger.info("Setter opp DialogportenService...")
-    val dialogportenClient =
-        DialogportenClient(
-            baseUrl = Env.Altinn.baseUrl,
-            ressurs = Env.Altinn.dialogportenRessurs,
-            getToken = authClient.dialogportenTokenGetter(),
-        )
 
     val dialogportenKlient =
-        DialogportenKlient(
+        DialogportenClient(
             baseUrl = Env.Altinn.baseUrl,
             getToken = authClient.dialogportenTokenGetter(),
         )
@@ -57,7 +50,6 @@ fun startServer() {
                         unleashFeatureToggles = unleashFeatureToggles,
                         dialogportenService =
                             DialogportenService(
-                                dialogportenClient,
                                 dialogRepository,
                                 dialogportenKlient,
                                 Env.Altinn.dialogportenRessurs,

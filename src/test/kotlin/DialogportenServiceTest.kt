@@ -12,16 +12,16 @@ import io.mockk.verify
 import no.nav.helsearbeidsgiver.DialogRepository
 import no.nav.helsearbeidsgiver.Env
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenClient
-import no.nav.helsearbeidsgiver.dialogporten.DialogportenKlient
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
+import no.nav.helsearbeidsgiver.dialogporten.LpsApiExtendedType
 import no.nav.helsearbeidsgiver.dialogporten.domene.ApiAction
 import no.nav.helsearbeidsgiver.dialogporten.domene.Content
-import no.nav.helsearbeidsgiver.dialogporten.domene.CreateDialogRequest
+import no.nav.helsearbeidsgiver.dialogporten.domene.Dialog
 import no.nav.helsearbeidsgiver.dialogporten.domene.DialogStatus
 import no.nav.helsearbeidsgiver.dialogporten.domene.Transmission
-import no.nav.helsearbeidsgiver.dialogporten.domene.lagContentValue
+import no.nav.helsearbeidsgiver.dialogporten.domene.create
 import no.nav.helsearbeidsgiver.dialogporten.getSykmeldingsPerioderString
-import no.nav.helsearbeidsgiver.dialogporten.lagVedleggTransmission
+import no.nav.helsearbeidsgiver.dialogporten.lagTransmissionMedVedlegg
 import no.nav.helsearbeidsgiver.utils.tilNorskFormat
 import java.util.UUID
 
@@ -34,14 +34,14 @@ class DialogportenServiceTest :
 
         val dialogportenClientMock = mockk<DialogportenClient>()
         val dialogRepositoryMock = mockk<DialogRepository>()
-        val dialogportenKlientMock = mockk<DialogportenKlient>()
+
         val ressurs = "testressurs"
-        val dialogportenService = DialogportenService(dialogportenClientMock, dialogRepositoryMock, dialogportenKlientMock, ressurs)
+        val dialogportenService = DialogportenService(dialogRepositoryMock, dialogportenClientMock, ressurs)
 
         test("oppretter dialog med sykmelding og lagrer dialogId i databasen") {
             val dialogId = UUID.randomUUID()
             coEvery {
-                dialogportenKlientMock.createDialog(
+                dialogportenClientMock.createDialog(
                     any(),
                 )
             } returns dialogId
@@ -53,31 +53,30 @@ class DialogportenServiceTest :
             val forventetUrl =
                 "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/sykmelding/${sykmelding.sykmeldingId}"
             coVerify(exactly = 1) {
-                dialogportenKlientMock.createDialog(
-                    CreateDialogRequest(
+                dialogportenClientMock.createDialog(
+                    Dialog(
                         serviceResource = "urn:altinn:resource:$ressurs",
                         party = "urn:altinn:organization:identifier-no:${sykmelding.orgnr}",
                         externalRefererence = sykmelding.sykmeldingId.toString(),
                         status = DialogStatus.New,
                         content =
-                            Content(
+                            Content.create(
                                 title =
-                                    "Sykepenger for ${sykmelding.fulltNavn} (f. ${sykmelding.foedselsdato.tilNorskFormat()})"
-                                        .lagContentValue(),
+                                    "Sykepenger for ${sykmelding.fulltNavn} (f. ${sykmelding.foedselsdato.tilNorskFormat()})",
                                 summary =
                                     sykmelding.sykmeldingsperioder
-                                        .getSykmeldingsPerioderString()
-                                        .lagContentValue(),
+                                        .getSykmeldingsPerioderString(),
                             ),
                         transmissions =
                             listOf(
-                                lagVedleggTransmission(
+                                lagTransmissionMedVedlegg(
                                     transmissionTittel = "Sykmelding",
-                                    vedleggType = Transmission.ExtendedType.SYKMELDING,
+                                    extendedType = LpsApiExtendedType.SYKMELDING,
                                     vedleggNavn = "Sykmelding.json",
                                     vedleggUrl = forventetUrl,
                                     vedleggMediaType = ContentType.Application.Json.toString(),
                                     vedleggConsumerType = Transmission.AttachmentUrlConsumerType.Api,
+                                    type = Transmission.TransmissionType.Information,
                                 ),
                             ),
                         isApiOnly = true,
@@ -98,7 +97,7 @@ class DialogportenServiceTest :
             every { dialogRepositoryMock.finnDialogId(any()) } returns dialogId
 
             coEvery {
-                dialogportenKlientMock.addTransmission(
+                dialogportenClientMock.addTransmission(
                     any(),
                     any(),
                 )
@@ -110,7 +109,7 @@ class DialogportenServiceTest :
 
             val forventetUrl = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/sykepengesoeknad/${sykepengesoeknad.soeknadId}"
             coVerify(exactly = 1) {
-                dialogportenKlientMock.addTransmission(
+                dialogportenClientMock.addTransmission(
                     dialogId,
                     any<Transmission>(),
                 )
@@ -123,13 +122,13 @@ class DialogportenServiceTest :
             every { dialogRepositoryMock.finnDialogId(any()) } returns dialogId
 
             coEvery {
-                dialogportenKlientMock.addTransmission(
+                dialogportenClientMock.addTransmission(
                     any(),
                     any(),
                 )
             } returns UUID.randomUUID()
             coEvery {
-                dialogportenKlientMock.addAction(any(), any())
+                dialogportenClientMock.addAction(any(), any())
             } just Runs
 
             dialogportenService.oppdaterDialogMedInntektsmeldingsforespoersel(inntektsmeldingsforespoersel)
@@ -137,11 +136,11 @@ class DialogportenServiceTest :
             verify(exactly = 1) { dialogRepositoryMock.finnDialogId(inntektsmeldingsforespoersel.sykmeldingId) }
 
             coVerifySequence {
-                dialogportenKlientMock.addTransmission(
+                dialogportenClientMock.addTransmission(
                     dialogId,
                     any<Transmission>(),
                 )
-                dialogportenKlientMock.addAction(dialogId, any<ApiAction>())
+                dialogportenClientMock.addAction(dialogId, any<ApiAction>())
             }
         }
 
@@ -153,7 +152,7 @@ class DialogportenServiceTest :
             verify(exactly = 1) { dialogRepositoryMock.finnDialogId(sykepengesoeknad.sykmeldingId) }
 
             coVerify(exactly = 0) {
-                dialogportenKlientMock.addTransmission(
+                dialogportenClientMock.addTransmission(
                     any(),
                     any(),
                 )
@@ -168,7 +167,7 @@ class DialogportenServiceTest :
             verify(exactly = 1) { dialogRepositoryMock.finnDialogId(inntektsmeldingsforespoersel.sykmeldingId) }
 
             coVerify(exactly = 0) {
-                dialogportenKlientMock.addTransmission(
+                dialogportenClientMock.addTransmission(
                     any(),
                     any(),
                 )
