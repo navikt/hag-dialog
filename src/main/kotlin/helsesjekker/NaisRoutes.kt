@@ -15,13 +15,17 @@ fun Route.naisRoutes(helseSjekkService: HelsesjekkService) {
 
 private fun Route.isAlive() {
     get("/is-alive") {
-        call.respond(HttpStatusCode.OK, "Alive")
+        if (ShutDownAppState.shutDownApp) {
+            call.respond(HttpStatusCode.InternalServerError, "Not Alive")
+        } else {
+            call.respond(HttpStatusCode.OK, "Alive")
+        }
     }
 }
 
 private fun Route.isReady(helseSjekkService: HelsesjekkService) {
     get("/is-ready") {
-        if (helseSjekkService.databaseIsAlive()) {
+        if (helseSjekkService.databaseIsAlive() && !ShutDownAppState.shutDownApp) {
             call.respond(HttpStatusCode.OK, "Ready")
         } else {
             call.respond(HttpStatusCode.InternalServerError, "Not Ready")
