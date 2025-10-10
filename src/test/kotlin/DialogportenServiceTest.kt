@@ -11,6 +11,7 @@ import no.nav.helsearbeidsgiver.DialogRepository
 import no.nav.helsearbeidsgiver.Env
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenClient
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
+import no.nav.helsearbeidsgiver.utils.json.toJson
 import java.util.UUID
 
 class DialogportenServiceTest :
@@ -24,40 +25,40 @@ class DialogportenServiceTest :
         val dialogRepositoryMock = mockk<DialogRepository>()
         val dialogportenService = DialogportenService(dialogportenClientMock, dialogRepositoryMock)
 
-//        test("oppretter dialog med sykmelding og lagrer dialogId i databasen") {
-//            val dialogId = UUID.randomUUID()
-//            coEvery {
-//                dialogportenClientMock.opprettDialogMedSykmelding(
-//                    any(),
-//                    any(),
-//                    any(),
-//                    any(),
-//                    any(),
-//                )
-//            } returns dialogId.toJson().toString()
-//
-//            every { dialogRepositoryMock.lagreDialog(any(), any()) } just Runs
-//
-//            dialogportenService.opprettOgLagreDialog(sykmelding)
-//
-//            val forventetUrl =
-//                "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/sykmelding/${sykmelding.sykmeldingId}"
-//            coVerify(exactly = 1) {
-//                dialogportenClientMock.opprettDialogMedSykmelding(
-//                    orgnr = sykmelding.orgnr.toString(),
-//                    dialogTittel = any(),
-//                    dialogSammendrag = any(),
-//                    sykmeldingId = sykepengesoeknad.sykmeldingId,
-//                    sykmeldingJsonUrl = forventetUrl,
-//                )
-//            }
-//            verify(exactly = 1) {
-//                dialogRepositoryMock.lagreDialog(
-//                    dialogId = dialogId,
-//                    sykmeldingId = sykepengesoeknad.sykmeldingId,
-//                )
-//            }
-//        }
+        test("oppretter dialog med sykmelding og lagrer dialogId i databasen") {
+            val dialogId = UUID.randomUUID()
+            coEvery {
+                dialogportenClientMock.opprettDialogMedSykmelding(
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                    any(),
+                )
+            } returns dialogId.toJson().toString()
+
+            every { dialogRepositoryMock.lagreDialog(any(), any()) } just Runs
+
+            dialogportenService.opprettOgLagreDialog(sykmelding)
+
+            val forventetUrl =
+                "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/sykmelding/${sykmelding.sykmeldingId}"
+            coVerify(exactly = 1) {
+                dialogportenClientMock.opprettDialogMedSykmelding(
+                    orgnr = sykmelding.orgnr.toString(),
+                    dialogTittel = any(),
+                    dialogSammendrag = any(),
+                    sykmeldingId = sykepengesoeknad.sykmeldingId,
+                    sykmeldingJsonUrl = forventetUrl,
+                )
+            }
+            verify(exactly = 1) {
+                dialogRepositoryMock.lagreDialog(
+                    dialogId = dialogId,
+                    sykmeldingId = sykepengesoeknad.sykmeldingId,
+                )
+            }
+        }
 
         test("oppdaterer dialog med sykepengesøknad") {
             val dialogId = UUID.randomUUID()

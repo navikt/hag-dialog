@@ -20,7 +20,6 @@ class DialogportenService(
     private val logger = logger()
 
     fun opprettOgLagreDialog(sykmelding: Sykmelding) {
-        throw RuntimeException("Kaster en feil i DialogportenService midlertidig for å teste restart av applikasjonen.")
         val dialogId = opprettNyDialogMedSykmelding(sykmelding)
         dialogRepository.lagreDialog(dialogId = dialogId, sykmeldingId = sykmelding.sykmeldingId)
         logger.info("Opprettet dialog $dialogId for sykmelding ${sykmelding.sykmeldingId}.")
