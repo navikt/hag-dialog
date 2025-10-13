@@ -15,11 +15,8 @@ import no.nav.helsearbeidsgiver.dialogporten.DialogportenClient
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
 import no.nav.helsearbeidsgiver.dialogporten.LpsApiExtendedType
 import no.nav.helsearbeidsgiver.dialogporten.domene.ApiAction
-import no.nav.helsearbeidsgiver.dialogporten.domene.Content
-import no.nav.helsearbeidsgiver.dialogporten.domene.Dialog
-import no.nav.helsearbeidsgiver.dialogporten.domene.DialogStatus
+import no.nav.helsearbeidsgiver.dialogporten.domene.CreateDialogRequest
 import no.nav.helsearbeidsgiver.dialogporten.domene.Transmission
-import no.nav.helsearbeidsgiver.dialogporten.domene.create
 import no.nav.helsearbeidsgiver.dialogporten.getSykmeldingsPerioderString
 import no.nav.helsearbeidsgiver.dialogporten.lagTransmissionMedVedlegg
 import no.nav.helsearbeidsgiver.utils.tilNorskFormat
@@ -52,21 +49,17 @@ class DialogportenServiceTest :
 
             val forventetUrl =
                 "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/sykmelding/${sykmelding.sykmeldingId}"
+
             coVerify(exactly = 1) {
                 dialogportenClientMock.createDialog(
-                    Dialog(
-                        serviceResource = "urn:altinn:resource:$ressurs",
-                        party = "urn:altinn:organization:identifier-no:${sykmelding.orgnr}",
-                        externalRefererence = sykmelding.sykmeldingId.toString(),
-                        status = DialogStatus.New,
-                        content =
-                            Content.create(
-                                title =
-                                    "Sykepenger for ${sykmelding.fulltNavn} (f. ${sykmelding.foedselsdato.tilNorskFormat()})",
-                                summary =
-                                    sykmelding.sykmeldingsperioder
-                                        .getSykmeldingsPerioderString(),
-                            ),
+                    CreateDialogRequest(
+                        orgnr = orgnr,
+                        externalReference = sykmelding.sykmeldingId.toString(),
+                        title =
+                            "Sykepenger for ${sykmelding.fulltNavn} (f. ${sykmelding.foedselsdato.tilNorskFormat()})",
+                        summary =
+                            sykmelding.sykmeldingsperioder
+                                .getSykmeldingsPerioderString(),
                         transmissions =
                             listOf(
                                 lagTransmissionMedVedlegg(

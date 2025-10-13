@@ -7,8 +7,7 @@ import no.nav.helsearbeidsgiver.Env
 import no.nav.helsearbeidsgiver.dialogporten.domene.ApiAction
 import no.nav.helsearbeidsgiver.dialogporten.domene.Content
 import no.nav.helsearbeidsgiver.dialogporten.domene.ContentValueItem
-import no.nav.helsearbeidsgiver.dialogporten.domene.Dialog
-import no.nav.helsearbeidsgiver.dialogporten.domene.DialogStatus
+import no.nav.helsearbeidsgiver.dialogporten.domene.CreateDialogRequest
 import no.nav.helsearbeidsgiver.dialogporten.domene.Transmission
 import no.nav.helsearbeidsgiver.dialogporten.domene.create
 import no.nav.helsearbeidsgiver.kafka.Inntektsmeldingsforespoersel
@@ -113,19 +112,14 @@ class DialogportenService(
     private fun opprettNyDialogMedSykmelding(sykmelding: Sykmelding): UUID =
         runBlocking {
             val request =
-                Dialog(
-                    serviceResource = "urn:altinn:resource:$ressurs",
-                    party = "urn:altinn:organization:identifier-no:${sykmelding.orgnr}",
-                    externalRefererence = sykmelding.sykmeldingId.toString(),
-                    status = DialogStatus.New,
-                    content =
-                        Content.create(
-                            title =
-                                "Sykepenger for ${sykmelding.fulltNavn} (f. ${sykmelding.foedselsdato.tilNorskFormat()})",
-                            summary =
-                                sykmelding.sykmeldingsperioder
-                                    .getSykmeldingsPerioderString(),
-                        ),
+                CreateDialogRequest(
+                    orgnr = sykmelding.orgnr,
+                    externalReference = sykmelding.sykmeldingId.toString(),
+                    title =
+                        "Sykepenger for ${sykmelding.fulltNavn} (f. ${sykmelding.foedselsdato.tilNorskFormat()})",
+                    summary =
+                        sykmelding.sykmeldingsperioder
+                            .getSykmeldingsPerioderString(),
                     transmissions =
                         listOf(
                             lagTransmissionMedVedlegg(
