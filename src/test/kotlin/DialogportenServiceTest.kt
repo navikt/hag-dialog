@@ -32,8 +32,7 @@ class DialogportenServiceTest :
         val dialogportenClientMock = mockk<DialogportenClient>()
         val dialogRepositoryMock = mockk<DialogRepository>()
 
-        val ressurs = "testressurs"
-        val dialogportenService = DialogportenService(dialogRepositoryMock, dialogportenClientMock, ressurs)
+        val dialogportenService = DialogportenService(dialogRepositoryMock, dialogportenClientMock)
 
         test("oppretter dialog med sykmelding og lagrer dialogId i databasen") {
             val dialogId = UUID.randomUUID()

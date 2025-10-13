@@ -21,7 +21,6 @@ import java.util.UUID
 class DialogportenService(
     private val dialogRepository: DialogRepository,
     private val dialogportenClient: DialogportenClient,
-    private val ressurs: String,
 ) {
     private val logger = logger()
 
