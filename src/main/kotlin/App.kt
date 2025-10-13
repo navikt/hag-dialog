@@ -2,12 +2,13 @@ package no.nav.helsearbeidsgiver
 
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
+import io.ktor.server.routing.routing
 import no.nav.helsearbeidsgiver.auth.AuthClient
 import no.nav.helsearbeidsgiver.auth.dialogportenTokenGetter
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenClient
-import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
-import no.nav.helsearbeidsgiver.kafka.MeldingTolker
-import no.nav.helsearbeidsgiver.kafka.startKafkaConsumer
+import no.nav.helsearbeidsgiver.helsesjekker.HelsesjekkService
+import no.nav.helsearbeidsgiver.helsesjekker.naisRoutes
+import no.nav.helsearbeidsgiver.kafka.configureKafkaConsumer
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import org.slf4j.LoggerFactory
 
@@ -29,14 +30,14 @@ fun startServer() {
     val unleashFeatureToggles = UnleashFeatureToggles()
     val authClient = AuthClient()
 
-    logger.info("Setter opp DialogportenService...")
-
-    val dialogportenKlient =
+    logger.info("Setter opp DialogportenClient...")
+    val dialogportenClient =
         DialogportenClient(
             baseUrl = Env.Altinn.baseUrl,
-            getToken = authClient.dialogportenTokenGetter(),
             ressurs = Env.Altinn.dialogportenRessurs,
+            getToken = authClient.dialogportenTokenGetter(),
         )
+
     logger.info("Setter opp DialogRepository...")
     val dialogRepository = DialogRepository(database.db)
 
@@ -45,18 +46,10 @@ fun startServer() {
         factory = Netty,
         port = 8080,
         module = {
-            startKafkaConsumer(
-                meldingTolker =
-                    MeldingTolker(
-                        unleashFeatureToggles = unleashFeatureToggles,
-                        dialogportenService =
-                            DialogportenService(
-                                dialogRepository,
-                                dialogportenKlient,
-                                Env.Altinn.dialogportenRessurs,
-                            ),
-                    ),
-            )
+            routing {
+                naisRoutes(HelsesjekkService(database.db))
+            }
+            configureKafkaConsumer(unleashFeatureToggles, dialogportenClient, dialogRepository)
         },
     ).start(wait = true)
 }
