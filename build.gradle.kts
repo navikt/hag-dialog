@@ -80,6 +80,7 @@ dependencies {
     testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
     testImplementation("io.mockk:mockk:$mockkVersion")
     testImplementation("org.testcontainers:postgresql:$testcontainersVersion")
+    testImplementation("io.ktor:ktor-server-test-host")
 }
 
 tasks {
