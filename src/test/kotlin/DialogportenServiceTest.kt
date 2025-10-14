@@ -17,8 +17,8 @@ import no.nav.helsearbeidsgiver.dialogporten.LpsApiExtendedType
 import no.nav.helsearbeidsgiver.dialogporten.domene.ApiAction
 import no.nav.helsearbeidsgiver.dialogporten.domene.CreateDialogRequest
 import no.nav.helsearbeidsgiver.dialogporten.domene.Transmission
+import no.nav.helsearbeidsgiver.dialogporten.domene.createTransmissionWithAttachment
 import no.nav.helsearbeidsgiver.dialogporten.getSykmeldingsPerioderString
-import no.nav.helsearbeidsgiver.dialogporten.lagTransmissionMedVedlegg
 import no.nav.helsearbeidsgiver.utils.tilNorskFormat
 import java.util.UUID
 
@@ -61,9 +61,9 @@ class DialogportenServiceTest :
                                 .getSykmeldingsPerioderString(),
                         transmissions =
                             listOf(
-                                lagTransmissionMedVedlegg(
-                                    transmissionTittel = "Sykmelding",
-                                    extendedType = LpsApiExtendedType.SYKMELDING,
+                                createTransmissionWithAttachment(
+                                    transmissionTitel = "Sykmelding",
+                                    extendedType = LpsApiExtendedType.SYKMELDING.toString(),
                                     vedleggNavn = "Sykmelding.json",
                                     vedleggUrl = forventetUrl,
                                     vedleggMediaType = ContentType.Application.Json.toString(),

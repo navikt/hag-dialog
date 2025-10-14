@@ -5,11 +5,9 @@ import kotlinx.coroutines.runBlocking
 import no.nav.helsearbeidsgiver.DialogRepository
 import no.nav.helsearbeidsgiver.Env
 import no.nav.helsearbeidsgiver.dialogporten.domene.ApiAction
-import no.nav.helsearbeidsgiver.dialogporten.domene.Content
-import no.nav.helsearbeidsgiver.dialogporten.domene.ContentValueItem
 import no.nav.helsearbeidsgiver.dialogporten.domene.CreateDialogRequest
 import no.nav.helsearbeidsgiver.dialogporten.domene.Transmission
-import no.nav.helsearbeidsgiver.dialogporten.domene.create
+import no.nav.helsearbeidsgiver.dialogporten.domene.createTransmissionWithAttachment
 import no.nav.helsearbeidsgiver.kafka.Inntektsmeldingsforespoersel
 import no.nav.helsearbeidsgiver.kafka.Sykepengesoeknad
 import no.nav.helsearbeidsgiver.kafka.Sykmelding
@@ -42,9 +40,9 @@ class DialogportenService(
                 val transmissionId =
                     dialogportenClient.addTransmission(
                         dialogId,
-                        lagTransmissionMedVedlegg(
-                            transmissionTittel = "Søknad om sykepenger",
-                            extendedType = LpsApiExtendedType.SYKEPENGESOEKNAD,
+                        createTransmissionWithAttachment(
+                            transmissionTitel = "Søknad om sykepenger",
+                            extendedType = LpsApiExtendedType.SYKEPENGESOEKNAD.toString(),
                             vedleggNavn = "soeknad-om-sykepenger.json",
                             vedleggUrl = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/sykepengesoeknad/${sykepengesoeknad.soeknadId}",
                             vedleggMediaType = ContentType.Application.Json.toString(),
@@ -73,9 +71,9 @@ class DialogportenService(
                 val transmissionId =
                     dialogportenClient.addTransmission(
                         dialogId,
-                        lagTransmissionMedVedlegg(
-                            transmissionTittel = "Forespørsel om inntektsmelding",
-                            extendedType = LpsApiExtendedType.INNTEKTSMELDING,
+                        createTransmissionWithAttachment(
+                            transmissionTitel = "Forespørsel om inntektsmelding",
+                            extendedType = LpsApiExtendedType.INNTEKTSMELDING.toString(),
                             vedleggNavn = "Inntektsmeldingforespoersel.json",
                             vedleggUrl = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/forespoersel/${inntektsmeldingsforespoersel.forespoerselId}",
                             vedleggMediaType = ContentType.Application.Json.toString(),
@@ -121,9 +119,9 @@ class DialogportenService(
                             .getSykmeldingsPerioderString(),
                     transmissions =
                         listOf(
-                            lagTransmissionMedVedlegg(
-                                transmissionTittel = "Sykmelding",
-                                extendedType = LpsApiExtendedType.SYKMELDING,
+                            createTransmissionWithAttachment(
+                                transmissionTitel = "Sykmelding",
+                                extendedType = LpsApiExtendedType.SYKMELDING.toString(),
                                 vedleggNavn = "Sykmelding.json",
                                 vedleggUrl = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/sykmelding/${sykmelding.sykmeldingId}",
                                 vedleggMediaType = ContentType.Application.Json.toString(),
@@ -136,41 +134,6 @@ class DialogportenService(
             dialogportenClient.createDialog(request)
         }
 }
-
-fun lagTransmissionMedVedlegg(
-    transmissionTittel: String,
-    transmissionSammendrag: String? = null,
-    extendedType: LpsApiExtendedType,
-    vedleggNavn: String,
-    vedleggUrl: String,
-    vedleggMediaType: String,
-    vedleggConsumerType: Transmission.AttachmentUrlConsumerType,
-    type: Transmission.TransmissionType,
-): Transmission =
-    Transmission(
-        type = type,
-        extendedType = extendedType.toString(),
-        sender = Transmission.Sender("ServiceOwner"),
-        content =
-            Content.create(
-                title = transmissionTittel,
-                summary = transmissionSammendrag,
-            ),
-        attachments =
-            listOf(
-                Transmission.Attachment(
-                    displayName = listOf(ContentValueItem(vedleggNavn)),
-                    urls =
-                        listOf(
-                            Transmission.Url(
-                                url = vedleggUrl,
-                                mediaType = vedleggMediaType,
-                                consumerType = vedleggConsumerType,
-                            ),
-                        ),
-                ),
-            ),
-    )
 
 fun List<Sykmeldingsperiode>.getSykmeldingsPerioderString(): String =
     when (size) {
