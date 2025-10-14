@@ -1,13 +1,11 @@
 package no.nav.helsearbeidsgiver.dialogporten
 
-import io.ktor.http.ContentType
 import kotlinx.coroutines.runBlocking
 import no.nav.helsearbeidsgiver.DialogRepository
 import no.nav.helsearbeidsgiver.Env
 import no.nav.helsearbeidsgiver.dialogporten.domene.ApiAction
 import no.nav.helsearbeidsgiver.dialogporten.domene.CreateDialogRequest
-import no.nav.helsearbeidsgiver.dialogporten.domene.Transmission
-import no.nav.helsearbeidsgiver.dialogporten.domene.createTransmissionWithAttachment
+import no.nav.helsearbeidsgiver.dialogporten.domene.lagTransmissionMedVedlegg
 import no.nav.helsearbeidsgiver.kafka.Inntektsmeldingsforespoersel
 import no.nav.helsearbeidsgiver.kafka.Sykepengesoeknad
 import no.nav.helsearbeidsgiver.kafka.Sykmelding
@@ -40,14 +38,8 @@ class DialogportenService(
                 val transmissionId =
                     dialogportenClient.addTransmission(
                         dialogId,
-                        createTransmissionWithAttachment(
-                            transmissionTitel = "Søknad om sykepenger",
-                            extendedType = LpsApiExtendedType.SYKEPENGESOEKNAD.toString(),
-                            vedleggNavn = "soeknad-om-sykepenger.json",
-                            vedleggUrl = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/sykepengesoeknad/${sykepengesoeknad.soeknadId}",
-                            vedleggMediaType = ContentType.Application.Json.toString(),
-                            vedleggConsumerType = Transmission.AttachmentUrlConsumerType.Api,
-                            type = Transmission.TransmissionType.Information,
+                        lagTransmissionMedVedlegg(
+                            SykepengesoknadTransmissionRequest(sykepengesoeknad),
                         ),
                     )
                 logger.info(
@@ -71,14 +63,8 @@ class DialogportenService(
                 val transmissionId =
                     dialogportenClient.addTransmission(
                         dialogId,
-                        createTransmissionWithAttachment(
-                            transmissionTitel = "Forespørsel om inntektsmelding",
-                            extendedType = LpsApiExtendedType.INNTEKTSMELDING.toString(),
-                            vedleggNavn = "Inntektsmeldingforespoersel.json",
-                            vedleggUrl = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/forespoersel/${inntektsmeldingsforespoersel.forespoerselId}",
-                            vedleggMediaType = ContentType.Application.Json.toString(),
-                            vedleggConsumerType = Transmission.AttachmentUrlConsumerType.Api,
-                            type = Transmission.TransmissionType.Request,
+                        lagTransmissionMedVedlegg(
+                            InntektsmeldingTransmissionRequest(inntektsmeldingsforespoersel),
                         ),
                     )
 
@@ -119,14 +105,8 @@ class DialogportenService(
                             .getSykmeldingsPerioderString(),
                     transmissions =
                         listOf(
-                            createTransmissionWithAttachment(
-                                transmissionTitel = "Sykmelding",
-                                extendedType = LpsApiExtendedType.SYKMELDING.toString(),
-                                vedleggNavn = "Sykmelding.json",
-                                vedleggUrl = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/sykmelding/${sykmelding.sykmeldingId}",
-                                vedleggMediaType = ContentType.Application.Json.toString(),
-                                vedleggConsumerType = Transmission.AttachmentUrlConsumerType.Api,
-                                type = Transmission.TransmissionType.Information,
+                            lagTransmissionMedVedlegg(
+                                SykmeldingTransmissionRequest(sykmelding),
                             ),
                         ),
                     isApiOnly = true,

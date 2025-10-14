@@ -1,5 +1,4 @@
 import io.kotest.core.spec.style.FunSpec
-import io.ktor.http.ContentType
 import io.mockk.Runs
 import io.mockk.clearAllMocks
 import io.mockk.coEvery
@@ -13,11 +12,11 @@ import no.nav.helsearbeidsgiver.DialogRepository
 import no.nav.helsearbeidsgiver.Env
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenClient
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
-import no.nav.helsearbeidsgiver.dialogporten.LpsApiExtendedType
+import no.nav.helsearbeidsgiver.dialogporten.SykmeldingTransmissionRequest
 import no.nav.helsearbeidsgiver.dialogporten.domene.ApiAction
 import no.nav.helsearbeidsgiver.dialogporten.domene.CreateDialogRequest
 import no.nav.helsearbeidsgiver.dialogporten.domene.Transmission
-import no.nav.helsearbeidsgiver.dialogporten.domene.createTransmissionWithAttachment
+import no.nav.helsearbeidsgiver.dialogporten.domene.lagTransmissionMedVedlegg
 import no.nav.helsearbeidsgiver.dialogporten.getSykmeldingsPerioderString
 import no.nav.helsearbeidsgiver.utils.tilNorskFormat
 import java.util.UUID
@@ -61,14 +60,8 @@ class DialogportenServiceTest :
                                 .getSykmeldingsPerioderString(),
                         transmissions =
                             listOf(
-                                createTransmissionWithAttachment(
-                                    transmissionTitel = "Sykmelding",
-                                    extendedType = LpsApiExtendedType.SYKMELDING.toString(),
-                                    vedleggNavn = "Sykmelding.json",
-                                    vedleggUrl = forventetUrl,
-                                    vedleggMediaType = ContentType.Application.Json.toString(),
-                                    vedleggConsumerType = Transmission.AttachmentUrlConsumerType.Api,
-                                    type = Transmission.TransmissionType.Information,
+                                lagTransmissionMedVedlegg(
+                                    transmissionRequest = SykmeldingTransmissionRequest(sykmelding),
                                 ),
                             ),
                         isApiOnly = true,
