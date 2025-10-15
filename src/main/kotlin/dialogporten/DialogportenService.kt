@@ -3,19 +3,20 @@ package no.nav.helsearbeidsgiver.dialogporten
 import kotlinx.coroutines.runBlocking
 import no.nav.helsearbeidsgiver.DialogRepository
 import no.nav.helsearbeidsgiver.Env
+import no.nav.helsearbeidsgiver.dialogporten.domene.ApiAction
+import no.nav.helsearbeidsgiver.dialogporten.domene.CreateDialogRequest
+import no.nav.helsearbeidsgiver.dialogporten.domene.lagTransmissionMedVedlegg
 import no.nav.helsearbeidsgiver.kafka.Inntektsmeldingsforespoersel
 import no.nav.helsearbeidsgiver.kafka.Sykepengesoeknad
 import no.nav.helsearbeidsgiver.kafka.Sykmelding
 import no.nav.helsearbeidsgiver.kafka.Sykmeldingsperiode
-import no.nav.helsearbeidsgiver.utils.json.fromJson
-import no.nav.helsearbeidsgiver.utils.json.serializer.UuidSerializer
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.tilNorskFormat
 import java.util.UUID
 
 class DialogportenService(
-    private val dialogportenClient: DialogportenClient,
     private val dialogRepository: DialogRepository,
+    private val dialogportenClient: DialogportenClient,
 ) {
     private val logger = logger()
 
@@ -34,14 +35,19 @@ class DialogportenService(
             )
         } else {
             runBlocking {
-                dialogportenClient.oppdaterDialogMedSykepengesoeknad(
-                    dialogId = dialogId,
-                    soeknadJsonUrl = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/sykepengesoeknad/${sykepengesoeknad.soeknadId}",
+                val transmissionId =
+                    dialogportenClient.addTransmission(
+                        dialogId,
+                        lagTransmissionMedVedlegg(
+                            SykepengesoknadTransmissionRequest(sykepengesoeknad),
+                        ),
+                    )
+                logger.info(
+                    "Oppdaterte dialog $dialogId for sykmelding ${sykepengesoeknad.sykmeldingId}" +
+                        " med sykepengesøknad ${sykepengesoeknad.soeknadId}. " +
+                        "Lagt til transmission $transmissionId.",
                 )
             }
-            logger.info(
-                "Oppdaterte dialog $dialogId tilhørende sykmelding ${sykepengesoeknad.sykmeldingId} med sykepengesøknad ${sykepengesoeknad.soeknadId}.",
-            )
         }
     }
 
@@ -54,35 +60,64 @@ class DialogportenService(
             )
         } else {
             runBlocking {
-                dialogportenClient.oppdaterDialogMedInntektsmeldingsforespoersel(
-                    dialogId = dialogId,
-                    forespoerselUrl = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/forespoersel/${inntektsmeldingsforespoersel.forespoerselId}",
-                    forespoerselDokumentasjonUrl = "${Env.Nav.arbeidsgiverApiBaseUrl}/swagger",
+                val transmissionId =
+                    dialogportenClient.addTransmission(
+                        dialogId,
+                        lagTransmissionMedVedlegg(
+                            InntektsmeldingTransmissionRequest(inntektsmeldingsforespoersel),
+                        ),
+                    )
+
+                dialogportenClient.addAction(
+                    dialogId,
+                    ApiAction(
+                        name = "Send inn inntektsmelding",
+                        endpoints =
+                            listOf(
+                                ApiAction.Endpoint(
+                                    url = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/inntektsmelding",
+                                    httpMethod = ApiAction.HttpMethod.POST,
+                                    documentationUrl = "${Env.Nav.arbeidsgiverApiBaseUrl}/swagger",
+                                ),
+                            ),
+                        action = ApiAction.Action.WRITE.value,
+                    ),
+                )
+                logger.info(
+                    "Oppdaterte dialog $dialogId for sykmelding ${inntektsmeldingsforespoersel.sykmeldingId} " +
+                        "med forespørsel om inntektsmelding med id ${inntektsmeldingsforespoersel.forespoerselId}." +
+                        "Lagt til transmission $transmissionId.",
                 )
             }
-            logger.info(
-                "Oppdaterte dialog $dialogId tilhørende sykmelding ${inntektsmeldingsforespoersel.sykmeldingId} " +
-                    "med forespørsel om inntektsmelding med id ${inntektsmeldingsforespoersel.forespoerselId}.",
-            )
         }
     }
 
     private fun opprettNyDialogMedSykmelding(sykmelding: Sykmelding): UUID =
         runBlocking {
-            dialogportenClient
-                .opprettDialogMedSykmelding(
-                    orgnr = sykmelding.orgnr.toString(),
-                    dialogTittel = "Sykepenger for ${sykmelding.fulltNavn} (f. ${sykmelding.foedselsdato.tilNorskFormat()})",
-                    dialogSammendrag = sykmelding.sykmeldingsperioder.getSykmeldingsPerioderString(),
-                    sykmeldingId = sykmelding.sykmeldingId,
-                    sykmeldingJsonUrl = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/sykmelding/${sykmelding.sykmeldingId}",
+            val request =
+                CreateDialogRequest(
+                    orgnr = sykmelding.orgnr,
+                    externalReference = sykmelding.sykmeldingId.toString(),
+                    title =
+                        "Sykepenger for ${sykmelding.fulltNavn} (f. ${sykmelding.foedselsdato.tilNorskFormat()})",
+                    summary =
+                        sykmelding.sykmeldingsperioder
+                            .getSykmeldingsPerioderString(),
+                    transmissions =
+                        listOf(
+                            lagTransmissionMedVedlegg(
+                                SykmeldingTransmissionRequest(sykmelding),
+                            ),
+                        ),
+                    isApiOnly = true,
                 )
-        }.fromJson(UuidSerializer)
-
-    private fun List<Sykmeldingsperiode>.getSykmeldingsPerioderString(): String =
-        when (size) {
-            1 -> "Sykmeldingsperiode ${first().fom.tilNorskFormat()} – ${first().tom.tilNorskFormat()}"
-            else ->
-                "Sykmeldingsperioder ${first().fom.tilNorskFormat()} – (...) – ${last().tom.tilNorskFormat()}"
+            dialogportenClient.createDialog(request)
         }
 }
+
+fun List<Sykmeldingsperiode>.getSykmeldingsPerioderString(): String =
+    when (size) {
+        1 -> "Sykmeldingsperiode ${first().fom.tilNorskFormat()} – ${first().tom.tilNorskFormat()}"
+        else ->
+            "Sykmeldingsperioder ${first().fom.tilNorskFormat()} – (...) – ${last().tom.tilNorskFormat()}"
+    }
