@@ -45,3 +45,20 @@ data class Sykmeldingsperiode(
     val fom: LocalDate,
     val tom: LocalDate,
 )
+
+@Serializable
+@SerialName("Inntektsmeldings")
+data class Inntektsmelding(
+    val forespoerselId: UUID,
+    val innsendingsId: UUID,
+    val sykmeldingId: UUID,
+    val orgnr: Orgnr,
+    val status: Status,
+) : Melding() {
+    @Serializable
+    enum class Status {
+        MOTTATT,
+        GODKJENT,
+        AVVVIST,
+    }
+}

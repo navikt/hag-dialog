@@ -3,6 +3,7 @@ package no.nav.helsearbeidsgiver.dialogporten
 import no.nav.helsearbeidsgiver.Env
 import no.nav.helsearbeidsgiver.dialogporten.domene.Transmission
 import no.nav.helsearbeidsgiver.dialogporten.domene.TransmissionRequest
+import no.nav.helsearbeidsgiver.kafka.Inntektsmelding
 import no.nav.helsearbeidsgiver.kafka.Inntektsmeldingsforespoersel
 import no.nav.helsearbeidsgiver.kafka.Sykepengesoeknad
 import no.nav.helsearbeidsgiver.kafka.Sykmelding
@@ -29,7 +30,7 @@ class SykepengesoknadTransmissionRequest(
     override val type = Transmission.TransmissionType.Information
 }
 
-class InntektsmeldingTransmissionRequest(
+class ForespoerselTransmissionRequest(
     inntektsmeldingsforespoersel: Inntektsmeldingsforespoersel,
 ) : TransmissionRequest() {
     override val extendedType = LpsApiExtendedType.INNTEKTSMELDINGFORESPOERSEL.toString()
@@ -38,4 +39,25 @@ class InntektsmeldingTransmissionRequest(
     override val vedleggNavn = "inntektsmeldingforespoersel.json"
     override val vedleggUrl = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/forespoersel/${inntektsmeldingsforespoersel.forespoerselId}"
     override val type = Transmission.TransmissionType.Request
+}
+
+class InntektsmeldingTransmissionRequest(
+    inntektsmelding: Inntektsmelding,
+) : TransmissionRequest() {
+    override val extendedType = LpsApiExtendedType.INNTEKTSMELDING.toString()
+    override val tittel =
+        when (inntektsmelding.status) {
+            Inntektsmelding.Status.MOTTATT -> "Inntektsmelding mottatt"
+            Inntektsmelding.Status.AVVVIST -> "Inntektsmelding avvist"
+            Inntektsmelding.Status.GODKJENT -> "Inntektsmelding godkjent"
+        }
+    override val sammendrag = null
+    override val vedleggNavn = "inntektsmelding.json"
+    override val vedleggUrl = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/inntektsmelding/${inntektsmelding.innsendingsId}"
+    override val type =
+        when (inntektsmelding.status) {
+            Inntektsmelding.Status.MOTTATT -> Transmission.TransmissionType.Information
+            Inntektsmelding.Status.AVVVIST -> Transmission.TransmissionType.Rejection
+            Inntektsmelding.Status.GODKJENT -> Transmission.TransmissionType.Acceptance
+        }
 }

@@ -6,6 +6,7 @@ import no.nav.helsearbeidsgiver.Env
 import no.nav.helsearbeidsgiver.dialogporten.domene.ApiAction
 import no.nav.helsearbeidsgiver.dialogporten.domene.CreateDialogRequest
 import no.nav.helsearbeidsgiver.dialogporten.domene.lagTransmissionMedVedlegg
+import no.nav.helsearbeidsgiver.kafka.Inntektsmelding
 import no.nav.helsearbeidsgiver.kafka.Inntektsmeldingsforespoersel
 import no.nav.helsearbeidsgiver.kafka.Sykepengesoeknad
 import no.nav.helsearbeidsgiver.kafka.Sykmelding
@@ -64,7 +65,7 @@ class DialogportenService(
                     dialogportenClient.addTransmission(
                         dialogId,
                         lagTransmissionMedVedlegg(
-                            InntektsmeldingTransmissionRequest(inntektsmeldingsforespoersel),
+                            ForespoerselTransmissionRequest(inntektsmeldingsforespoersel),
                         ),
                     )
 
@@ -86,6 +87,31 @@ class DialogportenService(
                 logger.info(
                     "Oppdaterte dialog $dialogId for sykmelding ${inntektsmeldingsforespoersel.sykmeldingId} " +
                         "med forespørsel om inntektsmelding med id ${inntektsmeldingsforespoersel.forespoerselId}." +
+                        "Lagt til transmission $transmissionId.",
+                )
+            }
+        }
+    }
+
+    fun oppdaterDialogMedInntektsmelding(inntektsmelding: Inntektsmelding) {
+        val dialogId = dialogRepository.finnDialogId(sykmeldingId = inntektsmelding.sykmeldingId)
+        if (dialogId == null) {
+            logger.warn(
+                "Fant ikke dialog for sykmeldingId ${inntektsmelding.sykmeldingId}. " +
+                    "Klarer derfor ikke oppdatere dialogen med inntektsmelding ${inntektsmelding.innsendingsId}.",
+            )
+        } else {
+            runBlocking {
+                val transmissionId =
+                    dialogportenClient.addTransmission(
+                        dialogId,
+                        lagTransmissionMedVedlegg(
+                            InntektsmeldingTransmissionRequest(inntektsmelding),
+                        ),
+                    )
+                logger.info(
+                    "Oppdaterte dialog $dialogId for sykmelding ${inntektsmelding.sykmeldingId}" +
+                        " med inntektsmelding ${inntektsmelding.innsendingsId}. " +
                         "Lagt til transmission $transmissionId.",
                 )
             }
