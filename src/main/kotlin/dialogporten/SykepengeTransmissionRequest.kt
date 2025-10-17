@@ -7,6 +7,7 @@ import no.nav.helsearbeidsgiver.kafka.Inntektsmelding
 import no.nav.helsearbeidsgiver.kafka.Inntektsmeldingsforespoersel
 import no.nav.helsearbeidsgiver.kafka.Sykepengesoeknad
 import no.nav.helsearbeidsgiver.kafka.Sykmelding
+import java.util.UUID
 
 class SykmeldingTransmissionRequest(
     sykmelding: Sykmelding,
@@ -17,6 +18,7 @@ class SykmeldingTransmissionRequest(
     override val vedleggNavn = "sykmelding.json"
     override val vedleggUrl = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/sykmelding/${sykmelding.sykmeldingId}"
     override val type = Transmission.TransmissionType.Information
+    override val relatedTransmissionId = null
 }
 
 class SykepengesoknadTransmissionRequest(
@@ -28,10 +30,12 @@ class SykepengesoknadTransmissionRequest(
     override val vedleggNavn = "sykepengesoeknad.json"
     override val vedleggUrl = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/soknad/${sykepengesoeknad.soeknadId}"
     override val type = Transmission.TransmissionType.Information
+    override val relatedTransmissionId = null
 }
 
 class ForespoerselTransmissionRequest(
     inntektsmeldingsforespoersel: Inntektsmeldingsforespoersel,
+    override val relatedTransmissionId: UUID? = null,
 ) : TransmissionRequest() {
     override val extendedType = LpsApiExtendedType.INNTEKTSMELDINGFORESPOERSEL.toString()
     override val tittel = "Forespoersel om Inntektsmelding"
@@ -43,6 +47,7 @@ class ForespoerselTransmissionRequest(
 
 class InntektsmeldingTransmissionRequest(
     inntektsmelding: Inntektsmelding,
+    override val relatedTransmissionId: UUID? = null,
 ) : TransmissionRequest() {
     override val extendedType = LpsApiExtendedType.INNTEKTSMELDING.toString()
     override val tittel =

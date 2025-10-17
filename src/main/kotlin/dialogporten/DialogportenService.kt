@@ -1,6 +1,7 @@
 package no.nav.helsearbeidsgiver.dialogporten
 
 import kotlinx.coroutines.runBlocking
+import no.nav.helsearbeidsgiver.DialogEntitet.dialogId
 import no.nav.helsearbeidsgiver.DialogRepository
 import no.nav.helsearbeidsgiver.Env
 import no.nav.helsearbeidsgiver.dialogporten.domene.ApiAction
@@ -68,7 +69,10 @@ class DialogportenService(
                             ForespoerselTransmissionRequest(inntektsmeldingsforespoersel),
                         ),
                     )
-
+                dialogRepository.oppdaterDialogMedTransmissionId(
+                    sykmeldingId = inntektsmeldingsforespoersel.sykmeldingId,
+                    transmissionId = transmissionId,
+                )
                 dialogportenClient.addAction(
                     dialogId,
                     ApiAction(
@@ -94,8 +98,8 @@ class DialogportenService(
     }
 
     fun oppdaterDialogMedInntektsmelding(inntektsmelding: Inntektsmelding) {
-        val dialogId = dialogRepository.finnDialogId(sykmeldingId = inntektsmelding.sykmeldingId)
-        if (dialogId == null) {
+        val dialog = dialogRepository.hentDialogMedSykmeldingId(inntektsmelding.sykmeldingId)
+        if (dialog == null) {
             logger.warn(
                 "Fant ikke dialog for sykmeldingId ${inntektsmelding.sykmeldingId}. " +
                     "Klarer derfor ikke oppdatere dialogen med inntektsmelding ${inntektsmelding.innsendingsId}.",
@@ -104,11 +108,15 @@ class DialogportenService(
             runBlocking {
                 val transmissionId =
                     dialogportenClient.addTransmission(
-                        dialogId,
+                        dialog.dialogId,
                         lagTransmissionMedVedlegg(
-                            InntektsmeldingTransmissionRequest(inntektsmelding),
+                            InntektsmeldingTransmissionRequest(
+                                inntektsmelding = inntektsmelding,
+                                relatedTransmissionId = dialog.forespoerselTransmission,
+                            ),
                         ),
                     )
+
                 logger.info(
                     "Oppdaterte dialog $dialogId for sykmelding ${inntektsmelding.sykmeldingId}" +
                         " med inntektsmelding ${inntektsmelding.innsendingsId}. " +

@@ -1,0 +1,1 @@
+ALTER TABLE dialog ADD COLUMN IF NOT EXISTS forespoersel_transmission_id UUID;
