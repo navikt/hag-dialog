@@ -9,7 +9,6 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
 import no.nav.helsearbeidsgiver.DialogRepository
-import no.nav.helsearbeidsgiver.Env
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenClient
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
 import no.nav.helsearbeidsgiver.dialogporten.SykmeldingTransmissionRequest
@@ -44,9 +43,6 @@ class DialogportenServiceTest :
             every { dialogRepositoryMock.lagreDialog(any(), any()) } just Runs
 
             dialogportenService.opprettOgLagreDialog(sykmelding)
-
-            val forventetUrl =
-                "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/sykmelding/${sykmelding.sykmeldingId}"
 
             coVerify(exactly = 1) {
                 dialogportenClientMock.createDialog(
@@ -104,20 +100,21 @@ class DialogportenServiceTest :
             val dialogId = UUID.randomUUID()
 
             every { dialogRepositoryMock.finnDialogId(any()) } returns dialogId
-
+            every { dialogRepositoryMock.oppdaterDialogMedTransmissionId(inntektsmeldingsforespoersel.sykmeldingId, any()) } just Runs
             coEvery {
                 dialogportenClientMock.addTransmission(
                     any(),
                     any(),
                 )
             } returns UUID.randomUUID()
+
             coEvery {
                 dialogportenClientMock.addAction(any(), any())
             } just Runs
 
             dialogportenService.oppdaterDialogMedInntektsmeldingsforespoersel(inntektsmeldingsforespoersel)
 
-            verify(exactly = 1) { dialogRepositoryMock.finnDialogId(inntektsmeldingsforespoersel.sykmeldingId) }
+            verify(exactly = 1) { dialogRepositoryMock.oppdaterDialogMedTransmissionId(inntektsmeldingsforespoersel.sykmeldingId, any()) }
 
             coVerifySequence {
                 dialogportenClientMock.addTransmission(

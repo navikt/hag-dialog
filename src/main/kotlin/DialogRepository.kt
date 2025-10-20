@@ -60,7 +60,7 @@ class DialogRepository(
             DialogEntitet
                 .selectAll()
                 .where { DialogEntitet.sykmeldingId eq sykmeldingId }
-                .map { DialogExposed(it) }
+                .map { it.toDialogExposed() }
                 .firstOrNull()
         }
 }

@@ -3,6 +3,7 @@ package no.nav.helsearbeidsgiver
 import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.javatime.datetime
+import java.time.LocalDateTime
 import java.util.UUID
 
 object DialogEntitet : Table("dialog") {
@@ -14,11 +15,18 @@ object DialogEntitet : Table("dialog") {
 }
 
 data class DialogExposed(
-    val resultRow: ResultRow,
-) {
-    val id: Long = resultRow[DialogEntitet.id].toLong()
-    val dialogId: UUID = resultRow[DialogEntitet.dialogId]
-    val sykmeldingId: UUID = resultRow[DialogEntitet.sykmeldingId]
-    val forespoerselTransmission: UUID? = resultRow[DialogEntitet.forespoerselTransmission]
-    val opprettet = resultRow[DialogEntitet.opprettet]
-}
+    val id: ULong,
+    val dialogId: UUID,
+    val sykmeldingId: UUID,
+    val forespoerselTransmission: UUID,
+    val opprettet: LocalDateTime,
+)
+
+fun ResultRow.toDialogExposed() =
+    DialogExposed(
+        this[DialogEntitet.id],
+        this[DialogEntitet.dialogId],
+        this[DialogEntitet.sykmeldingId],
+        this[DialogEntitet.forespoerselTransmission],
+        this[DialogEntitet.opprettet],
+    )
