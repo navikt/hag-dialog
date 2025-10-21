@@ -18,7 +18,7 @@ data class DialogExposed(
     val id: ULong,
     val dialogId: UUID,
     val sykmeldingId: UUID,
-    val forespoerselTransmission: UUID,
+    val forespoerselTransmission: UUID?,
     val opprettet: LocalDateTime,
 )
 
