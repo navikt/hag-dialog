@@ -118,7 +118,7 @@ class DialogportenService(
                     )
 
                 logger.info(
-                    "Oppdaterte dialog $dialogId for sykmelding ${inntektsmelding.sykmeldingId}" +
+                    "Oppdaterte dialog ${dialog.dialogId} for sykmelding ${inntektsmelding.sykmeldingId}" +
                         " med inntektsmelding ${inntektsmelding.innsendingsId}. " +
                         "Lagt til transmission $transmissionId.",
                 )
