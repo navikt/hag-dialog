@@ -1,6 +1,5 @@
 package no.nav.helsearbeidsgiver
 
-import no.nav.helsearbeidsgiver.DialogEntitet.forespoerselTransmission
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import org.jetbrains.exposed.exceptions.ExposedSQLException
 import org.jetbrains.exposed.sql.Database

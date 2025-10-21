@@ -68,4 +68,27 @@ class DialogRepositoryTest :
 
             shouldThrow<ExposedSQLException> { dialogRepo.lagreDialog(dialogId = UUID.randomUUID(), sykmeldingId = sykmeldingId) }
         }
+        test("oppdaterDialogMedTransmissionId skal oppdatere dialog med forespørselTransmissionId") {
+            transaction {
+                DialogEntitet.selectAll().toList()
+            }.shouldBeEmpty()
+            dialogRepo.lagreDialog(dialogId = dialogId, sykmeldingId = sykmeldingId)
+
+            val transmissionId = UUID.randomUUID()
+            dialogRepo.oppdaterDialogMedTransmissionId(sykmeldingId = sykmeldingId, transmissionId = transmissionId)
+
+            val record = testRepo.hentRecordFraDialog(sykmeldingId).shouldNotBeNull()
+            record.getOrNull(DialogEntitet.forespoerselTransmission) shouldBe transmissionId
+        }
+        test("hentDialogMedSykmeldingId skal hente dialog med sykmeldingId") {
+            transaction {
+                DialogEntitet.selectAll().toList()
+            }.shouldBeEmpty()
+            dialogRepo.lagreDialog(dialogId = dialogId, sykmeldingId = sykmeldingId)
+
+            val dialog = dialogRepo.hentDialogMedSykmeldingId(sykmeldingId)
+            dialog.shouldNotBeNull()
+            dialog.dialogId shouldBe dialogId
+            dialog.sykmeldingId shouldBe sykmeldingId
+        }
     })
