@@ -53,7 +53,7 @@ class InntektsmeldingTransmissionRequest(
     override val tittel =
         when (inntektsmelding.status) {
             Inntektsmelding.Status.MOTTATT -> "Inntektsmelding mottatt"
-            Inntektsmelding.Status.AVVVIST -> "Inntektsmelding avvist"
+            Inntektsmelding.Status.FEILET -> "Inntektsmelding avvist"
             Inntektsmelding.Status.GODKJENT -> "Inntektsmelding godkjent"
         }
     override val sammendrag = null
@@ -62,7 +62,7 @@ class InntektsmeldingTransmissionRequest(
     override val type =
         when (inntektsmelding.status) {
             Inntektsmelding.Status.MOTTATT -> Transmission.TransmissionType.Information
-            Inntektsmelding.Status.AVVVIST -> Transmission.TransmissionType.Rejection
+            Inntektsmelding.Status.FEILET -> Transmission.TransmissionType.Rejection
             Inntektsmelding.Status.GODKJENT -> Transmission.TransmissionType.Acceptance
         }
 }

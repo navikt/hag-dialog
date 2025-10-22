@@ -59,6 +59,6 @@ data class Inntektsmelding(
     enum class Status {
         MOTTATT,
         GODKJENT,
-        AVVVIST,
+        FEILET,
     }
 }
