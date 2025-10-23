@@ -57,6 +57,17 @@ class MeldingTolker(
                         )
                     }
                 }
+
+                is Inntektsmelding -> {
+                    if (unleashFeatureToggles.skalOppdatereDialogVedMottattInntektsmelding(orgnr = dekodetMelding.orgnr)) {
+                        dialogportenService.oppdaterDialogMedInntektsmelding(inntektsmelding = dekodetMelding)
+                    } else {
+                        logger.info(
+                            "Feature toggle for oppdatering av dialog med inntektsmelding er avskrudd, " +
+                                "ignorerer melding for inntektsmeldingId ${dekodetMelding.innsendingsId}.",
+                        )
+                    }
+                }
             }
         }.getOrElse { e ->
             sikkerLogger.error("Klarte ikke opprette/oppdatere dialog. Avbryter.", e)

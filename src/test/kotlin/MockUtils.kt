@@ -1,3 +1,4 @@
+import no.nav.helsearbeidsgiver.kafka.Inntektsmelding
 import no.nav.helsearbeidsgiver.kafka.Inntektsmeldingsforespoersel
 import no.nav.helsearbeidsgiver.kafka.Sykepengesoeknad
 import no.nav.helsearbeidsgiver.kafka.Sykmelding
@@ -36,4 +37,12 @@ val inntektsmeldingsforespoersel =
         forespoerselId = UUID.randomUUID(),
         sykmeldingId = sykmelding.sykmeldingId,
         orgnr = orgnr,
+    )
+val inntektsmelding =
+    Inntektsmelding(
+        forespoerselId = UUID.randomUUID(),
+        innsendingsId = UUID.randomUUID(),
+        sykmeldingId = sykmelding.sykmeldingId,
+        orgnr = orgnr,
+        status = Inntektsmelding.Status.MOTTATT,
     )
