@@ -41,7 +41,7 @@ val inntektsmeldingsforespoersel =
 val inntektsmelding =
     Inntektsmelding(
         forespoerselId = UUID.randomUUID(),
-        innsendingsId = UUID.randomUUID(),
+        innsendingId = UUID.randomUUID(),
         sykmeldingId = sykmelding.sykmeldingId,
         orgnr = orgnr,
         status = Inntektsmelding.Status.MOTTATT,

@@ -1,7 +1,6 @@
 package no.nav.helsearbeidsgiver.dialogporten
 
 import kotlinx.coroutines.runBlocking
-import no.nav.helsearbeidsgiver.DialogEntitet.dialogId
 import no.nav.helsearbeidsgiver.DialogRepository
 import no.nav.helsearbeidsgiver.Env
 import no.nav.helsearbeidsgiver.dialogporten.domene.ApiAction
@@ -102,7 +101,7 @@ class DialogportenService(
         if (dialog == null) {
             logger.warn(
                 "Fant ikke dialog for sykmeldingId ${inntektsmelding.sykmeldingId}. " +
-                    "Klarer derfor ikke oppdatere dialogen med inntektsmelding ${inntektsmelding.innsendingsId}.",
+                    "Klarer derfor ikke oppdatere dialogen med inntektsmelding ${inntektsmelding.innsendingId}.",
             )
         } else {
             runBlocking {
@@ -119,7 +118,7 @@ class DialogportenService(
 
                 logger.info(
                     "Oppdaterte dialog ${dialog.dialogId} for sykmelding ${inntektsmelding.sykmeldingId}" +
-                        " med inntektsmelding ${inntektsmelding.innsendingsId}. " +
+                        " med inntektsmelding ${inntektsmelding.innsendingId}. " +
                         "Lagt til transmission $transmissionId.",
                 )
             }

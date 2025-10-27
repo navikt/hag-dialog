@@ -47,10 +47,10 @@ data class Sykmeldingsperiode(
 )
 
 @Serializable
-@SerialName("Inntektsmeldings")
+@SerialName("Inntektsmelding")
 data class Inntektsmelding(
     val forespoerselId: UUID,
-    val innsendingsId: UUID,
+    val innsendingId: UUID,
     val sykmeldingId: UUID,
     val orgnr: Orgnr,
     val status: Status,

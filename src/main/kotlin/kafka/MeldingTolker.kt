@@ -64,7 +64,7 @@ class MeldingTolker(
                     } else {
                         logger.info(
                             "Feature toggle for oppdatering av dialog med inntektsmelding er avskrudd, " +
-                                "ignorerer melding for inntektsmeldingId ${dekodetMelding.innsendingsId}.",
+                                "ignorerer melding for inntektsmeldingId ${dekodetMelding.innsendingId}.",
                         )
                     }
                 }

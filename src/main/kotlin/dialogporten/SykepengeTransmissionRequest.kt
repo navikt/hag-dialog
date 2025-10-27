@@ -58,7 +58,7 @@ class InntektsmeldingTransmissionRequest(
         }
     override val sammendrag = null
     override val vedleggNavn = "inntektsmelding.json"
-    override val vedleggUrl = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/inntektsmelding/${inntektsmelding.innsendingsId}"
+    override val vedleggUrl = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/inntektsmelding/${inntektsmelding.innsendingId}"
     override val type =
         when (inntektsmelding.status) {
             Inntektsmelding.Status.MOTTATT -> Transmission.TransmissionType.Information
