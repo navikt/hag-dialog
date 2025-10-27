@@ -10,7 +10,7 @@ object DialogEntitet : Table("dialog") {
     val id = ulong("id").autoIncrement()
     val dialogId = uuid("dialog_id")
     val sykmeldingId = uuid("sykmelding_id")
-    val forespoerselTransmission = uuid("forespoersel_transmission")
+    val forespoerselTransmissionId = uuid("forespoersel_transmission")
     val opprettet = datetime("opprettet")
 }
 
@@ -27,6 +27,6 @@ fun ResultRow.toDialogExposed() =
         this[DialogEntitet.id],
         this[DialogEntitet.dialogId],
         this[DialogEntitet.sykmeldingId],
-        this[DialogEntitet.forespoerselTransmission],
+        this[DialogEntitet.forespoerselTransmissionId],
         this[DialogEntitet.opprettet],
     )

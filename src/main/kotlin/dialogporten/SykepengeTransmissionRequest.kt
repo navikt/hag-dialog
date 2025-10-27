@@ -47,7 +47,7 @@ class ForespoerselTransmissionRequest(
 
 class InntektsmeldingTransmissionRequest(
     inntektsmelding: Inntektsmelding,
-    override val relatedTransmissionId: UUID? = null,
+    override val relatedTransmissionId: UUID?,
 ) : TransmissionRequest() {
     override val extendedType = LpsApiExtendedType.INNTEKTSMELDING.toString()
     override val tittel =

@@ -75,10 +75,10 @@ class DialogRepositoryTest :
             dialogRepo.lagreDialog(dialogId = dialogId, sykmeldingId = sykmeldingId)
 
             val transmissionId = UUID.randomUUID()
-            dialogRepo.oppdaterDialogMedTransmissionId(sykmeldingId = sykmeldingId, transmissionId = transmissionId)
+            dialogRepo.oppdaterDialogMedForespoerselTransmissionId(sykmeldingId = sykmeldingId, forespoerselTransmissionId = transmissionId)
 
             val record = testRepo.hentRecordFraDialog(sykmeldingId).shouldNotBeNull()
-            record.getOrNull(DialogEntitet.forespoerselTransmission) shouldBe transmissionId
+            record.getOrNull(DialogEntitet.forespoerselTransmissionId) shouldBe transmissionId
         }
         test("hentDialogMedSykmeldingId skal hente dialog med sykmeldingId") {
             transaction {

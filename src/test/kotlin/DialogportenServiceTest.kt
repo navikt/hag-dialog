@@ -103,7 +103,13 @@ class DialogportenServiceTest :
             val dialogId = UUID.randomUUID()
 
             every { dialogRepositoryMock.finnDialogId(any()) } returns dialogId
-            every { dialogRepositoryMock.oppdaterDialogMedTransmissionId(inntektsmeldingsforespoersel.sykmeldingId, any()) } just Runs
+            every {
+                dialogRepositoryMock.oppdaterDialogMedForespoerselTransmissionId(
+                    inntektsmeldingsforespoersel.sykmeldingId,
+                    any(),
+                )
+            } just
+                Runs
             coEvery {
                 dialogportenClientMock.addTransmission(
                     any(),
@@ -117,7 +123,9 @@ class DialogportenServiceTest :
 
             dialogportenService.oppdaterDialogMedInntektsmeldingsforespoersel(inntektsmeldingsforespoersel)
 
-            verify(exactly = 1) { dialogRepositoryMock.oppdaterDialogMedTransmissionId(inntektsmeldingsforespoersel.sykmeldingId, any()) }
+            verify(
+                exactly = 1,
+            ) { dialogRepositoryMock.oppdaterDialogMedForespoerselTransmissionId(inntektsmeldingsforespoersel.sykmeldingId, any()) }
 
             coVerifySequence {
                 dialogportenClientMock.addTransmission(

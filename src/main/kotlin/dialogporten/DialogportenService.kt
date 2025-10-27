@@ -68,9 +68,9 @@ class DialogportenService(
                             ForespoerselTransmissionRequest(inntektsmeldingsforespoersel),
                         ),
                     )
-                dialogRepository.oppdaterDialogMedTransmissionId(
+                dialogRepository.oppdaterDialogMedForespoerselTransmissionId(
                     sykmeldingId = inntektsmeldingsforespoersel.sykmeldingId,
-                    transmissionId = transmissionId,
+                    forespoerselTransmissionId = transmissionId,
                 )
                 dialogportenClient.addAction(
                     dialogId,
@@ -105,6 +105,13 @@ class DialogportenService(
             )
         } else {
             runBlocking {
+                if (dialog.forespoerselTransmission == null) {
+                    logger.warn(
+                        "Dialog ${dialog.dialogId} for sykmeldingId ${inntektsmelding.sykmeldingId} " +
+                            "har ingen tilknyttet forespørsel om inntektsmelding. " +
+                            "Klarer derfor ikke tilknytte inntektsmelding ${inntektsmelding.innsendingId} med forespørsel.",
+                    )
+                }
                 val transmissionId =
                     dialogportenClient.addTransmission(
                         dialog.dialogId,

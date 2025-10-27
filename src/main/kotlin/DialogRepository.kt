@@ -38,14 +38,14 @@ class DialogRepository(
                 .firstOrNull()
         }
 
-    fun oppdaterDialogMedTransmissionId(
+    fun oppdaterDialogMedForespoerselTransmissionId(
         sykmeldingId: UUID,
-        transmissionId: UUID,
+        forespoerselTransmissionId: UUID,
     ) {
         try {
             transaction(db) {
                 DialogEntitet.update({ DialogEntitet.sykmeldingId eq sykmeldingId }) {
-                    it[forespoerselTransmission] = transmissionId
+                    it[this.forespoerselTransmissionId] = forespoerselTransmissionId
                 }
             }
         } catch (e: ExposedSQLException) {
