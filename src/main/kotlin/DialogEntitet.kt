@@ -10,7 +10,7 @@ object DialogEntitet : Table("dialog") {
     val id = ulong("id").autoIncrement()
     val dialogId = uuid("dialog_id")
     val sykmeldingId = uuid("sykmelding_id")
-    val forespoerselTransmissionId = uuid("forespoersel_transmission")
+    val forespoerselTransmissionId = uuid("forespoersel_transmission_id")
     val opprettet = datetime("opprettet")
 }
 
