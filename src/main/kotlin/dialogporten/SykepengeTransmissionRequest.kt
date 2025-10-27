@@ -61,7 +61,7 @@ class InntektsmeldingTransmissionRequest(
     override val vedleggUrl = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/inntektsmelding/${inntektsmelding.innsendingId}"
     override val type =
         when (inntektsmelding.status) {
-            Inntektsmelding.Status.MOTTATT -> Transmission.TransmissionType.Information
+            Inntektsmelding.Status.MOTTATT -> Transmission.TransmissionType.Submission
             Inntektsmelding.Status.FEILET -> Transmission.TransmissionType.Rejection
             Inntektsmelding.Status.GODKJENT -> Transmission.TransmissionType.Acceptance
         }
