@@ -8,10 +8,11 @@ import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
+import no.nav.helsearbeidsgiver.DialogExposed
 import no.nav.helsearbeidsgiver.DialogRepository
-import no.nav.helsearbeidsgiver.Env
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenClient
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
+import no.nav.helsearbeidsgiver.dialogporten.InntektsmeldingTransmissionRequest
 import no.nav.helsearbeidsgiver.dialogporten.SykmeldingTransmissionRequest
 import no.nav.helsearbeidsgiver.dialogporten.domene.ApiAction
 import no.nav.helsearbeidsgiver.dialogporten.domene.CreateDialogRequest
@@ -19,6 +20,7 @@ import no.nav.helsearbeidsgiver.dialogporten.domene.Transmission
 import no.nav.helsearbeidsgiver.dialogporten.domene.lagTransmissionMedVedlegg
 import no.nav.helsearbeidsgiver.dialogporten.getSykmeldingsPerioderString
 import no.nav.helsearbeidsgiver.utils.tilNorskFormat
+import java.time.LocalDateTime
 import java.util.UUID
 
 class DialogportenServiceTest :
@@ -44,9 +46,6 @@ class DialogportenServiceTest :
             every { dialogRepositoryMock.lagreDialog(any(), any()) } just Runs
 
             dialogportenService.opprettOgLagreDialog(sykmelding)
-
-            val forventetUrl =
-                "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/sykmelding/${sykmelding.sykmeldingId}"
 
             coVerify(exactly = 1) {
                 dialogportenClientMock.createDialog(
@@ -104,20 +103,29 @@ class DialogportenServiceTest :
             val dialogId = UUID.randomUUID()
 
             every { dialogRepositoryMock.finnDialogId(any()) } returns dialogId
-
+            every {
+                dialogRepositoryMock.oppdaterDialogMedForespoerselTransmissionId(
+                    inntektsmeldingsforespoersel.sykmeldingId,
+                    any(),
+                )
+            } just
+                Runs
             coEvery {
                 dialogportenClientMock.addTransmission(
                     any(),
                     any(),
                 )
             } returns UUID.randomUUID()
+
             coEvery {
                 dialogportenClientMock.addAction(any(), any())
             } just Runs
 
             dialogportenService.oppdaterDialogMedInntektsmeldingsforespoersel(inntektsmeldingsforespoersel)
 
-            verify(exactly = 1) { dialogRepositoryMock.finnDialogId(inntektsmeldingsforespoersel.sykmeldingId) }
+            verify(
+                exactly = 1,
+            ) { dialogRepositoryMock.oppdaterDialogMedForespoerselTransmissionId(inntektsmeldingsforespoersel.sykmeldingId, any()) }
 
             coVerifySequence {
                 dialogportenClientMock.addTransmission(
@@ -127,7 +135,39 @@ class DialogportenServiceTest :
                 dialogportenClientMock.addAction(dialogId, any<ApiAction>())
             }
         }
+        test("oppdaterer dialog med inntektsmelding") {
+            val dialogId = UUID.randomUUID()
+            val foresporselTransmissionId = UUID.randomUUID()
+            val dialog =
+                DialogExposed(
+                    id = 0u,
+                    dialogId = dialogId,
+                    sykmeldingId = inntektsmelding.sykmeldingId,
+                    forespoerselTransmission = foresporselTransmissionId,
+                    opprettet = LocalDateTime.now(),
+                )
 
+            every { dialogRepositoryMock.hentDialogMedSykmeldingId(inntektsmelding.sykmeldingId) } returns dialog
+            val transmission =
+                lagTransmissionMedVedlegg(
+                    transmissionRequest = InntektsmeldingTransmissionRequest(inntektsmelding, foresporselTransmissionId),
+                )
+            coEvery {
+
+                dialogportenClientMock.addTransmission(
+                    dialogId,
+                    transmission,
+                )
+            } returns UUID.randomUUID()
+            dialogportenService.oppdaterDialogMedInntektsmelding(inntektsmelding)
+            verify(exactly = 1) { dialogRepositoryMock.hentDialogMedSykmeldingId(inntektsmelding.sykmeldingId) }
+            coVerify(exactly = 1) {
+                dialogportenClientMock.addTransmission(
+                    dialogId,
+                    transmission,
+                )
+            }
+        }
         test("ignorerer sykepengesøknad dersom vi ikke finner tilhørende dialog i databasen") {
             every { dialogRepositoryMock.finnDialogId(any()) } returns null
 
