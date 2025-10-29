@@ -19,6 +19,7 @@ import no.nav.helsearbeidsgiver.dialogporten.domene.CreateDialogRequest
 import no.nav.helsearbeidsgiver.dialogporten.domene.Transmission
 import no.nav.helsearbeidsgiver.dialogporten.domene.lagTransmissionMedVedlegg
 import no.nav.helsearbeidsgiver.dialogporten.getSykmeldingsPerioderString
+import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.tilNorskFormat
 import java.time.LocalDateTime
 import java.util.UUID
@@ -32,8 +33,8 @@ class DialogportenServiceTest :
 
         val dialogportenClientMock = mockk<DialogportenClient>()
         val dialogRepositoryMock = mockk<DialogRepository>()
-
-        val dialogportenService = DialogportenService(dialogRepositoryMock, dialogportenClientMock)
+        val unleashFeatureTogglesMock = mockk<UnleashFeatureToggles>()
+        val dialogportenService = DialogportenService(dialogRepositoryMock, dialogportenClientMock, unleashFeatureTogglesMock)
 
         test("oppretter dialog med sykmelding og lagrer dialogId i databasen") {
             val dialogId = UUID.randomUUID()

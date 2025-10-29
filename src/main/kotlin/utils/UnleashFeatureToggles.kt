@@ -50,4 +50,10 @@ class UnleashFeatureToggles {
             UnleashContext.builder().addProperty("orgnr", orgnr.toString()).build(),
             false,
         )
+
+    fun skalOppretteDialogKunForApi() =
+        defaultUnleash.isEnabled(
+            "opprett-dialog-kun-for-api",
+            true,
+        )
 }

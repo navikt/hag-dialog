@@ -11,6 +11,7 @@ import no.nav.helsearbeidsgiver.kafka.Inntektsmeldingsforespoersel
 import no.nav.helsearbeidsgiver.kafka.Sykepengesoeknad
 import no.nav.helsearbeidsgiver.kafka.Sykmelding
 import no.nav.helsearbeidsgiver.kafka.Sykmeldingsperiode
+import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.tilNorskFormat
 import java.util.UUID
@@ -18,11 +19,12 @@ import java.util.UUID
 class DialogportenService(
     private val dialogRepository: DialogRepository,
     private val dialogportenClient: DialogportenClient,
+    private val unleashFeatureToggles: UnleashFeatureToggles,
 ) {
     private val logger = logger()
 
     fun opprettOgLagreDialog(sykmelding: Sykmelding) {
-        val dialogId = opprettNyDialogMedSykmelding(sykmelding)
+        val dialogId = opprettNyDialogMedSykmelding(sykmelding, unleashFeatureToggles.skalOppretteDialogKunForApi())
         dialogRepository.lagreDialog(dialogId = dialogId, sykmeldingId = sykmelding.sykmeldingId)
         logger.info("Opprettet dialog $dialogId for sykmelding ${sykmelding.sykmeldingId}.")
     }
@@ -132,7 +134,10 @@ class DialogportenService(
         }
     }
 
-    private fun opprettNyDialogMedSykmelding(sykmelding: Sykmelding): UUID =
+    private fun opprettNyDialogMedSykmelding(
+        sykmelding: Sykmelding,
+        kunForApi: Boolean,
+    ): UUID =
         runBlocking {
             val request =
                 CreateDialogRequest(
@@ -149,7 +154,7 @@ class DialogportenService(
                                 SykmeldingTransmissionRequest(sykmelding),
                             ),
                         ),
-                    isApiOnly = true,
+                    isApiOnly = kunForApi,
                 )
             dialogportenClient.createDialog(request)
         }

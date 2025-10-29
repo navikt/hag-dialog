@@ -36,8 +36,9 @@ fun Application.configureKafkaConsumer(
                     unleashFeatureToggles = unleashFeatureToggles,
                     dialogportenService =
                         DialogportenService(
-                            dialogRepository,
-                            dialogportenClient,
+                            dialogRepository = dialogRepository,
+                            dialogportenClient = dialogportenClient,
+                            unleashFeatureToggles = unleashFeatureToggles,
                         ),
                 ),
         )
