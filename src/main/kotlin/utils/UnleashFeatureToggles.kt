@@ -18,6 +18,7 @@ class UnleashFeatureToggles {
                 .appName("dialog")
                 .instanceId("dialog")
                 .unleashAPI(apiUrl)
+                .fetchTogglesInterval(2)
                 .apiKey(apiKey)
                 .environment(apiEnv)
                 .build(),
