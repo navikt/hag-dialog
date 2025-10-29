@@ -95,9 +95,10 @@ class DialogportenService(
                     guiActions =
                         GuiAction(
                             name = "Send inn inntektsmelding",
-                            url = "${Env.Nav.arbeidsgiverGuiBaseUrl}/${inntektsmeldingsforespoersel.sykmeldingId}",
+                            url = "${Env.Nav.arbeidsgiverGuiBaseUrl}/${inntektsmeldingsforespoersel.forespoerselId}",
                             action = Action.WRITE.value,
-                            title = ContentValueItem("Send inn inntektsmelding"),
+                            title = listOf(ContentValueItem("Send inn inntektsmelding")),
+                            priority = GuiAction.Priority.Primary,
                         ),
                 )
                 logger.info(
