@@ -45,6 +45,9 @@ class DialogportenServiceTest :
             } returns dialogId
 
             every { dialogRepositoryMock.lagreDialog(any(), any()) } just Runs
+            every {
+                unleashFeatureTogglesMock.skalOppretteDialogKunForApi()
+            } returns true
 
             dialogportenService.opprettOgLagreDialog(sykmelding)
 
