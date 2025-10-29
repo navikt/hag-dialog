@@ -3,8 +3,11 @@ package no.nav.helsearbeidsgiver.dialogporten
 import kotlinx.coroutines.runBlocking
 import no.nav.helsearbeidsgiver.DialogRepository
 import no.nav.helsearbeidsgiver.Env
+import no.nav.helsearbeidsgiver.dialogporten.domene.Action
 import no.nav.helsearbeidsgiver.dialogporten.domene.ApiAction
+import no.nav.helsearbeidsgiver.dialogporten.domene.ContentValueItem
 import no.nav.helsearbeidsgiver.dialogporten.domene.CreateDialogRequest
+import no.nav.helsearbeidsgiver.dialogporten.domene.GuiAction
 import no.nav.helsearbeidsgiver.dialogporten.domene.lagTransmissionMedVedlegg
 import no.nav.helsearbeidsgiver.kafka.Inntektsmelding
 import no.nav.helsearbeidsgiver.kafka.Inntektsmeldingsforespoersel
@@ -75,19 +78,27 @@ class DialogportenService(
                     forespoerselTransmissionId = transmissionId,
                 )
                 dialogportenClient.addAction(
-                    dialogId,
-                    ApiAction(
-                        name = "Send inn inntektsmelding",
-                        endpoints =
-                            listOf(
-                                ApiAction.Endpoint(
-                                    url = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/inntektsmelding",
-                                    httpMethod = ApiAction.HttpMethod.POST,
-                                    documentationUrl = "${Env.Nav.arbeidsgiverApiBaseUrl}/swagger",
+                    dialogId = dialogId,
+                    apiAction =
+                        ApiAction(
+                            name = "Send inn inntektsmelding",
+                            endpoints =
+                                listOf(
+                                    ApiAction.Endpoint(
+                                        url = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/inntektsmelding",
+                                        httpMethod = ApiAction.HttpMethod.POST,
+                                        documentationUrl = "${Env.Nav.arbeidsgiverApiBaseUrl}/swagger",
+                                    ),
                                 ),
-                            ),
-                        action = ApiAction.Action.WRITE.value,
-                    ),
+                            action = Action.WRITE.value,
+                        ),
+                    guiActions =
+                        GuiAction(
+                            name = "Send inn inntektsmelding",
+                            url = "${Env.Nav.arbeidsgiverGuiBaseUrl}/${inntektsmeldingsforespoersel.sykmeldingId}",
+                            action = Action.WRITE.value,
+                            title = ContentValueItem("Send inn inntektsmelding"),
+                        ),
                 )
                 logger.info(
                     "Oppdaterte dialog $dialogId for sykmelding ${inntektsmeldingsforespoersel.sykmeldingId} " +

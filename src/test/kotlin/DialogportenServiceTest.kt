@@ -16,6 +16,7 @@ import no.nav.helsearbeidsgiver.dialogporten.InntektsmeldingTransmissionRequest
 import no.nav.helsearbeidsgiver.dialogporten.SykmeldingTransmissionRequest
 import no.nav.helsearbeidsgiver.dialogporten.domene.ApiAction
 import no.nav.helsearbeidsgiver.dialogporten.domene.CreateDialogRequest
+import no.nav.helsearbeidsgiver.dialogporten.domene.GuiAction
 import no.nav.helsearbeidsgiver.dialogporten.domene.Transmission
 import no.nav.helsearbeidsgiver.dialogporten.domene.lagTransmissionMedVedlegg
 import no.nav.helsearbeidsgiver.dialogporten.getSykmeldingsPerioderString
@@ -122,7 +123,7 @@ class DialogportenServiceTest :
             } returns UUID.randomUUID()
 
             coEvery {
-                dialogportenClientMock.addAction(any(), any())
+                dialogportenClientMock.addAction(any(), any(), any<GuiAction>())
             } just Runs
 
             dialogportenService.oppdaterDialogMedInntektsmeldingsforespoersel(inntektsmeldingsforespoersel)
@@ -136,7 +137,7 @@ class DialogportenServiceTest :
                     dialogId,
                     any<Transmission>(),
                 )
-                dialogportenClientMock.addAction(dialogId, any<ApiAction>())
+                dialogportenClientMock.addAction(dialogId, any<ApiAction>(), any<GuiAction>())
             }
         }
         test("oppdaterer dialog med inntektsmelding") {
