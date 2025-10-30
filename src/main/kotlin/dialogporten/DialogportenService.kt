@@ -27,7 +27,7 @@ class DialogportenService(
     private val logger = logger()
 
     fun opprettOgLagreDialog(sykmelding: Sykmelding) {
-        val dialogId = opprettNyDialogMedSykmelding(sykmelding, unleashFeatureToggles.skalOppretteDialogKunForApi())
+        val dialogId = opprettNyDialogMedSykmelding(sykmelding)
         dialogRepository.lagreDialog(dialogId = dialogId, sykmeldingId = sykmelding.sykmeldingId)
         logger.info("Opprettet dialog $dialogId for sykmelding ${sykmelding.sykmeldingId}.")
     }
@@ -95,7 +95,7 @@ class DialogportenService(
                     guiActions =
                         GuiAction(
                             name = "Send inn inntektsmelding",
-                            url = "${Env.Nav.arbeidsgiverGuiBaseUrl}/${inntektsmeldingsforespoersel.forespoerselId}",
+                            url = "${Env.Nav.arbeidsgiverGuiBaseUrl}/im-dialog/${inntektsmeldingsforespoersel.forespoerselId}",
                             action = Action.READ.value,
                             title = listOf(ContentValueItem("Send inn inntektsmelding")),
                             priority = GuiAction.Priority.Primary,
@@ -146,10 +146,7 @@ class DialogportenService(
         }
     }
 
-    private fun opprettNyDialogMedSykmelding(
-        sykmelding: Sykmelding,
-        kunForApi: Boolean,
-    ): UUID =
+    private fun opprettNyDialogMedSykmelding(sykmelding: Sykmelding): UUID =
         runBlocking {
             val request =
                 CreateDialogRequest(
@@ -166,7 +163,7 @@ class DialogportenService(
                                 SykmeldingTransmissionRequest(sykmelding),
                             ),
                         ),
-                    isApiOnly = kunForApi,
+                    isApiOnly = unleashFeatureToggles.skalOppretteDialogKunForApi(),
                 )
             dialogportenClient.createDialog(request)
         }
