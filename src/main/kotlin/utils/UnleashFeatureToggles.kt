@@ -18,6 +18,7 @@ class UnleashFeatureToggles {
                 .appName("dialog")
                 .instanceId("dialog")
                 .unleashAPI(apiUrl)
+                .fetchTogglesInterval(5)
                 .apiKey(apiKey)
                 .environment(apiEnv)
                 .build(),
@@ -49,5 +50,11 @@ class UnleashFeatureToggles {
             "oppdater-dialog-ved-mottatt-inntektsmelding",
             UnleashContext.builder().addProperty("orgnr", orgnr.toString()).build(),
             false,
+        )
+
+    fun skalOppretteDialogKunForApi() =
+        defaultUnleash.isEnabled(
+            "opprett-dialog-kun-for-api",
+            true,
         )
 }

@@ -3,14 +3,18 @@ package no.nav.helsearbeidsgiver.dialogporten
 import kotlinx.coroutines.runBlocking
 import no.nav.helsearbeidsgiver.DialogRepository
 import no.nav.helsearbeidsgiver.Env
+import no.nav.helsearbeidsgiver.dialogporten.domene.Action
 import no.nav.helsearbeidsgiver.dialogporten.domene.ApiAction
+import no.nav.helsearbeidsgiver.dialogporten.domene.ContentValueItem
 import no.nav.helsearbeidsgiver.dialogporten.domene.CreateDialogRequest
+import no.nav.helsearbeidsgiver.dialogporten.domene.GuiAction
 import no.nav.helsearbeidsgiver.dialogporten.domene.lagTransmissionMedVedlegg
 import no.nav.helsearbeidsgiver.kafka.Inntektsmelding
 import no.nav.helsearbeidsgiver.kafka.Inntektsmeldingsforespoersel
 import no.nav.helsearbeidsgiver.kafka.Sykepengesoeknad
 import no.nav.helsearbeidsgiver.kafka.Sykmelding
 import no.nav.helsearbeidsgiver.kafka.Sykmeldingsperiode
+import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.tilNorskFormat
 import java.util.UUID
@@ -18,6 +22,7 @@ import java.util.UUID
 class DialogportenService(
     private val dialogRepository: DialogRepository,
     private val dialogportenClient: DialogportenClient,
+    private val unleashFeatureToggles: UnleashFeatureToggles,
 ) {
     private val logger = logger()
 
@@ -73,19 +78,28 @@ class DialogportenService(
                     forespoerselTransmissionId = transmissionId,
                 )
                 dialogportenClient.addAction(
-                    dialogId,
-                    ApiAction(
-                        name = "Send inn inntektsmelding",
-                        endpoints =
-                            listOf(
-                                ApiAction.Endpoint(
-                                    url = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/inntektsmelding",
-                                    httpMethod = ApiAction.HttpMethod.POST,
-                                    documentationUrl = "${Env.Nav.arbeidsgiverApiBaseUrl}/swagger",
+                    dialogId = dialogId,
+                    apiAction =
+                        ApiAction(
+                            name = "Send inn inntektsmelding",
+                            endpoints =
+                                listOf(
+                                    ApiAction.Endpoint(
+                                        url = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/inntektsmelding",
+                                        httpMethod = ApiAction.HttpMethod.POST,
+                                        documentationUrl = "${Env.Nav.arbeidsgiverApiBaseUrl}/swagger",
+                                    ),
                                 ),
-                            ),
-                        action = ApiAction.Action.WRITE.value,
-                    ),
+                            action = Action.WRITE.value,
+                        ),
+                    guiActions =
+                        GuiAction(
+                            name = "Send inn inntektsmelding",
+                            url = "${Env.Nav.arbeidsgiverGuiBaseUrl}/im-dialog/${inntektsmeldingsforespoersel.forespoerselId}",
+                            action = Action.READ.value,
+                            title = listOf(ContentValueItem("Send inn inntektsmelding")),
+                            priority = GuiAction.Priority.Primary,
+                        ),
                 )
                 logger.info(
                     "Oppdaterte dialog $dialogId for sykmelding ${inntektsmeldingsforespoersel.sykmeldingId} " +
@@ -149,7 +163,7 @@ class DialogportenService(
                                 SykmeldingTransmissionRequest(sykmelding),
                             ),
                         ),
-                    isApiOnly = true,
+                    isApiOnly = unleashFeatureToggles.skalOppretteDialogKunForApi(),
                 )
             dialogportenClient.createDialog(request)
         }

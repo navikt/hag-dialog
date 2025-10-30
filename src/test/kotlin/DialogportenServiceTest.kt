@@ -16,9 +16,11 @@ import no.nav.helsearbeidsgiver.dialogporten.InntektsmeldingTransmissionRequest
 import no.nav.helsearbeidsgiver.dialogporten.SykmeldingTransmissionRequest
 import no.nav.helsearbeidsgiver.dialogporten.domene.ApiAction
 import no.nav.helsearbeidsgiver.dialogporten.domene.CreateDialogRequest
+import no.nav.helsearbeidsgiver.dialogporten.domene.GuiAction
 import no.nav.helsearbeidsgiver.dialogporten.domene.Transmission
 import no.nav.helsearbeidsgiver.dialogporten.domene.lagTransmissionMedVedlegg
 import no.nav.helsearbeidsgiver.dialogporten.getSykmeldingsPerioderString
+import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.tilNorskFormat
 import java.time.LocalDateTime
 import java.util.UUID
@@ -32,8 +34,8 @@ class DialogportenServiceTest :
 
         val dialogportenClientMock = mockk<DialogportenClient>()
         val dialogRepositoryMock = mockk<DialogRepository>()
-
-        val dialogportenService = DialogportenService(dialogRepositoryMock, dialogportenClientMock)
+        val unleashFeatureTogglesMock = mockk<UnleashFeatureToggles>()
+        val dialogportenService = DialogportenService(dialogRepositoryMock, dialogportenClientMock, unleashFeatureTogglesMock)
 
         test("oppretter dialog med sykmelding og lagrer dialogId i databasen") {
             val dialogId = UUID.randomUUID()
@@ -44,6 +46,9 @@ class DialogportenServiceTest :
             } returns dialogId
 
             every { dialogRepositoryMock.lagreDialog(any(), any()) } just Runs
+            every {
+                unleashFeatureTogglesMock.skalOppretteDialogKunForApi()
+            } returns true
 
             dialogportenService.opprettOgLagreDialog(sykmelding)
 
@@ -118,7 +123,7 @@ class DialogportenServiceTest :
             } returns UUID.randomUUID()
 
             coEvery {
-                dialogportenClientMock.addAction(any(), any())
+                dialogportenClientMock.addAction(any(), any(), any<GuiAction>())
             } just Runs
 
             dialogportenService.oppdaterDialogMedInntektsmeldingsforespoersel(inntektsmeldingsforespoersel)
@@ -132,7 +137,7 @@ class DialogportenServiceTest :
                     dialogId,
                     any<Transmission>(),
                 )
-                dialogportenClientMock.addAction(dialogId, any<ApiAction>())
+                dialogportenClientMock.addAction(dialogId, any<ApiAction>(), any<GuiAction>())
             }
         }
         test("oppdaterer dialog med inntektsmelding") {
