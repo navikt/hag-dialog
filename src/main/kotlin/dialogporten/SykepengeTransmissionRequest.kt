@@ -30,7 +30,7 @@ class SykepengesoknadTransmissionRequest(
     override val tittel = "Søknad om sykepenger"
     override val sammendrag = null
     override val vedleggNavn = "sykepengesoeknad.json"
-    override val vedleggBaseUrl = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/soknad"
+    override val vedleggBaseUrl = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/sykepengesoeknad"
     override val type = Transmission.TransmissionType.Information
     override val relatedTransmissionId = null
 }
