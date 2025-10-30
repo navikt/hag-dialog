@@ -6,8 +6,6 @@ metadata:
     team: helsearbeidsgiver
   name: dialog
   namespace: helsearbeidsgiver
-  annotations:
-    texas.nais.io/enabled: "true"
 spec:
   replicas:
     max: 1
@@ -71,7 +69,7 @@ spec:
     - name: ALTINN_3_BASE_URL
       value: "https://platform.tt02.altinn.no"
     - name: ALTINN_DIALOGPORTEN_RESSURS
-      value: "nav_sykepenger_dialogporten"
+      value: "nav_sykepenger_dialog"
     - name: DIALOGPORTEN_SCOPE
       value: "digdir:dialogporten.serviceprovider"
     - name: NAV_ARBEIDSGIVER_API_BASEURL

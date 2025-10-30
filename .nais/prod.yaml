@@ -6,8 +6,6 @@ metadata:
     team: helsearbeidsgiver
   name: dialog
   namespace: helsearbeidsgiver
-  annotations:
-    texas.nais.io/enabled: "true"
 spec:
   replicas:
     max: 1
