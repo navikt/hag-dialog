@@ -38,7 +38,7 @@ class ForespoerselTransmissionRequest(
     override val relatedTransmissionId: UUID? = null,
 ) : TransmissionRequest() {
     override val extendedType = LpsApiExtendedType.INNTEKTSMELDINGFORESPOERSEL.toString()
-    override val tittel = "Forespoersel om Inntektsmelding"
+    override val tittel = "Forespørsel om Inntektsmelding"
     override val sammendrag = null
     override val vedleggNavn = "inntektsmeldingforespoersel.json"
     override val vedleggUrl = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/forespoersel/${inntektsmeldingsforespoersel.forespoerselId}"
