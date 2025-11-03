@@ -29,7 +29,6 @@ private fun commonKafkaProperties(): Map<String, String> {
     val keystorePath = Env.Kafka.kafkaKeystorePath
     val credstorePassword = Env.Kafka.kafkaCredstorePassword
 
-    // If SSL paths are not configured, return empty map (for local development)
     if (truststorePath == null ||
         keystorePath == null ||
         credstorePassword == null ||
@@ -40,7 +39,6 @@ private fun commonKafkaProperties(): Map<String, String> {
         return emptyMap()
     }
 
-    // After null check, we know these are non-null
     return buildSslConfig(truststorePath, keystorePath, credstorePassword)
 }
 
