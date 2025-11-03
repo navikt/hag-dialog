@@ -25,39 +25,51 @@ fun createKafkaConsumerConfig(): Properties {
 }
 
 private fun commonKafkaProperties(): Map<String, String> {
+    val truststorePath = Env.Kafka.kafkaTruststorePath
+    val keystorePath = Env.Kafka.kafkaKeystorePath
+    val credstorePassword = Env.Kafka.kafkaCredstorePassword
+
+    // If SSL paths are not configured, return empty map (for local development)
+    if (truststorePath == null ||
+        keystorePath == null ||
+        credstorePassword == null ||
+        truststorePath.isEmpty() ||
+        keystorePath.isEmpty() ||
+        credstorePassword.isEmpty()
+    ) {
+        return emptyMap()
+    }
+
+    // After null check, we know these are non-null
+    return buildSslConfig(truststorePath, keystorePath, credstorePassword)
+}
+
+private fun buildSslConfig(
+    truststorePath: String,
+    keystorePath: String,
+    credstorePassword: String,
+): Map<String, String> {
     val pkcs12 = "PKCS12"
     val javaKeyStore = "jks"
 
     val truststoreConfig =
-        Env
-            .Kafka.kafkaTruststorePath
-            .let {
-                mapOf(
-                    SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG to it,
-                    CommonClientConfigs.SECURITY_PROTOCOL_CONFIG to SecurityProtocol.SSL.name,
-                    SslConfigs.SSL_ENDPOINT_IDENTIFICATION_ALGORITHM_CONFIG to "",
-                    SslConfigs.SSL_TRUSTSTORE_TYPE_CONFIG to javaKeyStore,
-                    SslConfigs.SSL_KEYSTORE_TYPE_CONFIG to pkcs12,
-                )
-            }
+        mapOf(
+            SslConfigs.SSL_TRUSTSTORE_LOCATION_CONFIG to truststorePath,
+            CommonClientConfigs.SECURITY_PROTOCOL_CONFIG to SecurityProtocol.SSL.name,
+            SslConfigs.SSL_ENDPOINT_IDENTIFICATION_ALGORITHM_CONFIG to "",
+            SslConfigs.SSL_TRUSTSTORE_TYPE_CONFIG to javaKeyStore,
+            SslConfigs.SSL_KEYSTORE_TYPE_CONFIG to pkcs12,
+        )
 
     val credstoreConfig =
-        Env
-            .Kafka.kafkaCredstorePassword
-            .let {
-                mapOf(
-                    SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG to it,
-                    SslConfigs.SSL_KEYSTORE_PASSWORD_CONFIG to it,
-                    SslConfigs.SSL_KEY_PASSWORD_CONFIG to it,
-                )
-            }
+        mapOf(
+            SslConfigs.SSL_TRUSTSTORE_PASSWORD_CONFIG to credstorePassword,
+            SslConfigs.SSL_KEYSTORE_PASSWORD_CONFIG to credstorePassword,
+            SslConfigs.SSL_KEY_PASSWORD_CONFIG to credstorePassword,
+        )
 
     val keystoreConfig =
-        Env
-            .Kafka.kafkaKeystorePath
-            .let {
-                mapOf(SslConfigs.SSL_KEYSTORE_LOCATION_CONFIG to it)
-            }
+        mapOf(SslConfigs.SSL_KEYSTORE_LOCATION_CONFIG to keystorePath)
 
     return truststoreConfig + credstoreConfig + keystoreConfig
 }

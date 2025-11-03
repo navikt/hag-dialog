@@ -6,6 +6,10 @@ import io.ktor.server.config.HoconApplicationConfig
 private val appConfig = HoconApplicationConfig(ConfigFactory.load())
 
 object Env {
+    object Application {
+        val local = "application.isLocal".fromEnvOrNull()?.toBoolean() ?: false
+    }
+
     object Unleash {
         val apiKey = "UNLEASH_SERVER_API_TOKEN".fromEnv()
         val apiUrl = "UNLEASH_SERVER_API_URL".fromEnv()
@@ -13,19 +17,18 @@ object Env {
     }
 
     object Kafka {
-        val topic = "DIALOG_KAFKA_TOPIC".fromEnv()
-        val kafkaBrokers = "KAFKA_BROKERS".fromEnv()
-        val kafkaTruststorePath = "KAFKA_TRUSTSTORE_PATH".fromEnv()
-        val kafkaCredstorePassword = "KAFKA_CREDSTORE_PASSWORD".fromEnv()
-        val kafkaKeystorePath = "KAFKA_KEYSTORE_PATH".fromEnv()
+        val topic = "kafka.topic".fromEnv()
+        val kafkaBrokers = "kafka.brokers".fromEnv()
+        val kafkaTruststorePath = "kafka.truststorePath".fromEnvOrNull()
+        val kafkaCredstorePassword = "kafka.credstorePassword".fromEnvOrNull()
+        val kafkaKeystorePath = "kafka.keystorePath".fromEnvOrNull()
     }
 
     object Database {
-        private val databasePrefix = "NAIS_DATABASE_DIALOG_DIALOG"
-        val url = "${databasePrefix}_JDBC_URL".fromEnv()
-        val username = "${databasePrefix}_USERNAME".fromEnv()
-        val password = "${databasePrefix}_PASSWORD".fromEnv()
-        val name = "${databasePrefix}_DATABASE".fromEnv()
+        val url = "database.jdbcUrl".fromEnv()
+        val username = "database.username".fromEnv()
+        val password = "database.password".fromEnv()
+        val name = "database.name".fromEnv()
     }
 
     object Nav {
@@ -49,4 +52,8 @@ object Env {
         System.getenv(this)
             ?: appConfig.propertyOrNull(this)?.getString()
             ?: throw RuntimeException("Missing required environment variable \"$this\".")
+
+    fun String.fromEnvOrNull(): String? =
+        System.getenv(this)
+            ?: appConfig.propertyOrNull(this)?.getString()?.takeIf { it.isNotEmpty() }
 }

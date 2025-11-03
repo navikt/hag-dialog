@@ -3,14 +3,16 @@ package no.nav.helsearbeidsgiver
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import io.ktor.server.routing.routing
-import no.nav.helsearbeidsgiver.auth.AuthClient
-import no.nav.helsearbeidsgiver.auth.dialogportenTokenGetter
+import io.mockk.coEvery
+import io.mockk.mockk
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenClient
+import no.nav.helsearbeidsgiver.dialogporten.domene.CreateDialogRequest
 import no.nav.helsearbeidsgiver.helsesjekker.HelsesjekkService
 import no.nav.helsearbeidsgiver.helsesjekker.naisRoutes
 import no.nav.helsearbeidsgiver.kafka.configureKafkaConsumer
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import org.slf4j.LoggerFactory
+import java.util.UUID
 
 fun main() {
     startServer()
@@ -28,15 +30,14 @@ fun startServer() {
 
     logger.info("Setter opp Unleash...")
     val unleashFeatureToggles = UnleashFeatureToggles(Env.Application.local)
-    val authClient = AuthClient()
 
     logger.info("Setter opp DialogportenClient...")
-    val dialogportenClient =
-        DialogportenClient(
-            baseUrl = Env.Altinn.baseUrl,
-            ressurs = Env.Altinn.dialogportenRessurs,
-            getToken = authClient.dialogportenTokenGetter(),
-        )
+    val dialogportenClient = mockk<DialogportenClient>(relaxed = true)
+
+    coEvery { dialogportenClient.createDialog(any<CreateDialogRequest>()) } answers {
+        println("createDialog called with: ${firstArg<CreateDialogRequest>()}")
+        UUID.randomUUID()
+    }
 
     logger.info("Setter opp DialogRepository...")
     val dialogRepository = DialogRepository(database.db)
