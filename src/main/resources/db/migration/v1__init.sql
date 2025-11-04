@@ -1,6 +1,6 @@
 CREATE TABLE dialog
 (
-    id            UUID UNIQUE NOT NULL,
+    id            UUID UNIQUE NOT NULL PRIMARY KEY,
     sykmelding_id UUID UNIQUE NOT NULL,
     opprettet     TIMESTAMP   NOT NULL DEFAULT now()
 );
@@ -9,7 +9,7 @@ CREATE INDEX sykmelding_id_index ON dialog (sykmelding_id);
 
 CREATE TABLE transmission
 (
-    id                   UUID UNIQUE NOT NULL,
+    id                   UUID UNIQUE NOT NULL PRIMARY KEY,
     dialog_id            UUID UNIQUE NOT NULL,
     dokument_id          UUID UNIQUE NOT NULL,
     dokument_type        TEXT        NOT NULL,
