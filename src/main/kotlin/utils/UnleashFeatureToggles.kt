@@ -1,18 +1,14 @@
 package no.nav.helsearbeidsgiver.utils
 
 import io.getunleash.DefaultUnleash
-import io.getunleash.FakeUnleash
-import io.getunleash.Unleash
 import io.getunleash.UnleashContext
 import io.getunleash.util.UnleashConfig
 import no.nav.helsearbeidsgiver.Env
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 
-class UnleashFeatureToggles(
-    isLocal: Boolean,
-) {
+class UnleashFeatureToggles {
     private val defaultUnleash: Unleash =
-        if (isLocal) {
+        if (Env.Application.local) {
             FakeUnleash().apply { enableAll() }
         } else {
             DefaultUnleash(
