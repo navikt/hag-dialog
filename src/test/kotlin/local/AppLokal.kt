@@ -29,7 +29,7 @@ fun startServer() {
     logger.info("Migrering ferdig.")
 
     logger.info("Setter opp Unleash...")
-    val unleashFeatureToggles = UnleashFeatureToggles(Env.Application.local)
+    val unleashFeatureToggles = UnleashFeatureToggles()
 
     logger.info("Setter opp DialogportenClient...")
     val dialogportenClient = mockk<DialogportenClient>(relaxed = true)
