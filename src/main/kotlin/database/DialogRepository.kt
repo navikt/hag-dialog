@@ -20,9 +20,11 @@ class DialogRepository(
         sykmeldingId: UUID,
     ) {
         try {
-            DialogTable.insert {
-                it[this.id] = dialogId
-                it[this.sykmeldingId] = sykmeldingId
+            transaction(db) {
+                DialogTable.insert {
+                    it[this.id] = dialogId
+                    it[this.sykmeldingId] = sykmeldingId
+                }
             }
         } catch (e: ExposedSQLException) {
             sikkerLogger().error("Klarte ikke å lagre dialog med id $dialogId i databasen", e)
@@ -31,25 +33,31 @@ class DialogRepository(
     }
 
     fun finnDialogId(sykmeldingId: UUID): DialogEntity? =
-        DialogEntity
-            .find { DialogTable.sykmeldingId eq sykmeldingId }
-            .firstOrNull()
+        transaction(db) {
+            DialogEntity
+                .find { DialogTable.sykmeldingId eq sykmeldingId }
+                .firstOrNull()
+        }
 
-    fun oppdaterDialogMedForespoerselTransmissionId(
+    fun oppdaterDialogMedTransmission(
         sykmeldingId: UUID,
-        forespoerselTransmissionId: UUID,
+        transmissionId: UUID,
+        dokumentId: UUID,
+        dokumentType: String,
+        relatedTransmission: UUID? = null,
     ) {
         try {
             transaction(db) {
-                val dialog = DialogEntity.find { DialogTable.sykmeldingId eq sykmeldingId }.firstOrNull()
-                    ?: throw IllegalArgumentException("Dialog med sykmeldingId $sykmeldingId finnes ikke")
+                val dialog =
+                    DialogEntity.find { DialogTable.sykmeldingId eq sykmeldingId }.firstOrNull()
+                        ?: throw IllegalArgumentException("Dialog med sykmeldingId $sykmeldingId finnes ikke")
 
-                TransmissionEntity.new(forespoerselTransmissionId) {
+                TransmissionEntity.new(transmissionId) {
                     this.dialog = dialog
                     this.dokumentId = dokumentId
                     this.dokumentType = dokumentType
                     this.relatedTransmission = relatedTransmission
-                    this.opprettet = LocalDateTime.now() // or rely on clientDefault
+                    this.opprettet = LocalDateTime.now()
                 }
             }
         } catch (e: ExposedSQLException) {

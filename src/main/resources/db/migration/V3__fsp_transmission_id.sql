@@ -1,1 +1,0 @@
-ALTER TABLE dialog RENAME COLUMN forespoersel_transmission TO forespoersel_transmission_id;

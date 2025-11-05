@@ -1,8 +1,8 @@
 package no.nav.helsearbeidsgiver.dialogporten
 
 import kotlinx.coroutines.runBlocking
-import no.nav.helsearbeidsgiver.DialogRepository
 import no.nav.helsearbeidsgiver.Env
+import no.nav.helsearbeidsgiver.database.DialogRepository
 import no.nav.helsearbeidsgiver.dialogporten.domene.Action
 import no.nav.helsearbeidsgiver.dialogporten.domene.ApiAction
 import no.nav.helsearbeidsgiver.dialogporten.domene.ContentValueItem
@@ -33,8 +33,8 @@ class DialogportenService(
     }
 
     fun oppdaterDialogMedSykepengesoeknad(sykepengesoeknad: Sykepengesoeknad) {
-        val dialogId = dialogRepository.finnDialogId(sykmeldingId = sykepengesoeknad.sykmeldingId)
-        if (dialogId == null) {
+        val dialog = dialogRepository.finnDialogId(sykmeldingId = sykepengesoeknad.sykmeldingId)
+        if (dialog == null) {
             logger.warn(
                 "Fant ikke dialog for sykmeldingId ${sykepengesoeknad.sykmeldingId}. " +
                     "Klarer derfor ikke oppdatere dialogen med sykepengesøknad ${sykepengesoeknad.soeknadId}.",
@@ -43,13 +43,19 @@ class DialogportenService(
             runBlocking {
                 val transmissionId =
                     dialogportenClient.addTransmission(
-                        dialogId,
+                        dialog.id.value,
                         lagTransmissionMedVedlegg(
                             SykepengesoknadTransmissionRequest(sykepengesoeknad),
                         ),
                     )
+                dialogRepository.oppdaterDialogMedTransmission(
+                    sykepengesoeknad.sykmeldingId,
+                    transmissionId,
+                    sykepengesoeknad.soeknadId,
+                    LpsApiExtendedType.SYKEPENGESOEKNAD.toString(),
+                )
                 logger.info(
-                    "Oppdaterte dialog $dialogId for sykmelding ${sykepengesoeknad.sykmeldingId}" +
+                    "Oppdaterte dialog ${dialog.id.value} for sykmelding ${sykepengesoeknad.sykmeldingId}" +
                         " med sykepengesøknad ${sykepengesoeknad.soeknadId}. " +
                         "Lagt til transmission $transmissionId.",
                 )
@@ -57,95 +63,96 @@ class DialogportenService(
         }
     }
 
-    fun oppdaterDialogMedInntektsmeldingsforespoersel(inntektsmeldingsforespoersel: Inntektsmeldingsforespoersel) {
-        val dialogId = dialogRepository.finnDialogId(sykmeldingId = inntektsmeldingsforespoersel.sykmeldingId)
-        if (dialogId == null) {
-            logger.warn(
-                "Fant ikke dialog for sykmeldingId ${inntektsmeldingsforespoersel.sykmeldingId}. " +
-                    "Klarer derfor ikke oppdatere dialogen med inntektsmeldingforespørsel ${inntektsmeldingsforespoersel.forespoerselId}.",
-            )
-        } else {
-            runBlocking {
-                val transmissionId =
-                    dialogportenClient.addTransmission(
-                        dialogId,
-                        lagTransmissionMedVedlegg(
-                            ForespoerselTransmissionRequest(inntektsmeldingsforespoersel),
-                        ),
+    /*
+        fun oppdaterDialogMedInntektsmeldingsforespoersel(inntektsmeldingsforespoersel: Inntektsmeldingsforespoersel) {
+            val dialogId = dialogRepository.finnDialogId(sykmeldingId = inntektsmeldingsforespoersel.sykmeldingId)
+            if (dialogId == null) {
+                logger.warn(
+                    "Fant ikke dialog for sykmeldingId ${inntektsmeldingsforespoersel.sykmeldingId}. " +
+                        "Klarer derfor ikke oppdatere dialogen med inntektsmeldingforespørsel ${inntektsmeldingsforespoersel.forespoerselId}.",
+                )
+            } else {
+                runBlocking {
+                    val transmissionId =
+                        dialogportenClient.addTransmission(
+                            dialogId,
+                            lagTransmissionMedVedlegg(
+                                ForespoerselTransmissionRequest(inntektsmeldingsforespoersel),
+                            ),
+                        )
+                    dialogRepository.oppdaterDialogMedForespoerselTransmissionId(
+                        sykmeldingId = inntektsmeldingsforespoersel.sykmeldingId,
+                        forespoerselTransmissionId = transmissionId,
                     )
-                dialogRepository.oppdaterDialogMedForespoerselTransmissionId(
-                    sykmeldingId = inntektsmeldingsforespoersel.sykmeldingId,
-                    forespoerselTransmissionId = transmissionId,
-                )
-                dialogportenClient.addAction(
-                    dialogId = dialogId,
-                    apiAction =
-                        ApiAction(
-                            name = "Send inn inntektsmelding",
-                            endpoints =
-                                listOf(
-                                    ApiAction.Endpoint(
-                                        url = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/inntektsmelding",
-                                        httpMethod = ApiAction.HttpMethod.POST,
-                                        documentationUrl = "${Env.Nav.arbeidsgiverApiBaseUrl}/swagger",
+                    dialogportenClient.addAction(
+                        dialogId = dialogId,
+                        apiAction =
+                            ApiAction(
+                                name = "Send inn inntektsmelding",
+                                endpoints =
+                                    listOf(
+                                        ApiAction.Endpoint(
+                                            url = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/inntektsmelding",
+                                            httpMethod = ApiAction.HttpMethod.POST,
+                                            documentationUrl = "${Env.Nav.arbeidsgiverApiBaseUrl}/swagger",
+                                        ),
                                     ),
-                                ),
-                            action = Action.WRITE.value,
-                        ),
-                    guiActions =
-                        GuiAction(
-                            name = "Send inn inntektsmelding",
-                            url = "${Env.Nav.arbeidsgiverGuiBaseUrl}/im-dialog/${inntektsmeldingsforespoersel.forespoerselId}",
-                            action = Action.READ.value,
-                            title = listOf(ContentValueItem("Send inn inntektsmelding")),
-                            priority = GuiAction.Priority.Primary,
-                        ),
-                )
-                logger.info(
-                    "Oppdaterte dialog $dialogId for sykmelding ${inntektsmeldingsforespoersel.sykmeldingId} " +
-                        "med forespørsel om inntektsmelding med id ${inntektsmeldingsforespoersel.forespoerselId}." +
-                        "Lagt til transmission $transmissionId.",
-                )
-            }
-        }
-    }
-
-    fun oppdaterDialogMedInntektsmelding(inntektsmelding: Inntektsmelding) {
-        val dialog = dialogRepository.hentDialogMedSykmeldingId(inntektsmelding.sykmeldingId)
-        if (dialog == null) {
-            logger.warn(
-                "Fant ikke dialog for sykmeldingId ${inntektsmelding.sykmeldingId}. " +
-                    "Klarer derfor ikke oppdatere dialogen med inntektsmelding ${inntektsmelding.innsendingId}.",
-            )
-        } else {
-            runBlocking {
-                if (dialog.forespoerselTransmission == null) {
-                    logger.warn(
-                        "Dialog ${dialog.dialogId} for sykmeldingId ${inntektsmelding.sykmeldingId} " +
-                            "har ingen tilknyttet forespørsel om inntektsmelding. " +
-                            "Klarer derfor ikke tilknytte inntektsmelding ${inntektsmelding.innsendingId} med forespørsel.",
+                                action = Action.WRITE.value,
+                            ),
+                        guiActions =
+                            GuiAction(
+                                name = "Send inn inntektsmelding",
+                                url = "${Env.Nav.arbeidsgiverGuiBaseUrl}/im-dialog/${inntektsmeldingsforespoersel.forespoerselId}",
+                                action = Action.READ.value,
+                                title = listOf(ContentValueItem("Send inn inntektsmelding")),
+                                priority = GuiAction.Priority.Primary,
+                            ),
+                    )
+                    logger.info(
+                        "Oppdaterte dialog $dialogId for sykmelding ${inntektsmeldingsforespoersel.sykmeldingId} " +
+                            "med forespørsel om inntektsmelding med id ${inntektsmeldingsforespoersel.forespoerselId}." +
+                            "Lagt til transmission $transmissionId.",
                     )
                 }
-                val transmissionId =
-                    dialogportenClient.addTransmission(
-                        dialog.dialogId,
-                        lagTransmissionMedVedlegg(
-                            InntektsmeldingTransmissionRequest(
-                                inntektsmelding = inntektsmelding,
-                                relatedTransmissionId = dialog.forespoerselTransmission,
-                            ),
-                        ),
-                    )
-
-                logger.info(
-                    "Oppdaterte dialog ${dialog.dialogId} for sykmelding ${inntektsmelding.sykmeldingId}" +
-                        " med inntektsmelding ${inntektsmelding.innsendingId}. " +
-                        "Lagt til transmission $transmissionId.",
-                )
             }
         }
-    }
 
+        fun oppdaterDialogMedInntektsmelding(inntektsmelding: Inntektsmelding) {
+            val dialog = dialogRepository.hentDialogMedSykmeldingId(inntektsmelding.sykmeldingId)
+            if (dialog == null) {
+                logger.warn(
+                    "Fant ikke dialog for sykmeldingId ${inntektsmelding.sykmeldingId}. " +
+                        "Klarer derfor ikke oppdatere dialogen med inntektsmelding ${inntektsmelding.innsendingId}.",
+                )
+            } else {
+                runBlocking {
+                    if (dialog.forespoerselTransmission == null) {
+                        logger.warn(
+                            "Dialog ${dialog.dialogId} for sykmeldingId ${inntektsmelding.sykmeldingId} " +
+                                "har ingen tilknyttet forespørsel om inntektsmelding. " +
+                                "Klarer derfor ikke tilknytte inntektsmelding ${inntektsmelding.innsendingId} med forespørsel.",
+                        )
+                    }
+                    val transmissionId =
+                        dialogportenClient.addTransmission(
+                            dialog.dialogId,
+                            lagTransmissionMedVedlegg(
+                                InntektsmeldingTransmissionRequest(
+                                    inntektsmelding = inntektsmelding,
+                                    relatedTransmissionId = dialog.forespoerselTransmission,
+                                ),
+                            ),
+                        )
+
+                    logger.info(
+                        "Oppdaterte dialog ${dialog.dialogId} for sykmelding ${inntektsmelding.sykmeldingId}" +
+                            " med inntektsmelding ${inntektsmelding.innsendingId}. " +
+                            "Lagt til transmission $transmissionId.",
+                    )
+                }
+            }
+        }
+     */
     private fun opprettNyDialogMedSykmelding(sykmelding: Sykmelding): UUID =
         runBlocking {
             val request =
