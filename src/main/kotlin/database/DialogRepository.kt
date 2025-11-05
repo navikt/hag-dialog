@@ -1,0 +1,60 @@
+package no.nav.helsearbeidsgiver.database
+
+import no.nav.helsearbeidsgiver.DialogEntitet
+import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
+import org.jetbrains.exposed.exceptions.ExposedSQLException
+import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.sql.selectAll
+import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.sql.update
+import java.time.LocalDateTime
+import java.util.UUID
+
+class DialogRepository(
+    private val db: Database,
+) {
+    fun lagreDialog(
+        dialogId: UUID,
+        sykmeldingId: UUID,
+    ) {
+        try {
+            DialogTable.insert {
+                it[this.id] = dialogId
+                it[this.sykmeldingId] = sykmeldingId
+            }
+        } catch (e: ExposedSQLException) {
+            sikkerLogger().error("Klarte ikke å lagre dialog med id $dialogId i databasen", e)
+            throw e
+        }
+    }
+
+    fun finnDialogId(sykmeldingId: UUID): DialogEntity? =
+        DialogEntity
+            .find { DialogTable.sykmeldingId eq sykmeldingId }
+            .firstOrNull()
+
+    fun oppdaterDialogMedForespoerselTransmissionId(
+        sykmeldingId: UUID,
+        forespoerselTransmissionId: UUID,
+    ) {
+        try {
+            transaction(db) {
+                val dialog = DialogEntity.find { DialogTable.sykmeldingId eq sykmeldingId }.firstOrNull()
+                    ?: throw IllegalArgumentException("Dialog med sykmeldingId $sykmeldingId finnes ikke")
+
+                TransmissionEntity.new(forespoerselTransmissionId) {
+                    this.dialog = dialog
+                    this.dokumentId = dokumentId
+                    this.dokumentType = dokumentType
+                    this.relatedTransmission = relatedTransmission
+                    this.opprettet = LocalDateTime.now() // or rely on clientDefault
+                }
+            }
+        } catch (e: ExposedSQLException) {
+            sikkerLogger().error("Klarte ikke å oppdatere dialog med sykmeldingId $sykmeldingId i databasen", e)
+            throw e
+        }
+    }
+}
