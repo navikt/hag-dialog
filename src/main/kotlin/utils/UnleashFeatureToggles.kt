@@ -1,28 +1,30 @@
 package no.nav.helsearbeidsgiver.utils
 
 import io.getunleash.DefaultUnleash
+import io.getunleash.FakeUnleash
+import io.getunleash.Unleash
 import io.getunleash.UnleashContext
 import io.getunleash.util.UnleashConfig
 import no.nav.helsearbeidsgiver.Env
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 
 class UnleashFeatureToggles {
-    private val apiKey = Env.Unleash.apiKey
-    private val apiUrl = Env.Unleash.apiUrl + "/api"
-    private val apiEnv = Env.Unleash.apiEnv
-
-    private val defaultUnleash: DefaultUnleash =
-        DefaultUnleash(
-            UnleashConfig
-                .builder()
-                .appName("dialog")
-                .instanceId("dialog")
-                .unleashAPI(apiUrl)
-                .fetchTogglesInterval(5)
-                .apiKey(apiKey)
-                .environment(apiEnv)
-                .build(),
-        )
+    private val defaultUnleash: Unleash =
+        if (Env.Application.local) {
+            FakeUnleash().apply { enableAll() }
+        } else {
+            DefaultUnleash(
+                UnleashConfig
+                    .builder()
+                    .appName("dialog")
+                    .instanceId("dialog")
+                    .unleashAPI(Env.Unleash.apiUrl + "/api")
+                    .fetchTogglesInterval(5)
+                    .apiKey(Env.Unleash.apiKey)
+                    .environment(Env.Unleash.apiEnv)
+                    .build(),
+            )
+        }
 
     fun skalOppretteDialogVedMottattSykmelding(orgnr: Orgnr): Boolean =
         defaultUnleash.isEnabled(
