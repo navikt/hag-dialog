@@ -49,7 +49,7 @@ class MeldingTolker(
 
                 is Inntektsmeldingsforespoersel -> {
                     if (unleashFeatureToggles.skalOppdatereDialogVedMottattInntektsmeldingsforespoersel(orgnr = dekodetMelding.orgnr)) {
-                       // dialogportenService.oppdaterDialogMedInntektsmeldingsforespoersel(inntektsmeldingsforespoersel = dekodetMelding)
+                        dialogportenService.oppdaterDialogMedInntektsmeldingsforespoersel(inntektsmeldingsforespoersel = dekodetMelding)
                     } else {
                         logger.info(
                             "Feature toggle for oppdatering av dialog med forespørsel om inntektsmelding er avskrudd, " +
@@ -60,7 +60,7 @@ class MeldingTolker(
 
                 is Inntektsmelding -> {
                     if (unleashFeatureToggles.skalOppdatereDialogVedMottattInntektsmelding(orgnr = dekodetMelding.orgnr)) {
-                        //dialogportenService.oppdaterDialogMedInntektsmelding(inntektsmelding = dekodetMelding)
+                        dialogportenService.oppdaterDialogMedInntektsmelding(inntektsmelding = dekodetMelding)
                     } else {
                         logger.info(
                             "Feature toggle for oppdatering av dialog med inntektsmelding er avskrudd, " +

@@ -39,7 +39,7 @@ class ForespoerselTransmissionRequest(
     inntektsmeldingsforespoersel: Inntektsmeldingsforespoersel,
     override val relatedTransmissionId: UUID? = null,
 ) : TransmissionRequest() {
-    override val extendedType = LpsApiExtendedType.INNTEKTSMELDINGFORESPOERSEL.toString()
+    override val extendedType = LpsApiExtendedType.FORESPOERSEL_AKTIV.toString()
     override val dokumentId = inntektsmeldingsforespoersel.forespoerselId
     override val tittel = "Forespørsel om inntektsmelding"
     override val sammendrag = null
@@ -48,25 +48,36 @@ class ForespoerselTransmissionRequest(
     override val type = Transmission.TransmissionType.Request
 }
 
+fun Inntektsmelding.Status.toExtendedType(): String =
+    when (this) {
+        Inntektsmelding.Status.MOTTATT -> LpsApiExtendedType.INNTEKTSMELDING_MOTTATT.toString()
+        Inntektsmelding.Status.FEILET -> LpsApiExtendedType.INNTEKTSMELDING_AVVIST.toString()
+        Inntektsmelding.Status.GODKJENT -> LpsApiExtendedType.INNTEKTSMELDING_GODKJENT.toString()
+    }
+
+fun Inntektsmelding.Status.toTittel(): String =
+    when (this) {
+        Inntektsmelding.Status.MOTTATT -> "Inntektsmelding mottatt"
+        Inntektsmelding.Status.FEILET -> "Inntektsmelding avvist"
+        Inntektsmelding.Status.GODKJENT -> "Inntektsmelding godkjent"
+    }
+
+fun Inntektsmelding.Status.toTransmissionType(): Transmission.TransmissionType =
+    when (this) {
+        Inntektsmelding.Status.MOTTATT -> Transmission.TransmissionType.Submission
+        Inntektsmelding.Status.FEILET -> Transmission.TransmissionType.Rejection
+        Inntektsmelding.Status.GODKJENT -> Transmission.TransmissionType.Acceptance
+    }
+
 class InntektsmeldingTransmissionRequest(
     inntektsmelding: Inntektsmelding,
     override val relatedTransmissionId: UUID?,
 ) : TransmissionRequest() {
-    override val extendedType = LpsApiExtendedType.INNTEKTSMELDING.toString()
+    override val extendedType = inntektsmelding.status.toExtendedType()
     override val dokumentId = inntektsmelding.innsendingId
-    override val tittel =
-        when (inntektsmelding.status) {
-            Inntektsmelding.Status.MOTTATT -> "Inntektsmelding mottatt"
-            Inntektsmelding.Status.FEILET -> "Inntektsmelding avvist"
-            Inntektsmelding.Status.GODKJENT -> "Inntektsmelding godkjent"
-        }
+    override val tittel = inntektsmelding.status.toTittel()
     override val sammendrag = null
     override val vedleggNavn = "inntektsmelding.json"
     override val vedleggBaseUrl = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/inntektsmelding"
-    override val type =
-        when (inntektsmelding.status) {
-            Inntektsmelding.Status.MOTTATT -> Transmission.TransmissionType.Submission
-            Inntektsmelding.Status.FEILET -> Transmission.TransmissionType.Rejection
-            Inntektsmelding.Status.GODKJENT -> Transmission.TransmissionType.Acceptance
-        }
+    override val type = inntektsmelding.status.toTransmissionType()
 }

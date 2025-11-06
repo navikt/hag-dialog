@@ -1,14 +1,10 @@
 package no.nav.helsearbeidsgiver.database
 
-import no.nav.helsearbeidsgiver.DialogEntitet
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import org.jetbrains.exposed.exceptions.ExposedSQLException
 import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.jetbrains.exposed.sql.update
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -32,7 +28,7 @@ class DialogRepository(
         }
     }
 
-    fun finnDialogId(sykmeldingId: UUID): DialogEntity? =
+    fun finnDialogIdMedSykemeldingId(sykmeldingId: UUID): DialogEntity? =
         transaction(db) {
             DialogEntity
                 .find { DialogTable.sykmeldingId eq sykmeldingId }

@@ -1,6 +1,8 @@
 package no.nav.helsearbeidsgiver.utils
 
 import io.getunleash.DefaultUnleash
+import io.getunleash.FakeUnleash
+import io.getunleash.Unleash
 import io.getunleash.UnleashContext
 import io.getunleash.util.UnleashConfig
 import no.nav.helsearbeidsgiver.Env

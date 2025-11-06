@@ -28,7 +28,7 @@ fun startServer() {
     logger.info("Migrering ferdig.")
 
     logger.info("Setter opp Unleash...")
-    val unleashFeatureToggles = UnleashFeatureToggles(Env.Application.local)
+    val unleashFeatureToggles = UnleashFeatureToggles()
     val authClient = AuthClient()
 
     logger.info("Setter opp DialogportenClient...")

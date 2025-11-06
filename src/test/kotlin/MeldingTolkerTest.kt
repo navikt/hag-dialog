@@ -72,5 +72,5 @@ class MeldingTolkerTest :
 
             verify(exactly = 1) { dialogportenServiceMock.oppdaterDialogMedInntektsmeldingsforespoersel(inntektsmeldingsforespoersel) }
         }
-        */
+ */
     })

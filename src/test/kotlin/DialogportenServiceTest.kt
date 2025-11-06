@@ -3,26 +3,20 @@ import io.mockk.Runs
 import io.mockk.clearAllMocks
 import io.mockk.coEvery
 import io.mockk.coVerify
-import io.mockk.coVerifySequence
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
-import no.nav.helsearbeidsgiver.DialogExposed
 import no.nav.helsearbeidsgiver.database.DialogRepository
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenClient
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
-import no.nav.helsearbeidsgiver.dialogporten.InntektsmeldingTransmissionRequest
 import no.nav.helsearbeidsgiver.dialogporten.SykmeldingTransmissionRequest
-import no.nav.helsearbeidsgiver.dialogporten.domene.ApiAction
 import no.nav.helsearbeidsgiver.dialogporten.domene.CreateDialogRequest
-import no.nav.helsearbeidsgiver.dialogporten.domene.GuiAction
 import no.nav.helsearbeidsgiver.dialogporten.domene.Transmission
 import no.nav.helsearbeidsgiver.dialogporten.domene.lagTransmissionMedVedlegg
 import no.nav.helsearbeidsgiver.dialogporten.getSykmeldingsPerioderString
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.tilNorskFormat
-import java.time.LocalDateTime
 import java.util.UUID
 
 class DialogportenServiceTest :
@@ -94,7 +88,7 @@ class DialogportenServiceTest :
 
             dialogportenService.oppdaterDialogMedSykepengesoeknad(sykepengesoeknad)
 
-            verify(exactly = 1) { dialogRepositoryMock.finnDialogId(sykepengesoeknad.sykmeldingId) }
+            verify(exactly = 1) { dialogRepositoryMock.finnDialogIdMedSykemeldingId(sykepengesoeknad.sykmeldingId) }
 
             coVerify(exactly = 1) {
                 dialogportenClientMock.addTransmission(

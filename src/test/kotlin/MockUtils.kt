@@ -38,11 +38,27 @@ val inntektsmeldingsforespoersel =
         sykmeldingId = sykmelding.sykmeldingId,
         orgnr = orgnr,
     )
-val inntektsmelding =
+val inntektsmelding_mottatt =
     Inntektsmelding(
-        forespoerselId = UUID.randomUUID(),
+        forespoerselId = inntektsmeldingsforespoersel.forespoerselId,
         innsendingId = UUID.randomUUID(),
         sykmeldingId = sykmelding.sykmeldingId,
         orgnr = orgnr,
         status = Inntektsmelding.Status.MOTTATT,
+    )
+val inntektsmelding_godkjent =
+    Inntektsmelding(
+        forespoerselId = inntektsmeldingsforespoersel.forespoerselId,
+        innsendingId = UUID.randomUUID(),
+        sykmeldingId = sykmelding.sykmeldingId,
+        orgnr = orgnr,
+        status = Inntektsmelding.Status.GODKJENT,
+    )
+val inntektsmelding_feilet =
+    Inntektsmelding(
+        forespoerselId = inntektsmeldingsforespoersel.forespoerselId,
+        innsendingId = UUID.randomUUID(),
+        sykmeldingId = sykmelding.sykmeldingId,
+        orgnr = orgnr,
+        status = Inntektsmelding.Status.FEILET,
     )
