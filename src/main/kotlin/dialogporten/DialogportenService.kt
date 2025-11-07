@@ -167,7 +167,7 @@ class DialogportenService(
                 transmissionId = transmissionId,
                 dokumentId = inntektsmelding.forespoerselId,
                 dokumentType = inntektsmelding.status.toExtendedType(),
-                relatedTransmission = inntektsmelding.forespoerselId,
+                relatedTransmission = forespoerselTransmission.relatedTransmission,
             )
             logger.info(
                 "Oppdaterte dialog ${dialog.dialogId} for sykmelding ${inntektsmelding.sykmeldingId}" +

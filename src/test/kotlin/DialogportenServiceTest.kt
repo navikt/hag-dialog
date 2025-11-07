@@ -173,7 +173,7 @@ class DialogportenServiceTest :
                         transmissionId = transmissionId,
                         dokumentId = inntektsmelding_mottatt.forespoerselId,
                         dokumentType = inntektsmelding_mottatt.status.toExtendedType(),
-                        relatedTransmission = inntektsmelding_mottatt.forespoerselId,
+                        relatedTransmission = forespoerselTransmissionId,
                     )
                 }
             }
