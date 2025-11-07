@@ -171,7 +171,7 @@ class DialogportenServiceTest :
                     dialogRepositoryMock.oppdaterDialogMedTransmission(
                         sykmeldingId = inntektsmelding_mottatt.sykmeldingId,
                         transmissionId = transmissionId,
-                        dokumentId = inntektsmelding_mottatt.forespoerselId,
+                        dokumentId = inntektsmelding_mottatt.innsendingId,
                         dokumentType = inntektsmelding_mottatt.status.toExtendedType(),
                         relatedTransmission = forespoerselTransmissionId,
                     )

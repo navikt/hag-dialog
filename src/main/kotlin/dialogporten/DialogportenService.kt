@@ -165,7 +165,7 @@ class DialogportenService(
             dialogRepository.oppdaterDialogMedTransmission(
                 sykmeldingId = inntektsmelding.sykmeldingId,
                 transmissionId = transmissionId,
-                dokumentId = inntektsmelding.forespoerselId,
+                dokumentId = inntektsmelding.innsendingId,
                 dokumentType = inntektsmelding.status.toExtendedType(),
                 relatedTransmission = forespoerselTransmission.relatedTransmission,
             )
