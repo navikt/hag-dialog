@@ -129,7 +129,7 @@ class DialogportenServiceTest :
                         transmissionId = transmissionId,
                         dokumentId = inntektsmeldingsforespoersel.forespoerselId,
                         dokumentType = LpsApiExtendedType.FORESPOERSEL_AKTIV.toString(),
-                        relatedTransmission = inntektsmeldingsforespoersel.forespoerselId,
+                        relatedTransmission = transmissionId,
                     )
                 }
             }
