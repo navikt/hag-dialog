@@ -1,3 +1,5 @@
+DROP TABLE IF EXISTS dialog;
+
 CREATE TABLE dialog
 (
     id            UUID UNIQUE NOT NULL PRIMARY KEY,

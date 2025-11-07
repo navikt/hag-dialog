@@ -5,6 +5,7 @@ import io.ktor.server.netty.Netty
 import io.ktor.server.routing.routing
 import io.mockk.coEvery
 import io.mockk.mockk
+import no.nav.helsearbeidsgiver.database.Database
 import no.nav.helsearbeidsgiver.database.DialogRepository
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenClient
 import no.nav.helsearbeidsgiver.dialogporten.domene.CreateDialogRequest

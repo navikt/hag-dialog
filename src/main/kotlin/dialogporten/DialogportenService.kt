@@ -138,6 +138,7 @@ class DialogportenService(
                 return
             }
         runBlocking {
+            // TODO: Vurderer om vi skla også sjekke om foresporselen ikke er utgått
             val forespoerselTransmission =
                 dialog.transmissionByDokumentId(inntektsmelding.forespoerselId)
 
@@ -147,6 +148,7 @@ class DialogportenService(
                         "i dialog ${dialog.dialogId} for sykmeldingId ${inntektsmelding.sykmeldingId}. " +
                         "Klarer derfor ikke tilknytte inntektsmelding ${inntektsmelding.innsendingId} med forespørsel.",
                 )
+                // TODO: Vurdere om vi skal lagre inntektsmeldingen uten å knytte den til en forespørsel
                 return@runBlocking
             }
 

@@ -1,7 +1,8 @@
-package no.nav.helsearbeidsgiver
+package no.nav.helsearbeidsgiver.database
 
 import com.zaxxer.hikari.HikariConfig
 import com.zaxxer.hikari.HikariDataSource
+import no.nav.helsearbeidsgiver.Env
 import org.flywaydb.core.Flyway
 import org.jetbrains.exposed.sql.Database as ExposedDatabase
 
