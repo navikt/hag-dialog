@@ -118,7 +118,7 @@ class DialogportenService(
                 transmissionId = transmissionId,
                 dokumentId = inntektsmeldingsforespoersel.forespoerselId,
                 dokumentType = LpsApiExtendedType.FORESPOERSEL_AKTIV.toString(),
-                relatedTransmission = inntektsmeldingsforespoersel.forespoerselId,
+                relatedTransmission = transmissionId,
             )
             logger.info(
                 "Oppdaterte dialog ${dialog.dialogId} for sykmelding ${inntektsmeldingsforespoersel.sykmeldingId} " +
