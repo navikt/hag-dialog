@@ -28,7 +28,7 @@ class DialogRepository(
         }
     }
 
-    fun finnDialogIdMedSykemeldingId(sykmeldingId: UUID): DialogEntity? =
+    fun finnDialogMedSykemeldingId(sykmeldingId: UUID): DialogEntity? =
         transaction(db) {
             DialogEntity
                 .find { DialogTable.sykmeldingId eq sykmeldingId }

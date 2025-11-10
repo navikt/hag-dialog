@@ -34,7 +34,7 @@ class DialogportenService(
 
     fun oppdaterDialogMedSykepengesoeknad(sykepengesoeknad: Sykepengesoeknad) {
         val dialog =
-            dialogRepository.finnDialogIdMedSykemeldingId(sykmeldingId = sykepengesoeknad.sykmeldingId)
+            dialogRepository.finnDialogMedSykemeldingId(sykmeldingId = sykepengesoeknad.sykmeldingId)
                 ?: run {
                     logger.warn(
                         "Fant ikke dialog for sykmeldingId ${sykepengesoeknad.sykmeldingId}. " +
@@ -70,7 +70,7 @@ class DialogportenService(
 
     fun oppdaterDialogMedInntektsmeldingsforespoersel(inntektsmeldingsforespoersel: Inntektsmeldingsforespoersel) {
         val dialog =
-            dialogRepository.finnDialogIdMedSykemeldingId(sykmeldingId = inntektsmeldingsforespoersel.sykmeldingId)
+            dialogRepository.finnDialogMedSykemeldingId(sykmeldingId = inntektsmeldingsforespoersel.sykmeldingId)
                 ?: run {
                     logger.warn(
                         "Fant ikke dialog for sykmeldingId ${inntektsmeldingsforespoersel.sykmeldingId}. " +
@@ -130,7 +130,7 @@ class DialogportenService(
 
     fun oppdaterDialogMedInntektsmelding(inntektsmelding: Inntektsmelding) {
         val dialog =
-            dialogRepository.finnDialogIdMedSykemeldingId(inntektsmelding.sykmeldingId) ?: run {
+            dialogRepository.finnDialogMedSykemeldingId(inntektsmelding.sykmeldingId) ?: run {
                 logger.warn(
                     "Fant ikke dialog for sykmeldingId ${inntektsmelding.sykmeldingId}. " +
                         "Klarer derfor ikke oppdatere dialogen med inntektsmelding ${inntektsmelding.innsendingId}.",
@@ -138,7 +138,7 @@ class DialogportenService(
                 return
             }
         runBlocking {
-            // TODO: Vurderer om vi skla også sjekke om foresporselen ikke er utgått
+            // TODO: Vurderer om vi skal også sjekke om forespørselen ikke er utgått
             val forespoerselTransmission =
                 dialog.transmissionByDokumentId(inntektsmelding.forespoerselId)
 
@@ -148,7 +148,7 @@ class DialogportenService(
                         "i dialog ${dialog.dialogId} for sykmeldingId ${inntektsmelding.sykmeldingId}. " +
                         "Klarer derfor ikke tilknytte inntektsmelding ${inntektsmelding.innsendingId} med forespørsel.",
                 )
-                // TODO: Vurdere om vi skal lagre inntektsmeldingen uten å knytte den til en forespørsel
+                // TODO: Vurdere om vi skal lagre inntektsmeldingen uten å knytte den til en forespørsel, dersom forespørselen ikke finnes i databasen.
                 return@runBlocking
             }
 

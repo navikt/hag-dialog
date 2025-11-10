@@ -76,13 +76,13 @@ class DialogportenServiceTest :
                         every { this@mockk.dialogId } returns dialogId
                     }
 
-                every { dialogRepositoryMock.finnDialogIdMedSykemeldingId(sykepengesoeknad.sykmeldingId) } returns dialogEntity
+                every { dialogRepositoryMock.finnDialogMedSykemeldingId(sykepengesoeknad.sykmeldingId) } returns dialogEntity
                 coEvery { dialogportenClientMock.addTransmission(any(), any()) } returns transmissionId
                 every { dialogRepositoryMock.oppdaterDialogMedTransmission(any(), any(), any(), any(), any()) } just Runs
 
                 dialogportenService.oppdaterDialogMedSykepengesoeknad(sykepengesoeknad)
 
-                verify(exactly = 1) { dialogRepositoryMock.finnDialogIdMedSykemeldingId(sykepengesoeknad.sykmeldingId) }
+                verify(exactly = 1) { dialogRepositoryMock.finnDialogMedSykemeldingId(sykepengesoeknad.sykmeldingId) }
                 coVerify(exactly = 1) { dialogportenClientMock.addTransmission(dialogId, any()) }
                 verify(exactly = 1) {
                     dialogRepositoryMock.oppdaterDialogMedTransmission(
@@ -95,11 +95,11 @@ class DialogportenServiceTest :
             }
 
             test("skal ikke oppdatere dialog når dialog ikke finnes") {
-                every { dialogRepositoryMock.finnDialogIdMedSykemeldingId(sykepengesoeknad.sykmeldingId) } returns null
+                every { dialogRepositoryMock.finnDialogMedSykemeldingId(sykepengesoeknad.sykmeldingId) } returns null
 
                 dialogportenService.oppdaterDialogMedSykepengesoeknad(sykepengesoeknad)
 
-                verify(exactly = 1) { dialogRepositoryMock.finnDialogIdMedSykemeldingId(sykepengesoeknad.sykmeldingId) }
+                verify(exactly = 1) { dialogRepositoryMock.finnDialogMedSykemeldingId(sykepengesoeknad.sykmeldingId) }
                 coVerify(exactly = 0) { dialogportenClientMock.addTransmission(any(), any()) }
                 verify(exactly = 0) { dialogRepositoryMock.oppdaterDialogMedTransmission(any(), any(), any(), any(), any()) }
             }
@@ -114,7 +114,7 @@ class DialogportenServiceTest :
                         every { this@mockk.dialogId } returns dialogId
                     }
 
-                every { dialogRepositoryMock.finnDialogIdMedSykemeldingId(inntektsmeldingsforespoersel.sykmeldingId) } returns dialogEntity
+                every { dialogRepositoryMock.finnDialogMedSykemeldingId(inntektsmeldingsforespoersel.sykmeldingId) } returns dialogEntity
                 coEvery { dialogportenClientMock.addTransmission(any(), any()) } returns transmissionId
                 coEvery { dialogportenClientMock.addAction(any(), any(), any<GuiAction>()) } just Runs
                 every { dialogRepositoryMock.oppdaterDialogMedTransmission(any(), any(), any(), any(), any()) } just Runs
@@ -135,11 +135,11 @@ class DialogportenServiceTest :
             }
 
             test("skal ikke oppdatere dialog når dialog ikke finnes") {
-                every { dialogRepositoryMock.finnDialogIdMedSykemeldingId(inntektsmeldingsforespoersel.sykmeldingId) } returns null
+                every { dialogRepositoryMock.finnDialogMedSykemeldingId(inntektsmeldingsforespoersel.sykmeldingId) } returns null
 
                 dialogportenService.oppdaterDialogMedInntektsmeldingsforespoersel(inntektsmeldingsforespoersel)
 
-                verify(exactly = 1) { dialogRepositoryMock.finnDialogIdMedSykemeldingId(inntektsmeldingsforespoersel.sykmeldingId) }
+                verify(exactly = 1) { dialogRepositoryMock.finnDialogMedSykemeldingId(inntektsmeldingsforespoersel.sykmeldingId) }
                 coVerify(exactly = 0) { dialogportenClientMock.addTransmission(any(), any()) }
                 coVerify(exactly = 0) { dialogportenClientMock.addAction(any(), any(), any<GuiAction>()) }
             }
@@ -160,7 +160,7 @@ class DialogportenServiceTest :
                         every { transmissionByDokumentId(inntektsmelding_mottatt.forespoerselId) } returns forespoerselTransmission
                     }
 
-                every { dialogRepositoryMock.finnDialogIdMedSykemeldingId(inntektsmelding_mottatt.sykmeldingId) } returns dialogEntity
+                every { dialogRepositoryMock.finnDialogMedSykemeldingId(inntektsmelding_mottatt.sykmeldingId) } returns dialogEntity
                 coEvery { dialogportenClientMock.addTransmission(any(), any()) } returns transmissionId
                 every { dialogRepositoryMock.oppdaterDialogMedTransmission(any(), any(), any(), any(), any()) } just Runs
 
@@ -179,11 +179,11 @@ class DialogportenServiceTest :
             }
 
             test("skal ikke oppdatere når dialog ikke finnes") {
-                every { dialogRepositoryMock.finnDialogIdMedSykemeldingId(inntektsmelding_mottatt.sykmeldingId) } returns null
+                every { dialogRepositoryMock.finnDialogMedSykemeldingId(inntektsmelding_mottatt.sykmeldingId) } returns null
 
                 dialogportenService.oppdaterDialogMedInntektsmelding(inntektsmelding_mottatt)
 
-                verify(exactly = 1) { dialogRepositoryMock.finnDialogIdMedSykemeldingId(inntektsmelding_mottatt.sykmeldingId) }
+                verify(exactly = 1) { dialogRepositoryMock.finnDialogMedSykemeldingId(inntektsmelding_mottatt.sykmeldingId) }
                 coVerify(exactly = 0) { dialogportenClientMock.addTransmission(any(), any()) }
             }
 
@@ -195,11 +195,11 @@ class DialogportenServiceTest :
                         every { transmissionByDokumentId(inntektsmelding_mottatt.forespoerselId) } returns null
                     }
 
-                every { dialogRepositoryMock.finnDialogIdMedSykemeldingId(inntektsmelding_mottatt.sykmeldingId) } returns dialogEntity
+                every { dialogRepositoryMock.finnDialogMedSykemeldingId(inntektsmelding_mottatt.sykmeldingId) } returns dialogEntity
 
                 dialogportenService.oppdaterDialogMedInntektsmelding(inntektsmelding_mottatt)
 
-                verify(exactly = 1) { dialogRepositoryMock.finnDialogIdMedSykemeldingId(inntektsmelding_mottatt.sykmeldingId) }
+                verify(exactly = 1) { dialogRepositoryMock.finnDialogMedSykemeldingId(inntektsmelding_mottatt.sykmeldingId) }
                 coVerify(exactly = 0) { dialogportenClientMock.addTransmission(any(), any()) }
                 verify(exactly = 0) { dialogRepositoryMock.oppdaterDialogMedTransmission(any(), any(), any(), any(), any()) }
             }

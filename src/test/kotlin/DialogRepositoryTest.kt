@@ -47,7 +47,7 @@ class DialogRepositoryTest :
 
             repository.lagreDialog(dialogId, sykmeldingId)
 
-            val result = repository.finnDialogIdMedSykemeldingId(sykmeldingId)
+            val result = repository.finnDialogMedSykemeldingId(sykmeldingId)
             result.shouldNotBeNull()
             result.id.value shouldBe dialogId
             result.sykmeldingId shouldBe sykmeldingId
@@ -56,7 +56,7 @@ class DialogRepositoryTest :
         test("finnDialogIdMedSykemeldingId skal returnere null når dialog ikke finnes") {
             val sykmeldingId = UUID.randomUUID()
 
-            val result = repository.finnDialogIdMedSykemeldingId(sykmeldingId)
+            val result = repository.finnDialogMedSykemeldingId(sykmeldingId)
             result.shouldBeNull()
         }
 
