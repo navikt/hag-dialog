@@ -14,10 +14,6 @@ object TransmissionTable : UUIDTable("transmission") {
     val dokumentType = varchar("dokument_type", 50)
     val relatedTransmission = uuid("related_transmission").nullable()
     val opprettet = datetime("opprettet").clientDefault { LocalDateTime.now() }
-
-    init {
-        index("dokument_id_index", false, dokumentId)
-    }
 }
 
 class TransmissionEntity(

@@ -10,12 +10,8 @@ import java.time.LocalDateTime
 import java.util.UUID
 
 object DialogTable : UUIDTable("dialog") {
-    val sykmeldingId = uuid("sykmelding_id").uniqueIndex()
+    val sykmeldingId = uuid("sykmelding_id")
     val opprettet = datetime("opprettet").clientDefault { LocalDateTime.now() }
-
-    init {
-        index("sykmelding_id_index", true, sykmeldingId)
-    }
 }
 
 class DialogEntity(
