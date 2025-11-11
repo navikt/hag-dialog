@@ -3,7 +3,6 @@ package no.nav.helsearbeidsgiver.database
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import org.jetbrains.exposed.exceptions.ExposedSQLException
 import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.time.LocalDateTime
 import java.util.UUID
@@ -17,9 +16,8 @@ class DialogRepository(
     ) {
         try {
             transaction(db) {
-                DialogTable.insert {
-                    it[this.id] = dialogId
-                    it[this.sykmeldingId] = sykmeldingId
+                DialogEntity.new(dialogId) {
+                    this.sykmeldingId = sykmeldingId
                 }
             }
         } catch (e: ExposedSQLException) {
