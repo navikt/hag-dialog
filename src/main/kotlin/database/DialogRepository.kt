@@ -48,12 +48,13 @@ class DialogRepository(
                     DialogEntity.find { DialogTable.sykmeldingId eq sykmeldingId }.firstOrNull()
                         ?: throw IllegalArgumentException("Dialog med sykmeldingId $sykmeldingId finnes ikke")
 
-                TransmissionEntity.new(transmissionId) {
-                    this.dialog = dialog
-                    this.dokumentId = dokumentId
-                    this.dokumentType = dokumentType
-                    this.relatedTransmission = relatedTransmission
-                    this.opprettet = LocalDateTime.now()
+                TransmissionTable.insert {
+                    it[id] = transmissionId
+                    it[dialogId] = dialog.id
+                    it[TransmissionTable.dokumentId] = dokumentId
+                    it[TransmissionTable.dokumentType] = dokumentType
+                    it[TransmissionTable.relatedTransmission] = relatedTransmission
+                    it[opprettet] = LocalDateTime.now()
                 }
             }
         } catch (e: ExposedSQLException) {

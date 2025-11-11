@@ -1,7 +1,7 @@
 package no.nav.helsearbeidsgiver.database
 
 import org.jetbrains.exposed.dao.Entity
-import org.jetbrains.exposed.dao.EntityClass
+import org.jetbrains.exposed.dao.ImmutableEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.UUIDTable
 import org.jetbrains.exposed.sql.javatime.datetime
@@ -21,12 +21,12 @@ object DialogTable : UUIDTable("dialog") {
 class DialogEntity(
     id: EntityID<UUID>,
 ) : Entity<UUID>(id) {
-    companion object : EntityClass<UUID, DialogEntity>(DialogTable)
+    companion object : ImmutableEntityClass<UUID, DialogEntity>(DialogTable)
 
     val dialogId: UUID
         get() = id.value
-    var sykmeldingId by DialogTable.sykmeldingId
-    var opprettet by DialogTable.opprettet
+    val sykmeldingId by DialogTable.sykmeldingId
+    val opprettet by DialogTable.opprettet
     val transmissions by TransmissionEntity referrersOn TransmissionTable.dialogId
 
     fun transmissionByDokumentId(dokumentId: UUID): TransmissionEntity? =
