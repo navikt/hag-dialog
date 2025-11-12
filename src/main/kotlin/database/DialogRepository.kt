@@ -3,7 +3,6 @@ package no.nav.helsearbeidsgiver.database
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import org.jetbrains.exposed.exceptions.ExposedSQLException
 import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.ResultRow
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
@@ -70,17 +69,4 @@ class DialogRepository(
             throw e
         }
     }
-
-    private fun ResultRow.toDialogResult() =
-        DialogResult(
-            dialogId = this[DialogTable.id].value,
-            sykmeldingId = this[DialogTable.sykmeldingId],
-            opprettet = this[DialogTable.opprettet],
-        )
 }
-
-data class DialogResult(
-    val dialogId: UUID,
-    val sykmeldingId: UUID,
-    val opprettet: LocalDateTime,
-)
