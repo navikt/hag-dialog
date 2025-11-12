@@ -71,7 +71,7 @@ class MeldingTolker(
             }
         }.getOrElse { e ->
             sikkerLogger.error("Klarte ikke opprette/oppdatere dialog. Avbryter.", e)
-            // throw e
+            throw e
         }
     }
 
