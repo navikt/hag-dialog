@@ -3,6 +3,10 @@ package no.nav.helsearbeidsgiver.database
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import org.jetbrains.exposed.exceptions.ExposedSQLException
 import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.ResultRow
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.time.LocalDateTime
 import java.util.UUID
@@ -16,8 +20,9 @@ class DialogRepository(
     ) {
         try {
             transaction(db) {
-                DialogEntity.new(dialogId) {
-                    this.sykmeldingId = sykmeldingId
+                DialogTable.insert {
+                    it[id] = dialogId
+                    it[this.sykmeldingId] = sykmeldingId
                 }
             }
         } catch (e: ExposedSQLException) {
@@ -42,16 +47,22 @@ class DialogRepository(
     ) {
         try {
             transaction(db) {
-                val dialog =
-                    DialogEntity.find { DialogTable.sykmeldingId eq sykmeldingId }.firstOrNull()
+                val dialogId =
+                    DialogTable
+                        .selectAll()
+                        .where(DialogTable.sykmeldingId eq sykmeldingId)
+                        .firstOrNull()
+                        ?.get(DialogTable.id)
+                        ?.value
                         ?: throw IllegalArgumentException("Dialog med sykmeldingId $sykmeldingId finnes ikke")
 
-                TransmissionEntity.new(transmissionId) {
-                    this.dialog = dialog
-                    this.dokumentId = dokumentId
-                    this.dokumentType = dokumentType
-                    this.relatedTransmission = relatedTransmission
-                    this.opprettet = LocalDateTime.now()
+                TransmissionTable.insert {
+                    it[id] = transmissionId
+                    it[this.dialogId] = dialogId
+                    it[this.dokumentId] = dokumentId
+                    it[this.dokumentType] = dokumentType
+                    it[this.relatedTransmission] = relatedTransmission
+                    it[opprettet] = LocalDateTime.now()
                 }
             }
         } catch (e: ExposedSQLException) {
@@ -59,4 +70,17 @@ class DialogRepository(
             throw e
         }
     }
+
+    private fun ResultRow.toDialogResult() =
+        DialogResult(
+            dialogId = this[DialogTable.id].value,
+            sykmeldingId = this[DialogTable.sykmeldingId],
+            opprettet = this[DialogTable.opprettet],
+        )
 }
+
+data class DialogResult(
+    val dialogId: UUID,
+    val sykmeldingId: UUID,
+    val opprettet: LocalDateTime,
+)

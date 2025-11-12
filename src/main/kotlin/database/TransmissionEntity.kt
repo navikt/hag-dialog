@@ -21,9 +21,9 @@ class TransmissionEntity(
 ) : Entity<UUID>(id) {
     companion object : EntityClass<UUID, TransmissionEntity>(TransmissionTable)
 
-    var dialog by DialogEntity referencedOn TransmissionTable.dialogId
-    var dokumentId by TransmissionTable.dokumentId
-    var dokumentType by TransmissionTable.dokumentType
-    var relatedTransmission by TransmissionTable.relatedTransmission
-    var opprettet by TransmissionTable.opprettet
+    val dialog by DialogEntity referencedOn TransmissionTable.dialogId
+    val dokumentId by TransmissionTable.dokumentId
+    val dokumentType by TransmissionTable.dokumentType
+    val relatedTransmission by TransmissionTable.relatedTransmission
+    val opprettet by TransmissionTable.opprettet
 }

@@ -21,8 +21,8 @@ class DialogEntity(
 
     val dialogId: UUID
         get() = id.value
-    var sykmeldingId by DialogTable.sykmeldingId
-    var opprettet by DialogTable.opprettet
+    val sykmeldingId by DialogTable.sykmeldingId
+    val opprettet by DialogTable.opprettet
     val transmissions by TransmissionEntity referrersOn TransmissionTable.dialogId
 
     fun transmissionByDokumentId(dokumentId: UUID): TransmissionEntity? =
