@@ -1,94 +1,128 @@
 import io.kotest.assertions.throwables.shouldThrow
-import io.kotest.matchers.collections.shouldBeEmpty
+import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
-import no.nav.helsearbeidsgiver.DialogEntitet
-import no.nav.helsearbeidsgiver.DialogRepository
+import no.nav.helsearbeidsgiver.database.DialogEntity
+import no.nav.helsearbeidsgiver.database.DialogRepository
+import no.nav.helsearbeidsgiver.database.DialogTable
+import no.nav.helsearbeidsgiver.database.TransmissionEntity
+import no.nav.helsearbeidsgiver.database.TransmissionTable
 import org.jetbrains.exposed.exceptions.ExposedSQLException
-import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.ResultRow
-import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.UUID
 
-class TestRepo(
-    private val db: Database,
-) {
-    fun hentRecordFraDialog(sykmeldingId: UUID): ResultRow? =
-        transaction(db) {
-            DialogEntitet
-                .selectAll()
-                .where {
-                    DialogEntitet.sykmeldingId eq sykmeldingId
-                }.firstOrNull()
-        }
-}
-
 class DialogRepositoryTest :
-    FunSpecWithDb(listOf(DialogEntitet), { db ->
-        val testRepo = TestRepo(db)
-        val dialogRepo = DialogRepository(db)
+    FunSpecWithDb(listOf(TransmissionTable, DialogTable), { db ->
+        val repository = DialogRepository(db)
 
-        val sykmeldingId = UUID.randomUUID()
-        val dialogId = UUID.randomUUID()
+        test("lagreDialog skal legge til dialog i databasen") {
+            val dialogId = UUID.randomUUID()
+            val sykmeldingId = UUID.randomUUID()
 
-        test("lagreDialog skal lagre dialog") {
-            transaction {
-                DialogEntitet.selectAll().toList()
-            }.shouldBeEmpty()
-            dialogRepo.lagreDialog(dialogId = dialogId, sykmeldingId = sykmeldingId)
+            repository.lagreDialog(dialogId, sykmeldingId)
 
-            val record = testRepo.hentRecordFraDialog(sykmeldingId).shouldNotBeNull()
-            record.getOrNull(DialogEntitet.dialogId) shouldBe dialogId
+            transaction(db) {
+                val dialog = DialogEntity.findById(dialogId)
+                dialog.shouldNotBeNull()
+                dialog.id.value shouldBe dialogId
+                dialog.sykmeldingId shouldBe sykmeldingId
+            }
         }
 
-        test("finnDialogId skal finne dialogId for sykmeldingId") {
-            transaction {
-                DialogEntitet.selectAll().toList()
-            }.shouldBeEmpty()
+        test("lagreDialog skal kaste exception ved duplikat sykmeldingId") {
+            val dialogId = UUID.randomUUID()
+            val sykmeldingId = UUID.randomUUID()
 
-            dialogRepo.lagreDialog(dialogId = dialogId, sykmeldingId = sykmeldingId)
-            dialogRepo.finnDialogId(sykmeldingId) shouldBe dialogId
+            repository.lagreDialog(dialogId, sykmeldingId)
+
+            shouldThrow<ExposedSQLException> {
+                repository.lagreDialog(dialogId, UUID.randomUUID())
+            }
         }
 
-        test("lagreDialog skal kaste feil dersom den forsøker å lagre dialog med dialogId som allerede finnes") {
-            transaction {
-                DialogEntitet.selectAll().toList()
-            }.shouldBeEmpty()
-            dialogRepo.lagreDialog(dialogId = dialogId, sykmeldingId = sykmeldingId)
+        test("finnDialogIdMedSykemeldingId skal returnere dialog når den finnes") {
+            val dialogId = UUID.randomUUID()
+            val sykmeldingId = UUID.randomUUID()
 
-            shouldThrow<ExposedSQLException> { dialogRepo.lagreDialog(dialogId = dialogId, sykmeldingId = UUID.randomUUID()) }
+            repository.lagreDialog(dialogId, sykmeldingId)
+
+            val result = repository.finnDialogMedSykemeldingId(sykmeldingId)
+            result.shouldNotBeNull()
+            result.id.value shouldBe dialogId
+            result.sykmeldingId shouldBe sykmeldingId
         }
 
-        test("lagreDialog skal kaste feil dersom den forsøker å lagre dialog med sykmeldingId som allerede finnes") {
-            transaction {
-                DialogEntitet.selectAll().toList()
-            }.shouldBeEmpty()
-            dialogRepo.lagreDialog(dialogId = dialogId, sykmeldingId = sykmeldingId)
+        test("finnDialogIdMedSykemeldingId skal returnere null når dialog ikke finnes") {
+            val sykmeldingId = UUID.randomUUID()
 
-            shouldThrow<ExposedSQLException> { dialogRepo.lagreDialog(dialogId = UUID.randomUUID(), sykmeldingId = sykmeldingId) }
+            val result = repository.finnDialogMedSykemeldingId(sykmeldingId)
+            result.shouldBeNull()
         }
-        test("oppdaterDialogMedTransmissionId skal oppdatere dialog med forespørselTransmissionId") {
-            transaction {
-                DialogEntitet.selectAll().toList()
-            }.shouldBeEmpty()
-            dialogRepo.lagreDialog(dialogId = dialogId, sykmeldingId = sykmeldingId)
 
+        test("oppdaterDialogMedTransmission skal legge til transmission i databasen") {
+            val dialogId = UUID.randomUUID()
+            val sykmeldingId = UUID.randomUUID()
             val transmissionId = UUID.randomUUID()
-            dialogRepo.oppdaterDialogMedForespoerselTransmissionId(sykmeldingId = sykmeldingId, forespoerselTransmissionId = transmissionId)
+            val dokumentId = UUID.randomUUID()
+            val dokumentType = "INNTEKTSMELDING"
 
-            val record = testRepo.hentRecordFraDialog(sykmeldingId).shouldNotBeNull()
-            record.getOrNull(DialogEntitet.forespoerselTransmissionId) shouldBe transmissionId
+            repository.lagreDialog(dialogId, sykmeldingId)
+            repository.oppdaterDialogMedTransmission(sykmeldingId, transmissionId, dokumentId, dokumentType)
+
+            transaction(db) {
+                val transmission = TransmissionEntity.findById(transmissionId)
+                transmission.shouldNotBeNull()
+                transmission.dialog.id.value shouldBe dialogId
+                transmission.dokumentId shouldBe dokumentId
+                transmission.dokumentType shouldBe dokumentType
+                transmission.relatedTransmission.shouldBeNull()
+            }
         }
-        test("hentDialogMedSykmeldingId skal hente dialog med sykmeldingId") {
-            transaction {
-                DialogEntitet.selectAll().toList()
-            }.shouldBeEmpty()
-            dialogRepo.lagreDialog(dialogId = dialogId, sykmeldingId = sykmeldingId)
 
-            val dialog = dialogRepo.hentDialogMedSykmeldingId(sykmeldingId)
-            dialog.shouldNotBeNull()
-            dialog.dialogId shouldBe dialogId
-            dialog.sykmeldingId shouldBe sykmeldingId
+        test("oppdaterDialogMedTransmission skal legge til transmission med relatedTransmission") {
+            val dialogId = UUID.randomUUID()
+            val sykmeldingId = UUID.randomUUID()
+            val transmissionId1 = UUID.randomUUID()
+            val transmissionId2 = UUID.randomUUID()
+            val dokumentId1 = UUID.randomUUID()
+            val dokumentId2 = UUID.randomUUID()
+
+            repository.lagreDialog(dialogId, sykmeldingId)
+            repository.oppdaterDialogMedTransmission(sykmeldingId, transmissionId1, dokumentId1, "TYPE1")
+            repository.oppdaterDialogMedTransmission(sykmeldingId, transmissionId2, dokumentId2, "TYPE2", transmissionId1)
+
+            transaction(db) {
+                val transmission = TransmissionEntity.findById(transmissionId2)
+                transmission.shouldNotBeNull()
+                transmission.relatedTransmission shouldBe transmissionId1
+            }
+        }
+
+        test("oppdaterDialogMedTransmission skal kaste exception når dialog ikke finnes") {
+            val sykmeldingId = UUID.randomUUID()
+            val transmissionId = UUID.randomUUID()
+            val dokumentId = UUID.randomUUID()
+
+            shouldThrow<IllegalArgumentException> {
+                repository.oppdaterDialogMedTransmission(sykmeldingId, transmissionId, dokumentId, "TYPE")
+            }
+        }
+
+        test("dialog kan ha flere transmissions") {
+            val dialogId = UUID.randomUUID()
+            val sykmeldingId = UUID.randomUUID()
+            val transmissionId1 = UUID.randomUUID()
+            val transmissionId2 = UUID.randomUUID()
+
+            repository.lagreDialog(dialogId, sykmeldingId)
+            repository.oppdaterDialogMedTransmission(sykmeldingId, transmissionId1, UUID.randomUUID(), "TYPE1")
+            repository.oppdaterDialogMedTransmission(sykmeldingId, transmissionId2, UUID.randomUUID(), "TYPE2")
+
+            transaction(db) {
+                val dialog = DialogEntity.findById(dialogId)
+                dialog.shouldNotBeNull()
+                dialog.transmissions shouldHaveSize 2
+            }
         }
     })

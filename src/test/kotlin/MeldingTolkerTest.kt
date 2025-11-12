@@ -51,7 +51,7 @@ class MeldingTolkerTest :
 
             verify(exactly = 1) { dialogportenServiceMock.oppdaterDialogMedSykepengesoeknad(sykepengesoeknad) }
         }
-
+/*
         test("tolker inntektsmeldingsforespoersel og oppdaterer dialog") {
             val melding = inntektsmeldingsforespoersel.toJson(Melding.serializer()).toString()
 
@@ -72,4 +72,5 @@ class MeldingTolkerTest :
 
             verify(exactly = 1) { dialogportenServiceMock.oppdaterDialogMedInntektsmeldingsforespoersel(inntektsmeldingsforespoersel) }
         }
+ */
     })

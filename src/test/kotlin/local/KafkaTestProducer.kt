@@ -1,6 +1,8 @@
 package local
 
-import inntektsmelding
+import inntektsmelding_feilet
+import inntektsmelding_godkjent
+import inntektsmelding_mottatt
 import inntektsmeldingsforespoersel
 import kotlinx.serialization.json.JsonElement
 import no.nav.helsearbeidsgiver.kafka.Melding
@@ -57,7 +59,9 @@ fun main() {
     dialogKlient.sendToKafka(sykmelding)
     dialogKlient.sendToKafka(sykepengesoeknad)
     dialogKlient.sendToKafka(inntektsmeldingsforespoersel)
-    dialogKlient.sendToKafka(inntektsmelding)
+    dialogKlient.sendToKafka(inntektsmelding_mottatt)
+    dialogKlient.sendToKafka(inntektsmelding_godkjent)
+    dialogKlient.sendToKafka(inntektsmelding_feilet)
 }
 
 private fun JsonElement.toRecord(): ProducerRecord<String, String> = ProducerRecord("helsearbeidsgiver.dialog", "key", this.toString())

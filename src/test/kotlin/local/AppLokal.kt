@@ -5,8 +5,11 @@ import io.ktor.server.netty.Netty
 import io.ktor.server.routing.routing
 import io.mockk.coEvery
 import io.mockk.mockk
+import no.nav.helsearbeidsgiver.database.Database
+import no.nav.helsearbeidsgiver.database.DialogRepository
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenClient
 import no.nav.helsearbeidsgiver.dialogporten.domene.CreateDialogRequest
+import no.nav.helsearbeidsgiver.dialogporten.domene.Transmission
 import no.nav.helsearbeidsgiver.helsesjekker.HelsesjekkService
 import no.nav.helsearbeidsgiver.helsesjekker.naisRoutes
 import no.nav.helsearbeidsgiver.kafka.configureKafkaConsumer
@@ -38,7 +41,10 @@ fun startServer() {
         println("createDialog called with: ${firstArg<CreateDialogRequest>()}")
         UUID.randomUUID()
     }
-
+    coEvery { dialogportenClient.addTransmission(any(), any<Transmission>()) } answers {
+        println("addTransmission called with dialogId: ${firstArg<UUID>()} and transmission: ${secondArg<Transmission>()}")
+        UUID.randomUUID()
+    }
     logger.info("Setter opp DialogRepository...")
     val dialogRepository = DialogRepository(database.db)
 
