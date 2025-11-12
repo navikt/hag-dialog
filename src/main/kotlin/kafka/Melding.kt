@@ -41,12 +41,11 @@ data class Inntektsmeldingsforespoersel(
 ) : Melding()
 
 @Serializable
-@SerialName("OppdatertInntektsmeldingsforespoersel")
-data class OppdatertInntektsmeldingsforespoersel(
+@SerialName("UtgaattInntektsmeldingForespoersel")
+data class UtgaattInntektsmeldingForespoersel(
     val forespoerselId: UUID,
     val sykmeldingId: UUID,
     val orgnr: Orgnr,
-    val utgaatForespoerselId: UUID,
 ) : Melding()
 
 @Serializable

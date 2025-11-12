@@ -1,5 +1,6 @@
 package local
 
+import forespoersel_utgaatt
 import inntektsmelding_feilet
 import inntektsmelding_godkjent
 import inntektsmelding_mottatt
@@ -59,6 +60,7 @@ fun main() {
     dialogKlient.sendToKafka(sykmelding)
     dialogKlient.sendToKafka(sykepengesoeknad)
     dialogKlient.sendToKafka(inntektsmeldingsforespoersel)
+    dialogKlient.sendToKafka(forespoersel_utgaatt)
     dialogKlient.sendToKafka(inntektsmelding_mottatt)
     dialogKlient.sendToKafka(inntektsmelding_godkjent)
     dialogKlient.sendToKafka(inntektsmelding_feilet)

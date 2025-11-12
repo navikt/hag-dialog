@@ -11,10 +11,10 @@ import no.nav.helsearbeidsgiver.dialogporten.domene.GuiAction
 import no.nav.helsearbeidsgiver.dialogporten.domene.lagTransmissionMedVedlegg
 import no.nav.helsearbeidsgiver.kafka.Inntektsmelding
 import no.nav.helsearbeidsgiver.kafka.Inntektsmeldingsforespoersel
-import no.nav.helsearbeidsgiver.kafka.OppdatertInntektsmeldingsforespoersel
 import no.nav.helsearbeidsgiver.kafka.Sykepengesoeknad
 import no.nav.helsearbeidsgiver.kafka.Sykmelding
 import no.nav.helsearbeidsgiver.kafka.Sykmeldingsperiode
+import no.nav.helsearbeidsgiver.kafka.UtgaattInntektsmeldingForespoersel
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.tilNorskFormat
@@ -159,7 +159,7 @@ class DialogportenService(
                     lagTransmissionMedVedlegg(
                         InntektsmeldingTransmissionRequest(
                             inntektsmelding = inntektsmelding,
-                            relatedTransmissionId = forespoerselTransmission.relatedTransmission,
+                            relatedTransmissionId = forespoerselTransmission.relatedTransmissionId,
                         ),
                     ),
                 )
@@ -168,7 +168,7 @@ class DialogportenService(
                 transmissionId = transmissionId,
                 dokumentId = inntektsmelding.innsendingId,
                 dokumentType = inntektsmelding.status.toExtendedType(),
-                relatedTransmission = forespoerselTransmission.relatedTransmission,
+                relatedTransmission = forespoerselTransmission.relatedTransmissionId,
             )
             logger.info(
                 "Oppdaterte dialog ${dialog.dialogId} for sykmelding ${inntektsmelding.sykmeldingId}" +
@@ -200,15 +200,26 @@ class DialogportenService(
             dialogportenClient.createDialog(request)
         }
 
-    fun oppdaterDialogMedOppdatertInntektsmeldingsforespoersel(oppdatertForespoersel: OppdatertInntektsmeldingsforespoersel) {
+    fun oppdaterDialogMedUtgaattForespoersel(utgaattForespoersel: UtgaattInntektsmeldingForespoersel) {
         val dialog =
-            dialogRepository.finnDialogMedSykemeldingId(sykmeldingId = oppdatertForespoersel.sykmeldingId)
+            dialogRepository.finnDialogMedSykemeldingId(sykmeldingId = utgaattForespoersel.sykmeldingId)
                 ?: run {
                     logger.warn(
-                        "Fant ikke dialog for sykmeldingId ${oppdatertForespoersel.sykmeldingId}. " +
-                            "Klarer derfor ikke oppdatere dialogen med oppdatert inntektsmeldingforespørsel ${oppdatertForespoersel.forespoerselId}.",
+                        "Fant ikke dialog for sykmeldingId ${utgaattForespoersel.sykmeldingId}. " +
+                            "Klarer derfor ikke oppdatere dialogen med oppdatert inntektsmeldingforespørsel ${utgaattForespoersel.forespoerselId}.",
                     )
                     return
+                }
+
+        val relatedTransmissionId =
+            dialog.transmissionByDokumentId(utgaattForespoersel.forespoerselId)?.relatedTransmissionId
+                ?: run {
+                    logger.warn(
+                        "Fant ikke transmission for utgått forespørselId ${utgaattForespoersel.forespoerselId} " +
+                            "i dialog ${dialog.dialogId} for sykmeldingId ${utgaattForespoersel.sykmeldingId}. " +
+                            "Klarer derfor ikke tilknytte utgått inntektsmeldingforespørsel ${utgaattForespoersel.forespoerselId} med utgått forespørsel.",
+                    )
+                    null
                 }
 
         runBlocking {
@@ -217,21 +228,24 @@ class DialogportenService(
                     dialogId = dialog.dialogId,
                     transmission =
                         lagTransmissionMedVedlegg(
-                            OppdatertForespoerselTransmissionRequest(oppdatertForespoersel),
+                            UtgaatForespoerselTransmissionRequest(
+                                utgaattForespoersel,
+                                relatedTransmissionId = relatedTransmissionId,
+                            ),
                         ),
                 )
 
             dialogRepository.oppdaterDialogMedTransmission(
-                sykmeldingId = oppdatertForespoersel.sykmeldingId,
+                sykmeldingId = utgaattForespoersel.sykmeldingId,
                 transmissionId = transmissionId,
-                dokumentId = oppdatertForespoersel.forespoerselId,
-                dokumentType = LpsApiExtendedType.FORESPOERSEL_AKTIV_OPPDATERT.toString(),
-                relatedTransmission = transmissionId,
+                dokumentId = utgaattForespoersel.forespoerselId,
+                dokumentType = LpsApiExtendedType.FORESPOERSEL_UTGAATT.toString(),
+                relatedTransmission = relatedTransmissionId,
             )
 
             logger.info(
-                "Oppdaterte dialog ${dialog.dialogId} for sykmelding ${oppdatertForespoersel.sykmeldingId} " +
-                    "med oppdatert forespørsel om inntektsmelding med id ${oppdatertForespoersel.forespoerselId}. " +
+                "Oppdaterte dialog ${dialog.dialogId} for sykmelding ${utgaattForespoersel.sykmeldingId} " +
+                    "med oppdatert forespørsel om inntektsmelding med id ${utgaattForespoersel.forespoerselId}. " +
                     "Lagt til transmission $transmissionId.",
             )
         }

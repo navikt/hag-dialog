@@ -152,7 +152,7 @@ class DialogportenServiceTest :
                 val transmissionId = UUID.randomUUID()
                 val forespoerselTransmission =
                     mockk<TransmissionEntity> {
-                        every { relatedTransmission } returns forespoerselTransmissionId
+                        every { relatedTransmissionId } returns forespoerselTransmissionId
                     }
                 val dialogEntity =
                     mockk<DialogEntity> {

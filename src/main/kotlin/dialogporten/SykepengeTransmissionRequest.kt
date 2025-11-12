@@ -5,7 +5,7 @@ import no.nav.helsearbeidsgiver.dialogporten.domene.Transmission
 import no.nav.helsearbeidsgiver.dialogporten.domene.TransmissionRequest
 import no.nav.helsearbeidsgiver.kafka.Inntektsmelding
 import no.nav.helsearbeidsgiver.kafka.Inntektsmeldingsforespoersel
-import no.nav.helsearbeidsgiver.kafka.OppdatertInntektsmeldingsforespoersel
+import no.nav.helsearbeidsgiver.kafka.UtgaattInntektsmeldingForespoersel
 import no.nav.helsearbeidsgiver.kafka.Sykepengesoeknad
 import no.nav.helsearbeidsgiver.kafka.Sykmelding
 import java.util.UUID
@@ -50,11 +50,11 @@ class ForespoerselTransmissionRequest(
 }
 
 class UtgaatForespoerselTransmissionRequest(
-    oppdatertInntektsmeldingsforespoersel: OppdatertInntektsmeldingsforespoersel,
+    utgaattInntektsmeldingForespoersel: UtgaattInntektsmeldingForespoersel,
     override val relatedTransmissionId: UUID? = null,
 ) : TransmissionRequest() {
     override val extendedType = LpsApiExtendedType.FORESPOERSEL_AKTIV.toString()
-    override val dokumentId = oppdatertInntektsmeldingsforespoersel.utgaatForespoerselId
+    override val dokumentId = utgaattInntektsmeldingForespoersel.forespoerselId
     override val tittel = "Forespørsel er utgått"
     override val sammendrag = null
     override val vedleggNavn = "inntektsmeldingforespoersel.json"

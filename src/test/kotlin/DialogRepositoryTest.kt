@@ -76,7 +76,7 @@ class DialogRepositoryTest :
                 transmission.dialog.id.value shouldBe dialogId
                 transmission.dokumentId shouldBe dokumentId
                 transmission.dokumentType shouldBe dokumentType
-                transmission.relatedTransmission.shouldBeNull()
+                transmission.relatedTransmissionId.shouldBeNull()
             }
         }
 
@@ -95,7 +95,7 @@ class DialogRepositoryTest :
             transaction(db) {
                 val transmission = TransmissionEntity.findById(transmissionId2)
                 transmission.shouldNotBeNull()
-                transmission.relatedTransmission shouldBe transmissionId1
+                transmission.relatedTransmissionId shouldBe transmissionId1
             }
         }
 

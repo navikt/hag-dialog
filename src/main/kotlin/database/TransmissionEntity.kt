@@ -24,6 +24,6 @@ class TransmissionEntity(
     val dialog by DialogEntity referencedOn TransmissionTable.dialogId
     val dokumentId by TransmissionTable.dokumentId
     val dokumentType by TransmissionTable.dokumentType
-    val relatedTransmission by TransmissionTable.relatedTransmission
+    val relatedTransmissionId by TransmissionTable.relatedTransmission
     val opprettet by TransmissionTable.opprettet
 }
