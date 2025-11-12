@@ -38,11 +38,11 @@ fun startServer() {
     val dialogportenClient = mockk<DialogportenClient>(relaxed = true)
 
     coEvery { dialogportenClient.createDialog(any<CreateDialogRequest>()) } answers {
-        println("createDialog called with: ${firstArg<CreateDialogRequest>()}")
+        logger.info("createDialog called with: ${firstArg<CreateDialogRequest>()}")
         UUID.randomUUID()
     }
     coEvery { dialogportenClient.addTransmission(any(), any<Transmission>()) } answers {
-        println("addTransmission called with dialogId: ${firstArg<UUID>()} and transmission: ${secondArg<Transmission>()}")
+        logger.info("addTransmission called with dialogId: ${firstArg<UUID>()} and transmission: ${secondArg<Transmission>()}")
         UUID.randomUUID()
     }
     logger.info("Setter opp DialogRepository...")
