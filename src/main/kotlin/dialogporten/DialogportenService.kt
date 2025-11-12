@@ -11,6 +11,7 @@ import no.nav.helsearbeidsgiver.dialogporten.domene.GuiAction
 import no.nav.helsearbeidsgiver.dialogporten.domene.lagTransmissionMedVedlegg
 import no.nav.helsearbeidsgiver.kafka.Inntektsmelding
 import no.nav.helsearbeidsgiver.kafka.Inntektsmeldingsforespoersel
+import no.nav.helsearbeidsgiver.kafka.OppdatertInntektsmeldingsforespoersel
 import no.nav.helsearbeidsgiver.kafka.Sykepengesoeknad
 import no.nav.helsearbeidsgiver.kafka.Sykmelding
 import no.nav.helsearbeidsgiver.kafka.Sykmeldingsperiode
@@ -198,6 +199,43 @@ class DialogportenService(
                 )
             dialogportenClient.createDialog(request)
         }
+
+    fun oppdaterDialogMedOppdatertInntektsmeldingsforespoersel(oppdatertForespoersel: OppdatertInntektsmeldingsforespoersel) {
+        val dialog =
+            dialogRepository.finnDialogMedSykemeldingId(sykmeldingId = oppdatertForespoersel.sykmeldingId)
+                ?: run {
+                    logger.warn(
+                        "Fant ikke dialog for sykmeldingId ${oppdatertForespoersel.sykmeldingId}. " +
+                            "Klarer derfor ikke oppdatere dialogen med oppdatert inntektsmeldingforespørsel ${oppdatertForespoersel.forespoerselId}.",
+                    )
+                    return
+                }
+
+        runBlocking {
+            val transmissionId =
+                dialogportenClient.addTransmission(
+                    dialogId = dialog.dialogId,
+                    transmission =
+                        lagTransmissionMedVedlegg(
+                            OppdatertForespoerselTransmissionRequest(oppdatertForespoersel),
+                        ),
+                )
+
+            dialogRepository.oppdaterDialogMedTransmission(
+                sykmeldingId = oppdatertForespoersel.sykmeldingId,
+                transmissionId = transmissionId,
+                dokumentId = oppdatertForespoersel.forespoerselId,
+                dokumentType = LpsApiExtendedType.FORESPOERSEL_AKTIV_OPPDATERT.toString(),
+                relatedTransmission = transmissionId,
+            )
+
+            logger.info(
+                "Oppdaterte dialog ${dialog.dialogId} for sykmelding ${oppdatertForespoersel.sykmeldingId} " +
+                    "med oppdatert forespørsel om inntektsmelding med id ${oppdatertForespoersel.forespoerselId}. " +
+                    "Lagt til transmission $transmissionId.",
+            )
+        }
+    }
 }
 
 fun List<Sykmeldingsperiode>.getSykmeldingsPerioderString(): String =

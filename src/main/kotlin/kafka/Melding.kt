@@ -41,6 +41,15 @@ data class Inntektsmeldingsforespoersel(
 ) : Melding()
 
 @Serializable
+@SerialName("OppdatertInntektsmeldingsforespoersel")
+data class OppdatertInntektsmeldingsforespoersel(
+    val forespoerselId: UUID,
+    val sykmeldingId: UUID,
+    val orgnr: Orgnr,
+    val utgaatForespoerselId: UUID,
+) : Melding()
+
+@Serializable
 data class Sykmeldingsperiode(
     val fom: LocalDate,
     val tom: LocalDate,
