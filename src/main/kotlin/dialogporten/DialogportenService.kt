@@ -183,6 +183,7 @@ class DialogportenService(
                 CreateDialogRequest(
                     orgnr = sykmelding.orgnr,
                     externalReference = sykmelding.sykmeldingId.toString(),
+                    idempotentKey = sykmelding.sykmeldingId.toString(),
                     title =
                         "Sykepenger for ${sykmelding.fulltNavn} (f. ${sykmelding.foedselsdato.tilNorskFormat()})",
                     summary =
