@@ -28,16 +28,19 @@ fun DialogportenService.oppdaterDialogMedUtgaattForespoersel(utgaattForespoersel
 
     val transmissionId =
         runBlocking {
-            dialogportenClient.addTransmission(
-                dialogId = dialog.dialogId,
-                transmission =
-                    lagTransmissionMedVedlegg(
-                        UtgaatForespoerselTransmissionRequest(
-                            utgaattForespoersel,
-                            relatedTransmissionId = relatedTransmissionId,
+            dialogportenClient
+                .addTransmission(
+                    dialogId = dialog.dialogId,
+                    transmission =
+                        lagTransmissionMedVedlegg(
+                            UtgaatForespoerselTransmissionRequest(
+                                utgaattForespoersel,
+                                relatedTransmissionId = relatedTransmissionId,
+                            ),
                         ),
-                    ),
-            )
+                ).also {
+                    dialogportenClient.removeActionsAndStatus(dialog.dialogId)
+                }
         }
 
     dialogRepository.oppdaterDialogMedTransmission(

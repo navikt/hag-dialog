@@ -17,6 +17,7 @@ import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
 import no.nav.helsearbeidsgiver.dialogporten.LpsApiExtendedType
 import no.nav.helsearbeidsgiver.dialogporten.domene.ApiAction
 import no.nav.helsearbeidsgiver.dialogporten.domene.CreateDialogRequest
+import no.nav.helsearbeidsgiver.dialogporten.domene.DialogStatus
 import no.nav.helsearbeidsgiver.dialogporten.domene.GuiAction
 import no.nav.helsearbeidsgiver.dialogporten.getSykmeldingsPerioderString
 import no.nav.helsearbeidsgiver.dialogporten.oppdaterDialogMedInntektsmelding
@@ -50,6 +51,7 @@ class DialogportenServiceTest :
 
                 coEvery { dialogportenClientMock.createDialog(capture(requestSlot)) } returns dialogId
                 every { dialogRepositoryMock.lagreDialog(any(), any()) } just Runs
+                coEvery { dialogportenClientMock.setDialogStatus(any(), any()) } just Runs
                 every { unleashFeatureTogglesMock.skalOppretteDialogKunForApi() } returns true
 
                 dialogportenService.opprettOgLagreDialog(sykmelding)
@@ -120,14 +122,13 @@ class DialogportenServiceTest :
                 every { dialogRepositoryMock.finnDialogMedSykemeldingId(inntektsmeldingsforespoersel.sykmeldingId) } returns dialogEntity
                 coEvery { dialogportenClientMock.addTransmission(any(), any()) } returns transmissionId
                 coEvery { dialogportenClientMock.addAction(any(), any(), any<GuiAction>()) } just Runs
-                coEvery { dialogportenClientMock.setDialogStatus(any(), any()) } just Runs
                 every { dialogRepositoryMock.oppdaterDialogMedTransmission(any(), any(), any(), any(), any()) } just Runs
 
                 dialogportenService.oppdaterDialogMedInntektsmeldingsforespoersel(inntektsmeldingsforespoersel)
 
                 coVerify(exactly = 1) { dialogportenClientMock.addTransmission(dialogId, any()) }
                 coVerify(exactly = 1) { dialogportenClientMock.addAction(dialogId, any<ApiAction>(), any<GuiAction>()) }
-                coVerify(exactly = 1) { dialogportenClientMock.setDialogStatus(dialogId, any()) }
+
                 verify(exactly = 1) {
                     dialogRepositoryMock.oppdaterDialogMedTransmission(
                         sykmeldingId = inntektsmeldingsforespoersel.sykmeldingId,
@@ -167,11 +168,13 @@ class DialogportenServiceTest :
 
                 every { dialogRepositoryMock.finnDialogMedSykemeldingId(inntektsmelding_mottatt.sykmeldingId) } returns dialogEntity
                 coEvery { dialogportenClientMock.addTransmission(any(), any()) } returns transmissionId
+                coEvery { dialogportenClientMock.setDialogStatus(any(), any()) } just Runs
                 every { dialogRepositoryMock.oppdaterDialogMedTransmission(any(), any(), any(), any(), any()) } just Runs
 
                 dialogportenService.oppdaterDialogMedInntektsmelding(inntektsmelding_mottatt)
 
                 coVerify(exactly = 1) { dialogportenClientMock.addTransmission(dialogId, any()) }
+                coVerify(exactly = 1) { dialogportenClientMock.setDialogStatus(dialogId, DialogStatus.Sent) }
                 verify(exactly = 1) {
                     dialogRepositoryMock.oppdaterDialogMedTransmission(
                         sykmeldingId = inntektsmelding_mottatt.sykmeldingId,

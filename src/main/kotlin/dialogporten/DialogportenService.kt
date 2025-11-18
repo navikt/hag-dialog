@@ -2,7 +2,9 @@ package no.nav.helsearbeidsgiver.dialogporten
 
 import kotlinx.coroutines.runBlocking
 import no.nav.helsearbeidsgiver.database.DialogRepository
+import no.nav.helsearbeidsgiver.database.TransmissionTable.dialogId
 import no.nav.helsearbeidsgiver.dialogporten.domene.CreateDialogRequest
+import no.nav.helsearbeidsgiver.dialogporten.domene.DialogStatus
 import no.nav.helsearbeidsgiver.dialogporten.domene.lagTransmissionMedVedlegg
 import no.nav.helsearbeidsgiver.kafka.Sykmelding
 import no.nav.helsearbeidsgiver.kafka.Sykmeldingsperiode
@@ -20,6 +22,7 @@ class DialogportenService(
 
     fun opprettOgLagreDialog(sykmelding: Sykmelding) {
         val dialogId = opprettNyDialogMedSykmelding(sykmelding)
+
         dialogRepository.lagreDialog(dialogId = dialogId, sykmeldingId = sykmelding.sykmeldingId)
         logger.info("Opprettet dialog $dialogId for sykmelding ${sykmelding.sykmeldingId}.")
     }
@@ -44,7 +47,10 @@ class DialogportenService(
                     isApiOnly = unleashFeatureToggles.skalOppretteDialogKunForApi(),
                     idempotentKey = sykmelding.sykmeldingId.toString(),
                 )
-            dialogportenClient.createDialog(request)
+
+            val dialogId = dialogportenClient.createDialog(request)
+            dialogportenClient.setDialogStatus(dialogId, DialogStatus.New)
+            dialogId
         }
 }
 

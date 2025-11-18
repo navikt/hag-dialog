@@ -5,7 +5,6 @@ import no.nav.helsearbeidsgiver.Env
 import no.nav.helsearbeidsgiver.dialogporten.domene.Action
 import no.nav.helsearbeidsgiver.dialogporten.domene.ApiAction
 import no.nav.helsearbeidsgiver.dialogporten.domene.ContentValueItem
-import no.nav.helsearbeidsgiver.dialogporten.domene.DialogStatus
 import no.nav.helsearbeidsgiver.dialogporten.domene.GuiAction
 import no.nav.helsearbeidsgiver.dialogporten.domene.lagTransmissionMedVedlegg
 import no.nav.helsearbeidsgiver.kafka.Inntektsmeldingsforespoersel
@@ -55,7 +54,6 @@ fun DialogportenService.oppdaterDialogMedInntektsmeldingsforespoersel(inntektsme
                     priority = GuiAction.Priority.Primary,
                 ),
         )
-        dialogportenClient.setDialogStatus(dialog.dialogId, DialogStatus.RequiresAttention)
         dialogRepository.oppdaterDialogMedTransmission(
             sykmeldingId = inntektsmeldingsforespoersel.sykmeldingId,
             transmissionId = transmissionId,

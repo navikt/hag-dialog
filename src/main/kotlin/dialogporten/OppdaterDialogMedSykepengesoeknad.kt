@@ -16,8 +16,8 @@ fun DialogportenService.oppdaterDialogMedSykepengesoeknad(sykepengesoeknad: Syke
                 return
             }
 
-    runBlocking {
-        val transmissionId =
+    val transmissionId =
+        runBlocking {
             dialogportenClient.addTransmission(
                 dialogId = dialog.dialogId,
                 transmission =
@@ -25,18 +25,18 @@ fun DialogportenService.oppdaterDialogMedSykepengesoeknad(sykepengesoeknad: Syke
                         SykepengesoknadTransmissionRequest(sykepengesoeknad),
                     ),
             )
+        }
 
-        dialogRepository.oppdaterDialogMedTransmission(
-            sykmeldingId = sykepengesoeknad.sykmeldingId,
-            transmissionId = transmissionId,
-            dokumentId = sykepengesoeknad.soeknadId,
-            dokumentType = LpsApiExtendedType.SYKEPENGESOEKNAD.toString(),
-        )
+    dialogRepository.oppdaterDialogMedTransmission(
+        sykmeldingId = sykepengesoeknad.sykmeldingId,
+        transmissionId = transmissionId,
+        dokumentId = sykepengesoeknad.soeknadId,
+        dokumentType = LpsApiExtendedType.SYKEPENGESOEKNAD.toString(),
+    )
 
-        logger.info(
-            "Oppdaterte dialog ${dialog.dialogId} for sykmelding ${sykepengesoeknad.sykmeldingId} " +
-                "med sykepengesøknad ${sykepengesoeknad.soeknadId}. " +
-                "Lagt til transmission $transmissionId.",
-        )
-    }
+    logger.info(
+        "Oppdaterte dialog ${dialog.dialogId} for sykmelding ${sykepengesoeknad.sykmeldingId} " +
+            "med sykepengesøknad ${sykepengesoeknad.soeknadId}. " +
+            "Lagt til transmission $transmissionId.",
+    )
 }
