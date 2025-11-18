@@ -5,6 +5,8 @@ import no.nav.helsearbeidsgiver.dialogporten.domene.DialogStatus
 import no.nav.helsearbeidsgiver.dialogporten.domene.lagTransmissionMedVedlegg
 import no.nav.helsearbeidsgiver.kafka.Inntektsmelding
 
+val status = DialogStatus.NotApplicable
+
 fun DialogportenService.oppdaterDialogMedInntektsmelding(inntektsmelding: Inntektsmelding) {
     val dialog =
         dialogRepository.finnDialogMedSykemeldingId(inntektsmelding.sykmeldingId) ?: run {
@@ -40,7 +42,7 @@ fun DialogportenService.oppdaterDialogMedInntektsmelding(inntektsmelding: Inntek
                         ),
                     ),
                 ).also {
-                    dialogportenClient.setDialogStatus(dialog.dialogId, DialogStatus.Sent)
+                    dialogportenClient.setDialogStatus(dialog.dialogId, status)
                 }
         }
 

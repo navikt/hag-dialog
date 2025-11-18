@@ -3,7 +3,6 @@ package no.nav.helsearbeidsgiver.dialogporten
 import kotlinx.coroutines.runBlocking
 import no.nav.helsearbeidsgiver.dialogporten.domene.lagTransmissionMedVedlegg
 import no.nav.helsearbeidsgiver.kafka.Sykepengesoeknad
-import no.nav.helsearbeidsgiver.utils.log.logger
 
 fun DialogportenService.oppdaterDialogMedSykepengesoeknad(sykepengesoeknad: Sykepengesoeknad) {
     val dialog =

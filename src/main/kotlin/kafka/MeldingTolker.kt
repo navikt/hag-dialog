@@ -86,7 +86,7 @@ class MeldingTolker(
             }
         }.getOrElse { e ->
             sikkerLogger.error("Klarte ikke opprette/oppdatere dialog. Avbryter.", e)
-            // TODO: Fjern denne utkommmenterte
+            // TODO: Kommenter inn igjen når vi skla merge koden
             // throw e
         }
     }
