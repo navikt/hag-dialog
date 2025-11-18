@@ -1,11 +1,10 @@
 package no.nav.helsearbeidsgiver.dialogporten
 
+import io.ktor.client.utils.EmptyContent.status
 import kotlinx.coroutines.runBlocking
 import no.nav.helsearbeidsgiver.dialogporten.domene.DialogStatus
 import no.nav.helsearbeidsgiver.dialogporten.domene.lagTransmissionMedVedlegg
 import no.nav.helsearbeidsgiver.kafka.Inntektsmelding
-
-val status = DialogStatus.NotApplicable
 
 fun DialogportenService.oppdaterDialogMedInntektsmelding(inntektsmelding: Inntektsmelding) {
     val dialog =
@@ -42,7 +41,7 @@ fun DialogportenService.oppdaterDialogMedInntektsmelding(inntektsmelding: Inntek
                         ),
                     ),
                 ).also {
-                    dialogportenClient.setDialogStatus(dialog.dialogId, status)
+                    dialogportenClient.setDialogStatus(dialog.dialogId, DialogStatus.NotApplicable)
                 }
         }
 

@@ -4,7 +4,6 @@ import kotlinx.coroutines.runBlocking
 import no.nav.helsearbeidsgiver.database.DialogRepository
 import no.nav.helsearbeidsgiver.database.TransmissionTable.dialogId
 import no.nav.helsearbeidsgiver.dialogporten.domene.CreateDialogRequest
-import no.nav.helsearbeidsgiver.dialogporten.domene.DialogStatus
 import no.nav.helsearbeidsgiver.dialogporten.domene.lagTransmissionMedVedlegg
 import no.nav.helsearbeidsgiver.kafka.Sykmelding
 import no.nav.helsearbeidsgiver.kafka.Sykmeldingsperiode
@@ -49,7 +48,6 @@ class DialogportenService(
                 )
 
             val dialogId = dialogportenClient.createDialog(request)
-            dialogportenClient.setDialogStatus(dialogId, DialogStatus.New)
             dialogId
         }
 }

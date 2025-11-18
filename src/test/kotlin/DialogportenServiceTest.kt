@@ -174,7 +174,7 @@ class DialogportenServiceTest :
                 dialogportenService.oppdaterDialogMedInntektsmelding(inntektsmelding_mottatt)
 
                 coVerify(exactly = 1) { dialogportenClientMock.addTransmission(dialogId, any()) }
-                coVerify(exactly = 1) { dialogportenClientMock.setDialogStatus(dialogId, DialogStatus.Sent) }
+                coVerify(exactly = 1) { dialogportenClientMock.setDialogStatus(dialogId, DialogStatus.NotApplicable) }
                 verify(exactly = 1) {
                     dialogRepositoryMock.oppdaterDialogMedTransmission(
                         sykmeldingId = inntektsmelding_mottatt.sykmeldingId,
