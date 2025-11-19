@@ -1,10 +1,6 @@
 package no.nav.helsearbeidsgiver.kafka
 
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
-import no.nav.helsearbeidsgiver.dialogporten.oppdaterDialogMedInntektsmelding
-import no.nav.helsearbeidsgiver.dialogporten.oppdaterDialogMedInntektsmeldingsforespoersel
-import no.nav.helsearbeidsgiver.dialogporten.oppdaterDialogMedSykepengesoeknad
-import no.nav.helsearbeidsgiver.dialogporten.oppdaterDialogMedUtgaattForespoersel
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.json.fromJson
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger

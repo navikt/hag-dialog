@@ -3,11 +3,8 @@ import io.mockk.Runs
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
-import io.mockk.mockkStatic
 import io.mockk.verify
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
-import no.nav.helsearbeidsgiver.dialogporten.oppdaterDialogMedInntektsmeldingsforespoersel
-import no.nav.helsearbeidsgiver.dialogporten.oppdaterDialogMedSykepengesoeknad
 import no.nav.helsearbeidsgiver.kafka.Melding
 import no.nav.helsearbeidsgiver.kafka.MeldingTolker
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
@@ -40,20 +37,19 @@ class MeldingTolkerTest :
 
             val dialogportenServiceMock = mockk<DialogportenService>()
             val unleashFeatureTogglesMock = mockk<UnleashFeatureToggles>()
-            mockkStatic(DialogportenService::oppdaterDialogMedSykepengesoeknad) {
-                every { dialogportenServiceMock.oppdaterDialogMedSykepengesoeknad(any()) } just Runs
-                every { unleashFeatureTogglesMock.skalOppdatereDialogVedMottattSoeknad(sykepengesoeknad.orgnr) } returns true
 
-                val meldingTolker =
-                    MeldingTolker(
-                        unleashFeatureToggles = unleashFeatureTogglesMock,
-                        dialogportenService = dialogportenServiceMock,
-                    )
+            every { dialogportenServiceMock.oppdaterDialogMedSykepengesoeknad(any()) } just Runs
+            every { unleashFeatureTogglesMock.skalOppdatereDialogVedMottattSoeknad(sykepengesoeknad.orgnr) } returns true
 
-                meldingTolker.lesMelding(melding)
+            val meldingTolker =
+                MeldingTolker(
+                    unleashFeatureToggles = unleashFeatureTogglesMock,
+                    dialogportenService = dialogportenServiceMock,
+                )
 
-                verify(exactly = 1) { dialogportenServiceMock.oppdaterDialogMedSykepengesoeknad(sykepengesoeknad) }
-            }
+            meldingTolker.lesMelding(melding)
+
+            verify(exactly = 1) { dialogportenServiceMock.oppdaterDialogMedSykepengesoeknad(sykepengesoeknad) }
         }
 
         test("tolker inntektsmeldingsforespoersel og oppdaterer dialog") {
@@ -61,24 +57,23 @@ class MeldingTolkerTest :
 
             val dialogportenServiceMock = mockk<DialogportenService>()
             val unleashFeatureTogglesMock = mockk<UnleashFeatureToggles>()
-            mockkStatic(DialogportenService::oppdaterDialogMedInntektsmeldingsforespoersel) {
-                every { dialogportenServiceMock.oppdaterDialogMedInntektsmeldingsforespoersel(any()) } just Runs
-                every {
-                    unleashFeatureTogglesMock.skalOppdatereDialogVedMottattInntektsmeldingsforespoersel(
-                        sykepengesoeknad.orgnr,
-                    )
-                } returns
-                    true
 
-                val meldingTolker =
-                    MeldingTolker(
-                        unleashFeatureToggles = unleashFeatureTogglesMock,
-                        dialogportenService = dialogportenServiceMock,
-                    )
+            every { dialogportenServiceMock.oppdaterDialogMedInntektsmeldingsforespoersel(any()) } just Runs
+            every {
+                unleashFeatureTogglesMock.skalOppdatereDialogVedMottattInntektsmeldingsforespoersel(
+                    sykepengesoeknad.orgnr,
+                )
+            } returns
+                true
 
-                meldingTolker.lesMelding(melding)
+            val meldingTolker =
+                MeldingTolker(
+                    unleashFeatureToggles = unleashFeatureTogglesMock,
+                    dialogportenService = dialogportenServiceMock,
+                )
 
-                verify(exactly = 1) { dialogportenServiceMock.oppdaterDialogMedInntektsmeldingsforespoersel(inntektsmeldingsforespoersel) }
-            }
+            meldingTolker.lesMelding(melding)
+
+            verify(exactly = 1) { dialogportenServiceMock.oppdaterDialogMedInntektsmeldingsforespoersel(inntektsmeldingsforespoersel) }
         }
     })

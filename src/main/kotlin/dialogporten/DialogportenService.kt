@@ -1,59 +1,46 @@
 package no.nav.helsearbeidsgiver.dialogporten
 
-import kotlinx.coroutines.runBlocking
 import no.nav.helsearbeidsgiver.database.DialogRepository
-import no.nav.helsearbeidsgiver.dialogporten.domene.CreateDialogRequest
-import no.nav.helsearbeidsgiver.dialogporten.domene.lagTransmissionMedVedlegg
+import no.nav.helsearbeidsgiver.dialogporten.handlers.DialogCreator
+import no.nav.helsearbeidsgiver.dialogporten.handlers.InntektsmeldingHandler
+import no.nav.helsearbeidsgiver.dialogporten.handlers.InntektsmeldingsforespoerselHandler
+import no.nav.helsearbeidsgiver.dialogporten.handlers.SykepengesoeknadHandler
+import no.nav.helsearbeidsgiver.dialogporten.handlers.UtgaattForespoerselHandler
+import no.nav.helsearbeidsgiver.kafka.Inntektsmelding
+import no.nav.helsearbeidsgiver.kafka.Inntektsmeldingsforespoersel
+import no.nav.helsearbeidsgiver.kafka.Sykepengesoeknad
 import no.nav.helsearbeidsgiver.kafka.Sykmelding
-import no.nav.helsearbeidsgiver.kafka.Sykmeldingsperiode
+import no.nav.helsearbeidsgiver.kafka.UtgaattInntektsmeldingForespoersel
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
-import no.nav.helsearbeidsgiver.utils.log.logger
-import no.nav.helsearbeidsgiver.utils.tilNorskFormat
-import java.util.UUID
 
 class DialogportenService(
-    val dialogRepository: DialogRepository,
-    val dialogportenClient: DialogportenClient,
-    val unleashFeatureToggles: UnleashFeatureToggles,
+    dialogRepository: DialogRepository,
+    dialogportenClient: DialogportenClient,
+    unleashFeatureToggles: UnleashFeatureToggles,
 ) {
-    val logger = logger()
+    private val dialogCreator = DialogCreator(dialogRepository, dialogportenClient, unleashFeatureToggles)
+    private val sykepengesoeknadHandler = SykepengesoeknadHandler(dialogRepository, dialogportenClient)
+    private val inntektsmeldingsforespoerselHandler = InntektsmeldingsforespoerselHandler(dialogRepository, dialogportenClient)
+    private val inntektsmeldingHandler = InntektsmeldingHandler(dialogRepository, dialogportenClient)
+    private val utgaattForespoerselHandler = UtgaattForespoerselHandler(dialogRepository, dialogportenClient)
 
     fun opprettOgLagreDialog(sykmelding: Sykmelding) {
-        val dialogId = opprettNyDialogMedSykmelding(sykmelding)
-
-        dialogRepository.lagreDialog(dialogId = dialogId, sykmeldingId = sykmelding.sykmeldingId)
-        logger.info("Opprettet dialog $dialogId for sykmelding ${sykmelding.sykmeldingId}.")
+        dialogCreator.opprettOgLagreDialog(sykmelding)
     }
 
-    private fun opprettNyDialogMedSykmelding(sykmelding: Sykmelding): UUID =
-        runBlocking {
-            val request =
-                CreateDialogRequest(
-                    orgnr = sykmelding.orgnr,
-                    externalReference = sykmelding.sykmeldingId.toString(),
-                    idempotentKey = sykmelding.sykmeldingId.toString(),
-                    title =
-                        "Sykepenger for ${sykmelding.fulltNavn} (f. ${sykmelding.foedselsdato.tilNorskFormat()})",
-                    summary =
-                        sykmelding.sykmeldingsperioder
-                            .getSykmeldingsPerioderString(),
-                    transmissions =
-                        listOf(
-                            lagTransmissionMedVedlegg(
-                                SykmeldingTransmissionRequest(sykmelding),
-                            ),
-                        ),
-                    isApiOnly = unleashFeatureToggles.skalOppretteDialogKunForApi(),
-                )
+    fun oppdaterDialogMedSykepengesoeknad(sykepengesoeknad: Sykepengesoeknad) {
+        sykepengesoeknadHandler.oppdaterDialog(sykepengesoeknad)
+    }
 
-            val dialogId = dialogportenClient.createDialog(request)
-            dialogId
-        }
+    fun oppdaterDialogMedInntektsmeldingsforespoersel(inntektsmeldingsforespoersel: Inntektsmeldingsforespoersel) {
+        inntektsmeldingsforespoerselHandler.oppdaterDialog(inntektsmeldingsforespoersel)
+    }
+
+    fun oppdaterDialogMedInntektsmelding(inntektsmelding: Inntektsmelding) {
+        inntektsmeldingHandler.oppdaterDialog(inntektsmelding)
+    }
+
+    fun oppdaterDialogMedUtgaattForespoersel(utgaattForespoersel: UtgaattInntektsmeldingForespoersel) {
+        utgaattForespoerselHandler.oppdaterDialog(utgaattForespoersel)
+    }
 }
-
-fun List<Sykmeldingsperiode>.getSykmeldingsPerioderString(): String =
-    when (size) {
-        1 -> "Sykmeldingsperiode ${first().fom.tilNorskFormat()} – ${first().tom.tilNorskFormat()}"
-        else ->
-            "Sykmeldingsperioder ${first().fom.tilNorskFormat()} – (...) – ${last().tom.tilNorskFormat()}"
-    }

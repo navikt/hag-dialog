@@ -19,10 +19,7 @@ import no.nav.helsearbeidsgiver.dialogporten.domene.ApiAction
 import no.nav.helsearbeidsgiver.dialogporten.domene.CreateDialogRequest
 import no.nav.helsearbeidsgiver.dialogporten.domene.DialogStatus
 import no.nav.helsearbeidsgiver.dialogporten.domene.GuiAction
-import no.nav.helsearbeidsgiver.dialogporten.getSykmeldingsPerioderString
-import no.nav.helsearbeidsgiver.dialogporten.oppdaterDialogMedInntektsmelding
-import no.nav.helsearbeidsgiver.dialogporten.oppdaterDialogMedInntektsmeldingsforespoersel
-import no.nav.helsearbeidsgiver.dialogporten.oppdaterDialogMedSykepengesoeknad
+import no.nav.helsearbeidsgiver.dialogporten.handlers.getSykmeldingsPerioderString
 import no.nav.helsearbeidsgiver.dialogporten.toExtendedType
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.tilNorskFormat
