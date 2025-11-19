@@ -2,7 +2,6 @@ package no.nav.helsearbeidsgiver.dialogporten
 
 import kotlinx.coroutines.runBlocking
 import no.nav.helsearbeidsgiver.database.DialogRepository
-import no.nav.helsearbeidsgiver.database.TransmissionTable.dialogId
 import no.nav.helsearbeidsgiver.dialogporten.domene.CreateDialogRequest
 import no.nav.helsearbeidsgiver.dialogporten.domene.lagTransmissionMedVedlegg
 import no.nav.helsearbeidsgiver.kafka.Sykmelding
@@ -45,7 +44,6 @@ class DialogportenService(
                             ),
                         ),
                     isApiOnly = unleashFeatureToggles.skalOppretteDialogKunForApi(),
-                    idempotentKey = sykmelding.sykmeldingId.toString(),
                 )
 
             val dialogId = dialogportenClient.createDialog(request)
