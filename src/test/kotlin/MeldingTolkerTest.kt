@@ -16,10 +16,6 @@ import no.nav.helsearbeidsgiver.utils.json.toJson
 
 class MeldingTolkerTest :
     FunSpec({
-        afterTest {
-            unmockkAll()
-        }
-
         test("tolker melding om sykmelding og opprett dialog") {
             val melding = sykmelding.toJson(Melding.serializer()).toString()
 
