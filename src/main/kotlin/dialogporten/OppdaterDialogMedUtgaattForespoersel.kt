@@ -48,7 +48,7 @@ fun DialogportenService.oppdaterDialogMedUtgaattForespoersel(utgaattForespoersel
         transmissionId = transmissionId,
         dokumentId = utgaattForespoersel.forespoerselId,
         dokumentType = LpsApiExtendedType.FORESPOERSEL_UTGAATT.toString(),
-        relatedTransmission = relatedTransmissionId,
+        relatedTransmissionId = relatedTransmissionId,
     )
 
     logger.info(

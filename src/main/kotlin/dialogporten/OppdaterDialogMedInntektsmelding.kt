@@ -1,6 +1,5 @@
 package no.nav.helsearbeidsgiver.dialogporten
 
-import io.ktor.client.utils.EmptyContent.status
 import kotlinx.coroutines.runBlocking
 import no.nav.helsearbeidsgiver.dialogporten.domene.DialogStatus
 import no.nav.helsearbeidsgiver.dialogporten.domene.lagTransmissionMedVedlegg
@@ -50,7 +49,7 @@ fun DialogportenService.oppdaterDialogMedInntektsmelding(inntektsmelding: Inntek
         transmissionId = transmissionId,
         dokumentId = inntektsmelding.innsendingId,
         dokumentType = inntektsmelding.status.toExtendedType(),
-        relatedTransmission = forespoerselTransmission.relatedTransmissionId,
+        relatedTransmissionId = forespoerselTransmission.relatedTransmissionId,
     )
 
     logger.info(

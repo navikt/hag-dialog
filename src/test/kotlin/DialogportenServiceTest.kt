@@ -135,7 +135,7 @@ class DialogportenServiceTest :
                         transmissionId = transmissionId,
                         dokumentId = inntektsmeldingsforespoersel.forespoerselId,
                         dokumentType = LpsApiExtendedType.FORESPOERSEL_AKTIV.toString(),
-                        relatedTransmission = transmissionId,
+                        relatedTransmissionId = transmissionId,
                     )
                 }
             }
@@ -181,7 +181,7 @@ class DialogportenServiceTest :
                         transmissionId = transmissionId,
                         dokumentId = inntektsmelding_mottatt.innsendingId,
                         dokumentType = inntektsmelding_mottatt.status.toExtendedType(),
-                        relatedTransmission = forespoerselTransmissionId,
+                        relatedTransmissionId = forespoerselTransmissionId,
                     )
                 }
             }

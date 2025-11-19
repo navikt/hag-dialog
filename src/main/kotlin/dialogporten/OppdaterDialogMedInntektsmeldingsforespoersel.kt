@@ -59,7 +59,7 @@ fun DialogportenService.oppdaterDialogMedInntektsmeldingsforespoersel(inntektsme
             transmissionId = transmissionId,
             dokumentId = inntektsmeldingsforespoersel.forespoerselId,
             dokumentType = LpsApiExtendedType.FORESPOERSEL_AKTIV.toString(),
-            relatedTransmission = transmissionId,
+            relatedTransmissionId = transmissionId,
         )
         logger.info(
             "Oppdaterte dialog ${dialog.dialogId} for sykmelding ${inntektsmeldingsforespoersel.sykmeldingId} " +
