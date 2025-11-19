@@ -60,7 +60,7 @@ class DialogRepository(
                     it[this.dialogId] = dialogId
                     it[this.dokumentId] = dokumentId
                     it[this.dokumentType] = dokumentType
-                    it[this.relatedTransmission] = relatedTransmission
+                    it[this.relatedTransmissionId] = relatedTransmission
                     it[opprettet] = LocalDateTime.now()
                 }
             }

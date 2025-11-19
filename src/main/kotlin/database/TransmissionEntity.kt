@@ -12,7 +12,7 @@ object TransmissionTable : UUIDTable("transmission") {
     val dialogId = reference("dialog_id", DialogTable)
     val dokumentId = uuid("dokument_id")
     val dokumentType = varchar("dokument_type", 50)
-    val relatedTransmission = uuid("related_transmission").nullable()
+    val relatedTransmissionId = uuid("related_transmission_id").nullable()
     val opprettet = datetime("opprettet").clientDefault { LocalDateTime.now() }
 }
 
@@ -24,6 +24,6 @@ class TransmissionEntity(
     val dialog by DialogEntity referencedOn TransmissionTable.dialogId
     val dokumentId by TransmissionTable.dokumentId
     val dokumentType by TransmissionTable.dokumentType
-    val relatedTransmissionId by TransmissionTable.relatedTransmission
+    val relatedTransmissionId by TransmissionTable.relatedTransmissionId
     val opprettet by TransmissionTable.opprettet
 }
