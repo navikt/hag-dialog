@@ -53,7 +53,7 @@ class UtgaatForespoerselTransmissionRequest(
     utgaattInntektsmeldingForespoersel: UtgaattInntektsmeldingForespoersel,
     override val relatedTransmissionId: UUID? = null,
 ) : TransmissionRequest() {
-    override val extendedType = LpsApiExtendedType.FORESPOERSEL_AKTIV.toString()
+    override val extendedType = LpsApiExtendedType.FORESPOERSEL_UTGAATT.toString()
     override val dokumentId = utgaattInntektsmeldingForespoersel.forespoerselId
     override val tittel = "Forespørsel er utgått"
     override val sammendrag = null
