@@ -64,7 +64,7 @@ class UtgaattForespoerselHandler(
 
         logger.info(
             "Oppdaterte dialog ${dialog.dialogId} for sykmelding ${utgaattForespoersel.sykmeldingId} " +
-                "med oppdatert forespørsel om inntektsmelding med id ${utgaattForespoersel.forespoerselId}. " +
+                "med utgått forespørsel om inntektsmelding med id ${utgaattForespoersel.forespoerselId}. " +
                 "Lagt til transmission $transmissionId.",
         )
     }

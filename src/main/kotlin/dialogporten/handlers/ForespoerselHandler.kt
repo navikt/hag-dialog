@@ -14,7 +14,7 @@ import no.nav.helsearbeidsgiver.dialogporten.domene.lagTransmissionMedVedlegg
 import no.nav.helsearbeidsgiver.kafka.Inntektsmeldingsforespoersel
 import no.nav.helsearbeidsgiver.utils.log.logger
 
-class InntektsmeldingsforespoerselHandler(
+class ForespoerselHandler(
     private val dialogRepository: DialogRepository,
     private val dialogportenClient: DialogportenClient,
 ) {

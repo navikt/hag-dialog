@@ -2,7 +2,6 @@ package no.nav.helsearbeidsgiver.dialogporten.handlers
 
 import kotlinx.coroutines.runBlocking
 import no.nav.helsearbeidsgiver.database.DialogRepository
-import no.nav.helsearbeidsgiver.database.TransmissionTable.dialogId
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenClient
 import no.nav.helsearbeidsgiver.dialogporten.SykmeldingTransmissionRequest
 import no.nav.helsearbeidsgiver.dialogporten.domene.CreateDialogRequest
@@ -20,7 +19,7 @@ fun List<Sykmeldingsperiode>.getSykmeldingsPerioderString(): String =
             "Sykmeldingsperioder ${first().fom.tilNorskFormat()} – (...) – ${last().tom.tilNorskFormat()}"
     }
 
-class DialogCreator(
+class SykmeldingHandler(
     private val dialogRepository: DialogRepository,
     private val dialogportenClient: DialogportenClient,
     private val unleashFeatureToggles: UnleashFeatureToggles,

@@ -1,9 +1,9 @@
 package no.nav.helsearbeidsgiver.dialogporten
 
 import no.nav.helsearbeidsgiver.database.DialogRepository
-import no.nav.helsearbeidsgiver.dialogporten.handlers.DialogCreator
+import no.nav.helsearbeidsgiver.dialogporten.handlers.SykmeldingHandler
 import no.nav.helsearbeidsgiver.dialogporten.handlers.InntektsmeldingHandler
-import no.nav.helsearbeidsgiver.dialogporten.handlers.InntektsmeldingsforespoerselHandler
+import no.nav.helsearbeidsgiver.dialogporten.handlers.ForespoerselHandler
 import no.nav.helsearbeidsgiver.dialogporten.handlers.SykepengesoeknadHandler
 import no.nav.helsearbeidsgiver.dialogporten.handlers.UtgaattForespoerselHandler
 import no.nav.helsearbeidsgiver.kafka.Inntektsmelding
@@ -18,14 +18,14 @@ class DialogportenService(
     dialogportenClient: DialogportenClient,
     unleashFeatureToggles: UnleashFeatureToggles,
 ) {
-    private val dialogCreator = DialogCreator(dialogRepository, dialogportenClient, unleashFeatureToggles)
+    private val sykmeldingHandler = SykmeldingHandler(dialogRepository, dialogportenClient, unleashFeatureToggles)
     private val sykepengesoeknadHandler = SykepengesoeknadHandler(dialogRepository, dialogportenClient)
-    private val inntektsmeldingsforespoerselHandler = InntektsmeldingsforespoerselHandler(dialogRepository, dialogportenClient)
+    private val forespoerselHandler = ForespoerselHandler(dialogRepository, dialogportenClient)
     private val inntektsmeldingHandler = InntektsmeldingHandler(dialogRepository, dialogportenClient)
     private val utgaattForespoerselHandler = UtgaattForespoerselHandler(dialogRepository, dialogportenClient)
 
     fun opprettOgLagreDialog(sykmelding: Sykmelding) {
-        dialogCreator.opprettOgLagreDialog(sykmelding)
+        sykmeldingHandler.opprettOgLagreDialog(sykmelding)
     }
 
     fun oppdaterDialogMedSykepengesoeknad(sykepengesoeknad: Sykepengesoeknad) {
@@ -33,7 +33,7 @@ class DialogportenService(
     }
 
     fun oppdaterDialogMedInntektsmeldingsforespoersel(inntektsmeldingsforespoersel: Inntektsmeldingsforespoersel) {
-        inntektsmeldingsforespoerselHandler.oppdaterDialog(inntektsmeldingsforespoersel)
+        forespoerselHandler.oppdaterDialog(inntektsmeldingsforespoersel)
     }
 
     fun oppdaterDialogMedInntektsmelding(inntektsmelding: Inntektsmelding) {
