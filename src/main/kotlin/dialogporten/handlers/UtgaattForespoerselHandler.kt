@@ -4,7 +4,7 @@ import kotlinx.coroutines.runBlocking
 import no.nav.helsearbeidsgiver.database.DialogRepository
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenClient
 import no.nav.helsearbeidsgiver.dialogporten.LpsApiExtendedType
-import no.nav.helsearbeidsgiver.dialogporten.UtgaatForespoerselTransmissionRequest
+import no.nav.helsearbeidsgiver.dialogporten.UtgaattForespoerselTransmissionRequest
 import no.nav.helsearbeidsgiver.dialogporten.domene.lagTransmissionMedVedlegg
 import no.nav.helsearbeidsgiver.kafka.UtgaattInntektsmeldingForespoersel
 import no.nav.helsearbeidsgiver.utils.log.logger
@@ -44,8 +44,8 @@ class UtgaattForespoerselHandler(
                         dialogId = dialog.dialogId,
                         transmission =
                             lagTransmissionMedVedlegg(
-                                UtgaatForespoerselTransmissionRequest(
-                                    utgaattForespoersel,
+                                UtgaattForespoerselTransmissionRequest(
+                                    utgaattInntektsmeldingForespoersel = utgaattForespoersel,
                                     relatedTransmissionId = relatedTransmissionId,
                                 ),
                             ),

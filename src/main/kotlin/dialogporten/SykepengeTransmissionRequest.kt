@@ -49,7 +49,7 @@ class ForespoerselTransmissionRequest(
     override val type = Transmission.TransmissionType.Request
 }
 
-class UtgaatForespoerselTransmissionRequest(
+class UtgaattForespoerselTransmissionRequest(
     utgaattInntektsmeldingForespoersel: UtgaattInntektsmeldingForespoersel,
     override val relatedTransmissionId: UUID? = null,
 ) : TransmissionRequest() {
