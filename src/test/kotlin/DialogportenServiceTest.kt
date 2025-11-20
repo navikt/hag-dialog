@@ -19,8 +19,8 @@ import no.nav.helsearbeidsgiver.dialogporten.domene.ApiAction
 import no.nav.helsearbeidsgiver.dialogporten.domene.CreateDialogRequest
 import no.nav.helsearbeidsgiver.dialogporten.domene.DialogStatus
 import no.nav.helsearbeidsgiver.dialogporten.domene.GuiAction
-import no.nav.helsearbeidsgiver.dialogporten.handlers.getSykmeldingsPerioderString
 import no.nav.helsearbeidsgiver.dialogporten.toExtendedType
+import no.nav.helsearbeidsgiver.kafka.getSykmeldingsPerioderString
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.tilNorskFormat
 import java.util.UUID
