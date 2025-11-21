@@ -1,0 +1,1 @@
+ALTER TABLE transmission RENAME COLUMN related_transmission TO related_transmission_id;

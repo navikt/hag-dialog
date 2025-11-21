@@ -59,7 +59,11 @@ class MeldingTolkerTest :
             val unleashFeatureTogglesMock = mockk<UnleashFeatureToggles>()
 
             every { dialogportenServiceMock.oppdaterDialogMedInntektsmeldingsforespoersel(any()) } just Runs
-            every { unleashFeatureTogglesMock.skalOppdatereDialogVedMottattInntektsmeldingsforespoersel(sykepengesoeknad.orgnr) } returns
+            every {
+                unleashFeatureTogglesMock.skalOppdatereDialogVedMottattInntektsmeldingsforespoersel(
+                    sykepengesoeknad.orgnr,
+                )
+            } returns
                 true
 
             val meldingTolker =

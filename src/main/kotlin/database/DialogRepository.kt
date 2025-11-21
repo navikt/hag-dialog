@@ -42,7 +42,7 @@ class DialogRepository(
         transmissionId: UUID,
         dokumentId: UUID,
         dokumentType: String,
-        relatedTransmission: UUID? = null,
+        relatedTransmissionId: UUID? = null,
     ) {
         try {
             transaction(db) {
@@ -60,7 +60,7 @@ class DialogRepository(
                     it[this.dialogId] = dialogId
                     it[this.dokumentId] = dokumentId
                     it[this.dokumentType] = dokumentType
-                    it[this.relatedTransmission] = relatedTransmission
+                    it[this.relatedTransmissionId] = relatedTransmissionId
                     it[opprettet] = LocalDateTime.now()
                 }
             }

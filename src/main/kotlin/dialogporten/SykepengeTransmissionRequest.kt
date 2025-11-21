@@ -7,6 +7,7 @@ import no.nav.helsearbeidsgiver.kafka.Inntektsmelding
 import no.nav.helsearbeidsgiver.kafka.Inntektsmeldingsforespoersel
 import no.nav.helsearbeidsgiver.kafka.Sykepengesoeknad
 import no.nav.helsearbeidsgiver.kafka.Sykmelding
+import no.nav.helsearbeidsgiver.kafka.UtgaattInntektsmeldingForespoersel
 import java.util.UUID
 
 class SykmeldingTransmissionRequest(
@@ -46,6 +47,19 @@ class ForespoerselTransmissionRequest(
     override val vedleggNavn = "inntektsmeldingforespoersel.json"
     override val vedleggBaseUrl = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/forespoersel"
     override val type = Transmission.TransmissionType.Request
+}
+
+class UtgaattForespoerselTransmissionRequest(
+    utgaattInntektsmeldingForespoersel: UtgaattInntektsmeldingForespoersel,
+    override val relatedTransmissionId: UUID? = null,
+) : TransmissionRequest() {
+    override val extendedType = LpsApiExtendedType.FORESPOERSEL_UTGAATT.toString()
+    override val dokumentId = utgaattInntektsmeldingForespoersel.forespoerselId
+    override val tittel = "Forespørsel er utgått"
+    override val sammendrag = null
+    override val vedleggNavn = "inntektsmeldingforespoersel.json"
+    override val vedleggBaseUrl = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/forespoersel"
+    override val type = Transmission.TransmissionType.Information
 }
 
 fun Inntektsmelding.Status.toExtendedType(): String =
