@@ -43,4 +43,8 @@ class DialogportenService(
     fun oppdaterDialogMedUtgaattForespoersel(utgaattForespoersel: UtgaattInntektsmeldingForespoersel) {
         utgaattForespoerselHandler.oppdaterDialog(utgaattForespoersel)
     }
+
+    fun oppdaterDialogMedKorrigertInntektsmelding(korrigertInntektsmelding: Inntektsmelding) {
+        inntektsmeldingHandler.oppdaterDialogMedKorrigertInntektsmelding(korrigertInntektsmelding)
+    }
 }

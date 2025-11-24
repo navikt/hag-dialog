@@ -95,3 +95,16 @@ class InntektsmeldingTransmissionRequest(
     override val vedleggBaseUrl = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/inntektsmelding"
     override val type = inntektsmelding.status.toTransmissionType()
 }
+
+class InntektsmeldingKorrigertTransmissionRequest(
+    inntektsmelding: Inntektsmelding,
+    override val relatedTransmissionId: UUID?,
+) : TransmissionRequest() {
+    override val extendedType = LpsApiExtendedType.INNTEKTSMELDING_KORRIGERT.toString()
+    override val dokumentId = inntektsmelding.innsendingId
+    override val tittel = "Inntektsmelding korrigert"
+    override val sammendrag = null
+    override val vedleggNavn = "inntektsmelding_korrigert.json"
+    override val vedleggBaseUrl = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/inntektsmelding"
+    override val type = Transmission.TransmissionType.Correction
+}

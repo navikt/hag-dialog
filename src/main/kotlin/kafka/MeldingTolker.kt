@@ -60,6 +60,9 @@ class MeldingTolker(
 
                 is Inntektsmelding -> {
                     if (unleashFeatureToggles.skalOppdatereDialogVedMottattInntektsmelding(orgnr = dekodetMelding.orgnr)) {
+                        if (dekodetMelding.aarsakInnsending == Inntektsmelding.AarsakInnsending.Endring) {
+                            dialogportenService.oppdaterDialogMedKorrigertInntektsmelding(dekodetMelding)
+                        }
                         dialogportenService.oppdaterDialogMedInntektsmelding(inntektsmelding = dekodetMelding)
                     } else {
                         logger.info(
