@@ -61,9 +61,10 @@ class MeldingTolker(
                 is Inntektsmelding -> {
                     if (unleashFeatureToggles.skalOppdatereDialogVedMottattInntektsmelding(orgnr = dekodetMelding.orgnr)) {
                         if (dekodetMelding.aarsakInnsending == Inntektsmelding.AarsakInnsending.Endring) {
-                            dialogportenService.oppdaterDialogMedKorrigertInntektsmelding(dekodetMelding)
+                            dialogportenService.oppdaterDialogMedKorrigertInntektsmelding(korrigertInntektsmelding = dekodetMelding)
+                        } else {
+                            dialogportenService.oppdaterDialogMedInntektsmelding(inntektsmelding = dekodetMelding)
                         }
-                        dialogportenService.oppdaterDialogMedInntektsmelding(inntektsmelding = dekodetMelding)
                     } else {
                         logger.info(
                             "Feature toggle for oppdatering av dialog med inntektsmelding er avskrudd, " +
