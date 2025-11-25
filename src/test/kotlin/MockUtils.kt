@@ -39,7 +39,17 @@ val inntektsmeldingsforespoersel =
         sykmeldingId = sykmelding.sykmeldingId,
         orgnr = orgnr,
     )
-val inntektsmelding_mottatt =
+val inntektsmelding_mottatt_ny =
+    Inntektsmelding(
+        forespoerselId = inntektsmeldingsforespoersel.forespoerselId,
+        innsendingId = UUID.randomUUID(),
+        sykmeldingId = sykmelding.sykmeldingId,
+        orgnr = orgnr,
+        status = Inntektsmelding.Status.MOTTATT,
+        aarsakInnsending = Inntektsmelding.AarsakInnsending.NY,
+        kilde = Inntektsmelding.Kilde.API,
+    )
+val inntektsmelding_mottatt_endring =
     Inntektsmelding(
         forespoerselId = inntektsmeldingsforespoersel.forespoerselId,
         innsendingId = UUID.randomUUID(),

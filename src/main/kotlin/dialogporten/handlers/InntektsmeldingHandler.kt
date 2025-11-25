@@ -93,8 +93,9 @@ class InntektsmeldingHandler(
     }
 
     private fun skalOppretteKorrigeringTransmission(inntektsmelding: Inntektsmelding): Boolean =
-        when (inntektsmelding.kilde) {
-            Inntektsmelding.Kilde.NAV_PORTAL -> true
-            Inntektsmelding.Kilde.API -> inntektsmelding.status == Inntektsmelding.Status.MOTTATT
-        }
+        inntektsmelding.aarsakInnsending == Inntektsmelding.AarsakInnsending.Endring &&
+            when (inntektsmelding.kilde) {
+                Inntektsmelding.Kilde.NAV_PORTAL -> true
+                Inntektsmelding.Kilde.API -> inntektsmelding.status == Inntektsmelding.Status.MOTTATT
+            }
 }
