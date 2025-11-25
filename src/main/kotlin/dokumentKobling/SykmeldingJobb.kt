@@ -5,6 +5,8 @@ import kotlinx.coroutines.Dispatchers
 import no.nav.hag.utils.bakgrunnsjobb.RecurringJob
 import no.nav.helsearbeidsgiver.database.DokumentKoblingRepository
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
+import no.nav.helsearbeidsgiver.kafka.Sykmelding as SykmeldingGammel
+import no.nav.helsearbeidsgiver.kafka.Sykmeldingsperiode as SykmeldingSperiodeGammel
 import java.time.Duration
 
 class SykmeldingJobb(
@@ -13,10 +15,19 @@ class SykmeldingJobb(
 ) : RecurringJob(CoroutineScope(Dispatchers.IO), Duration.ofSeconds(10).toMillis()) {
     override fun doJob() {
         val sykmeldinger = dokumentKoblingRepository.henteSykemeldingerMedStatusMotatt()
-
-        sykmeldinger.forEach { sykmelding ->
-            dialogportenService.opprettOgLagreDialog(sykmelding.data)
+        sykmeldinger.forEach { (sykmelding, status) ->
+            dialogportenService.opprettDialogForSykmelding(sykmelding)
             dokumentKoblingRepository.settSykmeldingStatusTilBehandlet(sykmelding.sykmeldingId)
         }
     }
+}
+
+fun DialogportenService.opprettDialogForSykmelding(sykmelding: Sykmelding){
+    opprettOgLagreDialog(SykmeldingGammel(
+        sykmeldingId = sykmelding.sykmeldingId,
+        foedselsdato = sykmelding.foedselsdato,
+        fulltNavn = sykmelding.fulltNavn,
+        orgnr = sykmelding.orgnr,
+        sykmeldingsperioder = sykmelding.sykmeldingsperioder.map { SykmeldingSperiodeGammel(it.fom, it.tom) },
+    ))
 }

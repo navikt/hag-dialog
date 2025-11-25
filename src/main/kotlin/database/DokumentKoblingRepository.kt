@@ -1,28 +1,30 @@
 package no.nav.helsearbeidsgiver.database
 
+import no.nav.helsearbeidsgiver.dokumentKobling.Sykmelding
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import org.jetbrains.exposed.exceptions.ExposedSQLException
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
+import org.postgresql.core.Tuple
 import java.util.UUID
 
 class DokumentKoblingRepository(
     private val db: Database,
 ) {
     fun opprettSykmelding(
-        sykmeldingId: UUID,
-        status: Status,
+    sykmelding: Sykmelding
     ) = try {
         transaction(db) {
             SykmeldingTable.insert {
-                it[id] = sykmeldingId
-                it[SykmeldingTable.status] = status
+                it[id] = sykmelding.sykmeldingId
+                it[SykmeldingTable.status] = Status.MOTATT
+                it[SykmeldingTable.data] = sykmelding
             }
         }
     } catch (e: ExposedSQLException) {
-        sikkerLogger().error("Klarte ikke å opprette sykmelding med id $sykmeldingId i databasen", e)
+        sikkerLogger().error("Klarte ikke å opprette sykmelding med id ${sykmelding.sykmeldingId} i databasen", e)
         throw e
     }
 
@@ -53,9 +55,11 @@ class DokumentKoblingRepository(
             SykepengesoeknadEntity.findById(soeknadId)
         }
 
-    fun henteSykemeldingerMedStatusMotatt(): List<SykmeldingEntity> =
+    fun henteSykemeldingerMedStatusMotatt(): List<Pair<Sykmelding, Status>> =
         transaction(db) {
-            SykmeldingEntity.find { SykmeldingTable.status eq Status.MOTATT }.toList()
+            SykmeldingEntity.find { SykmeldingTable.status eq Status.MOTATT }.map{ sykmelding ->
+                Pair(sykmelding.data, sykmelding.status)
+            }
         }
 
     fun settSykmeldingStatusTilBehandlet(sykmeldingId: UUID): Unit =

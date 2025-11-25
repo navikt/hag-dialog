@@ -6,8 +6,8 @@ import no.nav.helsearbeidsgiver.dialogporten.DialogportenClient
 import no.nav.helsearbeidsgiver.dialogporten.SykmeldingTransmissionRequest
 import no.nav.helsearbeidsgiver.dialogporten.domene.CreateDialogRequest
 import no.nav.helsearbeidsgiver.dialogporten.domene.lagTransmissionMedVedlegg
-import no.nav.helsearbeidsgiver.dokumentKobling.Sykmelding
-import no.nav.helsearbeidsgiver.dokumentKobling.getSykmeldingsPerioderString
+import no.nav.helsearbeidsgiver.kafka.Sykmelding
+
 import no.nav.helsearbeidsgiver.kafka.getSykmeldingsPerioderString
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.log.logger
