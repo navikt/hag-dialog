@@ -14,9 +14,6 @@ import no.nav.helsearbeidsgiver.database.DialogRepository
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenClient
 import no.nav.helsearbeidsgiver.dialogporten.LpsApiExtendedType
 import no.nav.helsearbeidsgiver.dialogporten.handlers.SykepengesoeknadHandler
-import no.nav.helsearbeidsgiver.dialogporten.handlers.SykmeldingHandler
-import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
-import org.junit.jupiter.api.Assertions.*
 import sykepengesoeknad
 import java.util.UUID
 

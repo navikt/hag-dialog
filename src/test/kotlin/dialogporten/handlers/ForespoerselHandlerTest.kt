@@ -17,7 +17,6 @@ import no.nav.helsearbeidsgiver.dialogporten.LpsApiExtendedType
 import no.nav.helsearbeidsgiver.dialogporten.domene.ApiAction
 import no.nav.helsearbeidsgiver.dialogporten.domene.GuiAction
 import no.nav.helsearbeidsgiver.dialogporten.handlers.ForespoerselHandler
-import org.junit.jupiter.api.Assertions.*
 import java.util.UUID
 
 class ForespoerselHandlerTest :

@@ -12,7 +12,6 @@ import io.mockk.slot
 import io.mockk.verify
 import no.nav.helsearbeidsgiver.database.DialogRepository
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenClient
-import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
 import no.nav.helsearbeidsgiver.dialogporten.domene.CreateDialogRequest
 import no.nav.helsearbeidsgiver.dialogporten.handlers.SykmeldingHandler
 import no.nav.helsearbeidsgiver.kafka.getSykmeldingsPerioderString
