@@ -46,7 +46,7 @@ val inntektsmelding_mottatt =
         sykmeldingId = sykmelding.sykmeldingId,
         orgnr = orgnr,
         status = Inntektsmelding.Status.MOTTATT,
-        aarsakInnsending = Inntektsmelding.AarsakInnsending.NY,
+        aarsakInnsending = Inntektsmelding.AarsakInnsending.Endring,
         kilde = Inntektsmelding.Kilde.API,
     )
 val inntektsmelding_godkjent =
@@ -56,7 +56,7 @@ val inntektsmelding_godkjent =
         sykmeldingId = sykmelding.sykmeldingId,
         orgnr = orgnr,
         status = Inntektsmelding.Status.GODKJENT,
-        aarsakInnsending = Inntektsmelding.AarsakInnsending.NY,
+        aarsakInnsending = Inntektsmelding.AarsakInnsending.Endring,
         kilde = Inntektsmelding.Kilde.API,
     )
 val inntektsmelding_feilet =
@@ -66,7 +66,7 @@ val inntektsmelding_feilet =
         sykmeldingId = sykmelding.sykmeldingId,
         orgnr = orgnr,
         status = Inntektsmelding.Status.FEILET,
-        aarsakInnsending = Inntektsmelding.AarsakInnsending.NY,
+        aarsakInnsending = Inntektsmelding.AarsakInnsending.Endring,
         kilde = Inntektsmelding.Kilde.API,
     )
 val forespoersel_utgaatt =

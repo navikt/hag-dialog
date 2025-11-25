@@ -60,11 +60,7 @@ class MeldingTolker(
 
                 is Inntektsmelding -> {
                     if (unleashFeatureToggles.skalOppdatereDialogVedMottattInntektsmelding(orgnr = dekodetMelding.orgnr)) {
-                        if (dekodetMelding.aarsakInnsending == Inntektsmelding.AarsakInnsending.Endring) {
-                            dialogportenService.oppdaterDialogMedKorrigertInntektsmelding(korrigertInntektsmelding = dekodetMelding)
-                        } else {
-                            dialogportenService.oppdaterDialogMedInntektsmelding(inntektsmelding = dekodetMelding)
-                        }
+                        dialogportenService.oppdaterDialogMedInntektsmelding(inntektsmelding = dekodetMelding)
                     } else {
                         logger.info(
                             "Feature toggle for oppdatering av dialog med inntektsmelding er avskrudd, " +
@@ -86,8 +82,8 @@ class MeldingTolker(
             }
         }.getOrElse { e ->
             sikkerLogger.error("Klarte ikke opprette/oppdatere dialog. Avbryter.", e)
-        //TODO Fjern
-        // throw e
+            // TODO Fjern
+            // throw e
         }
     }
 
