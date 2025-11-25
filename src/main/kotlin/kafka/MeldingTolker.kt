@@ -26,7 +26,6 @@ class MeldingTolker(
         runCatching {
             when (dekodetMelding) {
                 is Sykmelding -> {
-
                     if (unleashFeatureToggles.skalOppretteDialogVedMottattSykmelding(orgnr = dekodetMelding.orgnr)) {
                         dialogportenService.opprettOgLagreDialog(sykmelding = dekodetMelding)
                     } else {

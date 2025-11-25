@@ -10,6 +10,7 @@ CREATE TABLE sykepengesoeknad
 (
     soeknad_id    UUID UNIQUE NOT NULL PRIMARY KEY,
     sykmelding_id UUID        NOT NULL,
+    orgnr         VARCHAR(50) NOT NULL,
     status        VARCHAR(50) NOT NULL,
     opprettet     TIMESTAMP   NOT NULL DEFAULT now(),
     UNIQUE (soeknad_id, sykmelding_id)

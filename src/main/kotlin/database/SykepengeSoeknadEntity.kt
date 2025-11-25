@@ -10,6 +10,7 @@ import java.util.UUID
 
 object SykepengesoeknadTable : UUIDTable("sykepengesoeknad", "soeknad_id") {
     val sykmeldingId = uuid("sykmelding_id")
+    val orgnr = varchar("orgnr", 9)
     val status = enumerationByName("status", 50, Status::class)
     val opprettet = datetime("opprettet").clientDefault { LocalDateTime.now() }
 }
@@ -22,6 +23,7 @@ class SykepengesoeknadEntity(
     val soeknadId: UUID
         get() = id.value
     val sykmeldingId by SykepengesoeknadTable.sykmeldingId
+    val orgnr by SykepengesoeknadTable.orgnr
     val status by SykepengesoeknadTable.status
     val opprettet by SykepengesoeknadTable.opprettet
 }
