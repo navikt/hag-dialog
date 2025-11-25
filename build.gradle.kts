@@ -53,6 +53,7 @@ dependencies {
     val hikariVersion: String by project
     val postgresqlVersion: String by project
     val exposedVersion: String by project
+    val bakgrunnsjobbVersion: String by project
     implementation("ch.qos.logback:logback-classic:$logbackVersion")
     implementation("net.logstash.logback:logstash-logback-encoder:$logbackEncoderVersion")
     implementation("io.getunleash:unleash-client-java:$unleashVersion")
@@ -71,6 +72,7 @@ dependencies {
     implementation("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
     implementation("org.jetbrains.exposed:exposed-json:$exposedVersion")
     implementation("org.jetbrains.exposed:exposed-dao:$exposedVersion")
+    implementation("no.nav.helsearbeidsgiver:hag-bakgrunnsjobb:${bakgrunnsjobbVersion}")
 
     // Test dependencies
     val kotestVersion: String by project

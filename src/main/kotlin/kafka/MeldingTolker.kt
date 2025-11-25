@@ -26,14 +26,16 @@ class MeldingTolker(
         runCatching {
             when (dekodetMelding) {
                 is Sykmelding -> {
-                    if (unleashFeatureToggles.skalOppretteDialogVedMottattSykmelding(orgnr = dekodetMelding.orgnr)) {
-                        dialogportenService.opprettOgLagreDialog(sykmelding = dekodetMelding)
-                    } else {
-                        logger.info(
-                            "Feature toggle for dialogopprettelse for sykmelding er avskrudd, " +
-                                "ignorerer melding for sykmeldingId ${dekodetMelding.sykmeldingId}.",
-                        )
-                    }
+
+//                    TODO: Lagre dokumentKobling i databasen for sykmeldingJobb
+//                    if (unleashFeatureToggles.skalOppretteDialogVedMottattSykmelding(orgnr = dekodetMelding.orgnr)) {
+//                        dialogportenService.opprettOgLagreDialog(sykmelding = dekodetMelding)
+//                    } else {
+//                        logger.info(
+//                            "Feature toggle for dialogopprettelse for sykmelding er avskrudd, " +
+//                                "ignorerer melding for sykmeldingId ${dekodetMelding.sykmeldingId}.",
+//                        )
+//                    }
                 }
 
                 is Sykepengesoeknad -> {

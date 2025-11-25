@@ -10,6 +10,7 @@ import no.nav.helsearbeidsgiver.utils.json.serializer.UuidSerializer
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import java.time.LocalDate
 import java.util.UUID
+import no.nav.helsearbeidsgiver.utils.tilNorskFormat
 
 @Serializable
 sealed class DokumentKobling
@@ -38,54 +39,61 @@ data class Sykepengesoeknad(
     val orgnr: Orgnr,
 ) : DokumentKobling()
 
-//@Serializable
-//@SerialName("VedtaksperiodeSoeknadKobling")
-//data class VedtaksperiodeSoeknadKobling(
+// @Serializable
+// @SerialName("VedtaksperiodeSoeknadKobling")
+// data class VedtaksperiodeSoeknadKobling(
 //    val vedtaksperiodeId: UUID,
 //    val soeknadId: UUID,
-//) : DokumentKobling()
+// ) : DokumentKobling()
 //
-//@Serializable
-//@SerialName("ForespoerselSendt")
-//data class ForespoerselSendt(
+// @Serializable
+// @SerialName("ForespoerselSendt")
+// data class ForespoerselSendt(
 //    val forespoerselKobling: ForespoerselKobling,
-//) : DokumentKobling()
+// ) : DokumentKobling()
 //
-//@Serializable
-//@SerialName("ForespoerselUtgaatt")
-//data class ForespoerselUtgaatt(
+// @Serializable
+// @SerialName("ForespoerselUtgaatt")
+// data class ForespoerselUtgaatt(
 //    val forespoerselKobling: ForespoerselKobling,
-//) : DokumentKobling()
+// ) : DokumentKobling()
 //
-//@Serializable
-//@SerialName("InntektsmeldingMottatt")
-//data class InntektsmeldingMottatt(
+// @Serializable
+// @SerialName("InntektsmeldingMottatt")
+// data class InntektsmeldingMottatt(
 //    val inntektsmeldingKobling: InntektsmeldingKobling,
-//) : DokumentKobling()
+// ) : DokumentKobling()
 //
-//@Serializable
-//@SerialName("InntektsmeldingAvvist")
-//data class InntektsmeldingAvvist(
+// @Serializable
+// @SerialName("InntektsmeldingAvvist")
+// data class InntektsmeldingAvvist(
 //    val inntektsmeldingKobling: InntektsmeldingKobling,
-//) : DokumentKobling()
+// ) : DokumentKobling()
 //
-//@Serializable
-//@SerialName("InntektsmeldingGodkjent")
-//data class InntektsmeldingGodkjent(
+// @Serializable
+// @SerialName("InntektsmeldingGodkjent")
+// data class InntektsmeldingGodkjent(
 //    val inntektsmeldingKobling: InntektsmeldingKobling,
-//) : DokumentKobling()
+// ) : DokumentKobling()
 //
-//@Serializable
-//class ForespoerselKobling(
+// @Serializable
+// class ForespoerselKobling(
 //    val forespoerselId: UUID,
 //    val vedtaksperiodeId: UUID,
 //    val orgnr: String,
-//)
+// )
 //
-//@Serializable
-//class InntektsmeldingKobling(
+// @Serializable
+// class InntektsmeldingKobling(
 //    val innsendingId: UUID,
 //    val forespoerselId: UUID,
 //    val orgnr: String,
-//)
+// )
 //
+
+fun List<Sykmeldingsperiode>.getSykmeldingsPerioderString(): String =
+    when (size) {
+        1 -> "Sykmeldingsperiode ${first().fom.tilNorskFormat()} – ${first().tom.tilNorskFormat()}"
+        else ->
+            "Sykmeldingsperioder ${first().fom.tilNorskFormat()} – (...) – ${last().tom.tilNorskFormat()}"
+    }

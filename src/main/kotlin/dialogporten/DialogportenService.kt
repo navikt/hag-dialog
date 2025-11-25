@@ -9,7 +9,7 @@ import no.nav.helsearbeidsgiver.dialogporten.handlers.UtgaattForespoerselHandler
 import no.nav.helsearbeidsgiver.kafka.Inntektsmelding
 import no.nav.helsearbeidsgiver.kafka.Inntektsmeldingsforespoersel
 import no.nav.helsearbeidsgiver.kafka.Sykepengesoeknad
-import no.nav.helsearbeidsgiver.kafka.Sykmelding
+import no.nav.helsearbeidsgiver.dokumentKobling.Sykmelding
 import no.nav.helsearbeidsgiver.kafka.UtgaattInntektsmeldingForespoersel
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 

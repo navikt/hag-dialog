@@ -2,6 +2,7 @@ CREATE TABLE sykmelding
 (
     sykmelding_id UUID UNIQUE NOT NULL PRIMARY KEY,
     status        VARCHAR(50) NOT NULL,
+    data          JSONB       NOT NULL,
     opprettet     TIMESTAMP   NOT NULL DEFAULT now()
 );
 
