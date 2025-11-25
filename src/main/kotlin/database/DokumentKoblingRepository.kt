@@ -6,6 +6,10 @@ import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.UUID
+import org.jetbrains.exposed.sql.ResultRow
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.select
+
 
 class DokumentKoblingRepository(
     private val db: Database,
@@ -19,7 +23,7 @@ class DokumentKoblingRepository(
             transaction(db) {
                 SykmeldingTable.insert {
                     it[id] = sykmeldingId
-                    it[SykepengesoeknadTable.status] = status
+                    it[SykmeldingTable.status] = status
                 }
             }
         } catch (e: ExposedSQLException) {
@@ -36,14 +40,14 @@ class DokumentKoblingRepository(
 
     fun opprettSykepengesoeknad(
         soeknadId: UUID,
-        sykmelding: SykmeldingEntity,
+        sykmeldingId: UUID,
         status: Status,
     ) =
         try {
             transaction(db) {
                 SykepengesoeknadTable.insert {
                     it[id] = soeknadId
-                    it[this.sykmeldingId] = sykmelding.id
+                    it[SykepengesoeknadTable.sykmeldingId] = sykmeldingId
                     it[SykepengesoeknadTable.status] = status
                 }
             }

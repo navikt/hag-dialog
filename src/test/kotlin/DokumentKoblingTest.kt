@@ -1,13 +1,10 @@
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import java.util.UUID
-import no.nav.helsearbeidsgiver.database.DialogTable
 import no.nav.helsearbeidsgiver.database.DokumentKoblingRepository
 import no.nav.helsearbeidsgiver.database.Status
 import no.nav.helsearbeidsgiver.database.SykepengesoeknadTable
 import no.nav.helsearbeidsgiver.database.SykmeldingTable
-import no.nav.helsearbeidsgiver.database.TransmissionTable
-import org.jetbrains.exposed.sql.transactions.transaction
 
 class DokumentKoblingTest:  FunSpecWithDb(listOf(SykepengesoeknadTable, SykmeldingTable), { db ->
     val repository = DokumentKoblingRepository(db)
@@ -30,28 +27,27 @@ class DokumentKoblingTest:  FunSpecWithDb(listOf(SykepengesoeknadTable, Sykmeldi
         val sykmeldingId = UUID.randomUUID()
         val soeknadId = UUID.randomUUID()
 
-        val sykmelding = repository.opprettSykmelding(
+        repository.opprettSykmelding(
             sykmeldingId = sykmeldingId,
             status = Status.MOTATT,
         )
 
         val sykmeldingHentet = repository.hentSykmelding(sykmeldingId)
         sykmeldingHentet.shouldNotBeNull()
+        sykmeldingHentet.id.value shouldBe sykmeldingId
+        sykmeldingHentet.status shouldBe Status.MOTATT
 
         repository.opprettSykepengesoeknad(
             soeknadId = soeknadId,
-            sykmelding = sykmeldingHentet,
+            sykmeldingId = sykmeldingId,
             status = Status.BEHANDLET,
         )
 
-        val hentet = repository.hentSykepengesoeknad(soeknadId)
-        hentet.shouldNotBeNull()
-        hentet.id.value shouldBe soeknadId
-        hentet.status shouldBe Status.BEHANDLET
+        val hentetSoeknad = repository.hentSykepengesoeknad(soeknadId)
+        hentetSoeknad.shouldNotBeNull()
+        hentetSoeknad.id.value shouldBe soeknadId
+        hentetSoeknad.status shouldBe Status.BEHANDLET
 
-        transaction(db) {
-            // verify kobling
-            hentet.sykmelding.id.value shouldBe sykmeldingId
-        }
+        hentetSoeknad.sykmeldingId shouldBe sykmeldingId
     }
 })

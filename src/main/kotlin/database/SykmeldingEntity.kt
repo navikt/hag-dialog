@@ -2,7 +2,6 @@ package no.nav.helsearbeidsgiver.database
 
 import java.time.LocalDateTime
 import java.util.UUID
-import org.jetbrains.exposed.dao.EntityClass
 import org.jetbrains.exposed.dao.UUIDEntity
 import org.jetbrains.exposed.dao.UUIDEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
@@ -15,14 +14,16 @@ enum class Status {
     BEHANDLET,
 }
 
-object SykmeldingTable : UUIDTable("sykmelding", columnName = "sykmelding_id") {
+object SykmeldingTable : UUIDTable("sykmelding", "sykmelding_id") {
     val status = enumerationByName("status", 50, Status::class)
     val opprettet = datetime("opprettet").clientDefault { LocalDateTime.now() }
 }
 
 class SykmeldingEntity(id: EntityID<UUID>) : UUIDEntity(id) {
-    companion object : EntityClass<UUID, SykmeldingEntity>(SykmeldingTable)
+    companion object : UUIDEntityClass<SykmeldingEntity>(SykmeldingTable)
 
-    val status by SykmeldingTable.enumerationByName("status", 50, Status::class)
+    val sykmeldingId: UUID
+        get() = id.value
+    val status by SykmeldingTable.status
     val opprettet by SykmeldingTable.opprettet
 }
