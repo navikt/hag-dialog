@@ -1,4 +1,5 @@
 import io.kotest.core.spec.style.FunSpec
+import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
@@ -13,6 +14,7 @@ import java.util.UUID
 
 class SykepengeSoeknadJobbTest :
     FunSpec({
+
         val repository = mockk<DokumentKoblingRepository>()
         val dialogportenService = mockk<DialogportenService>(relaxed = true)
 
@@ -22,26 +24,53 @@ class SykepengeSoeknadJobbTest :
                 dialogportenService = dialogportenService,
             )
 
-        test("skal kjøre sykepengesoeknadJobb uten feil") {
-            val sykmeldingId: UUID = dokumentKoblingSykmelding.sykmeldingId
-            val soeknadId: UUID = dokumentKoblingSoeknad.soeknadId
+        val sykmeldingId: UUID = dokumentKoblingSykmelding.sykmeldingId
+        val soeknadId: UUID = dokumentKoblingSoeknad.soeknadId
 
-            val sykmeldingEntity =
-                mockk<SykmeldingEntity> {
-                    every { this@mockk.sykmeldingId } returns sykmeldingId
-                    every { status } returns Status.BEHANDLET
-                    every { data } returns dokumentKoblingSykmelding
-                }
+        val sykmeldingEntity =
+            mockk<SykmeldingEntity> {
+                every { this@mockk.sykmeldingId } returns sykmeldingId
+                every { data } returns dokumentKoblingSykmelding
+            }
 
+        beforeTest {
+            clearAllMocks()
             every { repository.settSykepengeSoeknadStatusTilBehandlet(any()) } just runs
             every { repository.henteSykepengeSoeknaderMedStatusMotatt() } returns listOf(dokumentKoblingSoeknad)
             every { repository.hentSykmelding(sykmeldingId) } returns sykmeldingEntity
-
             every { dialogportenService.oppdaterDialogMedSykepengesoeknad(any()) } just runs
+        }
+
+        test("sykepengesoeknadJobb skal opprette transmission når sykmelding er behandlet") {
+
+            every { sykmeldingEntity.status } returns Status.BEHANDLET
+
             sykepengeSoeknadJobb.doJob()
 
             verify(exactly = 1) { repository.henteSykepengeSoeknaderMedStatusMotatt() }
             verify(exactly = 1) { repository.settSykepengeSoeknadStatusTilBehandlet(soeknadId) }
             verify(exactly = 1) { dialogportenService.oppdaterDialogMedSykepengesoeknad(match { it.sykmeldingId == sykmeldingId }) }
+        }
+
+        test("sykepengesoeknadJobb skal ikke opprette transmission når sykmelding ikke er behandlet") {
+
+            every { sykmeldingEntity.status } returns Status.MOTATT
+
+            sykepengeSoeknadJobb.doJob()
+
+            verify(exactly = 1) { repository.henteSykepengeSoeknaderMedStatusMotatt() }
+            verify(exactly = 0) { repository.settSykepengeSoeknadStatusTilBehandlet(soeknadId) }
+            verify(exactly = 0) { dialogportenService.oppdaterDialogMedSykepengesoeknad(any()) }
+        }
+
+        test("sykepengesoeknadJobb skal ikke opprette transmission når sykmelding ikke eksisterer") {
+
+            every { repository.hentSykmelding(sykmeldingId) } returns null
+
+            sykepengeSoeknadJobb.doJob()
+
+            verify(exactly = 1) { repository.henteSykepengeSoeknaderMedStatusMotatt() }
+            verify(exactly = 0) { repository.settSykepengeSoeknadStatusTilBehandlet(soeknadId) }
+            verify(exactly = 0) { dialogportenService.oppdaterDialogMedSykepengesoeknad(any()) }
         }
     })
