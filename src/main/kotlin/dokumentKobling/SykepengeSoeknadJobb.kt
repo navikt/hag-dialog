@@ -16,11 +16,10 @@ class SykepengeSoeknadJobb(
         val soeknader = dokumentKoblingRepository.henteSykepengeSoeknaderMedStatusMotatt()
         soeknader.forEach { soeknad ->
             val sykmelding = dokumentKoblingRepository.hentSykmelding(soeknad.sykmeldingId)
-            if (sykmelding?.status == Status.BEHANDLET)
-                {
-                    dialogportenService.opprettTransmissionForSoeknad(soeknad)
-                    dokumentKoblingRepository.settSykepengeSoeknadStatusTilBehandlet(soeknad.soeknadId)
-                } else {
+            if (sykmelding?.status == Status.BEHANDLET) {
+                dialogportenService.opprettTransmissionForSoeknad(soeknad)
+                dokumentKoblingRepository.settSykepengeSoeknadStatusTilBehandlet(soeknad.soeknadId)
+            } else {
                 logger.info(
                     "Sykmelding med id ${soeknad.sykmeldingId} er ikke behandlet enda, kan ikke sende søknad med id ${soeknad.soeknadId} til Dialogporten.",
                 )
@@ -29,7 +28,7 @@ class SykepengeSoeknadJobb(
     }
 }
 
-fun DialogportenService.opprettTransmissionForSoeknad(soeknad: Sykepengesoeknad)  {
+fun DialogportenService.opprettTransmissionForSoeknad(soeknad: Sykepengesoeknad) {
     oppdaterDialogMedSykepengesoeknad(
         no.nav.helsearbeidsgiver.kafka.Sykepengesoeknad(
             soeknadId = soeknad.soeknadId,

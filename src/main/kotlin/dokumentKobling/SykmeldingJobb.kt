@@ -22,7 +22,7 @@ class SykmeldingJobb(
     }
 }
 
-fun DialogportenService.opprettDialogForSykmelding(sykmelding: Sykmelding)  {
+fun DialogportenService.opprettDialogForSykmelding(sykmelding: Sykmelding) {
     opprettOgLagreDialog(
         SykmeldingGammel(
             sykmeldingId = sykmelding.sykmeldingId,
