@@ -3,7 +3,6 @@ package local
 import forespoersel_utgaatt
 import inntektsmelding_feilet
 import inntektsmelding_godkjent
-import inntektsmelding_mottatt_ny
 import inntektsmeldingsforespoersel
 import kotlinx.serialization.json.JsonElement
 import no.nav.helsearbeidsgiver.kafka.Melding
@@ -61,7 +60,6 @@ fun main() {
     dialogKlient.sendToKafka(sykepengesoeknad)
     dialogKlient.sendToKafka(inntektsmeldingsforespoersel)
     dialogKlient.sendToKafka(forespoersel_utgaatt)
-    dialogKlient.sendToKafka(inntektsmelding_mottatt_ny)
     dialogKlient.sendToKafka(inntektsmelding_godkjent)
     dialogKlient.sendToKafka(inntektsmelding_feilet)
 }

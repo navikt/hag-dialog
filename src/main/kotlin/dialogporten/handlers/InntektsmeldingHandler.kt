@@ -3,9 +3,7 @@ package no.nav.helsearbeidsgiver.dialogporten.handlers
 import kotlinx.coroutines.runBlocking
 import no.nav.helsearbeidsgiver.database.DialogRepository
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenClient
-import no.nav.helsearbeidsgiver.dialogporten.InntektsmeldingKorrigertTransmissionRequest
 import no.nav.helsearbeidsgiver.dialogporten.InntektsmeldingTransmissionRequest
-import no.nav.helsearbeidsgiver.dialogporten.LpsApiExtendedType
 import no.nav.helsearbeidsgiver.dialogporten.domene.DialogStatus
 import no.nav.helsearbeidsgiver.dialogporten.domene.lagTransmissionMedVedlegg
 import no.nav.helsearbeidsgiver.dialogporten.toExtendedType
@@ -39,28 +37,7 @@ class InntektsmeldingHandler(
 
                     return
                 }
-        if (skalOppretteKorrigeringTransmission(inntektsmelding)) {
-            val korrigertTransmissionId =
-                runBlocking {
-                    dialogportenClient
-                        .addTransmission(
-                            dialog.dialogId,
-                            lagTransmissionMedVedlegg(
-                                InntektsmeldingKorrigertTransmissionRequest(
-                                    inntektsmelding = inntektsmelding,
-                                    relatedTransmissionId = forespoerselTransmission.relatedTransmissionId,
-                                ),
-                            ),
-                        )
-                }
-            dialogRepository.oppdaterDialogMedTransmission(
-                sykmeldingId = inntektsmelding.sykmeldingId,
-                transmissionId = korrigertTransmissionId,
-                dokumentId = inntektsmelding.innsendingId,
-                dokumentType = LpsApiExtendedType.INNTEKTSMELDING_KORRIGERT.toString(),
-                relatedTransmissionId = forespoerselTransmission.relatedTransmissionId,
-            )
-        }
+
         val transmissionId =
             runBlocking {
                 dialogportenClient
@@ -91,11 +68,4 @@ class InntektsmeldingHandler(
                 "Lagt til transmission $transmissionId.",
         )
     }
-
-    private fun skalOppretteKorrigeringTransmission(inntektsmelding: Inntektsmelding): Boolean =
-        inntektsmelding.aarsakInnsending == Inntektsmelding.AarsakInnsending.Endring &&
-            when (inntektsmelding.kilde) {
-                Inntektsmelding.Kilde.NAV_PORTAL -> true
-                Inntektsmelding.Kilde.API -> inntektsmelding.status == Inntektsmelding.Status.MOTTATT
-            }
 }

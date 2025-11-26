@@ -1,7 +1,7 @@
 package no.nav.helsearbeidsgiver.dialogporten
 
 import forespoersel_utgaatt
-import inntektsmelding_mottatt_ny
+import inntektsmelding_godkjent
 import inntektsmeldingsforespoersel
 import io.kotest.core.spec.style.FunSpec
 import io.mockk.clearAllMocks
@@ -48,7 +48,7 @@ class DialogportenServiceTest :
         test("oppdaterDialogMedInntektsmelding skal kalle inntektsmeldingHandler") {
             val service = DialogportenService(dialogRepository, dialogportenClient, unleashFeatureToggles)
 
-            service.oppdaterDialogMedInntektsmelding(inntektsmelding_mottatt_ny)
+            service.oppdaterDialogMedInntektsmelding(inntektsmelding_godkjent)
 
             verify(atLeast = 0) { dialogRepository.finnDialogMedSykemeldingId(any()) }
         }
