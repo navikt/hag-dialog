@@ -8,6 +8,7 @@ import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
 import java.time.Duration
 import no.nav.helsearbeidsgiver.kafka.Sykmelding as SykmeldingGammel
 import no.nav.helsearbeidsgiver.kafka.Sykmeldingsperiode as SykmeldingSperiodeGammel
+import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 
 class SykmeldingJobb(
     private val dokumentKoblingRepository: DokumentKoblingRepository,
@@ -16,8 +17,12 @@ class SykmeldingJobb(
     override fun doJob() {
         val sykmeldinger = dokumentKoblingRepository.henteSykemeldingerMedStatusMotatt()
         sykmeldinger.forEach { (sykmelding, status) ->
-            dialogportenService.opprettDialogForSykmelding(sykmelding)
-            dokumentKoblingRepository.settSykmeldingStatusTilBehandlet(sykmelding.sykmeldingId)
+            try {
+                dialogportenService.opprettDialogForSykmelding(sykmelding)
+                dokumentKoblingRepository.settSykmeldingStatusTilBehandlet(sykmelding.sykmeldingId)
+            } catch (e: Exception) {
+                sikkerLogger().error("Feil ved behandling av sykmelding med id ${sykmelding.sykmeldingId}", e)
+            }
         }
     }
 }
