@@ -15,14 +15,18 @@ class SykepengeSoeknadJobb(
     override fun doJob() {
         val soeknader = dokumentKoblingRepository.henteSykepengeSoeknaderMedStatusMotatt()
         soeknader.forEach { soeknad ->
-            val sykmelding = dokumentKoblingRepository.hentSykmelding(soeknad.sykmeldingId)
-            if (sykmelding?.status == Status.BEHANDLET) {
-                dialogportenService.opprettTransmissionForSoeknad(soeknad)
-                dokumentKoblingRepository.settSykepengeSoeknadStatusTilBehandlet(soeknad.soeknadId)
-            } else {
-                logger.info(
-                    "Sykmelding med id ${soeknad.sykmeldingId} er ikke behandlet enda, kan ikke sende søknad med id ${soeknad.soeknadId} til Dialogporten.",
-                )
+            try {
+                val sykmelding = dokumentKoblingRepository.hentSykmelding(soeknad.sykmeldingId)
+                if (sykmelding?.status == Status.BEHANDLET) {
+                    dialogportenService.opprettTransmissionForSoeknad(soeknad)
+                    dokumentKoblingRepository.settSykepengeSoeknadStatusTilBehandlet(soeknad.soeknadId)
+                } else {
+                    logger.info(
+                        "Sykmelding med id ${soeknad.sykmeldingId} er ikke behandlet enda, kan ikke sende søknad med id ${soeknad.soeknadId} til Dialogporten.",
+                    )
+                }
+            } catch (e: Exception) {
+                logger.error("Feil ved behandling av søknad med id ${soeknad.soeknadId}", e)
             }
         }
     }
