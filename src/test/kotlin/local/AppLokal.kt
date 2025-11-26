@@ -7,6 +7,7 @@ import io.mockk.coEvery
 import io.mockk.mockk
 import no.nav.helsearbeidsgiver.database.Database
 import no.nav.helsearbeidsgiver.database.DialogRepository
+import no.nav.helsearbeidsgiver.database.DokumentKoblingRepository
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenClient
 import no.nav.helsearbeidsgiver.dialogporten.domene.CreateDialogRequest
 import no.nav.helsearbeidsgiver.dialogporten.domene.Transmission
@@ -16,7 +17,6 @@ import no.nav.helsearbeidsgiver.kafka.configureKafkaConsumer
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import org.slf4j.LoggerFactory
 import java.util.UUID
-import no.nav.helsearbeidsgiver.database.DokumentKoblingRepository
 
 fun main() {
     startServer()

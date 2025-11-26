@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory
 
 class DokumentKoblingTolker(
     private val unleashFeatureToggles: UnleashFeatureToggles,
-    private val dokumentKoblingService: DokumentKoblingService
+    private val dokumentKoblingService: DokumentKoblingService,
 ) {
     private val logger = LoggerFactory.getLogger(DokumentKoblingTolker::class.java)
     private val sikkerLogger = sikkerLogger()
@@ -28,7 +28,7 @@ class DokumentKoblingTolker(
             when (dekodetMelding) {
                 is no.nav.helsearbeidsgiver.dokumentKobling.Sykmelding -> {
                     if (unleashFeatureToggles.skalOppretteDialogVedMottattSykmelding(orgnr = dekodetMelding.orgnr)) {
-                       dokumentKoblingService.lagreSykmelding(dekodetMelding)
+                        dokumentKoblingService.lagreSykmelding(dekodetMelding)
                     } else {
                         logger.info(
                             "Feature toggle for dialogopprettelse for sykmelding er avskrudd, " +

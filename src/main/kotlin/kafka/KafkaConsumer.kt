@@ -6,23 +6,23 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import no.nav.helsearbeidsgiver.Env
 import no.nav.helsearbeidsgiver.database.DialogRepository
+import no.nav.helsearbeidsgiver.database.DokumentKoblingRepository
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenClient
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
+import no.nav.helsearbeidsgiver.dokumentKobling.DokumentKoblingService
 import no.nav.helsearbeidsgiver.helsesjekker.ShutDownAppState
+import no.nav.helsearbeidsgiver.kafka.kafka.DokumentKoblingTolker
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import java.time.Duration
-import no.nav.helsearbeidsgiver.database.DokumentKoblingRepository
-import no.nav.helsearbeidsgiver.dokumentKobling.DokumentKoblingService
-import no.nav.helsearbeidsgiver.kafka.kafka.DokumentKoblingTolker
 
 fun Application.configureKafkaConsumer(
     unleashFeatureToggles: UnleashFeatureToggles,
     dialogportenClient: DialogportenClient,
     dialogRepository: DialogRepository,
-    dokumentKoblingRepository: DokumentKoblingRepository
+    dokumentKoblingRepository: DokumentKoblingRepository,
 ) {
     val kafkaConsumerExceptionHandler =
         CoroutineExceptionHandler { _, exception ->
@@ -52,8 +52,8 @@ fun Application.configureKafkaConsumer(
                     unleashFeatureToggles = unleashFeatureToggles,
                     dokumentKoblingService =
                         DokumentKoblingService(
-                            dokumentKoblingRepository = dokumentKoblingRepository
-                        )
+                            dokumentKoblingRepository = dokumentKoblingRepository,
+                        ),
                 ),
         )
     }
