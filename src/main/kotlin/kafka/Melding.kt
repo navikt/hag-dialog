@@ -63,7 +63,7 @@ data class Inntektsmelding(
     val sykmeldingId: UUID,
     val orgnr: Orgnr,
     val status: Status,
-    val kilde: Kilde,
+    val kanal: Kanal,
 ) : Melding() {
     @Serializable
     enum class Status {
@@ -71,9 +71,9 @@ data class Inntektsmelding(
         FEILET,
     }
 
-    enum class Kilde {
-        API,
-        NAV_PORTAL,
+    enum class Kanal {
+        NAV_NO,
+        HR_SYSTEM_API,
     }
 }
 

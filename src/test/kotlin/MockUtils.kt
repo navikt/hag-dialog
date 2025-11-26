@@ -46,7 +46,7 @@ val inntektsmelding_godkjent =
         sykmeldingId = sykmelding.sykmeldingId,
         orgnr = orgnr,
         status = Inntektsmelding.Status.GODKJENT,
-        kilde = Inntektsmelding.Kilde.API,
+        kanal = Inntektsmelding.Kanal.HR_SYSTEM_API,
     )
 val inntektsmelding_feilet =
     Inntektsmelding(
@@ -55,7 +55,7 @@ val inntektsmelding_feilet =
         sykmeldingId = sykmelding.sykmeldingId,
         orgnr = orgnr,
         status = Inntektsmelding.Status.FEILET,
-        kilde = Inntektsmelding.Kilde.API,
+        kanal = Inntektsmelding.Kanal.HR_SYSTEM_API,
     )
 val forespoersel_utgaatt =
     UtgaattInntektsmeldingForespoersel(
