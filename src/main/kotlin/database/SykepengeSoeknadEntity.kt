@@ -8,7 +8,7 @@ import org.jetbrains.exposed.sql.javatime.datetime
 import java.time.LocalDateTime
 import java.util.UUID
 
-object SykepengesoeknadTable : UUIDTable("sykepengesoeknad", "soeknad_id") {
+object SykepengesoeknadTable : UUIDTable(name = "sykepengesoeknad", columnName = "soeknad_id") {
     val sykmeldingId = uuid("sykmelding_id")
     val orgnr = varchar("orgnr", 9)
     val status = enumerationByName("status", 50, Status::class)

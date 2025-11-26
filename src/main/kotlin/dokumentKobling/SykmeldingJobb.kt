@@ -5,10 +5,10 @@ import kotlinx.coroutines.Dispatchers
 import no.nav.hag.utils.bakgrunnsjobb.RecurringJob
 import no.nav.helsearbeidsgiver.database.DokumentKoblingRepository
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
+import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import java.time.Duration
 import no.nav.helsearbeidsgiver.kafka.Sykmelding as SykmeldingGammel
 import no.nav.helsearbeidsgiver.kafka.Sykmeldingsperiode as SykmeldingSperiodeGammel
-import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 
 class SykmeldingJobb(
     private val dokumentKoblingRepository: DokumentKoblingRepository,
@@ -21,7 +21,10 @@ class SykmeldingJobb(
                 dialogportenService.opprettDialogForSykmelding(sykmelding)
                 dokumentKoblingRepository.settSykmeldingStatusTilBehandlet(sykmelding.sykmeldingId)
             } catch (e: Exception) {
-                sikkerLogger().error("Feil ved behandling av sykmelding med id ${sykmelding.sykmeldingId}", e)
+                "Feil ved behandling av sykmelding med id ${sykmelding.sykmeldingId}".also {
+                    logger.error(it)
+                    sikkerLogger().error(it, e)
+                }
             }
         }
     }

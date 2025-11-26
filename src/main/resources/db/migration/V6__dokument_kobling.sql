@@ -1,7 +1,7 @@
 CREATE TABLE sykmelding
 (
     sykmelding_id UUID UNIQUE NOT NULL PRIMARY KEY,
-    status        VARCHAR(50) NOT NULL,
+    status        TEXT        NOT NULL,
     data          JSONB       NOT NULL,
     opprettet     TIMESTAMP   NOT NULL DEFAULT now()
 );
@@ -10,8 +10,8 @@ CREATE TABLE sykepengesoeknad
 (
     soeknad_id    UUID UNIQUE NOT NULL PRIMARY KEY,
     sykmelding_id UUID        NOT NULL,
-    orgnr         VARCHAR(50) NOT NULL,
-    status        VARCHAR(50) NOT NULL,
+    orgnr         TEXT        NOT NULL,
+    status        TEXT        NOT NULL,
     opprettet     TIMESTAMP   NOT NULL DEFAULT now(),
     UNIQUE (soeknad_id, sykmelding_id)
 );

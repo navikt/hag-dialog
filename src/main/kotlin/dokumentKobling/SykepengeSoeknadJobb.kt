@@ -6,6 +6,7 @@ import no.nav.hag.utils.bakgrunnsjobb.RecurringJob
 import no.nav.helsearbeidsgiver.database.DokumentKoblingRepository
 import no.nav.helsearbeidsgiver.database.Status
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
+import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import java.time.Duration
 
 class SykepengeSoeknadJobb(
@@ -26,7 +27,10 @@ class SykepengeSoeknadJobb(
                     )
                 }
             } catch (e: Exception) {
-                logger.error("Feil ved behandling av søknad med id ${soeknad.soeknadId}", e)
+                "Feil ved behandling av søknad med id ${soeknad.soeknadId}".also {
+                    logger.error(it)
+                    sikkerLogger().error(it, e)
+                }
             }
         }
     }

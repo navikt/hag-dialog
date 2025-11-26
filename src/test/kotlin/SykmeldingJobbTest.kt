@@ -15,8 +15,6 @@ import java.util.UUID
 class SykmeldingJobbTest :
     FunSpec({
 
-
-
         val repository = mockk<DokumentKoblingRepository>()
         val dialogportenService = mockk<DialogportenService>(relaxed = true)
 
@@ -49,7 +47,8 @@ class SykmeldingJobbTest :
 
             val exceptionSykmeldingId = UUID.randomUUID()
             val exceptionSykmelding = Pair(dokumentKoblingSykmelding.copy(exceptionSykmeldingId), Status.MOTTATT)
-            every { dialogportenService.opprettOgLagreDialog(match { it.sykmeldingId == exceptionSykmeldingId }) } throws NotFoundException("Feil ved henting")
+            every { dialogportenService.opprettOgLagreDialog(match { it.sykmeldingId == exceptionSykmeldingId }) } throws
+                NotFoundException("Feil ved henting")
 
             every { repository.henteSykemeldingerMedStatusMottatt() } returns listOf(exceptionSykmelding, repositorySykmelding)
 
