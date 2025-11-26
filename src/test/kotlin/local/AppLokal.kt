@@ -16,6 +16,7 @@ import no.nav.helsearbeidsgiver.kafka.configureKafkaConsumer
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import org.slf4j.LoggerFactory
 import java.util.UUID
+import no.nav.helsearbeidsgiver.database.DokumentKoblingRepository
 
 fun main() {
     startServer()
@@ -47,6 +48,7 @@ fun startServer() {
     }
     logger.info("Setter opp DialogRepository...")
     val dialogRepository = DialogRepository(database.db)
+    val dokumentKoblingRepository = DokumentKoblingRepository(database.db)
 
     logger.info("Starter server...")
     embeddedServer(
@@ -56,7 +58,7 @@ fun startServer() {
             routing {
                 naisRoutes(HelsesjekkService(database.db))
             }
-            configureKafkaConsumer(unleashFeatureToggles, dialogportenClient, dialogRepository)
+            configureKafkaConsumer(unleashFeatureToggles, dialogportenClient, dialogRepository, dokumentKoblingRepository)
         },
     ).start(wait = true)
 }

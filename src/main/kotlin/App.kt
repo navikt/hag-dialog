@@ -7,6 +7,7 @@ import no.nav.helsearbeidsgiver.auth.AuthClient
 import no.nav.helsearbeidsgiver.auth.dialogportenTokenGetter
 import no.nav.helsearbeidsgiver.database.Database
 import no.nav.helsearbeidsgiver.database.DialogRepository
+import no.nav.helsearbeidsgiver.database.DokumentKoblingRepository
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenClient
 import no.nav.helsearbeidsgiver.helsesjekker.HelsesjekkService
 import no.nav.helsearbeidsgiver.helsesjekker.naisRoutes
@@ -42,6 +43,7 @@ fun startServer() {
 
     logger.info("Setter opp DialogRepository...")
     val dialogRepository = DialogRepository(database.db)
+    val dokumentKoblingRepository = DokumentKoblingRepository(database.db)
 
     logger.info("Starter server...")
     embeddedServer(
@@ -51,7 +53,7 @@ fun startServer() {
             routing {
                 naisRoutes(HelsesjekkService(database.db))
             }
-            configureKafkaConsumer(unleashFeatureToggles, dialogportenClient, dialogRepository)
+            configureKafkaConsumer(unleashFeatureToggles, dialogportenClient, dialogRepository, dokumentKoblingRepository)
         },
     ).start(wait = true)
 }
