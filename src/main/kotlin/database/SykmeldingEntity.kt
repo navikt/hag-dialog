@@ -17,7 +17,7 @@ enum class Status {
 }
 
 object SykmeldingTable : UUIDTable(name = "sykmelding", columnName = "sykmelding_id") {
-    val status = enumerationByName("status", 50, Status::class)
+    val status = enumerationByName(name = "status", length = 50, klass = Status::class)
     val data = jsonb<Sykmelding>(name = "data", jsonConfig = jsonConfig, kSerializer = Sykmelding.serializer())
     val opprettet = datetime("opprettet").clientDefault { LocalDateTime.now() }
 }
