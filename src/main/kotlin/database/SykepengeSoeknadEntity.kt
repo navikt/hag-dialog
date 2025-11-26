@@ -11,7 +11,7 @@ import java.util.UUID
 object SykepengesoeknadTable : UUIDTable(name = "sykepengesoeknad", columnName = "soeknad_id") {
     val sykmeldingId = uuid("sykmelding_id")
     val orgnr = varchar("orgnr", 9)
-    val status = enumerationByName(name = "status", length = 50, klass =  Status::class)
+    val status = enumerationByName(name = "status", length = 50, klass = Status::class)
     val opprettet = datetime("opprettet").clientDefault { LocalDateTime.now() }
 }
 
