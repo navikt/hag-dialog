@@ -46,6 +46,8 @@ fun Application.configureKafkaConsumer(
                         ),
                 ),
         )
+    }
+    launch(Dispatchers.Default + kafkaConsumerExceptionHandler) {
         startDokumentKoblingKafkaConsumer(
             dokumentKoblingTolker =
                 DokumentKoblingTolker(
