@@ -15,7 +15,7 @@ class SykmeldingJobb(
     private val dialogportenService: DialogportenService,
 ) : RecurringJob(CoroutineScope(Dispatchers.IO), Duration.ofSeconds(10).toMillis()) {
     override fun doJob() {
-        val sykmeldinger = dokumentKoblingRepository.henteSykemeldingerMedStatusMotatt()
+        val sykmeldinger = dokumentKoblingRepository.henteSykemeldingerMedStatusMottatt()
         sykmeldinger.forEach { (sykmelding, status) ->
             try {
                 dialogportenService.opprettDialogForSykmelding(sykmelding)

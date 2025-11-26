@@ -12,7 +12,7 @@ import java.time.LocalDateTime
 import java.util.UUID
 
 enum class Status {
-    MOTATT,
+    MOTTATT,
     BEHANDLET,
 }
 

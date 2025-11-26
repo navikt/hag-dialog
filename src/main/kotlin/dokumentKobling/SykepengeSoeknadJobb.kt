@@ -13,7 +13,7 @@ class SykepengeSoeknadJobb(
     private val dialogportenService: DialogportenService,
 ) : RecurringJob(CoroutineScope(Dispatchers.IO), Duration.ofSeconds(10).toMillis()) {
     override fun doJob() {
-        val soeknader = dokumentKoblingRepository.henteSykepengeSoeknaderMedStatusMotatt()
+        val soeknader = dokumentKoblingRepository.henteSykepengeSoeknaderMedStatusMottatt()
         soeknader.forEach { soeknad ->
             try {
                 val sykmelding = dokumentKoblingRepository.hentSykmelding(soeknad.sykmeldingId)

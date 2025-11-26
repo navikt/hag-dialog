@@ -19,7 +19,7 @@ class DokumentKoblingRepository(
             transaction(db) {
                 SykmeldingTable.insert {
                     it[id] = sykmelding.sykmeldingId
-                    it[SykmeldingTable.status] = Status.MOTATT
+                    it[SykmeldingTable.status] = Status.MOTTATT
                     it[SykmeldingTable.data] = sykmelding
                 }
             }
@@ -40,7 +40,7 @@ class DokumentKoblingRepository(
                     it[id] = soeknad.soeknadId
                     it[SykepengesoeknadTable.sykmeldingId] = soeknad.sykmeldingId
                     it[SykepengesoeknadTable.orgnr] = soeknad.orgnr.verdi
-                    it[SykepengesoeknadTable.status] = Status.MOTATT
+                    it[SykepengesoeknadTable.status] = Status.MOTTATT
                 }
             }
         } catch (e: ExposedSQLException) {
@@ -53,16 +53,16 @@ class DokumentKoblingRepository(
             SykepengesoeknadEntity.findById(soeknadId)
         }
 
-    fun henteSykemeldingerMedStatusMotatt(): List<Pair<Sykmelding, Status>> =
+    fun henteSykemeldingerMedStatusMottatt(): List<Pair<Sykmelding, Status>> =
         transaction(db) {
-            SykmeldingEntity.find { SykmeldingTable.status eq Status.MOTATT }.map { sykmelding ->
+            SykmeldingEntity.find { SykmeldingTable.status eq Status.MOTTATT }.map { sykmelding ->
                 Pair(sykmelding.data, sykmelding.status)
             }
         }
 
-    fun henteSykepengeSoeknaderMedStatusMotatt(): List<Sykepengesoeknad> =
+    fun henteSykepengeSoeknaderMedStatusMottatt(): List<Sykepengesoeknad> =
         transaction(db) {
-            SykepengesoeknadEntity.find { SykmeldingTable.status eq Status.MOTATT }.map {
+            SykepengesoeknadEntity.find { SykmeldingTable.status eq Status.MOTTATT }.map {
                 Sykepengesoeknad(
                     soeknadId = it.id.value,
                     sykmeldingId = it.sykmeldingId,

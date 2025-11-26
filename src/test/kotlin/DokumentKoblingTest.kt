@@ -21,7 +21,7 @@ class DokumentKoblingTest :
             val hentet = repository.hentSykmelding(sykmeldingId)
             hentet.shouldNotBeNull()
             hentet.id.value shouldBe sykmeldingId
-            hentet.status shouldBe Status.MOTATT
+            hentet.status shouldBe Status.MOTTATT
         }
 
         test("skal kunne opprette og hente sykepengesoeknad koblet til sykmelding") {
@@ -35,14 +35,14 @@ class DokumentKoblingTest :
             val sykmeldingHentet = repository.hentSykmelding(sykmeldingId)
             sykmeldingHentet.shouldNotBeNull()
             sykmeldingHentet.id.value shouldBe sykmeldingId
-            sykmeldingHentet.status shouldBe Status.MOTATT
+            sykmeldingHentet.status shouldBe Status.MOTTATT
 
             repository.opprettSykepengesoeknad(dokumentKoblingSoeknad)
 
             val hentetSoeknad = repository.hentSykepengesoeknad(soeknadId)
             hentetSoeknad.shouldNotBeNull()
             hentetSoeknad.id.value shouldBe soeknadId
-            hentetSoeknad.status shouldBe Status.MOTATT
+            hentetSoeknad.status shouldBe Status.MOTTATT
 
             hentetSoeknad.sykmeldingId shouldBe sykmeldingId
         }
