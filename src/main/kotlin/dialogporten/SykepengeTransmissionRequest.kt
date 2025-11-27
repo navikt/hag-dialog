@@ -64,21 +64,18 @@ class UtgaattForespoerselTransmissionRequest(
 
 fun Inntektsmelding.Status.toExtendedType(): String =
     when (this) {
-        Inntektsmelding.Status.MOTTATT -> LpsApiExtendedType.INNTEKTSMELDING_MOTTATT.toString()
         Inntektsmelding.Status.FEILET -> LpsApiExtendedType.INNTEKTSMELDING_AVVIST.toString()
         Inntektsmelding.Status.GODKJENT -> LpsApiExtendedType.INNTEKTSMELDING_GODKJENT.toString()
     }
 
 fun Inntektsmelding.Status.toTittel(): String =
     when (this) {
-        Inntektsmelding.Status.MOTTATT -> "Inntektsmelding mottatt"
         Inntektsmelding.Status.FEILET -> "Inntektsmelding avvist"
         Inntektsmelding.Status.GODKJENT -> "Inntektsmelding godkjent"
     }
 
 fun Inntektsmelding.Status.toTransmissionType(): Transmission.TransmissionType =
     when (this) {
-        Inntektsmelding.Status.MOTTATT -> Transmission.TransmissionType.Submission
         Inntektsmelding.Status.FEILET -> Transmission.TransmissionType.Rejection
         Inntektsmelding.Status.GODKJENT -> Transmission.TransmissionType.Acceptance
     }
