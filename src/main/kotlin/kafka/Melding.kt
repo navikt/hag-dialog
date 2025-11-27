@@ -63,12 +63,17 @@ data class Inntektsmelding(
     val sykmeldingId: UUID,
     val orgnr: Orgnr,
     val status: Status,
+    val kanal: Kanal,
 ) : Melding() {
     @Serializable
     enum class Status {
-        MOTTATT,
         GODKJENT,
         FEILET,
+    }
+
+    enum class Kanal {
+        NAV_NO,
+        HR_SYSTEM_API,
     }
 }
 

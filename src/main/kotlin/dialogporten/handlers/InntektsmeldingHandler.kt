@@ -26,7 +26,6 @@ class InntektsmeldingHandler(
                 return
             }
 
-        // TODO: Vurderer om vi skal også sjekke om forespørselen ikke er utgått
         val forespoerselTransmission =
             dialog.transmissionByDokumentId(inntektsmelding.forespoerselId)
                 ?: run {
@@ -35,7 +34,7 @@ class InntektsmeldingHandler(
                             "i dialog ${dialog.dialogId} for sykmeldingId ${inntektsmelding.sykmeldingId}. " +
                             "Klarer derfor ikke tilknytte inntektsmelding ${inntektsmelding.innsendingId} med forespørsel.",
                     )
-                    // TODO: Vurdere om vi skal lagre inntektsmeldingen uten å knytte den til en forespørsel, dersom forespørselen ikke finnes i databasen.
+
                     return
                 }
 
