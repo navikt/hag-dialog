@@ -7,6 +7,7 @@ import io.mockk.coEvery
 import io.mockk.mockk
 import no.nav.helsearbeidsgiver.database.Database
 import no.nav.helsearbeidsgiver.database.DialogRepository
+import no.nav.helsearbeidsgiver.database.DokumentKoblingRepository
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenClient
 import no.nav.helsearbeidsgiver.dialogporten.domene.CreateDialogRequest
 import no.nav.helsearbeidsgiver.dialogporten.domene.Transmission
@@ -47,6 +48,7 @@ fun startServer() {
     }
     logger.info("Setter opp DialogRepository...")
     val dialogRepository = DialogRepository(database.db)
+    val dokumentKoblingRepository = DokumentKoblingRepository(database.db)
 
     logger.info("Starter server...")
     embeddedServer(
@@ -56,7 +58,7 @@ fun startServer() {
             routing {
                 naisRoutes(HelsesjekkService(database.db))
             }
-            configureKafkaConsumer(unleashFeatureToggles, dialogportenClient, dialogRepository)
+            configureKafkaConsumer(unleashFeatureToggles, dialogportenClient, dialogRepository, dokumentKoblingRepository)
         },
     ).start(wait = true)
 }

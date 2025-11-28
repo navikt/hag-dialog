@@ -6,9 +6,12 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import no.nav.helsearbeidsgiver.Env
 import no.nav.helsearbeidsgiver.database.DialogRepository
+import no.nav.helsearbeidsgiver.database.DokumentKoblingRepository
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenClient
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
+import no.nav.helsearbeidsgiver.dokumentKobling.DokumentKoblingService
 import no.nav.helsearbeidsgiver.helsesjekker.ShutDownAppState
+import no.nav.helsearbeidsgiver.kafka.kafka.DokumentKoblingTolker
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
@@ -19,6 +22,7 @@ fun Application.configureKafkaConsumer(
     unleashFeatureToggles: UnleashFeatureToggles,
     dialogportenClient: DialogportenClient,
     dialogRepository: DialogRepository,
+    dokumentKoblingRepository: DokumentKoblingRepository,
 ) {
     val kafkaConsumerExceptionHandler =
         CoroutineExceptionHandler { _, exception ->
@@ -30,7 +34,7 @@ fun Application.configureKafkaConsumer(
         }
 
     launch(Dispatchers.Default + kafkaConsumerExceptionHandler) {
-        startKafkaConsumer(
+        startDialogMeldingKafkaConsumer(
             meldingTolker =
                 MeldingTolker(
                     unleashFeatureToggles = unleashFeatureToggles,
@@ -43,9 +47,21 @@ fun Application.configureKafkaConsumer(
                 ),
         )
     }
+    launch(Dispatchers.Default + kafkaConsumerExceptionHandler) {
+        startDokumentKoblingKafkaConsumer(
+            dokumentKoblingTolker =
+                DokumentKoblingTolker(
+                    unleashFeatureToggles = unleashFeatureToggles,
+                    dokumentKoblingService =
+                        DokumentKoblingService(
+                            dokumentKoblingRepository = dokumentKoblingRepository,
+                        ),
+                ),
+        )
+    }
 }
 
-private fun startKafkaConsumer(meldingTolker: MeldingTolker) {
+private fun startDialogMeldingKafkaConsumer(meldingTolker: MeldingTolker) {
     val consumer = KafkaConsumer<String, String>(createKafkaConsumerConfig() as Map<String, Any>)
     val topic = Env.Kafka.topic
     consumer.subscribe(listOf(topic))
@@ -54,6 +70,20 @@ private fun startKafkaConsumer(meldingTolker: MeldingTolker) {
         val records = consumer.poll(Duration.ofMillis(1000))
         for (record in records) {
             meldingTolker.lesMelding(record.value())
+            consumer.commitSync()
+        }
+    }
+}
+
+private fun startDokumentKoblingKafkaConsumer(dokumentKoblingTolker: DokumentKoblingTolker) {
+    val consumer = KafkaConsumer<String, String>(createKafkaConsumerConfig() as Map<String, Any>)
+    val topic = Env.Kafka.dokumentKoblingTopic
+    consumer.subscribe(listOf(topic))
+    val running = true
+    while (running) {
+        val records = consumer.poll(Duration.ofMillis(1000))
+        for (record in records) {
+            dokumentKoblingTolker.lesMelding(record.value())
             consumer.commitSync()
         }
     }
