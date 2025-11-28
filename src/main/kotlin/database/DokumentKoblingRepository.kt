@@ -63,7 +63,7 @@ class DokumentKoblingRepository(
 
     fun henteSykepengeSoeknaderMedStatusMottatt(): List<Sykepengesoeknad> =
         transaction(db) {
-            SykepengesoeknadEntity.find { SykmeldingTable.status eq Status.MOTTATT }.map {
+            SykepengesoeknadEntity.find { SykepengesoeknadTable.status eq Status.MOTTATT }.map {
                 Sykepengesoeknad(
                     soeknadId = it.id.value,
                     sykmeldingId = it.sykmeldingId,
