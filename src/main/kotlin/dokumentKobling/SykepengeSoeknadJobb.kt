@@ -16,7 +16,7 @@ class SykepengeSoeknadJobb(
         val soeknader = dokumentKoblingRepository.henteSykepengeSoeknaderMedStatusMottatt()
         soeknader.forEach { soeknad ->
             try {
-                val sykmelding = dokumentKoblingRepository.hentSykmelding(soeknad.sykmeldingId)
+                val sykmelding = dokumentKoblingRepository.hentSykmeldingEntitet(soeknad.sykmeldingId)
                 if (sykmelding?.status == Status.BEHANDLET) {
                     dialogportenService.opprettTransmissionForSoeknad(soeknad)
                     dokumentKoblingRepository.settSykepengeSoeknadStatusTilBehandlet(soeknad.soeknadId)

@@ -1,5 +1,6 @@
 package no.nav.helsearbeidsgiver
 
+import io.ktor.server.application.ApplicationStopPreparing
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import io.ktor.server.routing.routing
@@ -78,6 +79,10 @@ fun startServer() {
             }
             configureKafkaConsumer(unleashFeatureToggles, dokumentKoblingRepository, dialogportenService)
             startRecurringJobs(jobber)
+            monitor.subscribe(ApplicationStopPreparing) {
+                logger.info("Applikasjonen stopper, avslutter eventuelle jobber...")
+                jobber.forEach { it.stop() }
+            }
         },
     ).start(wait = true)
 }

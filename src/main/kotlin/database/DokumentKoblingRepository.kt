@@ -29,7 +29,7 @@ class DokumentKoblingRepository(
             throw e
         }
 
-    fun hentSykmelding(sykmeldingId: UUID): SykmeldingEntity? =
+    fun hentSykmeldingEntitet(sykmeldingId: UUID): SykmeldingEntity? =
         transaction(db) {
             SykmeldingEntity.findById(sykmeldingId)
         }
@@ -54,10 +54,10 @@ class DokumentKoblingRepository(
             SykepengesoeknadEntity.findById(soeknadId)
         }
 
-    fun henteSykemeldingerMedStatusMottatt(): List<Pair<Sykmelding, Status>> =
+    fun henteSykemeldingerMedStatusMottatt(): List<Sykmelding> =
         transaction(db) {
             SykmeldingEntity.find { SykmeldingTable.status eq Status.MOTTATT }.map { sykmelding ->
-                Pair(sykmelding.data, sykmelding.status)
+                sykmelding.data
             }
         }
 
