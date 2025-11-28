@@ -26,14 +26,7 @@ class MeldingTolker(
         runCatching {
             when (dekodetMelding) {
                 is Sykmelding -> {
-                    if (unleashFeatureToggles.skalOppretteDialogVedMottattSykmelding(orgnr = dekodetMelding.orgnr)) {
-                        dialogportenService.opprettOgLagreDialog(sykmelding = dekodetMelding)
-                    } else {
-                        logger.info(
-                            "Feature toggle for dialogopprettelse for sykmelding er avskrudd, " +
-                                "ignorerer melding for sykmeldingId ${dekodetMelding.sykmeldingId}.",
-                        )
-                    }
+                    logger.info("Ignorerer sykmelding med id: ${dekodetMelding.sykmeldingId} på dialog topic")
                 }
 
                 is Sykepengesoeknad -> {
