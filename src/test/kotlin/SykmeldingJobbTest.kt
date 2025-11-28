@@ -7,8 +7,8 @@ import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.verify
 import no.nav.helsearbeidsgiver.database.DokumentKoblingRepository
-import no.nav.helsearbeidsgiver.database.Status
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
+import no.nav.helsearbeidsgiver.dokumentKobling.Status
 import no.nav.helsearbeidsgiver.dokumentKobling.SykmeldingJobb
 import java.util.UUID
 

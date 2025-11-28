@@ -1,5 +1,6 @@
 package no.nav.helsearbeidsgiver.database
 
+import no.nav.helsearbeidsgiver.dokumentKobling.Status
 import no.nav.helsearbeidsgiver.dokumentKobling.Sykepengesoeknad
 import no.nav.helsearbeidsgiver.dokumentKobling.Sykmelding
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger

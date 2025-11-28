@@ -1,9 +1,9 @@
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import no.nav.helsearbeidsgiver.database.DokumentKoblingRepository
-import no.nav.helsearbeidsgiver.database.Status
 import no.nav.helsearbeidsgiver.database.SykepengesoeknadTable
 import no.nav.helsearbeidsgiver.database.SykmeldingTable
+import no.nav.helsearbeidsgiver.dokumentKobling.Status
 
 class DokumentKoblingTest :
     FunSpecWithDb(listOf(SykepengesoeknadTable, SykmeldingTable), { db ->
