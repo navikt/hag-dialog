@@ -12,7 +12,7 @@ import java.time.Duration
 class SykepengeSoeknadJobb(
     private val dokumentKoblingRepository: DokumentKoblingRepository,
     private val dialogportenService: DialogportenService,
-) : RecurringJob(CoroutineScope(Dispatchers.IO), Duration.ofSeconds(10).toMillis()) {
+) : RecurringJob(CoroutineScope(Dispatchers.IO), Duration.ofSeconds(30).toMillis()) {
     override fun doJob() {
         val soeknader = dokumentKoblingRepository.henteSykepengeSoeknaderMedStatusMottatt()
         soeknader.forEach { soeknad ->

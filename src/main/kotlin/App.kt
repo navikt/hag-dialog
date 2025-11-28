@@ -9,6 +9,9 @@ import no.nav.helsearbeidsgiver.database.Database
 import no.nav.helsearbeidsgiver.database.DialogRepository
 import no.nav.helsearbeidsgiver.database.DokumentKoblingRepository
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenClient
+import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
+import no.nav.helsearbeidsgiver.dokumentKobling.SykmeldingJobb
+import no.nav.helsearbeidsgiver.dokumentKobling.startRecurringJobs
 import no.nav.helsearbeidsgiver.helsesjekker.HelsesjekkService
 import no.nav.helsearbeidsgiver.helsesjekker.naisRoutes
 import no.nav.helsearbeidsgiver.kafka.configureKafkaConsumer
@@ -44,6 +47,24 @@ fun startServer() {
     logger.info("Setter opp DialogRepository...")
     val dialogRepository = DialogRepository(database.db)
     val dokumentKoblingRepository = DokumentKoblingRepository(database.db)
+    val dialogportenService =
+        DialogportenService(
+            dialogRepository = dialogRepository,
+            dialogportenClient = dialogportenClient,
+            unleashFeatureToggles = unleashFeatureToggles,
+        )
+
+    val jobber =
+        listOf(
+            SykmeldingJobb(
+                dokumentKoblingRepository = dokumentKoblingRepository,
+                dialogportenService = dialogportenService,
+            ),
+        /*SykepengeSoeknadJobb(
+            dokumentKoblingRepository = dokumentKoblingRepository,
+            dialogportenService = dialogportenService
+        )*/
+        )
 
     logger.info("Starter server...")
     embeddedServer(
@@ -53,7 +74,8 @@ fun startServer() {
             routing {
                 naisRoutes(HelsesjekkService(database.db))
             }
-            configureKafkaConsumer(unleashFeatureToggles, dialogportenClient, dialogRepository, dokumentKoblingRepository)
+            configureKafkaConsumer(unleashFeatureToggles, dokumentKoblingRepository, dialogportenService)
+            startRecurringJobs(jobber)
         },
     ).start(wait = true)
 }
