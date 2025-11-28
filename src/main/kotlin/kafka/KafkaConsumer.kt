@@ -5,9 +5,7 @@ import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import no.nav.helsearbeidsgiver.Env
-import no.nav.helsearbeidsgiver.database.DialogRepository
 import no.nav.helsearbeidsgiver.database.DokumentKoblingRepository
-import no.nav.helsearbeidsgiver.dialogporten.DialogportenClient
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
 import no.nav.helsearbeidsgiver.dokumentKobling.DokumentKoblingService
 import no.nav.helsearbeidsgiver.helsesjekker.ShutDownAppState
@@ -20,9 +18,8 @@ import java.time.Duration
 
 fun Application.configureKafkaConsumer(
     unleashFeatureToggles: UnleashFeatureToggles,
-    dialogportenClient: DialogportenClient,
-    dialogRepository: DialogRepository,
     dokumentKoblingRepository: DokumentKoblingRepository,
+    dialogportenService: DialogportenService,
 ) {
     val kafkaConsumerExceptionHandler =
         CoroutineExceptionHandler { _, exception ->
@@ -38,12 +35,7 @@ fun Application.configureKafkaConsumer(
             meldingTolker =
                 MeldingTolker(
                     unleashFeatureToggles = unleashFeatureToggles,
-                    dialogportenService =
-                        DialogportenService(
-                            dialogRepository = dialogRepository,
-                            dialogportenClient = dialogportenClient,
-                            unleashFeatureToggles = unleashFeatureToggles,
-                        ),
+                    dialogportenService = dialogportenService,
                 ),
         )
     }
