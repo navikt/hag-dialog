@@ -10,6 +10,7 @@ import no.nav.helsearbeidsgiver.database.DialogRepository
 import no.nav.helsearbeidsgiver.database.DokumentKoblingRepository
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenClient
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
+import no.nav.helsearbeidsgiver.dokumentKobling.SykepengeSoeknadJobb
 import no.nav.helsearbeidsgiver.dokumentKobling.SykmeldingJobb
 import no.nav.helsearbeidsgiver.dokumentKobling.startRecurringJobs
 import no.nav.helsearbeidsgiver.helsesjekker.HelsesjekkService
@@ -60,10 +61,10 @@ fun startServer() {
                 dokumentKoblingRepository = dokumentKoblingRepository,
                 dialogportenService = dialogportenService,
             ),
-        /*SykepengeSoeknadJobb(
-            dokumentKoblingRepository = dokumentKoblingRepository,
-            dialogportenService = dialogportenService
-        )*/
+            SykepengeSoeknadJobb(
+                dokumentKoblingRepository = dokumentKoblingRepository,
+                dialogportenService = dialogportenService,
+            ),
         )
 
     logger.info("Starter server...")

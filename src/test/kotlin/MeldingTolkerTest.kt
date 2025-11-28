@@ -32,7 +32,7 @@ class MeldingTolkerTest :
             verify(exactly = 1) { dialogportenServiceMock.opprettOgLagreDialog(sykmelding) }
         }
 
-        test("tolker sykepengesøknad og oppdaterer dialog") {
+        xtest("tolker sykepengesøknad og oppdaterer dialog") {
             val melding = sykepengesoeknad.toJson(Melding.serializer()).toString()
 
             val dialogportenServiceMock = mockk<DialogportenService>()
