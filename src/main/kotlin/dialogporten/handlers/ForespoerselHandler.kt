@@ -89,7 +89,7 @@ fun forespoerselTransmission(inntektsmeldingsforespoersel: Inntektsmeldingsfores
             url = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/forespoersel/${inntektsmeldingsforespoersel.forespoerselId}",
         ),
         createGuiAttachment(
-            displayName = "Forespoersel",
+            displayName = "Se forespørsel i Arbeidsgiverportalen",
             url = "${Env.Nav.arbeidsgiverGuiBaseUrl}/im-dialog/${inntektsmeldingsforespoersel.forespoerselId}",
         ),
     )
