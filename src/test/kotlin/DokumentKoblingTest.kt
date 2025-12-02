@@ -1,3 +1,5 @@
+import io.kotest.matchers.collections.shouldContainAll
+import io.kotest.matchers.collections.shouldContainOnly
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import no.nav.helsearbeidsgiver.database.DokumentKoblingRepository
@@ -81,5 +83,17 @@ class DokumentKoblingTest :
             val hentet = repository.henteSykepengeSoeknaderMedStatusMottatt()
             hentet.size shouldBe 1
             hentet[0].soeknadId shouldBe soeknadId2
+        }
+
+        test("opprette vedtaksperiode soeknad kobling") {
+
+            val vedtaksperiodeSoeknad = dokumentKoblingvedtaksperiodeSoeknad
+            val soeknadId2 = UUID.randomUUID()
+            repository.hentListeAvSoeknadIdForVedtaksperiodeId(vedtaksperiodeSoeknad.vedtaksperiodeId) shouldBe emptyList()
+            repository.opprettVedtaksperiodeSoeknadKobling(vedtaksperiodeSoeknad)
+            repository.opprettVedtaksperiodeSoeknadKobling(vedtaksperiodeSoeknad.copy(soeknadId = soeknadId2))
+            val hentet = repository.hentListeAvSoeknadIdForVedtaksperiodeId(vedtaksperiodeSoeknad.vedtaksperiodeId)
+            hentet.size shouldBe 2
+            hentet shouldContainOnly listOf(vedtaksperiodeSoeknad.soeknadId, soeknadId2)
         }
     })

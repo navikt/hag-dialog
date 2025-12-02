@@ -47,6 +47,17 @@ class DokumentKoblingTolker(
                         )
                     }
                 }
+
+                is no.nav.helsearbeidsgiver.dokumentKobling.VedtaksperiodeSoeknadKobling -> {
+//                    if (unleashFeatureToggles.skalOppdatereDialogVedMottattSoeknad(orgnr = dekodetMelding.orgnr)) {
+                    dokumentKoblingService.lageVedtaksperiodeSoeknadKobling(dekodetMelding)
+//                    } else {
+//                        logger.info(
+//                            "Feature toggle for oppdatering av dialog med sykepengesøknad er avskrudd, " +
+//                                    "ignorerer melding for sykepengesøknadId ${dekodetMelding.soeknadId}.",
+//                        )
+//                    }
+                }
             }
         }.getOrElse { e ->
             sikkerLogger.error("Klarte ikke opprette/oppdatere dialog. Avbryter.", e)

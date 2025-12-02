@@ -3,7 +3,9 @@ package no.nav.helsearbeidsgiver.database
 import no.nav.helsearbeidsgiver.dokumentKobling.Status
 import no.nav.helsearbeidsgiver.dokumentKobling.Sykepengesoeknad
 import no.nav.helsearbeidsgiver.dokumentKobling.Sykmelding
+import no.nav.helsearbeidsgiver.dokumentKobling.VedtaksperiodeSoeknadKobling
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
+import no.nav.helsearbeidsgiver.utils.pipe.orDefault
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import org.jetbrains.exposed.exceptions.ExposedSQLException
 import org.jetbrains.exposed.sql.Database
@@ -83,6 +85,29 @@ class DokumentKoblingRepository(
         transaction(db) {
             SykepengesoeknadTable.update({ SykepengesoeknadTable.id eq soeknadId }) {
                 it[SykepengesoeknadTable.status] = Status.BEHANDLET
+            }
+        }
+
+    fun opprettVedtaksperiodeSoeknadKobling(vedtaksperiodeSoeknad: VedtaksperiodeSoeknadKobling) =
+        try {
+            transaction(db) {
+                VedtaksperiodeSoeknadTable.insert {
+                    it[VedtaksperiodeSoeknadTable.vedtaksperiodeId] = vedtaksperiodeSoeknad.vedtaksperiodeId
+                    it[VedtaksperiodeSoeknadTable.soeknadId] = vedtaksperiodeSoeknad.soeknadId
+                }
+            }
+        } catch (e: ExposedSQLException) {
+            sikkerLogger().error(
+                "Klarte ikke å opprette vedtaksperiode_soeknad kobling mellom v:${vedtaksperiodeSoeknad.vedtaksperiodeId} <-> s:${vedtaksperiodeSoeknad.soeknadId} i databasen",
+                e,
+            )
+            throw e
+        }
+
+    fun hentListeAvSoeknadIdForVedtaksperiodeId(vedtaksperiodeId: UUID): List<UUID> =
+        transaction(db) {
+            VedtaksperiodeSoeknadEntity.find { VedtaksperiodeSoeknadTable.vedtaksperiodeId eq vedtaksperiodeId }.map {
+                it.soeknadId
             }
         }
 }
