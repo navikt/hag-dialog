@@ -21,4 +21,5 @@ class VedtaksperiodeSoeknadEntity(
 
     val vedtaksperiodeId: UUID by VedtaksperiodeSoeknadTable.vedtaksperiodeId
     val soeknadId by VedtaksperiodeSoeknadTable.soeknadId
+    val opprettet by VedtaksperiodeSoeknadTable.opprettet
 }

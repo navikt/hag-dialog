@@ -11,6 +11,7 @@ import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
+import org.jetbrains.exposed.sql.upsert
 import java.util.UUID
 
 class DokumentKoblingRepository(
@@ -90,14 +91,16 @@ class DokumentKoblingRepository(
     fun opprettVedtaksperiodeSoeknadKobling(vedtaksperiodeSoeknad: VedtaksperiodeSoeknadKobling) =
         try {
             transaction(db) {
-                VedtaksperiodeSoeknadTable.insert {
+                VedtaksperiodeSoeknadTable.upsert(
+                    keys = arrayOf(VedtaksperiodeSoeknadTable.vedtaksperiodeId, VedtaksperiodeSoeknadTable.soeknadId),
+                ) {
                     it[VedtaksperiodeSoeknadTable.vedtaksperiodeId] = vedtaksperiodeSoeknad.vedtaksperiodeId
                     it[VedtaksperiodeSoeknadTable.soeknadId] = vedtaksperiodeSoeknad.soeknadId
                 }
             }
         } catch (e: ExposedSQLException) {
             sikkerLogger().error(
-                "Klarte ikke å opprette vedtaksperiode_soeknad kobling mellom v:${vedtaksperiodeSoeknad.vedtaksperiodeId} <-> s:${vedtaksperiodeSoeknad.soeknadId} i databasen",
+                "Klarte ikke å opprette vedtaksperiode_soeknad kobling mellom v: ${vedtaksperiodeSoeknad.vedtaksperiodeId} <-> s: ${vedtaksperiodeSoeknad.soeknadId} i databasen",
                 e,
             )
             throw e
@@ -108,5 +111,12 @@ class DokumentKoblingRepository(
             VedtaksperiodeSoeknadEntity.find { VedtaksperiodeSoeknadTable.vedtaksperiodeId eq vedtaksperiodeId }.map {
                 it.soeknadId
             }
+        }
+
+    fun hentSoeknaderForVedtaksperiodeId(vedtaksperiodeId: UUID): List<VedtaksperiodeSoeknadEntity> =
+        transaction(db) {
+            VedtaksperiodeSoeknadEntity
+                .find { VedtaksperiodeSoeknadTable.vedtaksperiodeId eq vedtaksperiodeId }
+                .toList()
         }
 }

@@ -85,7 +85,6 @@ class DokumentKoblingTest :
         }
 
         test("opprette vedtaksperiode soeknad kobling") {
-
             val vedtaksperiodeSoeknad = dokumentKoblingvedtaksperiodeSoeknad
             val soeknadId2 = UUID.randomUUID()
             repository.hentListeAvSoeknadIdForVedtaksperiodeId(vedtaksperiodeSoeknad.vedtaksperiodeId) shouldBe emptyList()
@@ -94,5 +93,22 @@ class DokumentKoblingTest :
             val hentet = repository.hentListeAvSoeknadIdForVedtaksperiodeId(vedtaksperiodeSoeknad.vedtaksperiodeId)
             hentet.size shouldBe 2
             hentet shouldContainOnly listOf(vedtaksperiodeSoeknad.soeknadId, soeknadId2)
+        }
+
+        test("håndtere vedtaksperiode soeknad kobling som finnes fra før uten å oppdatere opprettettidspunktet") {
+            val vedtaksperiodeSoeknad = dokumentKoblingvedtaksperiodeSoeknad
+            repository.hentListeAvSoeknadIdForVedtaksperiodeId(vedtaksperiodeSoeknad.vedtaksperiodeId) shouldBe emptyList()
+            repository.opprettVedtaksperiodeSoeknadKobling(vedtaksperiodeSoeknad)
+
+            val opprettetFør = repository.hentSoeknaderForVedtaksperiodeId(vedtaksperiodeSoeknad.vedtaksperiodeId).first().opprettet
+
+            repository.opprettVedtaksperiodeSoeknadKobling(vedtaksperiodeSoeknad)
+
+            val opprettetEtter = repository.hentSoeknaderForVedtaksperiodeId(vedtaksperiodeSoeknad.vedtaksperiodeId).first().opprettet
+            val hentet = repository.hentListeAvSoeknadIdForVedtaksperiodeId(vedtaksperiodeSoeknad.vedtaksperiodeId)
+
+            hentet.size shouldBe 1
+            hentet shouldContainOnly listOf(vedtaksperiodeSoeknad.soeknadId)
+            opprettetFør shouldBe opprettetEtter
         }
     })
