@@ -1,13 +1,18 @@
 package no.nav.helsearbeidsgiver.dialogporten.handlers
 
 import kotlinx.coroutines.runBlocking
+import no.nav.helsearbeidsgiver.Env
 import no.nav.helsearbeidsgiver.database.DialogRepository
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenClient
 import no.nav.helsearbeidsgiver.dialogporten.LpsApiExtendedType
 import no.nav.helsearbeidsgiver.dialogporten.UtgaattForespoerselTransmissionRequest
-import no.nav.helsearbeidsgiver.dialogporten.domene.lagTransmissionMedVedlegg
+import no.nav.helsearbeidsgiver.dialogporten.domene.Transmission
+import no.nav.helsearbeidsgiver.dialogporten.domene.addAttachment
+import no.nav.helsearbeidsgiver.dialogporten.domene.createApiAttachment
+import no.nav.helsearbeidsgiver.dialogporten.domene.toTransmission
 import no.nav.helsearbeidsgiver.kafka.UtgaattInntektsmeldingForespoersel
 import no.nav.helsearbeidsgiver.utils.log.logger
+import java.util.UUID
 
 class UtgaattForespoerselHandler(
     private val dialogRepository: DialogRepository,
@@ -43,11 +48,9 @@ class UtgaattForespoerselHandler(
                     .addTransmission(
                         dialogId = dialog.dialogId,
                         transmission =
-                            lagTransmissionMedVedlegg(
-                                UtgaattForespoerselTransmissionRequest(
-                                    utgaattInntektsmeldingForespoersel = utgaattForespoersel,
-                                    relatedTransmissionId = relatedTransmissionId,
-                                ),
+                            utgaattForespoerselTransmission(
+                                utgaattForespoersel = utgaattForespoersel,
+                                relatedTransmissionId = relatedTransmissionId,
                             ),
                     ).also {
                         dialogportenClient.removeActionsAndStatus(dialog.dialogId)
@@ -69,3 +72,14 @@ class UtgaattForespoerselHandler(
         )
     }
 }
+
+fun utgaattForespoerselTransmission(
+    utgaattForespoersel: UtgaattInntektsmeldingForespoersel,
+    relatedTransmissionId: UUID? = null,
+): Transmission =
+    UtgaattForespoerselTransmissionRequest(utgaattForespoersel, relatedTransmissionId).toTransmission().addAttachment(
+        createApiAttachment(
+            displayName = "inntektsmeldingforespoersel.json",
+            url = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/forespoersel/${utgaattForespoersel.forespoerselId}",
+        ),
+    )

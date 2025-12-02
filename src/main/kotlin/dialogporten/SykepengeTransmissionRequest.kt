@@ -1,6 +1,5 @@
 package no.nav.helsearbeidsgiver.dialogporten
 
-import no.nav.helsearbeidsgiver.Env
 import no.nav.helsearbeidsgiver.dialogporten.domene.Transmission
 import no.nav.helsearbeidsgiver.dialogporten.domene.TransmissionRequest
 import no.nav.helsearbeidsgiver.kafka.Inntektsmelding
@@ -17,8 +16,6 @@ class SykmeldingTransmissionRequest(
     override val dokumentId = sykmelding.sykmeldingId
     override val tittel = "Sykmelding"
     override val sammendrag = null
-    override val vedleggNavn = "sykmelding.json"
-    override val vedleggBaseUrl = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/sykmelding"
     override val type = Transmission.TransmissionType.Information
     override val relatedTransmissionId = null
 }
@@ -30,8 +27,6 @@ class SykepengesoknadTransmissionRequest(
     override val dokumentId = sykepengesoeknad.soeknadId
     override val tittel = "Søknad om sykepenger"
     override val sammendrag = null
-    override val vedleggNavn = "sykepengesoeknad.json"
-    override val vedleggBaseUrl = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/sykepengesoeknad"
     override val type = Transmission.TransmissionType.Information
     override val relatedTransmissionId = null
 }
@@ -44,8 +39,6 @@ class ForespoerselTransmissionRequest(
     override val dokumentId = inntektsmeldingsforespoersel.forespoerselId
     override val tittel = "Forespørsel om inntektsmelding"
     override val sammendrag = null
-    override val vedleggNavn = "inntektsmeldingforespoersel.json"
-    override val vedleggBaseUrl = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/forespoersel"
     override val type = Transmission.TransmissionType.Request
 }
 
@@ -57,8 +50,6 @@ class UtgaattForespoerselTransmissionRequest(
     override val dokumentId = utgaattInntektsmeldingForespoersel.forespoerselId
     override val tittel = "Forespørsel er utgått"
     override val sammendrag = null
-    override val vedleggNavn = "inntektsmeldingforespoersel.json"
-    override val vedleggBaseUrl = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/forespoersel"
     override val type = Transmission.TransmissionType.Information
 }
 
@@ -88,7 +79,5 @@ class InntektsmeldingTransmissionRequest(
     override val dokumentId = inntektsmelding.innsendingId
     override val tittel = inntektsmelding.status.toTittel()
     override val sammendrag = null
-    override val vedleggNavn = "inntektsmelding.json"
-    override val vedleggBaseUrl = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/inntektsmelding"
     override val type = inntektsmelding.status.toTransmissionType()
 }

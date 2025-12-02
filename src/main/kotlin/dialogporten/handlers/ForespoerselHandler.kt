@@ -10,7 +10,11 @@ import no.nav.helsearbeidsgiver.dialogporten.domene.Action
 import no.nav.helsearbeidsgiver.dialogporten.domene.ApiAction
 import no.nav.helsearbeidsgiver.dialogporten.domene.ContentValueItem
 import no.nav.helsearbeidsgiver.dialogporten.domene.GuiAction
-import no.nav.helsearbeidsgiver.dialogporten.domene.lagTransmissionMedVedlegg
+import no.nav.helsearbeidsgiver.dialogporten.domene.Transmission
+import no.nav.helsearbeidsgiver.dialogporten.domene.addAttachment
+import no.nav.helsearbeidsgiver.dialogporten.domene.createApiAttachment
+import no.nav.helsearbeidsgiver.dialogporten.domene.createGuiAttachment
+import no.nav.helsearbeidsgiver.dialogporten.domene.toTransmission
 import no.nav.helsearbeidsgiver.kafka.Inntektsmeldingsforespoersel
 import no.nav.helsearbeidsgiver.utils.log.logger
 
@@ -35,10 +39,7 @@ class ForespoerselHandler(
             val transmissionId =
                 dialogportenClient.addTransmission(
                     dialogId = dialog.dialogId,
-                    transmission =
-                        lagTransmissionMedVedlegg(
-                            ForespoerselTransmissionRequest(inntektsmeldingsforespoersel),
-                        ),
+                    transmission = forespoerselTransmission(inntektsmeldingsforespoersel),
                 )
 
             dialogportenClient.addAction(
@@ -80,3 +81,15 @@ class ForespoerselHandler(
         }
     }
 }
+
+fun forespoerselTransmission(inntektsmeldingsforespoersel: Inntektsmeldingsforespoersel): Transmission =
+    ForespoerselTransmissionRequest(inntektsmeldingsforespoersel).toTransmission().addAttachment(
+        createApiAttachment(
+            displayName = "inntektsmeldingforespoersel.json",
+            url = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/forespoersel/${inntektsmeldingsforespoersel.forespoerselId}",
+        ),
+        createGuiAttachment(
+            displayName = "Forespoersel",
+            url = "${Env.Nav.arbeidsgiverGuiBaseUrl}/im-dialog/${inntektsmeldingsforespoersel.forespoerselId}",
+        ),
+    )
