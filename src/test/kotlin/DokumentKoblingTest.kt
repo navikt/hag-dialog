@@ -4,46 +4,82 @@ import no.nav.helsearbeidsgiver.database.DokumentKoblingRepository
 import no.nav.helsearbeidsgiver.database.SykepengesoeknadTable
 import no.nav.helsearbeidsgiver.database.SykmeldingTable
 import no.nav.helsearbeidsgiver.dokumentKobling.Status
+import java.util.UUID
 
 class DokumentKoblingTest :
     FunSpecWithDb(listOf(SykepengesoeknadTable, SykmeldingTable), { db ->
         val repository = DokumentKoblingRepository(db)
-        val sykmelding = dokumentKoblingSykmelding
-        val soeknad = dokumentKoblingSoeknad
 
-        test("skal kunne opprette og hente sykmelding") {
-            val sykmeldingId = sykmelding.sykmeldingId
+        test("opprette og hente sykmelding") {
+            val sykmelding = dokumentKoblingSykmelding
+            repository.opprettSykmelding(sykmelding)
+            val hentet = repository.hentSykmeldingEntitet(sykmelding.sykmeldingId)
 
-            repository.opprettSykmelding(
-                sykmelding = sykmelding,
-            )
-
-            val hentet = repository.hentSykmelding(sykmeldingId)
             hentet.shouldNotBeNull()
-            hentet.id.value shouldBe sykmeldingId
+            hentet.id.value shouldBe sykmelding.sykmeldingId
             hentet.status shouldBe Status.MOTTATT
         }
 
-        test("skal kunne opprette og hente sykepengesoeknad koblet til sykmelding") {
-            val sykmeldingId = sykmelding.sykmeldingId
-            val soeknadId = soeknad.soeknadId
+        test("opprette og hente sykepengesoeknad koblet til sykmelding") {
+            val sykmelding = dokumentKoblingSykmelding
+            val soeknad = dokumentKoblingSoeknad
+            repository.opprettSykmelding(sykmelding)
+            repository.opprettSykepengesoeknad(soeknad)
 
-            repository.opprettSykmelding(
-                sykmelding = sykmelding,
-            )
+            val hentetSoeknad = repository.hentSykepengesoeknad(soeknad.soeknadId)
 
-            val sykmeldingHentet = repository.hentSykmelding(sykmeldingId)
-            sykmeldingHentet.shouldNotBeNull()
-            sykmeldingHentet.id.value shouldBe sykmeldingId
-            sykmeldingHentet.status shouldBe Status.MOTTATT
-
-            repository.opprettSykepengesoeknad(dokumentKoblingSoeknad)
-
-            val hentetSoeknad = repository.hentSykepengesoeknad(soeknadId)
             hentetSoeknad.shouldNotBeNull()
-            hentetSoeknad.id.value shouldBe soeknadId
+            hentetSoeknad.id.value shouldBe soeknad.soeknadId
             hentetSoeknad.status shouldBe Status.MOTTATT
+            hentetSoeknad.sykmeldingId shouldBe sykmelding.sykmeldingId
+        }
 
-            hentetSoeknad.sykmeldingId shouldBe sykmeldingId
+        test("hente mottatte sykmeldinger") {
+            val sykmelding = dokumentKoblingSykmelding
+            val sykmeldingId2 = UUID.randomUUID()
+            repository.opprettSykmelding(sykmelding)
+            repository.opprettSykmelding(sykmelding.copy(sykmeldingId = sykmeldingId2))
+
+            val hentet = repository.henteSykemeldingerMedStatusMottatt()
+
+            hentet.size shouldBe 2
+            hentet[0].sykmeldingId shouldBe sykmelding.sykmeldingId
+            hentet[1].sykmeldingId shouldBe sykmeldingId2
+        }
+
+        test("hente mottatte søknader") {
+            val soeknad = dokumentKoblingSoeknad
+            val soeknadId2 = UUID.randomUUID()
+            repository.opprettSykepengesoeknad(soeknad)
+            repository.opprettSykepengesoeknad(soeknad.copy(soeknadId = soeknadId2))
+
+            val hentet = repository.henteSykepengeSoeknaderMedStatusMottatt()
+            hentet.size shouldBe 2
+            hentet[0].soeknadId shouldBe soeknad.soeknadId
+            hentet[1].soeknadId shouldBe soeknadId2
+        }
+
+        test("oppdatere sykmeldinger til behandlet") {
+            val sykmelding = dokumentKoblingSykmelding
+            val sykmeldingId2 = UUID.randomUUID()
+            repository.opprettSykmelding(sykmelding)
+            repository.opprettSykmelding(sykmelding.copy(sykmeldingId = sykmeldingId2))
+            repository.settSykmeldingStatusTilBehandlet(sykmelding.sykmeldingId)
+
+            val hentet = repository.henteSykemeldingerMedStatusMottatt()
+            hentet.size shouldBe 1
+            hentet[0].sykmeldingId shouldBe sykmeldingId2
+        }
+
+        test("oppdatere søknader til behandlet") {
+            val soeknad = dokumentKoblingSoeknad
+            val soeknadId2 = UUID.randomUUID()
+            repository.opprettSykepengesoeknad(soeknad)
+            repository.opprettSykepengesoeknad(soeknad.copy(soeknadId = soeknadId2))
+            repository.settSykepengeSoeknadStatusTilBehandlet(soeknad.soeknadId)
+
+            val hentet = repository.henteSykepengeSoeknaderMedStatusMottatt()
+            hentet.size shouldBe 1
+            hentet[0].soeknadId shouldBe soeknadId2
         }
     })
