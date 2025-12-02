@@ -93,6 +93,7 @@ class DokumentKoblingRepository(
             transaction(db) {
                 VedtaksperiodeSoeknadTable.upsert(
                     keys = arrayOf(VedtaksperiodeSoeknadTable.vedtaksperiodeId, VedtaksperiodeSoeknadTable.soeknadId),
+                    onUpdateExclude = listOf(VedtaksperiodeSoeknadTable.opprettet),
                 ) {
                     it[VedtaksperiodeSoeknadTable.vedtaksperiodeId] = vedtaksperiodeSoeknad.vedtaksperiodeId
                     it[VedtaksperiodeSoeknadTable.soeknadId] = vedtaksperiodeSoeknad.soeknadId

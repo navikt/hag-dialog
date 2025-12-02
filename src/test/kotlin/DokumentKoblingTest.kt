@@ -4,11 +4,12 @@ import io.kotest.matchers.shouldBe
 import no.nav.helsearbeidsgiver.database.DokumentKoblingRepository
 import no.nav.helsearbeidsgiver.database.SykepengesoeknadTable
 import no.nav.helsearbeidsgiver.database.SykmeldingTable
+import no.nav.helsearbeidsgiver.database.VedtaksperiodeSoeknadTable
 import no.nav.helsearbeidsgiver.dokumentKobling.Status
 import java.util.UUID
 
 class DokumentKoblingTest :
-    FunSpecWithDb(listOf(SykepengesoeknadTable, SykmeldingTable), { db ->
+    FunSpecWithDb(listOf(SykepengesoeknadTable, SykmeldingTable, VedtaksperiodeSoeknadTable), { db ->
         val repository = DokumentKoblingRepository(db)
 
         test("opprette og hente sykmelding") {
