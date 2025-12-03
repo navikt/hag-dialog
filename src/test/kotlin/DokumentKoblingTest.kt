@@ -1,13 +1,15 @@
+import io.kotest.matchers.collections.shouldContainOnly
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import no.nav.helsearbeidsgiver.database.DokumentKoblingRepository
 import no.nav.helsearbeidsgiver.database.SykepengesoeknadTable
 import no.nav.helsearbeidsgiver.database.SykmeldingTable
+import no.nav.helsearbeidsgiver.database.VedtaksperiodeSoeknadTable
 import no.nav.helsearbeidsgiver.dokumentKobling.Status
 import java.util.UUID
 
 class DokumentKoblingTest :
-    FunSpecWithDb(listOf(SykepengesoeknadTable, SykmeldingTable), { db ->
+    FunSpecWithDb(listOf(SykepengesoeknadTable, SykmeldingTable, VedtaksperiodeSoeknadTable), { db ->
         val repository = DokumentKoblingRepository(db)
 
         test("opprette og hente sykmelding") {
@@ -81,5 +83,33 @@ class DokumentKoblingTest :
             val hentet = repository.henteSykepengeSoeknaderMedStatusMottatt()
             hentet.size shouldBe 1
             hentet[0].soeknadId shouldBe soeknadId2
+        }
+
+        test("opprette vedtaksperiode soeknad kobling") {
+            val vedtaksperiodeSoeknad = dokumentKoblingVedtaksperiodeSoeknad
+            val soeknadId2 = UUID.randomUUID()
+            repository.hentListeAvSoeknadIdForVedtaksperiodeId(vedtaksperiodeSoeknad.vedtaksperiodeId) shouldBe emptyList()
+            repository.opprettVedtaksperiodeSoeknadKobling(vedtaksperiodeSoeknad)
+            repository.opprettVedtaksperiodeSoeknadKobling(vedtaksperiodeSoeknad.copy(soeknadId = soeknadId2))
+            val hentet = repository.hentListeAvSoeknadIdForVedtaksperiodeId(vedtaksperiodeSoeknad.vedtaksperiodeId)
+            hentet.size shouldBe 2
+            hentet shouldContainOnly listOf(vedtaksperiodeSoeknad.soeknadId, soeknadId2)
+        }
+
+        test("håndtere vedtaksperiode soeknad kobling som finnes fra før uten å oppdatere opprettettidspunktet") {
+            val vedtaksperiodeSoeknad = dokumentKoblingVedtaksperiodeSoeknad
+            repository.hentListeAvSoeknadIdForVedtaksperiodeId(vedtaksperiodeSoeknad.vedtaksperiodeId) shouldBe emptyList()
+            repository.opprettVedtaksperiodeSoeknadKobling(vedtaksperiodeSoeknad)
+
+            val opprettetFoer = repository.hentSoeknaderForVedtaksperiodeId(vedtaksperiodeSoeknad.vedtaksperiodeId).first().opprettet
+
+            repository.opprettVedtaksperiodeSoeknadKobling(vedtaksperiodeSoeknad)
+
+            val opprettetEtter = repository.hentSoeknaderForVedtaksperiodeId(vedtaksperiodeSoeknad.vedtaksperiodeId).first().opprettet
+            val hentet = repository.hentListeAvSoeknadIdForVedtaksperiodeId(vedtaksperiodeSoeknad.vedtaksperiodeId)
+
+            hentet.size shouldBe 1
+            hentet shouldContainOnly listOf(vedtaksperiodeSoeknad.soeknadId)
+            opprettetFoer shouldBe opprettetEtter
         }
     })

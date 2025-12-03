@@ -47,6 +47,10 @@ class DokumentKoblingTolker(
                         )
                     }
                 }
+
+                is no.nav.helsearbeidsgiver.dokumentKobling.VedtaksperiodeSoeknadKobling -> {
+                    dokumentKoblingService.lageVedtaksperiodeSoeknadKobling(dekodetMelding)
+                }
             }
         }.getOrElse { e ->
             sikkerLogger.error("Klarte ikke opprette/oppdatere dialog. Avbryter.", e)

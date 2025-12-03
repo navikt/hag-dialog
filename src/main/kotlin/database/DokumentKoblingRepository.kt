@@ -3,10 +3,12 @@ package no.nav.helsearbeidsgiver.database
 import no.nav.helsearbeidsgiver.dokumentKobling.Status
 import no.nav.helsearbeidsgiver.dokumentKobling.Sykepengesoeknad
 import no.nav.helsearbeidsgiver.dokumentKobling.Sykmelding
+import no.nav.helsearbeidsgiver.dokumentKobling.VedtaksperiodeSoeknadKobling
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import org.jetbrains.exposed.exceptions.ExposedSQLException
 import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
@@ -84,5 +86,43 @@ class DokumentKoblingRepository(
             SykepengesoeknadTable.update({ SykepengesoeknadTable.id eq soeknadId }) {
                 it[SykepengesoeknadTable.status] = Status.BEHANDLET
             }
+        }
+
+    fun opprettVedtaksperiodeSoeknadKobling(vedtaksperiodeSoeknad: VedtaksperiodeSoeknadKobling) =
+
+        try {
+            transaction(db) {
+                val eksisterendeKobling =
+                    VedtaksperiodeSoeknadEntity.find {
+                        (VedtaksperiodeSoeknadTable.vedtaksperiodeId eq vedtaksperiodeSoeknad.vedtaksperiodeId) and
+                            (VedtaksperiodeSoeknadTable.soeknadId eq vedtaksperiodeSoeknad.soeknadId)
+                    }
+                if (eksisterendeKobling.empty()) {
+                    VedtaksperiodeSoeknadTable.insert {
+                        it[vedtaksperiodeId] = vedtaksperiodeSoeknad.vedtaksperiodeId
+                        it[soeknadId] = vedtaksperiodeSoeknad.soeknadId
+                    }
+                }
+            }
+        } catch (e: ExposedSQLException) {
+            sikkerLogger().error(
+                "Klarte ikke å opprette vedtaksperiode_soeknad kobling mellom v: ${vedtaksperiodeSoeknad.vedtaksperiodeId} <-> s: ${vedtaksperiodeSoeknad.soeknadId} i databasen",
+                e,
+            )
+            throw e
+        }
+
+    fun hentListeAvSoeknadIdForVedtaksperiodeId(vedtaksperiodeId: UUID): List<UUID> =
+        transaction(db) {
+            VedtaksperiodeSoeknadEntity.find { VedtaksperiodeSoeknadTable.vedtaksperiodeId eq vedtaksperiodeId }.map {
+                it.soeknadId
+            }
+        }
+
+    fun hentSoeknaderForVedtaksperiodeId(vedtaksperiodeId: UUID): List<VedtaksperiodeSoeknadEntity> =
+        transaction(db) {
+            VedtaksperiodeSoeknadEntity
+                .find { VedtaksperiodeSoeknadTable.vedtaksperiodeId eq vedtaksperiodeId }
+                .toList()
         }
 }

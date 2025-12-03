@@ -12,4 +12,8 @@ class DokumentKoblingService(
     fun lagreSykepengesoeknad(sykepengesoeknad: Sykepengesoeknad) {
         dokumentKoblingRepository.opprettSykepengesoeknad(sykepengesoeknad)
     }
+
+    fun lageVedtaksperiodeSoeknadKobling(vedtaksperiodeSoeknad: VedtaksperiodeSoeknadKobling) {
+        dokumentKoblingRepository.opprettVedtaksperiodeSoeknadKobling(vedtaksperiodeSoeknad)
+    }
 }
