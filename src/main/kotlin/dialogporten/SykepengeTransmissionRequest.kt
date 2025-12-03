@@ -1,5 +1,6 @@
 package no.nav.helsearbeidsgiver.dialogporten
 
+import no.nav.helsearbeidsgiver.dialogporten.domene.Attachment
 import no.nav.helsearbeidsgiver.dialogporten.domene.Transmission
 import no.nav.helsearbeidsgiver.dialogporten.domene.TransmissionRequest
 import no.nav.helsearbeidsgiver.kafka.Inntektsmelding
@@ -11,6 +12,7 @@ import java.util.UUID
 
 class SykmeldingTransmissionRequest(
     sykmelding: Sykmelding,
+    override val attachments: List<Attachment>?,
 ) : TransmissionRequest() {
     override val extendedType = LpsApiExtendedType.SYKMELDING.toString()
     override val dokumentId = sykmelding.sykmeldingId
@@ -22,6 +24,7 @@ class SykmeldingTransmissionRequest(
 
 class SykepengesoknadTransmissionRequest(
     sykepengesoeknad: Sykepengesoeknad,
+    override val attachments: List<Attachment>?,
 ) : TransmissionRequest() {
     override val extendedType = LpsApiExtendedType.SYKEPENGESOEKNAD.toString()
     override val dokumentId = sykepengesoeknad.soeknadId
@@ -34,6 +37,7 @@ class SykepengesoknadTransmissionRequest(
 class ForespoerselTransmissionRequest(
     inntektsmeldingsforespoersel: Inntektsmeldingsforespoersel,
     override val relatedTransmissionId: UUID? = null,
+    override val attachments: List<Attachment>?,
 ) : TransmissionRequest() {
     override val extendedType = LpsApiExtendedType.FORESPOERSEL_AKTIV.toString()
     override val dokumentId = inntektsmeldingsforespoersel.forespoerselId
@@ -45,6 +49,7 @@ class ForespoerselTransmissionRequest(
 class UtgaattForespoerselTransmissionRequest(
     utgaattInntektsmeldingForespoersel: UtgaattInntektsmeldingForespoersel,
     override val relatedTransmissionId: UUID? = null,
+    override val attachments: List<Attachment>?,
 ) : TransmissionRequest() {
     override val extendedType = LpsApiExtendedType.FORESPOERSEL_UTGAATT.toString()
     override val dokumentId = utgaattInntektsmeldingForespoersel.forespoerselId
@@ -74,6 +79,7 @@ fun Inntektsmelding.Status.toTransmissionType(): Transmission.TransmissionType =
 class InntektsmeldingTransmissionRequest(
     inntektsmelding: Inntektsmelding,
     override val relatedTransmissionId: UUID?,
+    override val attachments: List<Attachment>?,
 ) : TransmissionRequest() {
     override val extendedType = inntektsmelding.status.toExtendedType()
     override val dokumentId = inntektsmelding.innsendingId

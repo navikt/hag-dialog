@@ -6,11 +6,9 @@ import no.nav.helsearbeidsgiver.database.DialogRepository
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenClient
 import no.nav.helsearbeidsgiver.dialogporten.InntektsmeldingTransmissionRequest
 import no.nav.helsearbeidsgiver.dialogporten.domene.DialogStatus
-import no.nav.helsearbeidsgiver.dialogporten.domene.Transmission
-import no.nav.helsearbeidsgiver.dialogporten.domene.addAttachment
+import no.nav.helsearbeidsgiver.dialogporten.domene.TransmissionRequest
 import no.nav.helsearbeidsgiver.dialogporten.domene.createApiAttachment
 import no.nav.helsearbeidsgiver.dialogporten.domene.createGuiAttachment
-import no.nav.helsearbeidsgiver.dialogporten.domene.toTransmission
 import no.nav.helsearbeidsgiver.dialogporten.toExtendedType
 import no.nav.helsearbeidsgiver.kafka.Inntektsmelding
 import no.nav.helsearbeidsgiver.utils.log.logger
@@ -49,11 +47,10 @@ class InntektsmeldingHandler(
                 dialogportenClient
                     .addTransmission(
                         dialog.dialogId,
-                        transmission =
-                            inntektsmeldingTransmission(
-                                inntektsmelding = inntektsmelding,
-                                relatedTransmissionId = forespoerselTransmission.relatedTransmissionId,
-                            ),
+                        inntektsmeldingTransmissionRequest(
+                            inntektsmelding = inntektsmelding,
+                            relatedTransmissionId = forespoerselTransmission.relatedTransmissionId,
+                        ),
                     ).also {
                         dialogportenClient.setDialogStatus(dialog.dialogId, DialogStatus.NotApplicable)
                     }
@@ -75,20 +72,22 @@ class InntektsmeldingHandler(
     }
 }
 
-fun inntektsmeldingTransmission(
+fun inntektsmeldingTransmissionRequest(
     inntektsmelding: Inntektsmelding,
     relatedTransmissionId: UUID?,
-): Transmission =
+): TransmissionRequest =
     InntektsmeldingTransmissionRequest(
         inntektsmelding = inntektsmelding,
         relatedTransmissionId = relatedTransmissionId,
-    ).toTransmission().addAttachment(
-        createApiAttachment(
-            displayName = "inntektsmelding.json",
-            url = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/inntektsmelding/${inntektsmelding.innsendingId}",
-        ),
-        createGuiAttachment(
-            displayName = "Se inntektsmelding i Arbeidsgiverportalen",
-            url = "${Env.Nav.arbeidsgiverGuiBaseUrl}/im-dialog/${inntektsmelding.forespoerselId}",
-        ),
+        attachments =
+            listOf(
+                createApiAttachment(
+                    displayName = "inntektsmelding.json",
+                    url = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/inntektsmelding/${inntektsmelding.innsendingId}",
+                ),
+                createGuiAttachment(
+                    displayName = "Se inntektsmelding i Arbeidsgiverportalen",
+                    url = "${Env.Nav.arbeidsgiverGuiBaseUrl}/im-dialog/${inntektsmelding.forespoerselId}",
+                ),
+            ),
     )

@@ -6,8 +6,7 @@ import no.nav.helsearbeidsgiver.database.DialogRepository
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenClient
 import no.nav.helsearbeidsgiver.dialogporten.SykmeldingTransmissionRequest
 import no.nav.helsearbeidsgiver.dialogporten.domene.CreateDialogRequest
-import no.nav.helsearbeidsgiver.dialogporten.domene.Transmission
-import no.nav.helsearbeidsgiver.dialogporten.domene.addAttachment
+import no.nav.helsearbeidsgiver.dialogporten.domene.TransmissionRequest
 import no.nav.helsearbeidsgiver.dialogporten.domene.createApiAttachment
 import no.nav.helsearbeidsgiver.dialogporten.domene.toTransmission
 import no.nav.helsearbeidsgiver.kafka.Sykmelding
@@ -38,7 +37,7 @@ class SykmeldingHandler(
                                 .getSykmeldingsPerioderString(),
                         transmissions =
                             listOf(
-                                sykmeldingTransmission(sykmelding),
+                                sykmeldingTransmission(sykmelding).toTransmission(),
                             ),
                         isApiOnly = unleashFeatureToggles.skalOppretteDialogKunForApi(),
                     )
@@ -50,10 +49,13 @@ class SykmeldingHandler(
     }
 }
 
-fun sykmeldingTransmission(sykmelding: Sykmelding): Transmission =
-    SykmeldingTransmissionRequest(sykmelding).toTransmission().addAttachment(
-        createApiAttachment(
-            displayName = "sykmelding.json",
-            url = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/sykmelding/${sykmelding.sykmeldingId}",
+fun sykmeldingTransmission(sykmelding: Sykmelding): TransmissionRequest =
+    SykmeldingTransmissionRequest(
+        sykmelding,
+        listOf(
+            createApiAttachment(
+                displayName = "sykmelding.json",
+                url = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/sykmelding/${sykmelding.sykmeldingId}",
+            ),
         ),
     )

@@ -6,10 +6,8 @@ import no.nav.helsearbeidsgiver.database.DialogRepository
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenClient
 import no.nav.helsearbeidsgiver.dialogporten.LpsApiExtendedType
 import no.nav.helsearbeidsgiver.dialogporten.UtgaattForespoerselTransmissionRequest
-import no.nav.helsearbeidsgiver.dialogporten.domene.Transmission
-import no.nav.helsearbeidsgiver.dialogporten.domene.addAttachment
+import no.nav.helsearbeidsgiver.dialogporten.domene.TransmissionRequest
 import no.nav.helsearbeidsgiver.dialogporten.domene.createApiAttachment
-import no.nav.helsearbeidsgiver.dialogporten.domene.toTransmission
 import no.nav.helsearbeidsgiver.kafka.UtgaattInntektsmeldingForespoersel
 import no.nav.helsearbeidsgiver.utils.log.logger
 import java.util.UUID
@@ -47,8 +45,8 @@ class UtgaattForespoerselHandler(
                 dialogportenClient
                     .addTransmission(
                         dialogId = dialog.dialogId,
-                        transmission =
-                            utgaattForespoerselTransmission(
+                        transmissionRequest =
+                            utgaattForespoerselTransmissionRequest(
                                 utgaattForespoersel = utgaattForespoersel,
                                 relatedTransmissionId = relatedTransmissionId,
                             ),
@@ -73,13 +71,17 @@ class UtgaattForespoerselHandler(
     }
 }
 
-fun utgaattForespoerselTransmission(
+fun utgaattForespoerselTransmissionRequest(
     utgaattForespoersel: UtgaattInntektsmeldingForespoersel,
     relatedTransmissionId: UUID? = null,
-): Transmission =
-    UtgaattForespoerselTransmissionRequest(utgaattForespoersel, relatedTransmissionId).toTransmission().addAttachment(
-        createApiAttachment(
-            displayName = "inntektsmeldingforespoersel.json",
-            url = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/forespoersel/${utgaattForespoersel.forespoerselId}",
+): TransmissionRequest =
+    UtgaattForespoerselTransmissionRequest(
+        utgaattForespoersel,
+        relatedTransmissionId,
+        listOf(
+            createApiAttachment(
+                displayName = "inntektsmeldingforespoersel.json",
+                url = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/forespoersel/${utgaattForespoersel.forespoerselId}",
+            ),
         ),
     )

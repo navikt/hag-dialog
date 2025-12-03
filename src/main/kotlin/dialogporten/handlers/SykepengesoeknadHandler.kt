@@ -6,10 +6,8 @@ import no.nav.helsearbeidsgiver.database.DialogRepository
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenClient
 import no.nav.helsearbeidsgiver.dialogporten.LpsApiExtendedType
 import no.nav.helsearbeidsgiver.dialogporten.SykepengesoknadTransmissionRequest
-import no.nav.helsearbeidsgiver.dialogporten.domene.Transmission
-import no.nav.helsearbeidsgiver.dialogporten.domene.addAttachment
+import no.nav.helsearbeidsgiver.dialogporten.domene.TransmissionRequest
 import no.nav.helsearbeidsgiver.dialogporten.domene.createApiAttachment
-import no.nav.helsearbeidsgiver.dialogporten.domene.toTransmission
 import no.nav.helsearbeidsgiver.kafka.Sykepengesoeknad
 import no.nav.helsearbeidsgiver.utils.log.logger
 
@@ -34,7 +32,7 @@ class SykepengesoeknadHandler(
             runBlocking {
                 dialogportenClient.addTransmission(
                     dialogId = dialog.dialogId,
-                    transmission = sykepengesoknadTransmission(sykepengesoeknad = sykepengesoeknad),
+                    transmissionRequest = sykepengesoknadTransmission(sykepengesoeknad = sykepengesoeknad),
                 )
             }
 
@@ -53,7 +51,13 @@ class SykepengesoeknadHandler(
     }
 }
 
-fun sykepengesoknadTransmission(sykepengesoeknad: Sykepengesoeknad): Transmission =
-    SykepengesoknadTransmissionRequest(sykepengesoeknad).toTransmission().addAttachment(
-        createApiAttachment("sykepengesoeknad.json", "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/sykepengesoeknad/${sykepengesoeknad.soeknadId}"),
+fun sykepengesoknadTransmission(sykepengesoeknad: Sykepengesoeknad): TransmissionRequest =
+    SykepengesoknadTransmissionRequest(
+        sykepengesoeknad,
+        listOf(
+            createApiAttachment(
+                "sykepengesoeknad.json",
+                "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/sykepengesoeknad/${sykepengesoeknad.soeknadId}",
+            ),
+        ),
     )

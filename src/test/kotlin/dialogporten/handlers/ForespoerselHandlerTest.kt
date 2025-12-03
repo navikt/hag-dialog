@@ -16,6 +16,7 @@ import no.nav.helsearbeidsgiver.dialogporten.DialogportenClient
 import no.nav.helsearbeidsgiver.dialogporten.LpsApiExtendedType
 import no.nav.helsearbeidsgiver.dialogporten.domene.ApiAction
 import no.nav.helsearbeidsgiver.dialogporten.domene.GuiAction
+import no.nav.helsearbeidsgiver.dialogporten.domene.TransmissionRequest
 import no.nav.helsearbeidsgiver.dialogporten.handlers.ForespoerselHandler
 import java.util.UUID
 
@@ -43,13 +44,13 @@ class ForespoerselHandlerTest :
                 }
 
             every { dialogRepositoryMock.finnDialogMedSykemeldingId(inntektsmeldingsforespoersel.sykmeldingId) } returns dialogEntity
-            coEvery { dialogportenClientMock.addTransmission(any(), any()) } returns transmissionId
+            coEvery { dialogportenClientMock.addTransmission(any(), any<TransmissionRequest>()) } returns transmissionId
             coEvery { dialogportenClientMock.addAction(any(), any(), any<GuiAction>()) } just Runs
             every { dialogRepositoryMock.oppdaterDialogMedTransmission(any(), any(), any(), any(), any()) } just Runs
 
             forespoerselHandler.oppdaterDialog(inntektsmeldingsforespoersel)
 
-            coVerify(exactly = 1) { dialogportenClientMock.addTransmission(dialogId, any()) }
+            coVerify(exactly = 1) { dialogportenClientMock.addTransmission(dialogId, any<TransmissionRequest>()) }
             coVerify(exactly = 1) { dialogportenClientMock.addAction(dialogId, any<ApiAction>(), any<GuiAction>()) }
 
             verify(exactly = 1) {
@@ -69,7 +70,7 @@ class ForespoerselHandlerTest :
             forespoerselHandler.oppdaterDialog(inntektsmeldingsforespoersel)
 
             verify(exactly = 1) { dialogRepositoryMock.finnDialogMedSykemeldingId(inntektsmeldingsforespoersel.sykmeldingId) }
-            coVerify(exactly = 0) { dialogportenClientMock.addTransmission(any(), any()) }
+            coVerify(exactly = 0) { dialogportenClientMock.addTransmission(any(), any<TransmissionRequest>()) }
             coVerify(exactly = 0) { dialogportenClientMock.addAction(any(), any(), any<GuiAction>()) }
         }
     })

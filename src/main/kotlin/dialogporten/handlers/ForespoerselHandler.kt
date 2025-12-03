@@ -10,11 +10,9 @@ import no.nav.helsearbeidsgiver.dialogporten.domene.Action
 import no.nav.helsearbeidsgiver.dialogporten.domene.ApiAction
 import no.nav.helsearbeidsgiver.dialogporten.domene.ContentValueItem
 import no.nav.helsearbeidsgiver.dialogporten.domene.GuiAction
-import no.nav.helsearbeidsgiver.dialogporten.domene.Transmission
-import no.nav.helsearbeidsgiver.dialogporten.domene.addAttachment
+import no.nav.helsearbeidsgiver.dialogporten.domene.TransmissionRequest
 import no.nav.helsearbeidsgiver.dialogporten.domene.createApiAttachment
 import no.nav.helsearbeidsgiver.dialogporten.domene.createGuiAttachment
-import no.nav.helsearbeidsgiver.dialogporten.domene.toTransmission
 import no.nav.helsearbeidsgiver.kafka.Inntektsmeldingsforespoersel
 import no.nav.helsearbeidsgiver.utils.log.logger
 
@@ -39,7 +37,7 @@ class ForespoerselHandler(
             val transmissionId =
                 dialogportenClient.addTransmission(
                     dialogId = dialog.dialogId,
-                    transmission = forespoerselTransmission(inntektsmeldingsforespoersel),
+                    transmissionRequest = forespoerselTransmissionRequest(inntektsmeldingsforespoersel),
                 )
 
             dialogportenClient.addAction(
@@ -82,14 +80,18 @@ class ForespoerselHandler(
     }
 }
 
-fun forespoerselTransmission(inntektsmeldingsforespoersel: Inntektsmeldingsforespoersel): Transmission =
-    ForespoerselTransmissionRequest(inntektsmeldingsforespoersel).toTransmission().addAttachment(
-        createApiAttachment(
-            displayName = "inntektsmeldingforespoersel.json",
-            url = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/forespoersel/${inntektsmeldingsforespoersel.forespoerselId}",
-        ),
-        createGuiAttachment(
-            displayName = "Se forespørsel i Arbeidsgiverportalen",
-            url = "${Env.Nav.arbeidsgiverGuiBaseUrl}/im-dialog/${inntektsmeldingsforespoersel.forespoerselId}",
-        ),
+fun forespoerselTransmissionRequest(inntektsmeldingsforespoersel: Inntektsmeldingsforespoersel): TransmissionRequest =
+    ForespoerselTransmissionRequest(
+        inntektsmeldingsforespoersel = inntektsmeldingsforespoersel,
+        attachments =
+            listOf(
+                createApiAttachment(
+                    displayName = "inntektsmeldingforespoersel.json",
+                    url = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/forespoersel/${inntektsmeldingsforespoersel.forespoerselId}",
+                ),
+                createGuiAttachment(
+                    displayName = "Se forespørsel i Arbeidsgiverportalen",
+                    url = "${Env.Nav.arbeidsgiverGuiBaseUrl}/im-dialog/${inntektsmeldingsforespoersel.forespoerselId}",
+                ),
+            ),
     )
