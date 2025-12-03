@@ -1,5 +1,6 @@
 package no.nav.helsearbeidsgiver
 
+import io.ktor.server.application.ApplicationStopPreparing
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import io.ktor.server.routing.routing
@@ -7,9 +8,13 @@ import io.mockk.coEvery
 import io.mockk.mockk
 import no.nav.helsearbeidsgiver.database.Database
 import no.nav.helsearbeidsgiver.database.DialogRepository
+import no.nav.helsearbeidsgiver.database.DokumentKoblingRepository
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenClient
+import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
 import no.nav.helsearbeidsgiver.dialogporten.domene.CreateDialogRequest
 import no.nav.helsearbeidsgiver.dialogporten.domene.Transmission
+import no.nav.helsearbeidsgiver.dokumentKobling.SykepengeSoeknadJobb
+import no.nav.helsearbeidsgiver.dokumentKobling.startRecurringJobs
 import no.nav.helsearbeidsgiver.helsesjekker.HelsesjekkService
 import no.nav.helsearbeidsgiver.helsesjekker.naisRoutes
 import no.nav.helsearbeidsgiver.kafka.configureKafkaConsumer
@@ -47,6 +52,22 @@ fun startServer() {
     }
     logger.info("Setter opp DialogRepository...")
     val dialogRepository = DialogRepository(database.db)
+    val dokumentKoblingRepository = DokumentKoblingRepository(database.db)
+
+    val dialogportenService =
+        DialogportenService(
+            dialogRepository = dialogRepository,
+            dialogportenClient = dialogportenClient,
+            unleashFeatureToggles = unleashFeatureToggles,
+        )
+
+    val jobber =
+        listOf(
+            SykepengeSoeknadJobb(
+                dokumentKoblingRepository = dokumentKoblingRepository,
+                dialogportenService = dialogportenService,
+            ),
+        )
 
     logger.info("Starter server...")
     embeddedServer(
@@ -56,7 +77,12 @@ fun startServer() {
             routing {
                 naisRoutes(HelsesjekkService(database.db))
             }
-            configureKafkaConsumer(unleashFeatureToggles, dialogportenClient, dialogRepository)
+            configureKafkaConsumer(unleashFeatureToggles, dokumentKoblingRepository, dialogportenService)
+            startRecurringJobs(jobber)
+            monitor.subscribe(ApplicationStopPreparing) {
+                logger.info("Applikasjonen stopper, avslutter eventuelle jobber...")
+                jobber.forEach { it.stop() }
+            }
         },
     ).start(wait = true)
 }

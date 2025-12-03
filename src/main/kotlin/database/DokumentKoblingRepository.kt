@@ -1,5 +1,6 @@
 package no.nav.helsearbeidsgiver.database
 
+import no.nav.helsearbeidsgiver.dokumentKobling.Status
 import no.nav.helsearbeidsgiver.dokumentKobling.Sykepengesoeknad
 import no.nav.helsearbeidsgiver.dokumentKobling.Sykmelding
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
@@ -28,7 +29,7 @@ class DokumentKoblingRepository(
             throw e
         }
 
-    fun hentSykmelding(sykmeldingId: UUID): SykmeldingEntity? =
+    fun hentSykmeldingEntitet(sykmeldingId: UUID): SykmeldingEntity? =
         transaction(db) {
             SykmeldingEntity.findById(sykmeldingId)
         }
@@ -53,16 +54,16 @@ class DokumentKoblingRepository(
             SykepengesoeknadEntity.findById(soeknadId)
         }
 
-    fun henteSykemeldingerMedStatusMottatt(): List<Pair<Sykmelding, Status>> =
+    fun henteSykemeldingerMedStatusMottatt(): List<Sykmelding> =
         transaction(db) {
             SykmeldingEntity.find { SykmeldingTable.status eq Status.MOTTATT }.map { sykmelding ->
-                Pair(sykmelding.data, sykmelding.status)
+                sykmelding.data
             }
         }
 
     fun henteSykepengeSoeknaderMedStatusMottatt(): List<Sykepengesoeknad> =
         transaction(db) {
-            SykepengesoeknadEntity.find { SykmeldingTable.status eq Status.MOTTATT }.map {
+            SykepengesoeknadEntity.find { SykepengesoeknadTable.status eq Status.MOTTATT }.map {
                 Sykepengesoeknad(
                     soeknadId = it.id.value,
                     sykmeldingId = it.sykmeldingId,

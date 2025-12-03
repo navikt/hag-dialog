@@ -7,9 +7,9 @@ import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.verify
 import no.nav.helsearbeidsgiver.database.DokumentKoblingRepository
-import no.nav.helsearbeidsgiver.database.Status
 import no.nav.helsearbeidsgiver.database.SykmeldingEntity
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
+import no.nav.helsearbeidsgiver.dokumentKobling.Status
 import no.nav.helsearbeidsgiver.dokumentKobling.SykepengeSoeknadJobb
 import no.nav.helsearbeidsgiver.dokumentKobling.opprettTransmissionForSoeknad
 import java.util.UUID
@@ -39,7 +39,7 @@ class SykepengeSoeknadJobbTest :
             clearAllMocks()
             every { repository.settSykepengeSoeknadStatusTilBehandlet(any()) } just runs
             every { repository.henteSykepengeSoeknaderMedStatusMottatt() } returns listOf(dokumentKoblingSoeknad)
-            every { repository.hentSykmelding(sykmeldingId) } returns sykmeldingEntity
+            every { repository.hentSykmeldingEntitet(sykmeldingId) } returns sykmeldingEntity
             every { dialogportenService.oppdaterDialogMedSykepengesoeknad(any()) } just runs
         }
 
@@ -67,7 +67,7 @@ class SykepengeSoeknadJobbTest :
 
         test("sykepengesoeknadJobb skal ikke opprette transmission når sykmelding ikke eksisterer") {
 
-            every { repository.hentSykmelding(sykmeldingId) } returns null
+            every { repository.hentSykmeldingEntitet(sykmeldingId) } returns null
 
             sykepengeSoeknadJobb.doJob()
 

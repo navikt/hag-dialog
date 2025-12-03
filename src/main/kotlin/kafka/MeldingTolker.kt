@@ -26,25 +26,11 @@ class MeldingTolker(
         runCatching {
             when (dekodetMelding) {
                 is Sykmelding -> {
-                    if (unleashFeatureToggles.skalOppretteDialogVedMottattSykmelding(orgnr = dekodetMelding.orgnr)) {
-                        dialogportenService.opprettOgLagreDialog(sykmelding = dekodetMelding)
-                    } else {
-                        logger.info(
-                            "Feature toggle for dialogopprettelse for sykmelding er avskrudd, " +
-                                "ignorerer melding for sykmeldingId ${dekodetMelding.sykmeldingId}.",
-                        )
-                    }
+                    logger.info("Ignorerer sykmelding med id: ${dekodetMelding.sykmeldingId} på dialog topic")
                 }
 
                 is Sykepengesoeknad -> {
-                    if (unleashFeatureToggles.skalOppdatereDialogVedMottattSoeknad(orgnr = dekodetMelding.orgnr)) {
-                        dialogportenService.oppdaterDialogMedSykepengesoeknad(sykepengesoeknad = dekodetMelding)
-                    } else {
-                        logger.info(
-                            "Feature toggle for oppdatering av dialog med sykepengesøknad er avskrudd, " +
-                                "ignorerer melding for sykepengesøknadId ${dekodetMelding.soeknadId}.",
-                        )
-                    }
+                    logger.info("Ignorerer sykepengesoeknad med id: ${dekodetMelding.soeknadId} på dialog topic")
                 }
 
                 is Inntektsmeldingsforespoersel -> {
