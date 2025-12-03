@@ -8,10 +8,10 @@ import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import org.jetbrains.exposed.exceptions.ExposedSQLException
 import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
-import org.jetbrains.exposed.sql.upsert
 import java.util.UUID
 
 class DokumentKoblingRepository(
@@ -89,14 +89,19 @@ class DokumentKoblingRepository(
         }
 
     fun opprettVedtaksperiodeSoeknadKobling(vedtaksperiodeSoeknad: VedtaksperiodeSoeknadKobling) =
+
         try {
             transaction(db) {
-                VedtaksperiodeSoeknadTable.upsert(
-                    keys = arrayOf(VedtaksperiodeSoeknadTable.vedtaksperiodeId, VedtaksperiodeSoeknadTable.soeknadId),
-                    onUpdateExclude = listOf(VedtaksperiodeSoeknadTable.opprettet),
-                ) {
-                    it[VedtaksperiodeSoeknadTable.vedtaksperiodeId] = vedtaksperiodeSoeknad.vedtaksperiodeId
-                    it[VedtaksperiodeSoeknadTable.soeknadId] = vedtaksperiodeSoeknad.soeknadId
+                val eksisterendeKobling =
+                    VedtaksperiodeSoeknadEntity.find {
+                        (VedtaksperiodeSoeknadTable.vedtaksperiodeId eq vedtaksperiodeSoeknad.vedtaksperiodeId) and
+                            (VedtaksperiodeSoeknadTable.soeknadId eq vedtaksperiodeSoeknad.soeknadId)
+                    }
+                if (eksisterendeKobling.empty()) {
+                    VedtaksperiodeSoeknadTable.insert {
+                        it[vedtaksperiodeId] = vedtaksperiodeSoeknad.vedtaksperiodeId
+                        it[soeknadId] = vedtaksperiodeSoeknad.soeknadId
+                    }
                 }
             }
         } catch (e: ExposedSQLException) {

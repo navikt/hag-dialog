@@ -101,7 +101,7 @@ class DokumentKoblingTest :
             repository.hentListeAvSoeknadIdForVedtaksperiodeId(vedtaksperiodeSoeknad.vedtaksperiodeId) shouldBe emptyList()
             repository.opprettVedtaksperiodeSoeknadKobling(vedtaksperiodeSoeknad)
 
-            val opprettetFør = repository.hentSoeknaderForVedtaksperiodeId(vedtaksperiodeSoeknad.vedtaksperiodeId).first().opprettet
+            val opprettetFoer = repository.hentSoeknaderForVedtaksperiodeId(vedtaksperiodeSoeknad.vedtaksperiodeId).first().opprettet
 
             repository.opprettVedtaksperiodeSoeknadKobling(vedtaksperiodeSoeknad)
 
@@ -110,6 +110,6 @@ class DokumentKoblingTest :
 
             hentet.size shouldBe 1
             hentet shouldContainOnly listOf(vedtaksperiodeSoeknad.soeknadId)
-            opprettetFør shouldBe opprettetEtter
+            opprettetFoer shouldBe opprettetEtter
         }
     })
