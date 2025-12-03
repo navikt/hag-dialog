@@ -1,6 +1,7 @@
 import no.nav.helsearbeidsgiver.dokumentKobling.Sykepengesoeknad
 import no.nav.helsearbeidsgiver.dokumentKobling.Sykmelding
 import no.nav.helsearbeidsgiver.dokumentKobling.Sykmeldingsperiode
+import no.nav.helsearbeidsgiver.dokumentKobling.VedtaksperiodeSoeknadKobling
 import no.nav.helsearbeidsgiver.utils.test.date.januar
 import no.nav.helsearbeidsgiver.utils.test.wrapper.genererGyldig
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
@@ -20,4 +21,10 @@ val dokumentKoblingSoeknad =
         soeknadId = UUID.randomUUID(),
         sykmeldingId = dokumentKoblingSykmelding.sykmeldingId,
         orgnr = dokumentKoblingSykmelding.orgnr,
+    )
+
+val dokumentKoblingVedtaksperiodeSoeknad =
+    VedtaksperiodeSoeknadKobling(
+        vedtaksperiodeId = UUID.randomUUID(),
+        soeknadId = dokumentKoblingSoeknad.soeknadId,
     )

@@ -37,3 +37,10 @@ data class Sykepengesoeknad(
     val sykmeldingId: UUID,
     val orgnr: Orgnr,
 ) : DokumentKobling()
+
+@Serializable
+@SerialName("VedtaksperiodeSoeknadKobling")
+data class VedtaksperiodeSoeknadKobling(
+    val vedtaksperiodeId: UUID,
+    val soeknadId: UUID,
+) : DokumentKobling()
