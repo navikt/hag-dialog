@@ -86,7 +86,7 @@ class DokumentKoblingTest :
         }
 
         test("opprette vedtaksperiode soeknad kobling") {
-            val vedtaksperiodeSoeknad = dokumentKoblingvedtaksperiodeSoeknad
+            val vedtaksperiodeSoeknad = dokumentKoblingVedtaksperiodeSoeknad
             val soeknadId2 = UUID.randomUUID()
             repository.hentListeAvSoeknadIdForVedtaksperiodeId(vedtaksperiodeSoeknad.vedtaksperiodeId) shouldBe emptyList()
             repository.opprettVedtaksperiodeSoeknadKobling(vedtaksperiodeSoeknad)
@@ -97,7 +97,7 @@ class DokumentKoblingTest :
         }
 
         test("håndtere vedtaksperiode soeknad kobling som finnes fra før uten å oppdatere opprettettidspunktet") {
-            val vedtaksperiodeSoeknad = dokumentKoblingvedtaksperiodeSoeknad
+            val vedtaksperiodeSoeknad = dokumentKoblingVedtaksperiodeSoeknad
             repository.hentListeAvSoeknadIdForVedtaksperiodeId(vedtaksperiodeSoeknad.vedtaksperiodeId) shouldBe emptyList()
             repository.opprettVedtaksperiodeSoeknadKobling(vedtaksperiodeSoeknad)
 

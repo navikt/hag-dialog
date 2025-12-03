@@ -23,7 +23,7 @@ val dokumentKoblingSoeknad =
         orgnr = dokumentKoblingSykmelding.orgnr,
     )
 
-val dokumentKoblingvedtaksperiodeSoeknad =
+val dokumentKoblingVedtaksperiodeSoeknad =
     VedtaksperiodeSoeknadKobling(
         vedtaksperiodeId = UUID.randomUUID(),
         soeknadId = dokumentKoblingSoeknad.soeknadId,
