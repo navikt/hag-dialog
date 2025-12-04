@@ -1,18 +1,13 @@
 package no.nav.helsearbeidsgiver.dokumentkobling
 
-import dokumentkobling.ForespoerselSendt
 import dokumentkobling.ForespoerselUtgaatt
-import dokumentkobling.Status
-import dokumentkobling.Sykepengesoeknad
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import no.nav.hag.utils.bakgrunnsjobb.RecurringJob
 import no.nav.helsearbeidsgiver.database.DokumentkoblingRepository
-import no.nav.helsearbeidsgiver.database.ForespoerselEntity
 import no.nav.helsearbeidsgiver.database.ForespoerselStatus
 import no.nav.helsearbeidsgiver.database.ForespoerselTable.forespoerselStatus
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
-import no.nav.helsearbeidsgiver.kafka.Inntektsmeldingsforespoersel
 import no.nav.helsearbeidsgiver.kafka.UtgaattInntektsmeldingForespoersel
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
