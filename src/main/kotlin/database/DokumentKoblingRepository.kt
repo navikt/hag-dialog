@@ -165,7 +165,7 @@ class DokumentKoblingRepository(
         }
     }
 
-    fun hentForespoerselerMedStatusMottattEldstFoerst(): List<ForespoerselEntity> =
+    fun hentForespoerslerMedStatusMottattEldstFoerst(): List<ForespoerselEntity> =
         transaction(db) {
             ForespoerselEntity
                 .find { ForespoerselTable.status eq Status.MOTTATT }

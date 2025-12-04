@@ -118,11 +118,11 @@ class DokumentKoblingTest :
             val forespoerselSendt = dokumentKoblingForespoerselSendt
             val forespoerselUtgaatt = dokumentKoblingForespoerselUtgaatt
 
-            repository.hentForespoerselerMedStatusMottattEldstFoerst() shouldBe emptyList()
+            repository.hentForespoerslerMedStatusMottattEldstFoerst() shouldBe emptyList()
 
             repository.opprettForespoerselSendt(forespoerselSendt)
 
-            val hentet = repository.hentForespoerselerMedStatusMottattEldstFoerst()
+            val hentet = repository.hentForespoerslerMedStatusMottattEldstFoerst()
             hentet.size shouldBe 1
             hentet[0].forespoerselId shouldBe forespoerselSendt.forespoerselId
             hentet[0].vedtaksperiodeId shouldBe forespoerselSendt.vedtaksperiodeId
@@ -130,7 +130,7 @@ class DokumentKoblingTest :
             hentet[0].forespoerselStatus shouldBe ForespoerselStatus.SENDT
 
             repository.opprettForespoerselUtgaatt(forespoerselUtgaatt)
-            val hentetEtterUtgaatt = repository.hentForespoerselerMedStatusMottattEldstFoerst()
+            val hentetEtterUtgaatt = repository.hentForespoerslerMedStatusMottattEldstFoerst()
             hentetEtterUtgaatt.size shouldBe 2
             hentetEtterUtgaatt[0].forespoerselId shouldBe forespoerselSendt.forespoerselId
             hentetEtterUtgaatt[1].forespoerselId shouldBe forespoerselUtgaatt.forespoerselId
