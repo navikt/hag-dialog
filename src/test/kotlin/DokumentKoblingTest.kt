@@ -2,6 +2,7 @@ import io.kotest.matchers.collections.shouldContainOnly
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import no.nav.helsearbeidsgiver.database.DokumentKoblingRepository
+import no.nav.helsearbeidsgiver.database.ForespoerselStatus
 import no.nav.helsearbeidsgiver.database.SykepengesoeknadTable
 import no.nav.helsearbeidsgiver.database.SykmeldingTable
 import no.nav.helsearbeidsgiver.database.VedtaksperiodeSoeknadTable
@@ -111,5 +112,28 @@ class DokumentKoblingTest :
             hentet.size shouldBe 1
             hentet shouldContainOnly listOf(vedtaksperiodeSoeknad.soeknadId)
             opprettetFoer shouldBe opprettetEtter
+        }
+
+        test("opprette forespoersel sendt og utgaatt") {
+            val forespoerselSendt = dokumentKoblingForespoerselSendt
+            val forespoerselUtgaatt = dokumentKoblingForespoerselUtgaatt
+
+            repository.hentForespoerslerMedStatusMottattEldstFoerst() shouldBe emptyList()
+
+            repository.opprettForespoerselSendt(forespoerselSendt)
+
+            val hentet = repository.hentForespoerslerMedStatusMottattEldstFoerst()
+            hentet.size shouldBe 1
+            hentet[0].forespoerselId shouldBe forespoerselSendt.forespoerselId
+            hentet[0].vedtaksperiodeId shouldBe forespoerselSendt.vedtaksperiodeId
+            hentet[0].status shouldBe Status.MOTTATT
+            hentet[0].forespoerselStatus shouldBe ForespoerselStatus.SENDT
+
+            repository.opprettForespoerselUtgaatt(forespoerselUtgaatt)
+            val hentetEtterUtgaatt = repository.hentForespoerslerMedStatusMottattEldstFoerst()
+            hentetEtterUtgaatt.size shouldBe 2
+            hentetEtterUtgaatt[0].forespoerselId shouldBe forespoerselSendt.forespoerselId
+            hentetEtterUtgaatt[1].forespoerselId shouldBe forespoerselUtgaatt.forespoerselId
+            hentetEtterUtgaatt[1].forespoerselStatus shouldBe ForespoerselStatus.UTGAATT
         }
     })

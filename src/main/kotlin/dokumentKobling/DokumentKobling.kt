@@ -44,3 +44,19 @@ data class VedtaksperiodeSoeknadKobling(
     val vedtaksperiodeId: UUID,
     val soeknadId: UUID,
 ) : DokumentKobling()
+
+@Serializable
+@SerialName("ForespoerselSendt")
+data class ForespoerselSendt(
+    val forespoerselId: UUID,
+    val vedtaksperiodeId: UUID,
+    val orgnr: Orgnr,
+) : DokumentKobling()
+
+@Serializable
+@SerialName("ForespoerselUtgaatt")
+data class ForespoerselUtgaatt(
+    val forespoerselId: UUID,
+    val vedtaksperiodeId: UUID,
+    val orgnr: Orgnr,
+) : DokumentKobling()
