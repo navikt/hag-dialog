@@ -1,3 +1,6 @@
+
+import no.nav.helsearbeidsgiver.dokumentKobling.ForespoerselSendt
+import no.nav.helsearbeidsgiver.dokumentKobling.ForespoerselUtgaatt
 import no.nav.helsearbeidsgiver.dokumentKobling.Sykepengesoeknad
 import no.nav.helsearbeidsgiver.dokumentKobling.Sykmelding
 import no.nav.helsearbeidsgiver.dokumentKobling.Sykmeldingsperiode
@@ -27,4 +30,18 @@ val dokumentKoblingVedtaksperiodeSoeknad =
     VedtaksperiodeSoeknadKobling(
         vedtaksperiodeId = UUID.randomUUID(),
         soeknadId = dokumentKoblingSoeknad.soeknadId,
+    )
+
+val dokumentKoblingForespoerselSendt =
+    ForespoerselSendt(
+        forespoerselId = UUID.randomUUID(),
+        vedtaksperiodeId = UUID.randomUUID(),
+        orgnr = dokumentKoblingSykmelding.orgnr,
+    )
+
+val dokumentKoblingForespoerselUtgaatt =
+    ForespoerselUtgaatt(
+        forespoerselId = UUID.randomUUID(),
+        vedtaksperiodeId = UUID.randomUUID(),
+        orgnr = dokumentKoblingSykmelding.orgnr,
     )

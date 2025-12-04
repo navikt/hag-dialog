@@ -1,6 +1,5 @@
 package no.nav.helsearbeidsgiver.database
 
-import no.nav.helsearbeidsgiver.dokumentKobling.ForespoerselKobling
 import no.nav.helsearbeidsgiver.dokumentKobling.ForespoerselSendt
 import no.nav.helsearbeidsgiver.dokumentKobling.ForespoerselUtgaatt
 import no.nav.helsearbeidsgiver.dokumentKobling.Status
@@ -11,6 +10,7 @@ import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import org.jetbrains.exposed.exceptions.ExposedSQLException
 import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.transactions.transaction
@@ -130,29 +130,46 @@ class DokumentKoblingRepository(
         }
 
     fun opprettForespoerselSendt(forespoerselSendt: ForespoerselSendt) {
-        opprettForespoersel(forespoerselSendt.forespoerselKobling, ForespoerselStatus.SENDT)
+        opprettForespoersel(
+            forespoerselId = forespoerselSendt.forespoerselId,
+            vedtaksperiodeId = forespoerselSendt.vedtaksperiodeId,
+            ForespoerselStatus.SENDT,
+        )
     }
 
     fun opprettForespoerselUtgaatt(forespoerselUtgaatt: ForespoerselUtgaatt) {
-        opprettForespoersel(forespoerselUtgaatt.forespoerselKobling, ForespoerselStatus.UTGAATT)
+        opprettForespoersel(
+            forespoerselId = forespoerselUtgaatt.forespoerselId,
+            vedtaksperiodeId = forespoerselUtgaatt.vedtaksperiodeId,
+            ForespoerselStatus.UTGAATT,
+        )
     }
 
     fun opprettForespoersel(
-        forespoerselKobling: ForespoerselKobling,
+        forespoerselId: UUID,
+        vedtaksperiodeId: UUID,
         forespoerselStatus: ForespoerselStatus,
     ) {
         try {
             transaction(db) {
                 ForespoerselTable.insert {
-                    it[id] = forespoerselKobling.forespoerselId
-                    it[ForespoerselTable.vedtaksperiodeId] = forespoerselKobling.vedtaksperiodeId
+                    it[ForespoerselTable.forespoerselId] = forespoerselId
+                    it[ForespoerselTable.vedtaksperiodeId] = vedtaksperiodeId
                     it[ForespoerselTable.status] = Status.MOTTATT
                     it[ForespoerselTable.forespoerselStatus] = forespoerselStatus
                 }
             }
         } catch (e: ExposedSQLException) {
-            sikkerLogger().error("Klarte ikke å opprette forespørsel sendt med id ${forespoerselKobling.forespoerselId} i databasen", e)
+            sikkerLogger().error("Klarte ikke å opprette forespørsel sendt med id $forespoerselId i databasen", e)
             throw e
         }
     }
+
+    fun hentForespoerselerMedStatusMottattEldstFoerst(): List<ForespoerselEntity> =
+        transaction(db) {
+            ForespoerselEntity
+                .find { ForespoerselTable.status eq Status.MOTTATT }
+                .orderBy(ForespoerselTable.opprettet to SortOrder.ASC)
+                .toList()
+        }
 }

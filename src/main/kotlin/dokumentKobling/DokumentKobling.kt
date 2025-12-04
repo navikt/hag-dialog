@@ -48,18 +48,15 @@ data class VedtaksperiodeSoeknadKobling(
 @Serializable
 @SerialName("ForespoerselSendt")
 data class ForespoerselSendt(
-    val forespoerselKobling: ForespoerselKobling,
+    val forespoerselId: UUID,
+    val vedtaksperiodeId: UUID,
+    val orgnr: Orgnr,
 ) : DokumentKobling()
 
 @Serializable
 @SerialName("ForespoerselUtgaatt")
 data class ForespoerselUtgaatt(
-    val forespoerselKobling: ForespoerselKobling,
-) : DokumentKobling()
-
-@Serializable
-abstract class ForespoerselKobling(
     val forespoerselId: UUID,
     val vedtaksperiodeId: UUID,
-    val orgnr: String,
-)
+    val orgnr: Orgnr,
+) : DokumentKobling()

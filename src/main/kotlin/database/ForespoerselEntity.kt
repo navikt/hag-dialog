@@ -9,7 +9,8 @@ import org.jetbrains.exposed.sql.javatime.datetime
 import java.time.LocalDateTime
 import java.util.UUID
 
-object ForespoerselTable : UUIDTable(name = "forespoersel", columnName = "forespoersel_id") {
+object ForespoerselTable : UUIDTable(name = "forespoersel", columnName = "id") {
+    val forespoerselId = uuid("forespoersel_id")
     val vedtaksperiodeId = uuid("vedtaksperiode_id")
     val status = enumerationByName(name = "status", length = 50, klass = Status::class)
     val forespoerselStatus = enumerationByName(name = "forespoersel_status", length = 50, klass = ForespoerselStatus::class)
@@ -21,8 +22,7 @@ class ForespoerselEntity(
 ) : UUIDEntity(id) {
     companion object : UUIDEntityClass<ForespoerselEntity>(ForespoerselTable)
 
-    val forespoerselId: UUID
-        get() = id.value
+    val forespoerselId by ForespoerselTable.forespoerselId
     val vedtaksperiodeId by ForespoerselTable.vedtaksperiodeId
     val status by ForespoerselTable.status
     val forespoerselStatus by ForespoerselTable.forespoerselStatus
