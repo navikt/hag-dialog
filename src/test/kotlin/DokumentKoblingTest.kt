@@ -13,9 +13,6 @@ class DokumentKoblingTest :
     FunSpecWithDb(listOf(SykepengesoeknadTable, SykmeldingTable, VedtaksperiodeSoeknadTable), { db ->
         val repository = DokumentKoblingRepository(db)
 
-        val forespoerselSendt = dokumentKoblingForespoerselSendt
-        val forespoerselUtgaatt = dokumentKoblingForespoerselUtgaatt
-
         test("opprette og hente sykmelding") {
             val sykmelding = dokumentKoblingSykmelding
             repository.opprettSykmelding(sykmelding)
