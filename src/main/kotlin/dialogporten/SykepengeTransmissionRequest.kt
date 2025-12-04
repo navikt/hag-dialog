@@ -35,12 +35,12 @@ class SykepengesoknadTransmissionRequest(
 }
 
 class ForespoerselTransmissionRequest(
-    inntektsmeldingsforespoersel: Inntektsmeldingsforespoersel,
+    forespoerselId: UUID,
     override val relatedTransmissionId: UUID? = null,
     override val attachments: List<Attachment>,
 ) : TransmissionRequest() {
     override val extendedType = LpsApiExtendedType.FORESPOERSEL_AKTIV.toString()
-    override val dokumentId = inntektsmeldingsforespoersel.forespoerselId
+    override val dokumentId = forespoerselId
     override val tittel = "Forespørsel om inntektsmelding"
     override val sammendrag = null
     override val type = Transmission.TransmissionType.Request

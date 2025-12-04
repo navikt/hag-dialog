@@ -12,6 +12,7 @@ import no.nav.helsearbeidsgiver.kafka.Sykepengesoeknad
 import no.nav.helsearbeidsgiver.kafka.Sykmelding
 import no.nav.helsearbeidsgiver.kafka.UtgaattInntektsmeldingForespoersel
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
+import java.util.UUID
 
 class DialogportenService(
     dialogRepository: DialogRepository,
@@ -33,7 +34,20 @@ class DialogportenService(
     }
 
     fun oppdaterDialogMedInntektsmeldingsforespoersel(inntektsmeldingsforespoersel: Inntektsmeldingsforespoersel) {
-        forespoerselHandler.oppdaterDialog(inntektsmeldingsforespoersel)
+        oppdaterDialogMedInntektsmeldingsforespoersel(
+            forespoerselId = inntektsmeldingsforespoersel.forespoerselId,
+            sykmeldingId = inntektsmeldingsforespoersel.sykmeldingId,
+        )
+    }
+
+    fun oppdaterDialogMedInntektsmeldingsforespoersel(
+        forespoerselId: UUID,
+        sykmeldingId: UUID,
+    ) {
+        forespoerselHandler.oppdaterDialog(
+            forespoerselId = forespoerselId,
+            sykmeldingId = sykmeldingId,
+        )
     }
 
     fun oppdaterDialogMedInntektsmelding(inntektsmelding: Inntektsmelding) {

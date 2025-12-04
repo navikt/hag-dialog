@@ -15,6 +15,7 @@ import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
+import java.time.LocalDateTime
 import java.util.UUID
 
 class DokumentkoblingRepository(
@@ -172,4 +173,40 @@ class DokumentkoblingRepository(
                 .orderBy(ForespoerselTable.opprettet to SortOrder.ASC)
                 .toList()
         }
+
+    fun hentForespoerslerMedStatusMottattKlarForBehandling(): List<ForespoerselSykmeldingKobling> =
+        transaction(db) {
+            (ForespoerselTable innerJoin VedtaksperiodeSoeknadTable innerJoin SykepengesoeknadTable innerJoin SykmeldingTable)
+                .select(
+                    ForespoerselTable.forespoerselId,
+                    ForespoerselTable.forespoerselStatus,
+                    VedtaksperiodeSoeknadTable.vedtaksperiodeId,
+                    SykepengesoeknadTable.id,
+                    SykmeldingTable.id,
+                    SykmeldingTable.opprettet,
+                ).orderBy(ForespoerselTable.opprettet to SortOrder.ASC)
+                .where {
+                    (ForespoerselTable.status eq Status.MOTTATT) and
+                        (SykmeldingTable.status eq Status.BEHANDLET) and
+                        (SykepengesoeknadTable.status eq Status.BEHANDLET)
+                }.map {
+                    ForespoerselSykmeldingKobling(
+                        forespoerselId = it[ForespoerselTable.forespoerselId],
+                        forespoerselStatus = it[ForespoerselTable.forespoerselStatus],
+                        vedtaksperiodeId = it[VedtaksperiodeSoeknadTable.vedtaksperiodeId],
+                        soeknadId = it[SykepengesoeknadTable.id].value,
+                        sykmeldingId = it[SykmeldingTable.id].value,
+                        sykmeldingOpprettet = it[SykmeldingTable.opprettet],
+                    )
+                }
+        }
+
+    data class ForespoerselSykmeldingKobling(
+        val forespoerselId: UUID,
+        val forespoerselStatus: ForespoerselStatus,
+        val vedtaksperiodeId: UUID,
+        val soeknadId: UUID,
+        val sykmeldingId: UUID,
+        val sykmeldingOpprettet: LocalDateTime,
+    )
 }
