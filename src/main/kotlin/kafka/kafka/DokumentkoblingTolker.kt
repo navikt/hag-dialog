@@ -1,17 +1,22 @@
 package no.nav.helsearbeidsgiver.kafka.kafka
 
-import no.nav.helsearbeidsgiver.dokumentKobling.DokumentKobling
-import no.nav.helsearbeidsgiver.dokumentKobling.DokumentKoblingService
+import dokumentkobling.Dokumentkobling
+import dokumentkobling.DokumentkoblingService
+import dokumentkobling.ForespoerselSendt
+import dokumentkobling.ForespoerselUtgaatt
+import dokumentkobling.Sykepengesoeknad
+import dokumentkobling.Sykmelding
+import dokumentkobling.VedtaksperiodeSoeknadKobling
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.json.fromJson
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import org.slf4j.LoggerFactory
 
-class DokumentKoblingTolker(
+class DokumentkoblingTolker(
     private val unleashFeatureToggles: UnleashFeatureToggles,
-    private val dokumentKoblingService: DokumentKoblingService,
+    private val dokumentkoblingService: DokumentkoblingService,
 ) {
-    private val logger = LoggerFactory.getLogger(DokumentKoblingTolker::class.java)
+    private val logger = LoggerFactory.getLogger(DokumentkoblingTolker::class.java)
     private val sikkerLogger = sikkerLogger()
 
     fun lesMelding(melding: String) {
@@ -26,9 +31,9 @@ class DokumentKoblingTolker(
 
         runCatching {
             when (dekodetMelding) {
-                is no.nav.helsearbeidsgiver.dokumentKobling.Sykmelding -> {
+                is Sykmelding -> {
                     if (unleashFeatureToggles.skalOppretteDialogVedMottattSykmelding(orgnr = dekodetMelding.orgnr)) {
-                        dokumentKoblingService.lagreSykmelding(dekodetMelding)
+                        dokumentkoblingService.lagreSykmelding(dekodetMelding)
                     } else {
                         logger.info(
                             "Feature toggle for dialogopprettelse for sykmelding er avskrudd, " +
@@ -37,9 +42,9 @@ class DokumentKoblingTolker(
                     }
                 }
 
-                is no.nav.helsearbeidsgiver.dokumentKobling.Sykepengesoeknad -> {
+                is Sykepengesoeknad -> {
                     if (unleashFeatureToggles.skalOppdatereDialogVedMottattSoeknad(orgnr = dekodetMelding.orgnr)) {
-                        dokumentKoblingService.lagreSykepengesoeknad(dekodetMelding)
+                        dokumentkoblingService.lagreSykepengesoeknad(dekodetMelding)
                     } else {
                         logger.info(
                             "Feature toggle for oppdatering av dialog med sykepengesøknad er avskrudd, " +
@@ -48,16 +53,16 @@ class DokumentKoblingTolker(
                     }
                 }
 
-                is no.nav.helsearbeidsgiver.dokumentKobling.VedtaksperiodeSoeknadKobling -> {
-                    dokumentKoblingService.lageVedtaksperiodeSoeknadKobling(dekodetMelding)
+                is VedtaksperiodeSoeknadKobling -> {
+                    dokumentkoblingService.lageVedtaksperiodeSoeknadKobling(dekodetMelding)
                 }
 
-                is no.nav.helsearbeidsgiver.dokumentKobling.ForespoerselSendt -> {
-                    dokumentKoblingService.lagreForespoerselSendt(dekodetMelding)
+                is ForespoerselSendt -> {
+                    dokumentkoblingService.lagreForespoerselSendt(dekodetMelding)
                 }
 
-                is no.nav.helsearbeidsgiver.dokumentKobling.ForespoerselUtgaatt -> {
-                    dokumentKoblingService.lagreForespoerselUtgaatt(dekodetMelding)
+                is ForespoerselUtgaatt -> {
+                    dokumentkoblingService.lagreForespoerselUtgaatt(dekodetMelding)
                 }
             }
         }.getOrElse { e ->
@@ -66,5 +71,5 @@ class DokumentKoblingTolker(
         }
     }
 
-    private fun dekodMelding(melding: String): DokumentKobling = melding.fromJson(DokumentKobling.serializer())
+    private fun dekodMelding(melding: String): Dokumentkobling = melding.fromJson(Dokumentkobling.serializer())
 }

@@ -1,16 +1,16 @@
 
-import no.nav.helsearbeidsgiver.dokumentKobling.ForespoerselSendt
-import no.nav.helsearbeidsgiver.dokumentKobling.ForespoerselUtgaatt
-import no.nav.helsearbeidsgiver.dokumentKobling.Sykepengesoeknad
-import no.nav.helsearbeidsgiver.dokumentKobling.Sykmelding
-import no.nav.helsearbeidsgiver.dokumentKobling.Sykmeldingsperiode
-import no.nav.helsearbeidsgiver.dokumentKobling.VedtaksperiodeSoeknadKobling
+import dokumentkobling.ForespoerselSendt
+import dokumentkobling.ForespoerselUtgaatt
+import dokumentkobling.Sykepengesoeknad
+import dokumentkobling.Sykmelding
+import dokumentkobling.Sykmeldingsperiode
+import dokumentkobling.VedtaksperiodeSoeknadKobling
 import no.nav.helsearbeidsgiver.utils.test.date.januar
 import no.nav.helsearbeidsgiver.utils.test.wrapper.genererGyldig
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import java.util.UUID
 
-val dokumentKoblingSykmelding =
+val dokumentkoblingSykmelding =
     Sykmelding(
         sykmeldingId = UUID.randomUUID(),
         orgnr = Orgnr.genererGyldig(),
@@ -19,29 +19,29 @@ val dokumentKoblingSykmelding =
         sykmeldingsperioder = listOf(Sykmeldingsperiode(1.januar, 31.januar)),
     )
 
-val dokumentKoblingSoeknad =
+val dokumentkoblingSoeknad =
     Sykepengesoeknad(
         soeknadId = UUID.randomUUID(),
-        sykmeldingId = dokumentKoblingSykmelding.sykmeldingId,
-        orgnr = dokumentKoblingSykmelding.orgnr,
+        sykmeldingId = dokumentkoblingSykmelding.sykmeldingId,
+        orgnr = dokumentkoblingSykmelding.orgnr,
     )
 
-val dokumentKoblingVedtaksperiodeSoeknad =
+val dokumentkoblingVedtaksperiodeSoeknad =
     VedtaksperiodeSoeknadKobling(
         vedtaksperiodeId = UUID.randomUUID(),
-        soeknadId = dokumentKoblingSoeknad.soeknadId,
+        soeknadId = dokumentkoblingSoeknad.soeknadId,
     )
 
-val dokumentKoblingForespoerselSendt =
+val dokumentkoblingForespoerselSendt =
     ForespoerselSendt(
         forespoerselId = UUID.randomUUID(),
         vedtaksperiodeId = UUID.randomUUID(),
-        orgnr = dokumentKoblingSykmelding.orgnr,
+        orgnr = dokumentkoblingSykmelding.orgnr,
     )
 
-val dokumentKoblingForespoerselUtgaatt =
+val dokumentkoblingForespoerselUtgaatt =
     ForespoerselUtgaatt(
         forespoerselId = UUID.randomUUID(),
         vedtaksperiodeId = UUID.randomUUID(),
-        orgnr = dokumentKoblingSykmelding.orgnr,
+        orgnr = dokumentkoblingSykmelding.orgnr,
     )

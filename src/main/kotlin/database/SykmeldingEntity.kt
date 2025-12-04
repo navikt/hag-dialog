@@ -1,7 +1,7 @@
 package no.nav.helsearbeidsgiver.database
 
-import no.nav.helsearbeidsgiver.dokumentKobling.Status
-import no.nav.helsearbeidsgiver.dokumentKobling.Sykmelding
+import dokumentkobling.Status
+import dokumentkobling.Sykmelding
 import no.nav.helsearbeidsgiver.utils.json.jsonConfig
 import org.jetbrains.exposed.dao.UUIDEntity
 import org.jetbrains.exposed.dao.UUIDEntityClass

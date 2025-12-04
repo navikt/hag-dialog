@@ -1,4 +1,4 @@
-package no.nav.helsearbeidsgiver.dokumentKobling
+package dokumentkobling
 
 enum class Status {
     MOTTATT,

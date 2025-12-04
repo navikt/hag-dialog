@@ -1,20 +1,20 @@
+import dokumentkobling.Status
 import io.kotest.matchers.collections.shouldContainOnly
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
-import no.nav.helsearbeidsgiver.database.DokumentKoblingRepository
+import no.nav.helsearbeidsgiver.database.DokumentkoblingRepository
 import no.nav.helsearbeidsgiver.database.ForespoerselStatus
 import no.nav.helsearbeidsgiver.database.SykepengesoeknadTable
 import no.nav.helsearbeidsgiver.database.SykmeldingTable
 import no.nav.helsearbeidsgiver.database.VedtaksperiodeSoeknadTable
-import no.nav.helsearbeidsgiver.dokumentKobling.Status
 import java.util.UUID
 
-class DokumentKoblingTest :
+class DokumentkoblingTest :
     FunSpecWithDb(listOf(SykepengesoeknadTable, SykmeldingTable, VedtaksperiodeSoeknadTable), { db ->
-        val repository = DokumentKoblingRepository(db)
+        val repository = DokumentkoblingRepository(db)
 
         test("opprette og hente sykmelding") {
-            val sykmelding = dokumentKoblingSykmelding
+            val sykmelding = dokumentkoblingSykmelding
             repository.opprettSykmelding(sykmelding)
             val hentet = repository.hentSykmeldingEntitet(sykmelding.sykmeldingId)
 
@@ -24,8 +24,8 @@ class DokumentKoblingTest :
         }
 
         test("opprette og hente sykepengesoeknad koblet til sykmelding") {
-            val sykmelding = dokumentKoblingSykmelding
-            val soeknad = dokumentKoblingSoeknad
+            val sykmelding = dokumentkoblingSykmelding
+            val soeknad = dokumentkoblingSoeknad
             repository.opprettSykmelding(sykmelding)
             repository.opprettSykepengesoeknad(soeknad)
 
@@ -38,7 +38,7 @@ class DokumentKoblingTest :
         }
 
         test("hente mottatte sykmeldinger") {
-            val sykmelding = dokumentKoblingSykmelding
+            val sykmelding = dokumentkoblingSykmelding
             val sykmeldingId2 = UUID.randomUUID()
             repository.opprettSykmelding(sykmelding)
             repository.opprettSykmelding(sykmelding.copy(sykmeldingId = sykmeldingId2))
@@ -51,7 +51,7 @@ class DokumentKoblingTest :
         }
 
         test("hente mottatte søknader") {
-            val soeknad = dokumentKoblingSoeknad
+            val soeknad = dokumentkoblingSoeknad
             val soeknadId2 = UUID.randomUUID()
             repository.opprettSykepengesoeknad(soeknad)
             repository.opprettSykepengesoeknad(soeknad.copy(soeknadId = soeknadId2))
@@ -63,7 +63,7 @@ class DokumentKoblingTest :
         }
 
         test("oppdatere sykmeldinger til behandlet") {
-            val sykmelding = dokumentKoblingSykmelding
+            val sykmelding = dokumentkoblingSykmelding
             val sykmeldingId2 = UUID.randomUUID()
             repository.opprettSykmelding(sykmelding)
             repository.opprettSykmelding(sykmelding.copy(sykmeldingId = sykmeldingId2))
@@ -75,7 +75,7 @@ class DokumentKoblingTest :
         }
 
         test("oppdatere søknader til behandlet") {
-            val soeknad = dokumentKoblingSoeknad
+            val soeknad = dokumentkoblingSoeknad
             val soeknadId2 = UUID.randomUUID()
             repository.opprettSykepengesoeknad(soeknad)
             repository.opprettSykepengesoeknad(soeknad.copy(soeknadId = soeknadId2))
@@ -87,7 +87,7 @@ class DokumentKoblingTest :
         }
 
         test("opprette vedtaksperiode soeknad kobling") {
-            val vedtaksperiodeSoeknad = dokumentKoblingVedtaksperiodeSoeknad
+            val vedtaksperiodeSoeknad = dokumentkoblingVedtaksperiodeSoeknad
             val soeknadId2 = UUID.randomUUID()
             repository.hentListeAvSoeknadIdForVedtaksperiodeId(vedtaksperiodeSoeknad.vedtaksperiodeId) shouldBe emptyList()
             repository.opprettVedtaksperiodeSoeknadKobling(vedtaksperiodeSoeknad)
@@ -98,7 +98,7 @@ class DokumentKoblingTest :
         }
 
         test("håndtere vedtaksperiode soeknad kobling som finnes fra før uten å oppdatere opprettettidspunktet") {
-            val vedtaksperiodeSoeknad = dokumentKoblingVedtaksperiodeSoeknad
+            val vedtaksperiodeSoeknad = dokumentkoblingVedtaksperiodeSoeknad
             repository.hentListeAvSoeknadIdForVedtaksperiodeId(vedtaksperiodeSoeknad.vedtaksperiodeId) shouldBe emptyList()
             repository.opprettVedtaksperiodeSoeknadKobling(vedtaksperiodeSoeknad)
 
@@ -115,8 +115,8 @@ class DokumentKoblingTest :
         }
 
         test("opprette forespoersel sendt og utgaatt") {
-            val forespoerselSendt = dokumentKoblingForespoerselSendt
-            val forespoerselUtgaatt = dokumentKoblingForespoerselUtgaatt
+            val forespoerselSendt = dokumentkoblingForespoerselSendt
+            val forespoerselUtgaatt = dokumentkoblingForespoerselUtgaatt
 
             repository.hentForespoerslerMedStatusMottattEldstFoerst() shouldBe emptyList()
 

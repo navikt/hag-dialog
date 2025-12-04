@@ -1,3 +1,4 @@
+import dokumentkobling.SykmeldingJobb
 import io.kotest.core.spec.style.FunSpec
 import io.ktor.server.plugins.NotFoundException
 import io.mockk.clearAllMocks
@@ -6,28 +7,27 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.verify
-import no.nav.helsearbeidsgiver.database.DokumentKoblingRepository
+import no.nav.helsearbeidsgiver.database.DokumentkoblingRepository
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
-import no.nav.helsearbeidsgiver.dokumentKobling.SykmeldingJobb
 import java.util.UUID
 
 class SykmeldingJobbTest :
     FunSpec({
 
-        val repository = mockk<DokumentKoblingRepository>()
+        val repository = mockk<DokumentkoblingRepository>()
         val dialogportenService = mockk<DialogportenService>(relaxed = true)
 
         val sykmeldingJobb =
             SykmeldingJobb(
-                dokumentKoblingRepository = repository,
+                dokumentkoblingRepository = repository,
                 dialogportenService = dialogportenService,
             )
 
-        val sykmeldingId: UUID = dokumentKoblingSykmelding.sykmeldingId
+        val sykmeldingId: UUID = dokumentkoblingSykmelding.sykmeldingId
 
         beforeTest {
             clearAllMocks()
-            every { repository.henteSykemeldingerMedStatusMottatt() } returns listOf(dokumentKoblingSykmelding)
+            every { repository.henteSykemeldingerMedStatusMottatt() } returns listOf(dokumentkoblingSykmelding)
             every { dialogportenService.opprettOgLagreDialog(any()) } just runs
             every { repository.settSykmeldingStatusTilBehandlet(any()) } just runs
         }
@@ -44,14 +44,14 @@ class SykmeldingJobbTest :
         test("sykmeldingjobb skal oprette dialog for sykmelding #2 selv om sykmelding #1 feiler") {
 
             val exceptionSykmeldingId = UUID.randomUUID()
-            val exceptionSykmelding = dokumentKoblingSykmelding.copy(exceptionSykmeldingId)
+            val exceptionSykmelding = dokumentkoblingSykmelding.copy(exceptionSykmeldingId)
             every { dialogportenService.opprettOgLagreDialog(match { it.sykmeldingId == exceptionSykmeldingId }) } throws
                 NotFoundException("Feil ved henting")
 
             every { repository.henteSykemeldingerMedStatusMottatt() } returns
                 listOf(
                     exceptionSykmelding,
-                    dokumentKoblingSykmelding,
+                    dokumentkoblingSykmelding,
                 )
 
             sykmeldingJobb.doJob()
