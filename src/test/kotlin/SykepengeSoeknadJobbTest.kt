@@ -1,3 +1,6 @@
+import dokumentkobling.Status
+import dokumentkobling.SykepengeSoeknadJobb
+import dokumentkobling.opprettTransmissionForSoeknad
 import io.kotest.core.spec.style.FunSpec
 import io.ktor.server.plugins.NotFoundException
 import io.mockk.clearAllMocks
@@ -6,39 +9,36 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.verify
-import no.nav.helsearbeidsgiver.database.DokumentKoblingRepository
+import no.nav.helsearbeidsgiver.database.DokumentkoblingRepository
 import no.nav.helsearbeidsgiver.database.SykmeldingEntity
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
-import no.nav.helsearbeidsgiver.dokumentKobling.Status
-import no.nav.helsearbeidsgiver.dokumentKobling.SykepengeSoeknadJobb
-import no.nav.helsearbeidsgiver.dokumentKobling.opprettTransmissionForSoeknad
 import java.util.UUID
 
 class SykepengeSoeknadJobbTest :
     FunSpec({
 
-        val repository = mockk<DokumentKoblingRepository>()
+        val repository = mockk<DokumentkoblingRepository>()
         val dialogportenService = mockk<DialogportenService>(relaxed = true)
 
         val sykepengeSoeknadJobb =
             SykepengeSoeknadJobb(
-                dokumentKoblingRepository = repository,
+                dokumentkoblingRepository = repository,
                 dialogportenService = dialogportenService,
             )
 
-        val sykmeldingId: UUID = dokumentKoblingSykmelding.sykmeldingId
-        val soeknadId: UUID = dokumentKoblingSoeknad.soeknadId
+        val sykmeldingId: UUID = dokumentkoblingSykmelding.sykmeldingId
+        val soeknadId: UUID = dokumentkoblingSoeknad.soeknadId
 
         val sykmeldingEntity =
             mockk<SykmeldingEntity> {
                 every { this@mockk.sykmeldingId } returns sykmeldingId
-                every { data } returns dokumentKoblingSykmelding
+                every { data } returns dokumentkoblingSykmelding
             }
 
         beforeTest {
             clearAllMocks()
             every { repository.settSykepengeSoeknadStatusTilBehandlet(any()) } just runs
-            every { repository.henteSykepengeSoeknaderMedStatusMottatt() } returns listOf(dokumentKoblingSoeknad)
+            every { repository.henteSykepengeSoeknaderMedStatusMottatt() } returns listOf(dokumentkoblingSoeknad)
             every { repository.hentSykmeldingEntitet(sykmeldingId) } returns sykmeldingEntity
             every { dialogportenService.oppdaterDialogMedSykepengesoeknad(any()) } just runs
         }
@@ -80,9 +80,9 @@ class SykepengeSoeknadJobbTest :
 
             every { sykmeldingEntity.status } returns Status.BEHANDLET
 
-            val exceptionSoeknad = dokumentKoblingSoeknad.copy(soeknadId = UUID.randomUUID())
+            val exceptionSoeknad = dokumentkoblingSoeknad.copy(soeknadId = UUID.randomUUID())
 
-            every { repository.henteSykepengeSoeknaderMedStatusMottatt() } returns listOf(exceptionSoeknad, dokumentKoblingSoeknad)
+            every { repository.henteSykepengeSoeknaderMedStatusMottatt() } returns listOf(exceptionSoeknad, dokumentkoblingSoeknad)
             every { dialogportenService.opprettTransmissionForSoeknad(exceptionSoeknad) } throws
                 NotFoundException("Fant ikke sykmelding for søknad")
 

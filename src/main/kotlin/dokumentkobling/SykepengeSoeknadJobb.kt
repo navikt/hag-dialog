@@ -1,25 +1,25 @@
-package no.nav.helsearbeidsgiver.dokumentKobling
+package dokumentkobling
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import no.nav.hag.utils.bakgrunnsjobb.RecurringJob
-import no.nav.helsearbeidsgiver.database.DokumentKoblingRepository
+import no.nav.helsearbeidsgiver.database.DokumentkoblingRepository
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import java.time.Duration
 
 class SykepengeSoeknadJobb(
-    private val dokumentKoblingRepository: DokumentKoblingRepository,
+    private val dokumentkoblingRepository: DokumentkoblingRepository,
     private val dialogportenService: DialogportenService,
 ) : RecurringJob(CoroutineScope(Dispatchers.IO), Duration.ofSeconds(30).toMillis()) {
     override fun doJob() {
-        val soeknader = dokumentKoblingRepository.henteSykepengeSoeknaderMedStatusMottatt()
+        val soeknader = dokumentkoblingRepository.henteSykepengeSoeknaderMedStatusMottatt()
         soeknader.forEach { soeknad ->
             try {
-                val sykmelding = dokumentKoblingRepository.hentSykmeldingEntitet(soeknad.sykmeldingId)
+                val sykmelding = dokumentkoblingRepository.hentSykmeldingEntitet(soeknad.sykmeldingId)
                 if (sykmelding?.status == Status.BEHANDLET) {
                     dialogportenService.opprettTransmissionForSoeknad(soeknad)
-                    dokumentKoblingRepository.settSykepengeSoeknadStatusTilBehandlet(soeknad.soeknadId)
+                    dokumentkoblingRepository.settSykepengeSoeknadStatusTilBehandlet(soeknad.soeknadId)
                 } else {
                     logger.info(
                         "Sykmelding med id ${soeknad.sykmeldingId} er ikke behandlet enda, kan ikke sende søknad med id ${soeknad.soeknadId} til Dialogporten.",

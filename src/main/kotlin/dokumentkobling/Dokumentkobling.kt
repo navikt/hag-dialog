@@ -1,6 +1,6 @@
 @file:UseSerializers(LocalDateSerializer::class, UuidSerializer::class)
 
-package no.nav.helsearbeidsgiver.dokumentKobling
+package dokumentkobling
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -12,7 +12,7 @@ import java.time.LocalDate
 import java.util.UUID
 
 @Serializable
-sealed class DokumentKobling
+sealed class Dokumentkobling
 
 @Serializable
 @SerialName("Sykmelding")
@@ -22,7 +22,7 @@ data class Sykmelding(
     val foedselsdato: LocalDate,
     val fulltNavn: String,
     val sykmeldingsperioder: List<Sykmeldingsperiode>,
-) : DokumentKobling()
+) : Dokumentkobling()
 
 @Serializable
 data class Sykmeldingsperiode(
@@ -36,14 +36,14 @@ data class Sykepengesoeknad(
     val soeknadId: UUID,
     val sykmeldingId: UUID,
     val orgnr: Orgnr,
-) : DokumentKobling()
+) : Dokumentkobling()
 
 @Serializable
 @SerialName("VedtaksperiodeSoeknadKobling")
 data class VedtaksperiodeSoeknadKobling(
     val vedtaksperiodeId: UUID,
     val soeknadId: UUID,
-) : DokumentKobling()
+) : Dokumentkobling()
 
 @Serializable
 @SerialName("ForespoerselSendt")
@@ -51,7 +51,7 @@ data class ForespoerselSendt(
     val forespoerselId: UUID,
     val vedtaksperiodeId: UUID,
     val orgnr: Orgnr,
-) : DokumentKobling()
+) : Dokumentkobling()
 
 @Serializable
 @SerialName("ForespoerselUtgaatt")
@@ -59,4 +59,4 @@ data class ForespoerselUtgaatt(
     val forespoerselId: UUID,
     val vedtaksperiodeId: UUID,
     val orgnr: Orgnr,
-) : DokumentKobling()
+) : Dokumentkobling()

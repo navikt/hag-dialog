@@ -18,7 +18,7 @@ object Env {
 
     object Kafka {
         val topic = "kafka.topic".fromEnv()
-        val dokumentKoblingTopic = "kafka.dokumentKoblingTopic".fromEnv()
+        val dokumentkoblingTopic = "kafka.dokumentkoblingTopic".fromEnv()
         val kafkaBrokers = "kafka.brokers".fromEnv()
         val kafkaTruststorePath = "kafka.truststorePath".fromEnvOrNull()
         val kafkaCredstorePassword = "kafka.credstorePassword".fromEnvOrNull()

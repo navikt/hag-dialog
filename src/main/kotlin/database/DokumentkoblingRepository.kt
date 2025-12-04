@@ -1,11 +1,11 @@
 package no.nav.helsearbeidsgiver.database
 
-import no.nav.helsearbeidsgiver.dokumentKobling.ForespoerselSendt
-import no.nav.helsearbeidsgiver.dokumentKobling.ForespoerselUtgaatt
-import no.nav.helsearbeidsgiver.dokumentKobling.Status
-import no.nav.helsearbeidsgiver.dokumentKobling.Sykepengesoeknad
-import no.nav.helsearbeidsgiver.dokumentKobling.Sykmelding
-import no.nav.helsearbeidsgiver.dokumentKobling.VedtaksperiodeSoeknadKobling
+import dokumentkobling.ForespoerselSendt
+import dokumentkobling.ForespoerselUtgaatt
+import dokumentkobling.Status
+import dokumentkobling.Sykepengesoeknad
+import dokumentkobling.Sykmelding
+import dokumentkobling.VedtaksperiodeSoeknadKobling
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import org.jetbrains.exposed.exceptions.ExposedSQLException
@@ -17,7 +17,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
 import java.util.UUID
 
-class DokumentKoblingRepository(
+class DokumentkoblingRepository(
     private val db: Database,
 ) {
     fun opprettSykmelding(sykmelding: Sykmelding) =
