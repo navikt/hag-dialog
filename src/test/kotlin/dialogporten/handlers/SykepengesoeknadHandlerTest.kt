@@ -13,6 +13,7 @@ import no.nav.helsearbeidsgiver.database.DialogEntity
 import no.nav.helsearbeidsgiver.database.DialogRepository
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenClient
 import no.nav.helsearbeidsgiver.dialogporten.LpsApiExtendedType
+import no.nav.helsearbeidsgiver.dialogporten.domene.TransmissionRequest
 import no.nav.helsearbeidsgiver.dialogporten.handlers.SykepengesoeknadHandler
 import sykepengesoeknad
 import java.util.UUID
@@ -40,13 +41,13 @@ class SykepengesoeknadHandlerTest :
                 }
 
             every { dialogRepositoryMock.finnDialogMedSykemeldingId(sykepengesoeknad.sykmeldingId) } returns dialogEntity
-            coEvery { dialogportenClientMock.addTransmission(any(), any()) } returns transmissionId
+            coEvery { dialogportenClientMock.addTransmission(any(), any<TransmissionRequest>()) } returns transmissionId
             every { dialogRepositoryMock.oppdaterDialogMedTransmission(any(), any(), any(), any(), any()) } just Runs
 
             sykepengeSoeknadhandler.oppdaterDialog(sykepengesoeknad)
 
             verify(exactly = 1) { dialogRepositoryMock.finnDialogMedSykemeldingId(sykepengesoeknad.sykmeldingId) }
-            coVerify(exactly = 1) { dialogportenClientMock.addTransmission(dialogId, any()) }
+            coVerify(exactly = 1) { dialogportenClientMock.addTransmission(dialogId, any<TransmissionRequest>()) }
             verify(exactly = 1) {
                 dialogRepositoryMock.oppdaterDialogMedTransmission(
                     sykmeldingId = sykepengesoeknad.sykmeldingId,
@@ -63,7 +64,7 @@ class SykepengesoeknadHandlerTest :
             sykepengeSoeknadhandler.oppdaterDialog(sykepengesoeknad)
 
             verify(exactly = 1) { dialogRepositoryMock.finnDialogMedSykemeldingId(sykepengesoeknad.sykmeldingId) }
-            coVerify(exactly = 0) { dialogportenClientMock.addTransmission(any(), any()) }
+            coVerify(exactly = 0) { dialogportenClientMock.addTransmission(any(), any<TransmissionRequest>()) }
             verify(exactly = 0) { dialogRepositoryMock.oppdaterDialogMedTransmission(any(), any(), any(), any(), any()) }
         }
     })

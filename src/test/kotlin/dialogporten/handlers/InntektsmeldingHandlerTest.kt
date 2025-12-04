@@ -15,6 +15,7 @@ import no.nav.helsearbeidsgiver.database.DialogRepository
 import no.nav.helsearbeidsgiver.database.TransmissionEntity
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenClient
 import no.nav.helsearbeidsgiver.dialogporten.domene.DialogStatus
+import no.nav.helsearbeidsgiver.dialogporten.domene.TransmissionRequest
 import no.nav.helsearbeidsgiver.dialogporten.handlers.InntektsmeldingHandler
 import no.nav.helsearbeidsgiver.dialogporten.toExtendedType
 import java.util.UUID
@@ -50,13 +51,13 @@ class InntektsmeldingHandlerTest :
                 }
 
             every { dialogRepositoryMock.finnDialogMedSykemeldingId(inntektsmelding_godkjent.sykmeldingId) } returns dialogEntity
-            coEvery { dialogportenClientMock.addTransmission(any(), any()) } returns transmissionId
+            coEvery { dialogportenClientMock.addTransmission(any(), any<TransmissionRequest>()) } returns transmissionId
             coEvery { dialogportenClientMock.setDialogStatus(any(), any()) } just Runs
             every { dialogRepositoryMock.oppdaterDialogMedTransmission(any(), any(), any(), any(), any()) } just Runs
 
             inntektsmeldingHandler.oppdaterDialog(inntektsmelding_godkjent)
 
-            coVerify(exactly = 1) { dialogportenClientMock.addTransmission(dialogId, any()) }
+            coVerify(exactly = 1) { dialogportenClientMock.addTransmission(dialogId, any<TransmissionRequest>()) }
             coVerify(exactly = 1) { dialogportenClientMock.setDialogStatus(dialogId, DialogStatus.NotApplicable) }
             verify(exactly = 1) {
                 dialogRepositoryMock.oppdaterDialogMedTransmission(
@@ -75,7 +76,7 @@ class InntektsmeldingHandlerTest :
             inntektsmeldingHandler.oppdaterDialog(inntektsmelding_godkjent)
 
             verify(exactly = 1) { dialogRepositoryMock.finnDialogMedSykemeldingId(inntektsmelding_godkjent.sykmeldingId) }
-            coVerify(exactly = 0) { dialogportenClientMock.addTransmission(any(), any()) }
+            coVerify(exactly = 0) { dialogportenClientMock.addTransmission(any(), any<TransmissionRequest>()) }
         }
 
         test("skal ikke oppdatere når forespørsel transmission ikke finnes") {
@@ -91,7 +92,7 @@ class InntektsmeldingHandlerTest :
             inntektsmeldingHandler.oppdaterDialog(inntektsmelding_godkjent)
 
             verify(exactly = 1) { dialogRepositoryMock.finnDialogMedSykemeldingId(inntektsmelding_godkjent.sykmeldingId) }
-            coVerify(exactly = 0) { dialogportenClientMock.addTransmission(any(), any()) }
+            coVerify(exactly = 0) { dialogportenClientMock.addTransmission(any(), any<TransmissionRequest>()) }
             verify(exactly = 0) { dialogRepositoryMock.oppdaterDialogMedTransmission(any(), any(), any(), any(), any()) }
         }
     })

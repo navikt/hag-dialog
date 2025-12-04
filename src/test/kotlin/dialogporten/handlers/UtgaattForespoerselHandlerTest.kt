@@ -13,6 +13,7 @@ import no.nav.helsearbeidsgiver.database.DialogRepository
 import no.nav.helsearbeidsgiver.database.TransmissionEntity
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenClient
 import no.nav.helsearbeidsgiver.dialogporten.LpsApiExtendedType
+import no.nav.helsearbeidsgiver.dialogporten.domene.TransmissionRequest
 import no.nav.helsearbeidsgiver.dialogporten.handlers.UtgaattForespoerselHandler
 import java.util.UUID
 
@@ -43,11 +44,11 @@ class UtgaattForespoerselHandlerTest :
                 }
 
             every { dialogRepository.finnDialogMedSykemeldingId(forespoersel_utgaatt.sykmeldingId) } returns dialog
-            coEvery { dialogportenClient.addTransmission(any(), any()) } returns newTransmissionId
+            coEvery { dialogportenClient.addTransmission(any(), any<TransmissionRequest>()) } returns newTransmissionId
 
             utgaattForespoerselHandler.oppdaterDialog(forespoersel_utgaatt)
 
-            coVerify { dialogportenClient.addTransmission(dialogId, any()) }
+            coVerify { dialogportenClient.addTransmission(dialogId, any<TransmissionRequest>()) }
             coVerify { dialogportenClient.removeActionsAndStatus(dialogId) }
             verify {
                 dialogRepository.oppdaterDialogMedTransmission(
@@ -66,7 +67,7 @@ class UtgaattForespoerselHandlerTest :
 
             utgaattForespoerselHandler.oppdaterDialog(forespoersel_utgaatt)
 
-            coVerify(exactly = 0) { dialogportenClient.addTransmission(any(), any()) }
+            coVerify(exactly = 0) { dialogportenClient.addTransmission(any(), any<TransmissionRequest>()) }
             verify(exactly = 0) { dialogRepository.oppdaterDialogMedTransmission(any(), any(), any(), any(), any()) }
         }
 
@@ -81,11 +82,11 @@ class UtgaattForespoerselHandlerTest :
                 }
 
             every { dialogRepository.finnDialogMedSykemeldingId(forespoersel_utgaatt.sykmeldingId) } returns dialog
-            coEvery { dialogportenClient.addTransmission(any(), any()) } returns newTransmissionId
+            coEvery { dialogportenClient.addTransmission(any(), any<TransmissionRequest>()) } returns newTransmissionId
 
             utgaattForespoerselHandler.oppdaterDialog(forespoersel_utgaatt)
 
-            coVerify { dialogportenClient.addTransmission(dialogId, any()) }
+            coVerify { dialogportenClient.addTransmission(dialogId, any<TransmissionRequest>()) }
             coVerify { dialogportenClient.removeActionsAndStatus(dialogId) }
             verify {
                 dialogRepository.oppdaterDialogMedTransmission(
