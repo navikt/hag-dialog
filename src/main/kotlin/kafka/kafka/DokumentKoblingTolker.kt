@@ -51,6 +51,14 @@ class DokumentKoblingTolker(
                 is no.nav.helsearbeidsgiver.dokumentKobling.VedtaksperiodeSoeknadKobling -> {
                     dokumentKoblingService.lageVedtaksperiodeSoeknadKobling(dekodetMelding)
                 }
+
+                is no.nav.helsearbeidsgiver.dokumentKobling.ForespoerselSendt -> {
+                    dokumentKoblingService.lagreForespoerselSendt(dekodetMelding)
+                }
+
+                is no.nav.helsearbeidsgiver.dokumentKobling.ForespoerselUtgaatt -> {
+                    dokumentKoblingService.lagreForespoerselUtgaatt(dekodetMelding)
+                }
             }
         }.getOrElse { e ->
             sikkerLogger.error("Klarte ikke opprette/oppdatere dialog. Avbryter.", e)

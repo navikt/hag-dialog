@@ -1,5 +1,8 @@
 package no.nav.helsearbeidsgiver.database
 
+import no.nav.helsearbeidsgiver.dokumentKobling.ForespoerselKobling
+import no.nav.helsearbeidsgiver.dokumentKobling.ForespoerselSendt
+import no.nav.helsearbeidsgiver.dokumentKobling.ForespoerselUtgaatt
 import no.nav.helsearbeidsgiver.dokumentKobling.Status
 import no.nav.helsearbeidsgiver.dokumentKobling.Sykepengesoeknad
 import no.nav.helsearbeidsgiver.dokumentKobling.Sykmelding
@@ -125,4 +128,31 @@ class DokumentKoblingRepository(
                 .find { VedtaksperiodeSoeknadTable.vedtaksperiodeId eq vedtaksperiodeId }
                 .toList()
         }
+
+    fun opprettForespoerselSendt(forespoerselSendt: ForespoerselSendt) {
+        opprettForespoersel(forespoerselSendt.forespoerselKobling, ForespoerselStatus.SENDT)
+    }
+
+    fun opprettForespoerselUtgaatt(forespoerselUtgaatt: ForespoerselUtgaatt) {
+        opprettForespoersel(forespoerselUtgaatt.forespoerselKobling, ForespoerselStatus.UTGAATT)
+    }
+
+    fun opprettForespoersel(
+        forespoerselKobling: ForespoerselKobling,
+        forespoerselStatus: ForespoerselStatus,
+    ) {
+        try {
+            transaction(db) {
+                ForespoerselTable.insert {
+                    it[id] = forespoerselKobling.forespoerselId
+                    it[ForespoerselTable.vedtaksperiodeId] = forespoerselKobling.vedtaksperiodeId
+                    it[ForespoerselTable.status] = Status.MOTTATT
+                    it[ForespoerselTable.forespoerselStatus] = forespoerselStatus
+                }
+            }
+        } catch (e: ExposedSQLException) {
+            sikkerLogger().error("Klarte ikke å opprette forespørsel sendt med id ${forespoerselKobling.forespoerselId} i databasen", e)
+            throw e
+        }
+    }
 }

@@ -16,4 +16,12 @@ class DokumentKoblingService(
     fun lageVedtaksperiodeSoeknadKobling(vedtaksperiodeSoeknad: VedtaksperiodeSoeknadKobling) {
         dokumentKoblingRepository.opprettVedtaksperiodeSoeknadKobling(vedtaksperiodeSoeknad)
     }
+
+    fun lagreForespoerselSendt(forespoerselSendt: ForespoerselSendt) {
+        dokumentKoblingRepository.opprettForespoerselSendt(forespoerselSendt)
+    }
+
+    fun lagreForespoerselUtgaatt(forespoerselUtgaatt: ForespoerselUtgaatt) {
+        dokumentKoblingRepository.opprettForespoerselUtgaatt(forespoerselUtgaatt)
+    }
 }
