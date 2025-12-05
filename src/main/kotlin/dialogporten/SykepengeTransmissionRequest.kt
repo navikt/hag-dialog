@@ -6,7 +6,6 @@ import no.nav.helsearbeidsgiver.dialogporten.domene.TransmissionRequest
 import no.nav.helsearbeidsgiver.kafka.Inntektsmelding
 import no.nav.helsearbeidsgiver.kafka.Sykepengesoeknad
 import no.nav.helsearbeidsgiver.kafka.Sykmelding
-import no.nav.helsearbeidsgiver.kafka.UtgaattInntektsmeldingForespoersel
 import java.util.UUID
 
 class SykmeldingTransmissionRequest(
@@ -46,12 +45,12 @@ class ForespoerselTransmissionRequest(
 }
 
 class UtgaattForespoerselTransmissionRequest(
-    utgaattInntektsmeldingForespoersel: UtgaattInntektsmeldingForespoersel,
+    forespoerselId: UUID,
     override val relatedTransmissionId: UUID? = null,
     override val attachments: List<Attachment>,
 ) : TransmissionRequest() {
     override val extendedType = LpsApiExtendedType.FORESPOERSEL_UTGAATT.toString()
-    override val dokumentId = utgaattInntektsmeldingForespoersel.forespoerselId
+    override val dokumentId = forespoerselId
     override val tittel = "Forespørsel er utgått"
     override val sammendrag = null
     override val type = Transmission.TransmissionType.Information

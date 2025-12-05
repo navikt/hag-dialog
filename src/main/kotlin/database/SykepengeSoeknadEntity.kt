@@ -10,6 +10,7 @@ import java.time.LocalDateTime
 import java.util.UUID
 
 object SykepengesoeknadTable : UUIDTable(name = "sykepengesoeknad", columnName = "soeknad_id") {
+    val soeknadId get() = id
     val sykmeldingId = uuid("sykmelding_id")
     val orgnr = varchar("orgnr", 9)
     val status = enumerationByName(name = "status", length = 50, klass = Status::class)
@@ -21,8 +22,7 @@ class SykepengesoeknadEntity(
 ) : UUIDEntity(id) {
     companion object : UUIDEntityClass<SykepengesoeknadEntity>(SykepengesoeknadTable)
 
-    val soeknadId: UUID
-        get() = id.value
+    val soeknadId: UUID get() = soeknadId
     val sykmeldingId by SykepengesoeknadTable.sykmeldingId
     val orgnr by SykepengesoeknadTable.orgnr
     val status by SykepengesoeknadTable.status

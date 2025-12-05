@@ -44,17 +44,24 @@ class DialogportenService(
         forespoerselId: UUID,
         sykmeldingId: UUID,
     ) {
-        forespoerselHandler.oppdaterDialog(
-            forespoerselId = forespoerselId,
-            sykmeldingId = sykmeldingId,
+        forespoerselHandler.oppdaterDialog(forespoerselId = forespoerselId, sykmeldingId = sykmeldingId)
+    }
+
+    fun oppdaterDialogMedUtgaattForespoersel(utgaattForespoersel: UtgaattInntektsmeldingForespoersel) {
+        oppdaterDialogMedUtgaattForespoersel(
+            forespoerselId = utgaattForespoersel.forespoerselId,
+            sykmeldingId = utgaattForespoersel.sykmeldingId,
         )
+    }
+
+    fun oppdaterDialogMedUtgaattForespoersel(
+        forespoerselId: UUID,
+        sykmeldingId: UUID,
+    ) {
+        utgaattForespoerselHandler.oppdaterDialog(forespoerselId = forespoerselId, sykmeldingId = sykmeldingId)
     }
 
     fun oppdaterDialogMedInntektsmelding(inntektsmelding: Inntektsmelding) {
         inntektsmeldingHandler.oppdaterDialog(inntektsmelding)
-    }
-
-    fun oppdaterDialogMedUtgaattForespoersel(utgaattForespoersel: UtgaattInntektsmeldingForespoersel) {
-        utgaattForespoerselHandler.oppdaterDialog(utgaattForespoersel)
     }
 }

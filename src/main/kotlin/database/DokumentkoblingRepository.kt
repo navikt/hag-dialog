@@ -12,6 +12,7 @@ import org.jetbrains.exposed.exceptions.ExposedSQLException
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.and
+import org.jetbrains.exposed.sql.innerJoin
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
@@ -181,21 +182,33 @@ class DokumentkoblingRepository(
                 .toList()
         }
 
-    fun hentForespoerslerMedStatusMottattKlarForBehandling(): List<ForespoerselSykmeldingKobling> =
+    fun hentForespoerselSykmeldingKoblinger(): List<ForespoerselSykmeldingKobling> =
         transaction(db) {
-            (ForespoerselTable innerJoin VedtaksperiodeSoeknadTable innerJoin SykepengesoeknadTable innerJoin SykmeldingTable)
-                .select(
+            ForespoerselTable
+                .innerJoin(
+                    VedtaksperiodeSoeknadTable,
+                    { ForespoerselTable.vedtaksperiodeId },
+                    { VedtaksperiodeSoeknadTable.vedtaksperiodeId },
+                ).innerJoin(
+                    SykepengesoeknadTable,
+                    { VedtaksperiodeSoeknadTable.soeknadId },
+                    { SykepengesoeknadTable.soeknadId },
+                ).innerJoin(
+                    SykmeldingTable,
+                    { SykepengesoeknadTable.sykmeldingId },
+                    { SykmeldingTable.sykmeldingId },
+                ).select(
                     ForespoerselTable.forespoerselId,
                     ForespoerselTable.forespoerselStatus,
                     VedtaksperiodeSoeknadTable.vedtaksperiodeId,
                     SykepengesoeknadTable.id,
                     SykmeldingTable.id,
                     SykmeldingTable.opprettet,
+                    SykmeldingTable.status,
+                    SykepengesoeknadTable.status,
                 ).orderBy(ForespoerselTable.opprettet to SortOrder.ASC)
                 .where {
-                    (ForespoerselTable.status eq Status.MOTTATT) and
-                        (SykmeldingTable.status eq Status.BEHANDLET) and
-                        (SykepengesoeknadTable.status eq Status.BEHANDLET)
+                    (ForespoerselTable.status eq Status.MOTTATT)
                 }.map {
                     ForespoerselSykmeldingKobling(
                         forespoerselId = it[ForespoerselTable.forespoerselId],
@@ -204,6 +217,8 @@ class DokumentkoblingRepository(
                         soeknadId = it[SykepengesoeknadTable.id].value,
                         sykmeldingId = it[SykmeldingTable.id].value,
                         sykmeldingOpprettet = it[SykmeldingTable.opprettet],
+                        sykmeldingStatus = it[SykmeldingTable.status],
+                        soeknadStatus = it[SykepengesoeknadTable.status],
                     )
                 }
         }
@@ -215,5 +230,7 @@ class DokumentkoblingRepository(
         val soeknadId: UUID,
         val sykmeldingId: UUID,
         val sykmeldingOpprettet: LocalDateTime,
+        val sykmeldingStatus: Status,
+        val soeknadStatus: Status,
     )
 }

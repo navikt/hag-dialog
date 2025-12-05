@@ -13,6 +13,7 @@ import java.time.LocalDateTime
 import java.util.UUID
 
 object SykmeldingTable : UUIDTable(name = "sykmelding", columnName = "sykmelding_id") {
+    val sykmeldingId get() = id
     val status = enumerationByName(name = "status", length = 50, klass = Status::class)
     val data = jsonb<Sykmelding>(name = "data", jsonConfig = jsonConfig, kSerializer = Sykmelding.serializer())
     val opprettet = datetime("opprettet").clientDefault { LocalDateTime.now() }
@@ -23,8 +24,7 @@ class SykmeldingEntity(
 ) : UUIDEntity(id) {
     companion object : UUIDEntityClass<SykmeldingEntity>(SykmeldingTable)
 
-    val sykmeldingId: UUID
-        get() = id.value
+    val sykmeldingId: UUID get() = sykmeldingId
     val status by SykmeldingTable.status
     val data by SykmeldingTable.data
     val opprettet by SykmeldingTable.opprettet

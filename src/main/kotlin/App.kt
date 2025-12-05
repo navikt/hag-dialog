@@ -1,5 +1,6 @@
 package no.nav.helsearbeidsgiver
 
+import dokumentkobling.DokumentkoblingService
 import dokumentkobling.SykepengeSoeknadJobb
 import dokumentkobling.SykmeldingJobb
 import dokumentkobling.startRecurringJobs
@@ -50,6 +51,7 @@ fun startServer() {
     logger.info("Setter opp DialogRepository...")
     val dialogRepository = DialogRepository(database.db)
     val dokumentkoblingRepository = DokumentkoblingRepository(database.db)
+    val dokumentKoblingSerivce = DokumentkoblingService(dokumentkoblingRepository)
     val dialogportenService =
         DialogportenService(
             dialogRepository = dialogRepository,
@@ -69,6 +71,7 @@ fun startServer() {
             ),
             ForespoerselJobb(
                 dokumentkoblingRepository = dokumentkoblingRepository,
+                dokumentkoblingService = dokumentKoblingSerivce,
                 dialogportenService = dialogportenService,
             ),
         )

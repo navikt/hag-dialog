@@ -1,17 +1,24 @@
+import dokumentkobling.DokumentkoblingService
 import dokumentkobling.Status
+import dokumentkobling.VedtaksperiodeSoeknadKobling
+import io.kotest.assertions.assertSoftly
+import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainOnly
+import io.kotest.matchers.collections.shouldNotBeEmpty
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import no.nav.helsearbeidsgiver.database.DokumentkoblingRepository
 import no.nav.helsearbeidsgiver.database.ForespoerselStatus
+import no.nav.helsearbeidsgiver.database.ForespoerselTable
 import no.nav.helsearbeidsgiver.database.SykepengesoeknadTable
 import no.nav.helsearbeidsgiver.database.SykmeldingTable
 import no.nav.helsearbeidsgiver.database.VedtaksperiodeSoeknadTable
 import java.util.UUID
 
 class DokumentkoblingTest :
-    FunSpecWithDb(listOf(SykepengesoeknadTable, SykmeldingTable, VedtaksperiodeSoeknadTable), { db ->
+    FunSpecWithDb(listOf(SykepengesoeknadTable, SykmeldingTable, VedtaksperiodeSoeknadTable, ForespoerselTable), { db ->
         val repository = DokumentkoblingRepository(db)
+        val service = DokumentkoblingService(repository)
 
         test("opprette og hente sykmelding") {
             val sykmelding = dokumentkoblingSykmelding
@@ -135,5 +142,80 @@ class DokumentkoblingTest :
             hentetEtterUtgaatt[0].forespoerselId shouldBe forespoerselSendt.forespoerselId
             hentetEtterUtgaatt[1].forespoerselId shouldBe forespoerselUtgaatt.forespoerselId
             hentetEtterUtgaatt[1].forespoerselStatus shouldBe ForespoerselStatus.UTGAATT
+        }
+
+        fun opprettDokumentkoblinger() {
+            repository.opprettSykmelding(dokumentkoblingSykmelding)
+            repository.opprettSykepengesoeknad(dokumentkoblingSoeknad)
+            repository.opprettVedtaksperiodeSoeknadKobling(dokumentkoblingVedtaksperiodeSoeknad)
+            repository.opprettForespoerselSendt(dokumentkoblingForespoerselSendt)
+            repository.opprettForespoerselUtgaatt(dokumentkoblingForespoerselUtgaatt)
+        }
+
+        test("hent forespoersel sykmelding kobling") {
+            opprettDokumentkoblinger()
+            dokumentkoblingSoeknad.let {
+                repository.settSykmeldingJobbTilBehandlet(sykmeldingId = it.sykmeldingId)
+                repository.settSykepengeSoeknadJobbTilBehandlet(soeknadId = it.soeknadId)
+            }
+
+            val hentet = repository.hentForespoerselSykmeldingKoblinger()
+
+            hentet.shouldNotBeEmpty()
+            assertSoftly(hentet[0]) {
+                sykmeldingId shouldBe dokumentkoblingSykmelding.sykmeldingId
+                soeknadId shouldBe dokumentkoblingSoeknad.soeknadId
+                forespoerselId shouldBe dokumentkoblingForespoerselSendt.forespoerselId
+                sykmeldingStatus shouldBe Status.BEHANDLET
+                soeknadStatus shouldBe Status.BEHANDLET
+                forespoerselStatus shouldBe ForespoerselStatus.SENDT
+            }
+            hentet[1].forespoerselStatus shouldBe ForespoerselStatus.UTGAATT
+        }
+
+        context("hent forespoersel sykmelding kobling returner med riktig status") {
+            test("når bare sykmelding er behandlet") {
+                opprettDokumentkoblinger()
+                repository.settSykmeldingJobbTilBehandlet(sykmeldingId = dokumentkoblingSoeknad.sykmeldingId)
+                val hentet = repository.hentForespoerselSykmeldingKoblinger()
+                hentet.shouldNotBeEmpty()
+                assertSoftly(hentet[0]) {
+                    sykmeldingStatus shouldBe Status.BEHANDLET
+                    soeknadStatus shouldBe Status.MOTTATT
+                }
+            }
+
+            test("når bare søknad er behandlet") {
+                opprettDokumentkoblinger()
+                repository.settSykepengeSoeknadJobbTilBehandlet(soeknadId = dokumentkoblingSoeknad.soeknadId)
+                val hentet = repository.hentForespoerselSykmeldingKoblinger()
+                hentet.shouldNotBeEmpty()
+                assertSoftly(hentet[0]) {
+                    sykmeldingStatus shouldBe Status.MOTTATT
+                    soeknadStatus shouldBe Status.BEHANDLET
+                }
+            }
+        }
+
+        test("hent forespoersel kobling returnerer ett result per sykmelding koblet til samme vedtaksperiode") {
+            opprettDokumentkoblinger()
+
+            // Opprett en ny sykmelding og søknad koblet til samme vedtaksperiode som har nyere opprettet-tidspunkt
+            val sykmeldingId2 = UUID.randomUUID()
+            val soeknadId2 = UUID.randomUUID()
+            repository.opprettSykmelding(dokumentkoblingSykmelding.copy(sykmeldingId = sykmeldingId2))
+            repository.opprettSykepengesoeknad(dokumentkoblingSoeknad.copy(sykmeldingId = sykmeldingId2, soeknadId = soeknadId2))
+            repository.opprettVedtaksperiodeSoeknadKobling(
+                VedtaksperiodeSoeknadKobling(
+                    vedtaksperiodeId = dokumentkoblingForespoerselSendt.vedtaksperiodeId,
+                    soeknadId = soeknadId2,
+                ),
+            )
+
+            val hentet = repository.hentForespoerselSykmeldingKoblinger()
+
+            hentet.size shouldBe 4
+            hentet[0].forespoerselStatus shouldBe ForespoerselStatus.SENDT
+            hentet[2].forespoerselStatus shouldBe ForespoerselStatus.UTGAATT
         }
     })
