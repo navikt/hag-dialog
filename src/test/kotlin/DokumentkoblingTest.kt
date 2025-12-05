@@ -2,7 +2,6 @@ import dokumentkobling.DokumentkoblingService
 import dokumentkobling.Status
 import dokumentkobling.VedtaksperiodeSoeknadKobling
 import io.kotest.assertions.assertSoftly
-import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldContainOnly
 import io.kotest.matchers.collections.shouldNotBeEmpty
 import io.kotest.matchers.nulls.shouldNotBeNull
