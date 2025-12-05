@@ -67,7 +67,7 @@ class DokumentkoblingTest :
             val sykmeldingId2 = UUID.randomUUID()
             repository.opprettSykmelding(sykmelding)
             repository.opprettSykmelding(sykmelding.copy(sykmeldingId = sykmeldingId2))
-            repository.settSykmeldingStatusTilBehandlet(sykmelding.sykmeldingId)
+            repository.settSykmeldingJobbTilBehandlet(sykmelding.sykmeldingId)
 
             val hentet = repository.henteSykemeldingerMedStatusMottatt()
             hentet.size shouldBe 1
@@ -79,7 +79,7 @@ class DokumentkoblingTest :
             val soeknadId2 = UUID.randomUUID()
             repository.opprettSykepengesoeknad(soeknad)
             repository.opprettSykepengesoeknad(soeknad.copy(soeknadId = soeknadId2))
-            repository.settSykepengeSoeknadStatusTilBehandlet(soeknad.soeknadId)
+            repository.settSykepengeSoeknadJobbTilBehandlet(soeknad.soeknadId)
 
             val hentet = repository.henteSykepengeSoeknaderMedStatusMottatt()
             hentet.size shouldBe 1

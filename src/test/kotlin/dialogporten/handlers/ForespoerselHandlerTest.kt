@@ -48,7 +48,10 @@ class ForespoerselHandlerTest :
             coEvery { dialogportenClientMock.addAction(any(), any(), any<GuiAction>()) } just Runs
             every { dialogRepositoryMock.oppdaterDialogMedTransmission(any(), any(), any(), any(), any()) } just Runs
 
-            forespoerselHandler.oppdaterDialog(inntektsmeldingsforespoersel)
+            forespoerselHandler.oppdaterDialog(
+                forespoerselId = inntektsmeldingsforespoersel.forespoerselId,
+                sykmeldingId = inntektsmeldingsforespoersel.sykmeldingId,
+            )
 
             coVerify(exactly = 1) { dialogportenClientMock.addTransmission(dialogId, any<TransmissionRequest>()) }
             coVerify(exactly = 1) { dialogportenClientMock.addAction(dialogId, any<ApiAction>(), any<GuiAction>()) }
@@ -67,7 +70,10 @@ class ForespoerselHandlerTest :
         test("skal ikke oppdatere dialog når dialog ikke finnes") {
             every { dialogRepositoryMock.finnDialogMedSykemeldingId(inntektsmeldingsforespoersel.sykmeldingId) } returns null
 
-            forespoerselHandler.oppdaterDialog(inntektsmeldingsforespoersel)
+            forespoerselHandler.oppdaterDialog(
+                forespoerselId = inntektsmeldingsforespoersel.forespoerselId,
+                sykmeldingId = inntektsmeldingsforespoersel.sykmeldingId,
+            )
 
             verify(exactly = 1) { dialogRepositoryMock.finnDialogMedSykemeldingId(inntektsmeldingsforespoersel.sykmeldingId) }
             coVerify(exactly = 0) { dialogportenClientMock.addTransmission(any(), any<TransmissionRequest>()) }

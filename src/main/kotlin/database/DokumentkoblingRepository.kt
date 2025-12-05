@@ -78,17 +78,24 @@ class DokumentkoblingRepository(
             }
         }
 
-    fun settSykmeldingStatusTilBehandlet(sykmeldingId: UUID): Unit =
+    fun settSykmeldingJobbTilBehandlet(sykmeldingId: UUID): Unit =
         transaction(db) {
             SykmeldingTable.update({ SykmeldingTable.id eq sykmeldingId }) {
                 it[SykmeldingTable.status] = Status.BEHANDLET
             }
         }
 
-    fun settSykepengeSoeknadStatusTilBehandlet(soeknadId: UUID): Unit =
+    fun settSykepengeSoeknadJobbTilBehandlet(soeknadId: UUID): Unit =
         transaction(db) {
             SykepengesoeknadTable.update({ SykepengesoeknadTable.id eq soeknadId }) {
                 it[SykepengesoeknadTable.status] = Status.BEHANDLET
+            }
+        }
+
+    fun settForespoerselJobbTilBehandlet(forespoerselId: UUID): Unit =
+        transaction(db) {
+            ForespoerselTable.update({ ForespoerselTable.forespoerselId eq forespoerselId }) {
+                it[ForespoerselTable.status] = Status.BEHANDLET
             }
         }
 

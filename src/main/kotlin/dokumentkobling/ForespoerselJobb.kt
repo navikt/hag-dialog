@@ -6,7 +6,6 @@ import kotlinx.coroutines.Dispatchers
 import no.nav.hag.utils.bakgrunnsjobb.RecurringJob
 import no.nav.helsearbeidsgiver.database.DokumentkoblingRepository
 import no.nav.helsearbeidsgiver.database.ForespoerselStatus
-import no.nav.helsearbeidsgiver.database.ForespoerselTable.forespoerselStatus
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
 import no.nav.helsearbeidsgiver.kafka.UtgaattInntektsmeldingForespoersel
 import no.nav.helsearbeidsgiver.utils.log.logger
@@ -19,17 +18,19 @@ class ForespoerselJobb(
     private val dialogportenService: DialogportenService,
 ) : RecurringJob(CoroutineScope(Dispatchers.IO), Duration.ofSeconds(30).toMillis()) {
     override fun doJob() {
-        val forespoersler = dokumentkoblingRepository.hentForespoerslerMedStatusMottattKlarForBehandling()
-        val forespoerslerGruppert = forespoersler.groupBy { it.vedtaksperiodeId }
+        val forespoerslerGruppertEtterVedtaksperiode =
+            dokumentkoblingRepository
+                .hentForespoerslerMedStatusMottattKlarForBehandling()
+                .groupBy { it.vedtaksperiodeId }
 
-        forespoerslerGruppert.forEach { (_, forespoersler) ->
-
+        forespoerslerGruppertEtterVedtaksperiode.forEach { (vedtaksperiodeId, forespoersler) ->
             try {
                 forespoersler.forEach { forespoersel ->
                     dialogportenService.opprettTransmissionForForespoersel(forespoersel)
+                    dokumentkoblingRepository.settForespoerselJobbTilBehandlet(forespoerselId = forespoersel.forespoerselId)
                 }
             } catch (e: Exception) {
-                "Feil ved behandling av forespørsel for vedtaksperiode ${forespoersler.first().vedtaksperiodeId}".also {
+                "Feil ved behandling av forespørsel for vedtaksperiode $vedtaksperiodeId".also {
                     logger.error(it)
                     sikkerLogger().error(it, e)
                 }

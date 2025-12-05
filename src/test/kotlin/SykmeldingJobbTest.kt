@@ -29,7 +29,7 @@ class SykmeldingJobbTest :
             clearAllMocks()
             every { repository.henteSykemeldingerMedStatusMottatt() } returns listOf(dokumentkoblingSykmelding)
             every { dialogportenService.opprettOgLagreDialog(any()) } just runs
-            every { repository.settSykmeldingStatusTilBehandlet(any()) } just runs
+            every { repository.settSykmeldingJobbTilBehandlet(any()) } just runs
         }
 
         test("sykmeldingjobb henter sykmelding med status mottatt, oppretter dialog og setter status til BEHANDLET") {
@@ -38,7 +38,7 @@ class SykmeldingJobbTest :
 
             verify(exactly = 1) { repository.henteSykemeldingerMedStatusMottatt() }
             verify(exactly = 1) { dialogportenService.opprettOgLagreDialog(match { it.sykmeldingId == sykmeldingId }) }
-            verify(exactly = 1) { repository.settSykmeldingStatusTilBehandlet(sykmeldingId) }
+            verify(exactly = 1) { repository.settSykmeldingJobbTilBehandlet(sykmeldingId) }
         }
 
         test("sykmeldingjobb skal oprette dialog for sykmelding #2 selv om sykmelding #1 feiler") {
@@ -57,6 +57,6 @@ class SykmeldingJobbTest :
             sykmeldingJobb.doJob()
             verify(exactly = 1) { repository.henteSykemeldingerMedStatusMottatt() }
             verify(exactly = 2) { dialogportenService.opprettOgLagreDialog(any()) }
-            verify(exactly = 1) { repository.settSykmeldingStatusTilBehandlet(sykmeldingId) }
+            verify(exactly = 1) { repository.settSykmeldingJobbTilBehandlet(sykmeldingId) }
         }
     })
