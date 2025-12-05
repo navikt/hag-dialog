@@ -1,6 +1,7 @@
 package dokumentkobling
 
 import no.nav.helsearbeidsgiver.database.DokumentkoblingRepository
+import no.nav.helsearbeidsgiver.database.DokumentkoblingRepository.ForespoerselSykmeldingKobling
 
 class DokumentkoblingService(
     private val dokumentkoblingRepository: DokumentkoblingRepository,
@@ -24,4 +25,16 @@ class DokumentkoblingService(
     fun lagreForespoerselUtgaatt(forespoerselUtgaatt: ForespoerselUtgaatt) {
         dokumentkoblingRepository.opprettForespoerselUtgaatt(forespoerselUtgaatt)
     }
+
+    fun hentForespoerslerKlarForBehandling(): List<ForespoerselSykmeldingKobling> =
+        dokumentkoblingRepository
+            .hentForespoerselSykmeldingKoblinger()
+            .filter { it.sykmeldingStatus == Status.BEHANDLET }
+            .filter { it.soeknadStatus == Status.BEHANDLET }
+            .velgNyesteSykmeldingPerForespoersel()
+
+    fun List<ForespoerselSykmeldingKobling>.velgNyesteSykmeldingPerForespoersel(): List<ForespoerselSykmeldingKobling> =
+        this
+            .sortedByDescending { it.sykmeldingOpprettet }
+            .distinctBy { it.forespoerselId }
 }

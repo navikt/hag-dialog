@@ -19,7 +19,7 @@ class SykmeldingJobb(
         sykmeldinger.forEach { sykmelding ->
             try {
                 dialogportenService.opprettDialogForSykmelding(sykmelding)
-                dokumentkoblingRepository.settSykmeldingStatusTilBehandlet(sykmelding.sykmeldingId)
+                dokumentkoblingRepository.settSykmeldingJobbTilBehandlet(sykmelding.sykmeldingId)
             } catch (e: Exception) {
                 "Feil ved behandling av sykmelding med id ${sykmelding.sykmeldingId}".also {
                     logger.error(it)
