@@ -206,13 +206,13 @@ class DokumentkoblingRepository(
                     SykmeldingTable.opprettet,
                     SykmeldingTable.status,
                     SykepengesoeknadTable.status,
-                ).orderBy(ForespoerselTable.opprettet to SortOrder.ASC)
-                .where {
+                ).where {
                     (ForespoerselTable.status eq Status.MOTTATT)
                 }.map {
                     ForespoerselSykmeldingKobling(
                         forespoerselId = it[ForespoerselTable.forespoerselId],
                         forespoerselStatus = it[ForespoerselTable.forespoerselStatus],
+                        forespoerselOpprettet = it[ForespoerselTable.opprettet],
                         vedtaksperiodeId = it[VedtaksperiodeSoeknadTable.vedtaksperiodeId],
                         soeknadId = it[SykepengesoeknadTable.id].value,
                         sykmeldingId = it[SykmeldingTable.id].value,
@@ -226,6 +226,7 @@ class DokumentkoblingRepository(
     data class ForespoerselSykmeldingKobling(
         val forespoerselId: UUID,
         val forespoerselStatus: ForespoerselStatus,
+        val forespoerselOpprettet: LocalDateTime,
         val vedtaksperiodeId: UUID,
         val soeknadId: UUID,
         val sykmeldingId: UUID,

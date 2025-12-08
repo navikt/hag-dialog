@@ -2,6 +2,7 @@ package dokumentkobling
 
 import no.nav.helsearbeidsgiver.database.DokumentkoblingRepository
 import no.nav.helsearbeidsgiver.database.DokumentkoblingRepository.ForespoerselSykmeldingKobling
+import kotlin.collections.get
 
 class DokumentkoblingService(
     private val dokumentkoblingRepository: DokumentkoblingRepository,
@@ -32,9 +33,10 @@ class DokumentkoblingService(
             .filter { it.sykmeldingStatus == Status.BEHANDLET }
             .filter { it.soeknadStatus == Status.BEHANDLET }
             .velgNyesteSykmeldingPerForespoersel()
+            .sortedBy { it.forespoerselOpprettet }
 
-    fun List<ForespoerselSykmeldingKobling>.velgNyesteSykmeldingPerForespoersel(): List<ForespoerselSykmeldingKobling> =
+    private fun List<ForespoerselSykmeldingKobling>.velgNyesteSykmeldingPerForespoersel(): List<ForespoerselSykmeldingKobling> =
         this
             .sortedByDescending { it.sykmeldingOpprettet }
-            .distinctBy { it.forespoerselId }
+            .distinctBy { Pair(it.forespoerselId, it.forespoerselStatus) }
 }
