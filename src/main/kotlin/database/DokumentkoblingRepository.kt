@@ -200,13 +200,15 @@ class DokumentkoblingRepository(
                 ).select(
                     ForespoerselTable.forespoerselId,
                     ForespoerselTable.forespoerselStatus,
+                    ForespoerselTable.opprettet,
                     VedtaksperiodeSoeknadTable.vedtaksperiodeId,
                     SykepengesoeknadTable.id,
                     SykmeldingTable.id,
                     SykmeldingTable.opprettet,
                     SykmeldingTable.status,
                     SykepengesoeknadTable.status,
-                ).where {
+                ).orderBy(ForespoerselTable.opprettet to SortOrder.ASC)
+                .where {
                     (ForespoerselTable.status eq Status.MOTTATT)
                 }.map {
                     ForespoerselSykmeldingKobling(

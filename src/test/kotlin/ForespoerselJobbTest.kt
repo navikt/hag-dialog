@@ -137,6 +137,7 @@ fun lagKobling(): DokumentkoblingRepository.ForespoerselSykmeldingKobling =
     DokumentkoblingRepository.ForespoerselSykmeldingKobling(
         forespoerselId = UUID.randomUUID(),
         forespoerselStatus = ForespoerselStatus.SENDT,
+        forespoerselOpprettet = LocalDateTime.now(),
         vedtaksperiodeId = UUID.randomUUID(),
         soeknadId = UUID.randomUUID(),
         sykmeldingId = UUID.randomUUID(),

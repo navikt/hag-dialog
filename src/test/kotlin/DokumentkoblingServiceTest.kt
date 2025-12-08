@@ -3,7 +3,6 @@ package dokumentkobling
 import io.kotest.assertions.assertSoftly
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
-import io.kotest.matchers.collections.shouldContainExactly
 import io.kotest.matchers.collections.shouldHaveSize
 import io.kotest.matchers.shouldBe
 import io.mockk.clearAllMocks
@@ -63,7 +62,7 @@ class DokumentkoblingServiceTest :
             forespoersler.first().forespoerselId shouldBe forespoerselId
         }
 
-        test("hentForespoerslerKlarForBehandling skal velge nyeste sykmelding per forespørsel dersom de har samme forespoerselStatus") {
+        test("hentForespoerslerKlarForBehandling skal velge nyeste sykmelding per forespørsel") {
             val forespoerselId = UUID.randomUUID()
             val vedtaksperiodeId = UUID.randomUUID()
             val gammelSykmeldingId = UUID.randomUUID()
@@ -96,35 +95,14 @@ class DokumentkoblingServiceTest :
             forespoersler.first().sykmeldingId shouldBe nySykmeldingId
         }
 
-        test(
-            "1hentForespoerslerKlarForBehandling skal beholde forespørsel-sykmeldingkobling med samme forespørselId og nyeste sykmeldingOpprettet hvis forespørselStatus er ulik",
-        ) {
-            val forespoerselId = UUID.randomUUID()
-            val vedtaksperiodeId = UUID.randomUUID()
+        test("hentForespoerslerKlarForBehandling skal beholde kobling hvis forespørselStatus er ulik") {
+            val kobling = lagKobling(forespoerselStatus = ForespoerselStatus.SENDT)
 
-            val sykmeldingOpprettet = LocalDateTime.now().minusDays(3)
-
-            val sykmeldingId = UUID.randomUUID()
-
-            val koblinger =
+            every { dokumentkoblingRepository.hentForespoerselSykmeldingKoblinger() } returns
                 listOf(
-                    lagKobling(
-                        forespoerselId = forespoerselId,
-                        forespoerselStatus = ForespoerselStatus.SENDT,
-                        vedtaksperiodeId = vedtaksperiodeId,
-                        sykmeldingId = sykmeldingId,
-                        sykmeldingOpprettet = sykmeldingOpprettet,
-                    ),
-                    lagKobling(
-                        forespoerselId = forespoerselId,
-                        forespoerselStatus = ForespoerselStatus.UTGAATT,
-                        vedtaksperiodeId = vedtaksperiodeId,
-                        sykmeldingId = sykmeldingId,
-                        sykmeldingOpprettet = sykmeldingOpprettet,
-                    ),
+                    kobling,
+                    kobling.copy(forespoerselStatus = ForespoerselStatus.UTGAATT),
                 )
-
-            every { dokumentkoblingRepository.hentForespoerselSykmeldingKoblinger() } returns koblinger
 
             val service = DokumentkoblingService(dokumentkoblingRepository)
             val forespoersler = service.hentForespoerslerKlarForBehandling()
@@ -133,71 +111,10 @@ class DokumentkoblingServiceTest :
 
             assertSoftly(forespoersler) {
                 it shouldHaveSize 2
-                first().sykmeldingId shouldBe sykmeldingId
+                first().sykmeldingId shouldBe kobling.sykmeldingId
                 first().forespoerselStatus shouldBe ForespoerselStatus.SENDT
 
-                last().sykmeldingId shouldBe sykmeldingId
-                last().forespoerselStatus shouldBe ForespoerselStatus.UTGAATT
-            }
-        }
-
-        test(
-            "hentForespoerslerKlarForBehandling skal beholde forespørsel-sykmeldingkobling med samme forespørselId og nyeste sykmeldingOpprettet hvis forespørselStatus er ulik",
-        ) {
-            val forespoerselId = UUID.randomUUID()
-            val vedtaksperiodeId = UUID.randomUUID()
-
-            val gammelSykmeldingId = UUID.randomUUID()
-            val gammelSykmeldingOpprettet = LocalDateTime.now().minusDays(3)
-
-            val nySykmeldingId = UUID.randomUUID()
-            val nySykmeldingOpprettet = LocalDateTime.now()
-
-            val koblinger =
-                listOf(
-                    lagKobling(
-                        forespoerselId = forespoerselId,
-                        forespoerselStatus = ForespoerselStatus.SENDT,
-                        vedtaksperiodeId = vedtaksperiodeId,
-                        sykmeldingId = gammelSykmeldingId,
-                        sykmeldingOpprettet = gammelSykmeldingOpprettet,
-                    ),
-                    lagKobling(
-                        forespoerselId = forespoerselId,
-                        forespoerselStatus = ForespoerselStatus.UTGAATT,
-                        vedtaksperiodeId = vedtaksperiodeId,
-                        sykmeldingId = gammelSykmeldingId,
-                        sykmeldingOpprettet = gammelSykmeldingOpprettet,
-                    ),
-                    lagKobling(
-                        forespoerselId = forespoerselId,
-                        forespoerselStatus = ForespoerselStatus.SENDT,
-                        vedtaksperiodeId = vedtaksperiodeId,
-                        sykmeldingId = nySykmeldingId,
-                        sykmeldingOpprettet = nySykmeldingOpprettet,
-                    ),
-                    lagKobling(
-                        forespoerselId = forespoerselId,
-                        forespoerselStatus = ForespoerselStatus.UTGAATT,
-                        vedtaksperiodeId = vedtaksperiodeId,
-                        sykmeldingId = nySykmeldingId,
-                        sykmeldingOpprettet = nySykmeldingOpprettet,
-                    ),
-                )
-
-            every { dokumentkoblingRepository.hentForespoerselSykmeldingKoblinger() } returns koblinger
-
-            val service = DokumentkoblingService(dokumentkoblingRepository)
-            val forespoersler = service.hentForespoerslerKlarForBehandling()
-
-            forespoersler shouldHaveSize 2
-
-            assertSoftly(forespoersler) {
-                it shouldHaveSize 2
-                first().sykmeldingId shouldBe nySykmeldingId
-                first().forespoerselStatus shouldBe ForespoerselStatus.SENDT
-
-                last().sykmeldingId shouldBe nySykmeldingId
+                last().sykmeldingId shouldBe kobling.sykmeldingId
                 last().forespoerselStatus shouldBe ForespoerselStatus.UTGAATT
             }
         }
@@ -207,7 +124,6 @@ class DokumentkoblingServiceTest :
                 listOf(
                     lagKobling(
                         sykmeldingStatus = Status.MOTTATT,
-                        soeknadStatus = Status.MOTTATT,
                     ),
                 )
 
@@ -219,50 +135,16 @@ class DokumentkoblingServiceTest :
             forespoersler.shouldBeEmpty()
         }
 
-        test(
-            "hentForespoerslerKlarForBehandling skal håndtere flere forespørsler og velge nyeste sykmelding per forespørsel dersom de har samme forespoerselStatus",
-        ) {
-            val forespoerselId1 = UUID.randomUUID()
-            val forespoerselId2 = UUID.randomUUID()
-            val sykmeldingId1 = UUID.randomUUID()
-            val nyesteSykmeldingOpprettet1 = LocalDateTime.now()
-            val sykmeldingId2 = UUID.randomUUID()
-            val nyesteSykmeldingOpprettet2 = LocalDateTime.now().minusDays(1)
+        test("hentForespoerslerKlarForBehandling skal returnere sortert liste etter forespoerselOpprettet") {
+            val antallKoblinger = 100
+            val koblingerTilfeldigSortert = List(antallKoblinger) { lagKobling() }.sortedBy { it.forespoerselId }
 
-            val koblinger =
-                listOf(
-                    lagKobling(
-                        forespoerselId = forespoerselId1,
-                        sykmeldingId = sykmeldingId1,
-                        sykmeldingOpprettet = nyesteSykmeldingOpprettet1,
-                    ),
-                    lagKobling(
-                        forespoerselId = forespoerselId1,
-                        sykmeldingOpprettet = LocalDateTime.now().minusDays(3),
-                    ),
-                    lagKobling(
-                        forespoerselId = forespoerselId1,
-                        sykmeldingOpprettet = LocalDateTime.now().minusDays(7),
-                    ),
-                    lagKobling(
-                        forespoerselId = forespoerselId2,
-                        sykmeldingId = sykmeldingId2,
-                        sykmeldingOpprettet = nyesteSykmeldingOpprettet2,
-                    ),
-                    lagKobling(
-                        forespoerselId = forespoerselId2,
-                        sykmeldingId = sykmeldingId2,
-                        sykmeldingOpprettet = LocalDateTime.now().minusDays(1337),
-                    ),
-                )
-
-            every { dokumentkoblingRepository.hentForespoerselSykmeldingKoblinger() } returns koblinger
+            every { dokumentkoblingRepository.hentForespoerselSykmeldingKoblinger() } returns koblingerTilfeldigSortert
 
             val service = DokumentkoblingService(dokumentkoblingRepository)
             val forespoersler = service.hentForespoerslerKlarForBehandling()
 
-            forespoersler shouldHaveSize 2
-            forespoersler.map { it.sykmeldingId } shouldContainExactly listOf(sykmeldingId1, sykmeldingId2)
-            forespoersler.map { it.sykmeldingOpprettet } shouldContainExactly listOf(nyesteSykmeldingOpprettet1, nyesteSykmeldingOpprettet2)
+            forespoersler shouldHaveSize antallKoblinger
+            forespoersler shouldBe koblingerTilfeldigSortert.sortedBy { it.forespoerselOpprettet }
         }
     })
