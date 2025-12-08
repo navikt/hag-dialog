@@ -17,13 +17,11 @@ import java.util.UUID
 
 class ForespoerselJobbTest :
     FunSpec({
-        val repository = mockk<DokumentkoblingRepository>()
         val dialogportenService = mockk<DialogportenService>(relaxed = true)
         val dokumentKoblingService = mockk<DokumentkoblingService>(relaxed = true)
 
         val forespoerselJobb =
             ForespoerselJobb(
-                dokumentkoblingRepository = repository,
                 dokumentkoblingService = dokumentKoblingService,
                 dialogportenService = dialogportenService,
             )
@@ -37,13 +35,13 @@ class ForespoerselJobbTest :
 
         beforeTest {
             clearAllMocks()
-            every { repository.hentForespoerselSykmeldingKoblinger() } returns emptyList()
+            every { dokumentKoblingService.hentForespoerslerKlarForBehandling() } returns emptyList()
             every { dialogportenService.oppdaterDialogMedInntektsmeldingsforespoersel(any(), any()) } just runs
-            every { repository.settForespoerselJobbTilBehandlet(any()) } just runs
+            every { dokumentKoblingService.settForespoerselJobbTilBehandlet(any()) } just runs
         }
 
         test("forespoerselJobb skal opprette transmissions for forespørsler og sette status til BEHANDLET") {
-            every { repository.hentForespoerselSykmeldingKoblinger() } returns
+            every { dokumentKoblingService.hentForespoerslerKlarForBehandling() } returns
                 listOf(
                     kobling,
                     koblingMedSammeVedtaksperiodeId,
@@ -53,14 +51,14 @@ class ForespoerselJobbTest :
             forespoerselJobb.doJob()
 
             verifySequence {
-                repository.hentForespoerselSykmeldingKoblinger()
+                dokumentKoblingService.hentForespoerslerKlarForBehandling()
 
                 listOf(kobling, koblingMedSammeVedtaksperiodeId, koblingForEnHeltAnnenSak).forEach {
                     dialogportenService.oppdaterDialogMedInntektsmeldingsforespoersel(
                         it.forespoerselId,
                         it.sykmeldingId,
                     )
-                    repository.settForespoerselJobbTilBehandlet(it.forespoerselId)
+                    dokumentKoblingService.settForespoerselJobbTilBehandlet(it.forespoerselId)
                 }
             }
         }
@@ -68,15 +66,15 @@ class ForespoerselJobbTest :
         test("forespoerselJobb skal ikke behandle forespørsler når den ikke finner noen som er klare for behandling") {
             forespoerselJobb.doJob()
 
-            verify(exactly = 1) { repository.hentForespoerselSykmeldingKoblinger() }
+            verify(exactly = 1) { dokumentKoblingService.hentForespoerslerKlarForBehandling() }
             verify(exactly = 0) { dialogportenService.oppdaterDialogMedInntektsmeldingsforespoersel(any(), any()) }
-            verify(exactly = 0) { repository.settForespoerselJobbTilBehandlet(any()) }
+            verify(exactly = 0) { dokumentKoblingService.settForespoerselJobbTilBehandlet(any()) }
         }
 
         test(
             "forespoerselJobb skal fortsette å behandle forespørsler for andre vedtaksperioder når en av forespørslene for én vedtaksperiode feiler",
         ) {
-            every { repository.hentForespoerselSykmeldingKoblinger() } returns
+            every { dokumentKoblingService.hentForespoerslerKlarForBehandling() } returns
                 listOf(
                     kobling,
                     koblingMedSammeVedtaksperiodeId,
@@ -92,7 +90,7 @@ class ForespoerselJobbTest :
 
             forespoerselJobb.doJob()
 
-            verify(exactly = 1) { repository.hentForespoerselSykmeldingKoblinger() }
+            verify(exactly = 1) { dokumentKoblingService.hentForespoerslerKlarForBehandling() }
 
             // Verifiser at vi forsøkte å behandle den første forespørselen
             verify(exactly = 1) {
@@ -126,11 +124,11 @@ class ForespoerselJobbTest :
 
             // Verifiser at vi kun satte den tredje forespørselen til BEHANDLET
             verify(exactly = 0) {
-                repository.settForespoerselJobbTilBehandlet(kobling.forespoerselId)
-                repository.settForespoerselJobbTilBehandlet(koblingMedSammeVedtaksperiodeId.forespoerselId)
+                dokumentKoblingService.settForespoerselJobbTilBehandlet(kobling.forespoerselId)
+                dokumentKoblingService.settForespoerselJobbTilBehandlet(koblingMedSammeVedtaksperiodeId.forespoerselId)
             }
             verify(exactly = 1) {
-                repository.settForespoerselJobbTilBehandlet(koblingForEnHeltAnnenSak.forespoerselId)
+                dokumentKoblingService.settForespoerselJobbTilBehandlet(koblingForEnHeltAnnenSak.forespoerselId)
             }
         }
     })

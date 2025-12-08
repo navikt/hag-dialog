@@ -70,7 +70,6 @@ fun startServer() {
                 dialogportenService = dialogportenService,
             ),
             ForespoerselJobb(
-                dokumentkoblingRepository = dokumentkoblingRepository,
                 dokumentkoblingService = dokumentKoblingSerivce,
                 dialogportenService = dialogportenService,
             ),

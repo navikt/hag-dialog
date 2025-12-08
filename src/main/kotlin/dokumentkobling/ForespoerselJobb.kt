@@ -11,7 +11,6 @@ import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import java.time.Duration
 
 class ForespoerselJobb(
-    private val dokumentkoblingRepository: DokumentkoblingRepository,
     private val dokumentkoblingService: DokumentkoblingService,
     private val dialogportenService: DialogportenService,
 ) : RecurringJob(CoroutineScope(Dispatchers.IO), Duration.ofSeconds(30).toMillis()) {
@@ -25,7 +24,7 @@ class ForespoerselJobb(
             try {
                 forespoersler.forEach { forespoersel ->
                     dialogportenService.opprettTransmissionForForespoersel(forespoersel)
-                    dokumentkoblingRepository.settForespoerselJobbTilBehandlet(forespoerselId = forespoersel.forespoerselId)
+                    dokumentkoblingService.settForespoerselJobbTilBehandlet(forespoerselId = forespoersel.forespoerselId)
                 }
             } catch (e: Exception) {
                 "Feil ved behandling av forespørsel for vedtaksperiode $vedtaksperiodeId".also {
