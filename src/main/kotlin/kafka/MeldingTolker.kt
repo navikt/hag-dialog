@@ -34,14 +34,7 @@ class MeldingTolker(
                 }
 
                 is Inntektsmeldingsforespoersel -> {
-                    if (unleashFeatureToggles.skalOppdatereDialogVedMottattInntektsmeldingsforespoersel(orgnr = dekodetMelding.orgnr)) {
-                        dialogportenService.oppdaterDialogMedInntektsmeldingsforespoersel(inntektsmeldingsforespoersel = dekodetMelding)
-                    } else {
-                        logger.info(
-                            "Feature toggle for oppdatering av dialog med forespørsel om inntektsmelding er avskrudd, " +
-                                "ignorerer melding for forespørselId ${dekodetMelding.forespoerselId}.",
-                        )
-                    }
+                    logger.info("Ignorerer forespoersel sendt med id: ${dekodetMelding.forespoerselId} på dialog topic")
                 }
 
                 is Inntektsmelding -> {
@@ -56,14 +49,7 @@ class MeldingTolker(
                 }
 
                 is UtgaattInntektsmeldingForespoersel -> {
-                    if (unleashFeatureToggles.skalOppdatereDialogVedMottattInntektsmeldingsforespoersel(orgnr = dekodetMelding.orgnr)) {
-                        dialogportenService.oppdaterDialogMedUtgaattForespoersel(utgaattForespoersel = dekodetMelding)
-                    } else {
-                        logger.info(
-                            "Feature toggle for oppdatering av dialog med oppdatert forespørsel om inntektsmelding er avskrudd, " +
-                                "ignorerer melding for forespørselId ${dekodetMelding.forespoerselId}.",
-                        )
-                    }
+                    logger.info("Ignorerer forespoersel utgatt med id: ${dekodetMelding.forespoerselId} på dialog topic")
                 }
             }
         }.getOrElse { e ->

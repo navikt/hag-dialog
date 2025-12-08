@@ -32,10 +32,11 @@ class DokumentkoblingService(
             .hentForespoerselSykmeldingKoblinger()
             .filter { it.sykmeldingStatus == Status.BEHANDLET }
             .filter { it.soeknadStatus == Status.BEHANDLET }
-            .velgNyesteSykmeldingPerForespoersel()
+            .filtrerNyesteSykmeldingPerForespoersel()
             .sortedBy { it.forespoerselOpprettet }
 
-    private fun List<ForespoerselSykmeldingKobling>.velgNyesteSykmeldingPerForespoersel(): List<ForespoerselSykmeldingKobling> =
+    // Dette gjøres fordi forespoersel skal koble seg til nyeste sykmelding dialogen (i tilfeller der en forespoersel er koblet til flere sykmeldinger)
+    private fun List<ForespoerselSykmeldingKobling>.filtrerNyesteSykmeldingPerForespoersel(): List<ForespoerselSykmeldingKobling> =
         this
             .sortedByDescending { it.sykmeldingOpprettet }
             .distinctBy { Pair(it.forespoerselId, it.forespoerselStatus) }
