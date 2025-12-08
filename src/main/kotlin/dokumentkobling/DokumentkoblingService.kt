@@ -2,7 +2,7 @@ package dokumentkobling
 
 import no.nav.helsearbeidsgiver.database.DokumentkoblingRepository
 import no.nav.helsearbeidsgiver.database.DokumentkoblingRepository.ForespoerselSykmeldingKobling
-import kotlin.collections.get
+import java.util.UUID
 
 class DokumentkoblingService(
     private val dokumentkoblingRepository: DokumentkoblingRepository,
@@ -39,4 +39,8 @@ class DokumentkoblingService(
         this
             .sortedByDescending { it.sykmeldingOpprettet }
             .distinctBy { Pair(it.forespoerselId, it.forespoerselStatus) }
+
+    fun settForespoerselJobbTilBehandlet(forespoerselId: UUID) {
+        dokumentkoblingRepository.settForespoerselJobbTilBehandlet(forespoerselId)
+    }
 }
