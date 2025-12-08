@@ -196,7 +196,7 @@ class DokumentkoblingTest :
             }
         }
 
-        test("hentForespoerselSykmeldingKoblinger() returnerer ett result per sykmelding koblet til forespørsel") {
+        test("hentForespoerselSykmeldingKoblinger() returnerer ett resultat per sykmelding koblet til forespørsel") {
             val vedtaksperiodeId = UUID.randomUUID()
             val forespoerselId = UUID.randomUUID()
 
