@@ -21,6 +21,7 @@ class DokumentkoblingServiceTest :
         }
 
         val dokumentkoblingRepository = mockk<DokumentkoblingRepository>(relaxed = true)
+        val dokumentkoblingService = DokumentkoblingService(dokumentkoblingRepository)
 
         fun lagKobling(
             forespoerselId: UUID = UUID.randomUUID(),
@@ -54,58 +55,34 @@ class DokumentkoblingServiceTest :
                 )
 
             every { dokumentkoblingRepository.hentForespoerselSykmeldingKoblinger() } returns koblinger
-
-            val service = DokumentkoblingService(dokumentkoblingRepository)
-            val forespoersler = service.hentForespoerslerKlarForBehandling()
+            val forespoersler = dokumentkoblingService.hentForespoerslerKlarForBehandling()
 
             forespoersler shouldHaveSize 1
             forespoersler.first().forespoerselId shouldBe forespoerselId
         }
 
         test("hentForespoerslerKlarForBehandling skal velge nyeste sykmelding per forespørsel") {
-            val forespoerselId = UUID.randomUUID()
-            val vedtaksperiodeId = UUID.randomUUID()
-            val gammelSykmeldingId = UUID.randomUUID()
-            val nySykmeldingId = UUID.randomUUID()
-
-            val koblinger =
-                listOf(
-                    lagKobling(
-                        forespoerselId = forespoerselId,
-                        forespoerselStatus = ForespoerselStatus.SENDT,
-                        vedtaksperiodeId = vedtaksperiodeId,
-                        sykmeldingId = gammelSykmeldingId,
-                        sykmeldingOpprettet = LocalDateTime.now().minusDays(3),
-                    ),
-                    lagKobling(
-                        forespoerselId = forespoerselId,
-                        forespoerselStatus = ForespoerselStatus.SENDT,
-                        vedtaksperiodeId = vedtaksperiodeId,
-                        sykmeldingId = nySykmeldingId,
-                        sykmeldingOpprettet = LocalDateTime.now(),
-                    ),
+            val nySykmeldingKobling = lagKobling()
+            val gammelSykmeldingKobling =
+                nySykmeldingKobling.copy(
+                    sykmeldingId = UUID.randomUUID(),
+                    sykmeldingOpprettet = LocalDateTime.now().minusDays(3),
                 )
 
+            val koblinger = listOf(nySykmeldingKobling, gammelSykmeldingKobling)
             every { dokumentkoblingRepository.hentForespoerselSykmeldingKoblinger() } returns koblinger
-
-            val service = DokumentkoblingService(dokumentkoblingRepository)
-            val forespoersler = service.hentForespoerslerKlarForBehandling()
+            val forespoersler = dokumentkoblingService.hentForespoerslerKlarForBehandling()
 
             forespoersler shouldHaveSize 1
-            forespoersler.first().sykmeldingId shouldBe nySykmeldingId
+            forespoersler.first().sykmeldingId shouldBe nySykmeldingKobling.sykmeldingId
         }
 
         test("hentForespoerslerKlarForBehandling skal beholde kobling hvis forespørselStatus er ulik") {
             val kobling = lagKobling(forespoerselStatus = ForespoerselStatus.SENDT)
+            val koblingUtgaatt = kobling.copy(forespoerselStatus = ForespoerselStatus.UTGAATT)
 
-            every { dokumentkoblingRepository.hentForespoerselSykmeldingKoblinger() } returns
-                listOf(
-                    kobling,
-                    kobling.copy(forespoerselStatus = ForespoerselStatus.UTGAATT),
-                )
-
-            val service = DokumentkoblingService(dokumentkoblingRepository)
-            val forespoersler = service.hentForespoerslerKlarForBehandling()
+            every { dokumentkoblingRepository.hentForespoerselSykmeldingKoblinger() } returns listOf(kobling, koblingUtgaatt)
+            val forespoersler = dokumentkoblingService.hentForespoerslerKlarForBehandling()
 
             forespoersler shouldHaveSize 2
 
@@ -128,9 +105,7 @@ class DokumentkoblingServiceTest :
                 )
 
             every { dokumentkoblingRepository.hentForespoerselSykmeldingKoblinger() } returns koblinger
-
-            val service = DokumentkoblingService(dokumentkoblingRepository)
-            val forespoersler = service.hentForespoerslerKlarForBehandling()
+            val forespoersler = dokumentkoblingService.hentForespoerslerKlarForBehandling()
 
             forespoersler.shouldBeEmpty()
         }
@@ -140,9 +115,7 @@ class DokumentkoblingServiceTest :
             val koblingerTilfeldigSortert = List(antallKoblinger) { lagKobling() }.sortedBy { it.forespoerselId }
 
             every { dokumentkoblingRepository.hentForespoerselSykmeldingKoblinger() } returns koblingerTilfeldigSortert
-
-            val service = DokumentkoblingService(dokumentkoblingRepository)
-            val forespoersler = service.hentForespoerslerKlarForBehandling()
+            val forespoersler = dokumentkoblingService.hentForespoerslerKlarForBehandling()
 
             forespoersler shouldHaveSize antallKoblinger
             forespoersler shouldBe koblingerTilfeldigSortert.sortedBy { it.forespoerselOpprettet }
