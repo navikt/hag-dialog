@@ -151,7 +151,7 @@ class DokumentkoblingTest :
             repository.opprettForespoerselUtgaatt(dokumentkoblingForespoerselUtgaatt)
         }
 
-        test("hent forespoersel sykmelding kobling") {
+        test("hentForespoerselSykmeldingKoblinger() returner riktig når jobber er behandlet") {
             opprettDokumentkoblinger()
             dokumentkoblingSoeknad.let {
                 repository.settSykmeldingJobbTilBehandlet(sykmeldingId = it.sykmeldingId)
@@ -172,7 +172,7 @@ class DokumentkoblingTest :
             hentet[1].forespoerselStatus shouldBe ForespoerselStatus.UTGAATT
         }
 
-        context("hent forespoersel sykmelding kobling returner med riktig status") {
+        context("hentForespoerselSykmeldingKoblinger() returner med riktig jobb status") {
             test("når bare sykmelding er behandlet") {
                 opprettDokumentkoblinger()
                 repository.settSykmeldingJobbTilBehandlet(sykmeldingId = dokumentkoblingSoeknad.sykmeldingId)
@@ -196,25 +196,36 @@ class DokumentkoblingTest :
             }
         }
 
-        test("hent forespoersel kobling returnerer ett result per sykmelding koblet til samme vedtaksperiode") {
-            opprettDokumentkoblinger()
+        test("hentForespoerselSykmeldingKoblinger() returnerer ett result per sykmelding koblet til forespørsel") {
+            val vedtaksperiodeId = UUID.randomUUID()
+            val forespoerselId = UUID.randomUUID()
 
-            // Opprett en ny sykmelding og søknad koblet til samme vedtaksperiode som har nyere opprettet-tidspunkt
+            // Opprett første sykmelding og søknad
+            val sykmeldingId1 = UUID.randomUUID()
+            val soeknadId1 = UUID.randomUUID()
+            repository.opprettSykmelding(dokumentkoblingSykmelding.copy(sykmeldingId = sykmeldingId1))
+            repository.opprettSykepengesoeknad(dokumentkoblingSoeknad.copy(sykmeldingId = sykmeldingId1, soeknadId = soeknadId1))
+            repository.opprettVedtaksperiodeSoeknadKobling(VedtaksperiodeSoeknadKobling(vedtaksperiodeId, soeknadId1))
+
+            // Opprett andre sykmelding og søknad koblet til samme vedtaksperiode
             val sykmeldingId2 = UUID.randomUUID()
             val soeknadId2 = UUID.randomUUID()
             repository.opprettSykmelding(dokumentkoblingSykmelding.copy(sykmeldingId = sykmeldingId2))
             repository.opprettSykepengesoeknad(dokumentkoblingSoeknad.copy(sykmeldingId = sykmeldingId2, soeknadId = soeknadId2))
-            repository.opprettVedtaksperiodeSoeknadKobling(
-                VedtaksperiodeSoeknadKobling(
-                    vedtaksperiodeId = dokumentkoblingForespoerselSendt.vedtaksperiodeId,
-                    soeknadId = soeknadId2,
-                ),
+            repository.opprettVedtaksperiodeSoeknadKobling(VedtaksperiodeSoeknadKobling(vedtaksperiodeId, soeknadId2))
+
+            // Opprett én forespørsel koblet til vedtaksperioden
+            repository.opprettForespoerselSendt(
+                dokumentkoblingForespoerselSendt.copy(forespoerselId = forespoerselId, vedtaksperiodeId = vedtaksperiodeId),
             )
 
             val hentet = repository.hentForespoerselSykmeldingKoblinger()
 
-            hentet.size shouldBe 4
-            hentet[0].forespoerselStatus shouldBe ForespoerselStatus.SENDT
-            hentet[2].forespoerselStatus shouldBe ForespoerselStatus.UTGAATT
+            // Forventer 2 resultater: én per sykmelding koblet til samme forespørsel
+            hentet.size shouldBe 2
+            hentet[0].forespoerselId shouldBe forespoerselId
+            hentet[1].forespoerselId shouldBe forespoerselId
+            hentet[0].sykmeldingId shouldBe sykmeldingId1
+            hentet[1].sykmeldingId shouldBe sykmeldingId2
         }
     })
