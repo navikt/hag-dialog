@@ -14,6 +14,7 @@ import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.innerJoin
 import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
 import java.time.LocalDateTime
@@ -197,17 +198,8 @@ class DokumentkoblingRepository(
                     SykmeldingTable,
                     { SykepengesoeknadTable.sykmeldingId },
                     { SykmeldingTable.sykmeldingId },
-                ).select(
-                    ForespoerselTable.forespoerselId,
-                    ForespoerselTable.forespoerselStatus,
-                    ForespoerselTable.opprettet,
-                    VedtaksperiodeSoeknadTable.vedtaksperiodeId,
-                    SykepengesoeknadTable.id,
-                    SykmeldingTable.id,
-                    SykmeldingTable.opprettet,
-                    SykmeldingTable.status,
-                    SykepengesoeknadTable.status,
-                ).orderBy(ForespoerselTable.opprettet to SortOrder.ASC)
+                ).selectAll()
+                .orderBy(ForespoerselTable.opprettet to SortOrder.ASC)
                 .where {
                     (ForespoerselTable.status eq Status.MOTTATT)
                 }.map {
