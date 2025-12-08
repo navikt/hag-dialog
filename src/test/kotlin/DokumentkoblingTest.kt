@@ -4,6 +4,7 @@ import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import no.nav.helsearbeidsgiver.database.DokumentkoblingRepository
 import no.nav.helsearbeidsgiver.database.ForespoerselStatus
+import no.nav.helsearbeidsgiver.database.InntektsmeldingStatus
 import no.nav.helsearbeidsgiver.database.SykepengesoeknadTable
 import no.nav.helsearbeidsgiver.database.SykmeldingTable
 import no.nav.helsearbeidsgiver.database.VedtaksperiodeSoeknadTable
@@ -102,11 +103,13 @@ class DokumentkoblingTest :
             repository.hentListeAvSoeknadIdForVedtaksperiodeId(vedtaksperiodeSoeknad.vedtaksperiodeId) shouldBe emptyList()
             repository.opprettVedtaksperiodeSoeknadKobling(vedtaksperiodeSoeknad)
 
-            val opprettetFoer = repository.hentSoeknaderForVedtaksperiodeId(vedtaksperiodeSoeknad.vedtaksperiodeId).first().opprettet
+            val opprettetFoer =
+                repository.hentSoeknaderForVedtaksperiodeId(vedtaksperiodeSoeknad.vedtaksperiodeId).first().opprettet
 
             repository.opprettVedtaksperiodeSoeknadKobling(vedtaksperiodeSoeknad)
 
-            val opprettetEtter = repository.hentSoeknaderForVedtaksperiodeId(vedtaksperiodeSoeknad.vedtaksperiodeId).first().opprettet
+            val opprettetEtter =
+                repository.hentSoeknaderForVedtaksperiodeId(vedtaksperiodeSoeknad.vedtaksperiodeId).first().opprettet
             val hentet = repository.hentListeAvSoeknadIdForVedtaksperiodeId(vedtaksperiodeSoeknad.vedtaksperiodeId)
 
             hentet.size shouldBe 1
@@ -135,5 +138,24 @@ class DokumentkoblingTest :
             hentetEtterUtgaatt[0].forespoerselId shouldBe forespoerselSendt.forespoerselId
             hentetEtterUtgaatt[1].forespoerselId shouldBe forespoerselUtgaatt.forespoerselId
             hentetEtterUtgaatt[1].forespoerselStatus shouldBe ForespoerselStatus.UTGAATT
+        }
+
+        test("opprette innteltsmelding godkjent") {
+            val inntektsmeldingGodkjent = dokumentkoblingInntektsmeldingGodkjent
+            repository.hentForespoerslerMedStatusMottattEldstFoerst() shouldBe emptyList()
+
+            repository.opprettInntektmeldingGodkjent(
+                inntektsmeldingId = inntektsmeldingGodkjent.inntektsmeldingId,
+                forespoerselId = inntektsmeldingGodkjent.forespoerselId,
+                vedtaksperiodeId = inntektsmeldingGodkjent.vedtaksperiodeId,
+                kanal = inntektsmeldingGodkjent.kanal,
+            )
+
+            val hentet = repository.hentInntektsmeldingerMedStatusMottatt()
+            hentet.size shouldBe 1
+            hentet[0].forespoerselId shouldBe inntektsmeldingGodkjent.forespoerselId
+            hentet[0].vedtaksperiodeId shouldBe inntektsmeldingGodkjent.vedtaksperiodeId
+            hentet[0].status shouldBe Status.MOTTATT
+            hentet[0].inntektsmeldingStatus shouldBe InntektsmeldingStatus.GODKJENT
         }
     })

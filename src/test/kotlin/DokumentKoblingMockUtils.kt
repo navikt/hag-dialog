@@ -1,6 +1,8 @@
 
 import dokumentkobling.ForespoerselSendt
 import dokumentkobling.ForespoerselUtgaatt
+import dokumentkobling.InntektsmeldingGodkjent
+import dokumentkobling.Kanal
 import dokumentkobling.Sykepengesoeknad
 import dokumentkobling.Sykmelding
 import dokumentkobling.Sykmeldingsperiode
@@ -44,4 +46,13 @@ val dokumentkoblingForespoerselUtgaatt =
         forespoerselId = UUID.randomUUID(),
         vedtaksperiodeId = UUID.randomUUID(),
         orgnr = dokumentkoblingSykmelding.orgnr,
+    )
+
+val dokumentkoblingInntektsmeldingGodkjent =
+    InntektsmeldingGodkjent(
+        inntektsmeldingId = UUID.randomUUID(),
+        forespoerselId = UUID.randomUUID(),
+        vedtaksperiodeId = UUID.randomUUID(),
+        orgnr = dokumentkoblingSykmelding.orgnr,
+        kanal = Kanal.HR_SYSTEM_API,
     )

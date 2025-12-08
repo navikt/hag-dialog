@@ -4,6 +4,7 @@ import dokumentkobling.Dokumentkobling
 import dokumentkobling.DokumentkoblingService
 import dokumentkobling.ForespoerselSendt
 import dokumentkobling.ForespoerselUtgaatt
+import dokumentkobling.InntektsmeldingGodkjent
 import dokumentkobling.Sykepengesoeknad
 import dokumentkobling.Sykmelding
 import dokumentkobling.VedtaksperiodeSoeknadKobling
@@ -63,6 +64,10 @@ class DokumentkoblingTolker(
 
                 is ForespoerselUtgaatt -> {
                     dokumentkoblingService.lagreForespoerselUtgaatt(dekodetMelding)
+                }
+
+                is InntektsmeldingGodkjent -> {
+                    dokumentkoblingService.lagreInntektsmeldingGodkjent(dekodetMelding)
                 }
             }
         }.getOrElse { e ->

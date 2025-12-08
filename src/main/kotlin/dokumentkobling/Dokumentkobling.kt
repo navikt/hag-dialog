@@ -60,3 +60,27 @@ data class ForespoerselUtgaatt(
     val vedtaksperiodeId: UUID,
     val orgnr: Orgnr,
 ) : Dokumentkobling()
+
+@Serializable
+@SerialName("InntektsmeldingAvvist")
+data class InntektsmeldingAvvist(
+    val inntektsmeldingId: UUID,
+    val forespoerselId: UUID,
+    val vedtaksperiodeId: UUID,
+    val orgnr: Orgnr,
+) // : Dokumentkobling()
+
+@Serializable
+@SerialName("InntektsmeldingGodkjent")
+data class InntektsmeldingGodkjent(
+    val inntektsmeldingId: UUID,
+    val forespoerselId: UUID,
+    val vedtaksperiodeId: UUID,
+    val orgnr: Orgnr,
+    val kanal: Kanal,
+) : Dokumentkobling()
+
+enum class Kanal {
+    NAV_NO,
+    HR_SYSTEM_API,
+}

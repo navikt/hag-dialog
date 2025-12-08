@@ -24,4 +24,13 @@ class DokumentkoblingService(
     fun lagreForespoerselUtgaatt(forespoerselUtgaatt: ForespoerselUtgaatt) {
         dokumentkoblingRepository.opprettForespoerselUtgaatt(forespoerselUtgaatt)
     }
+
+    fun lagreInntektsmeldingGodkjent(inntektsmeldingGodkjent: InntektsmeldingGodkjent) {
+        dokumentkoblingRepository.opprettInntektmeldingGodkjent(
+            inntektsmeldingId = inntektsmeldingGodkjent.inntektsmeldingId,
+            forespoerselId = inntektsmeldingGodkjent.forespoerselId,
+            vedtaksperiodeId = inntektsmeldingGodkjent.vedtaksperiodeId,
+            kanal = inntektsmeldingGodkjent.kanal,
+        )
+    }
 }

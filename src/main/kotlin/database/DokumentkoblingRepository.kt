@@ -172,4 +172,29 @@ class DokumentkoblingRepository(
                 .orderBy(ForespoerselTable.opprettet to SortOrder.ASC)
                 .toList()
         }
+
+    fun opprettInntektmeldingGodkjent(
+        inntektsmeldingId: UUID,
+        forespoerselId: UUID,
+        vedtaksperiodeId: UUID,
+        kanal: dokumentkobling.Kanal,
+    ) {
+        transaction(db) {
+            InntektsmeldingTable.insert {
+                it[id] = inntektsmeldingId
+                it[InntektsmeldingTable.forespoerselId] = forespoerselId
+                it[InntektsmeldingTable.vedtaksperiodeId] = vedtaksperiodeId
+                it[InntektsmeldingTable.status] = Status.MOTTATT
+                it[InntektsmeldingTable.inntektsmeldingStatus] = InntektsmeldingStatus.GODKJENT
+            }
+        }
+    }
+
+    fun hentInntektsmeldingerMedStatusMottatt(): List<InntektsmeldingEntity> =
+        transaction(db) {
+            InntektsmeldingEntity
+                .find { InntektsmeldingTable.status eq Status.MOTTATT }
+                .orderBy(InntektsmeldingTable.opprettet to SortOrder.ASC)
+                .toList()
+        }
 }
