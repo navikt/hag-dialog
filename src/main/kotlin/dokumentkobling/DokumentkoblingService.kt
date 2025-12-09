@@ -1,6 +1,8 @@
 package dokumentkobling
 
 import no.nav.helsearbeidsgiver.database.DokumentkoblingRepository
+import no.nav.helsearbeidsgiver.database.DokumentkoblingRepository.ForespoerselSykmeldingKobling
+import java.util.UUID
 
 class DokumentkoblingService(
     private val dokumentkoblingRepository: DokumentkoblingRepository,
@@ -23,5 +25,23 @@ class DokumentkoblingService(
 
     fun lagreForespoerselUtgaatt(forespoerselUtgaatt: ForespoerselUtgaatt) {
         dokumentkoblingRepository.opprettForespoerselUtgaatt(forespoerselUtgaatt)
+    }
+
+    fun hentForespoerslerKlarForBehandling(): List<ForespoerselSykmeldingKobling> =
+        dokumentkoblingRepository
+            .hentForespoerselSykmeldingKoblinger()
+            .filter { it.sykmeldingStatus == Status.BEHANDLET }
+            .filter { it.soeknadStatus == Status.BEHANDLET }
+            .filtrerNyesteSykmeldingPerForespoersel()
+            .sortedBy { it.forespoerselOpprettet }
+
+    // Dette gjøres fordi forespoersel skal koble seg til nyeste sykmelding dialogen (i tilfeller der en forespoersel er koblet til flere sykmeldinger)
+    private fun List<ForespoerselSykmeldingKobling>.filtrerNyesteSykmeldingPerForespoersel(): List<ForespoerselSykmeldingKobling> =
+        this
+            .sortedByDescending { it.sykmeldingOpprettet }
+            .distinctBy { Pair(it.forespoerselId, it.forespoerselStatus) }
+
+    fun settForespoerselJobbTilBehandlet(forespoerselId: UUID) {
+        dokumentkoblingRepository.settForespoerselJobbTilBehandlet(forespoerselId)
     }
 }
