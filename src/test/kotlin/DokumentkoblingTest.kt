@@ -232,7 +232,7 @@ class DokumentkoblingTest :
             hentet[1].sykmeldingId shouldBe sykmeldingId2
         }
 
-        test("opprette innteltsmelding godkjent") {
+        test("opprette inntektsmelding godkjent") {
             val inntektsmeldingGodkjent = dokumentkoblingInntektsmeldingGodkjent
             repository.hentInntektsmeldingerMedStatusMottatt() shouldBe emptyList()
 
