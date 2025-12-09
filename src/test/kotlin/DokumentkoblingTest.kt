@@ -5,13 +5,14 @@ import io.kotest.matchers.shouldBe
 import no.nav.helsearbeidsgiver.database.DokumentkoblingRepository
 import no.nav.helsearbeidsgiver.database.ForespoerselStatus
 import no.nav.helsearbeidsgiver.database.InntektsmeldingStatus
+import no.nav.helsearbeidsgiver.database.InntektsmeldingTable
 import no.nav.helsearbeidsgiver.database.SykepengesoeknadTable
 import no.nav.helsearbeidsgiver.database.SykmeldingTable
 import no.nav.helsearbeidsgiver.database.VedtaksperiodeSoeknadTable
 import java.util.UUID
 
 class DokumentkoblingTest :
-    FunSpecWithDb(listOf(SykepengesoeknadTable, SykmeldingTable, VedtaksperiodeSoeknadTable), { db ->
+    FunSpecWithDb(listOf(SykepengesoeknadTable, SykmeldingTable, VedtaksperiodeSoeknadTable, InntektsmeldingTable), { db ->
         val repository = DokumentkoblingRepository(db)
 
         test("opprette og hente sykmelding") {
@@ -142,7 +143,7 @@ class DokumentkoblingTest :
 
         test("opprette innteltsmelding godkjent") {
             val inntektsmeldingGodkjent = dokumentkoblingInntektsmeldingGodkjent
-            repository.hentForespoerslerMedStatusMottattEldstFoerst() shouldBe emptyList()
+            repository.hentInntektsmeldingerMedStatusMottatt() shouldBe emptyList()
 
             repository.opprettInntektmeldingGodkjent(
                 inntektsmeldingId = inntektsmeldingGodkjent.inntektsmeldingId,
