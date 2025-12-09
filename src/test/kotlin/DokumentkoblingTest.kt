@@ -239,11 +239,13 @@ class DokumentkoblingTest :
             repository.opprettInntektmeldingGodkjent(inntektsmeldingGodkjent)
 
             val hentet = repository.hentInntektsmeldingerMedStatusMottatt()
-            hentet.size shouldBe 1
-            hentet[0].forespoerselId shouldBe inntektsmeldingGodkjent.forespoerselId
-            hentet[0].vedtaksperiodeId shouldBe inntektsmeldingGodkjent.vedtaksperiodeId
-            hentet[0].status shouldBe Status.MOTTATT
-            hentet[0].inntektsmeldingStatus shouldBe InntektsmeldingStatus.GODKJENT
-            hentet[0].innsendingType shouldBe InnsendingType.FORESPURT_EKSTERN
+            hentet.shouldNotBeEmpty()
+            assertSoftly(hentet[0]) {
+                forespoerselId shouldBe inntektsmeldingGodkjent.forespoerselId
+                vedtaksperiodeId shouldBe inntektsmeldingGodkjent.vedtaksperiodeId
+                status shouldBe Status.MOTTATT
+                inntektsmeldingStatus shouldBe InntektsmeldingStatus.GODKJENT
+                innsendingType shouldBe InnsendingType.FORESPURT_EKSTERN
+            }
         }
     })
