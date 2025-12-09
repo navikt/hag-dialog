@@ -1,4 +1,3 @@
-import dokumentkobling.DokumentkoblingService
 import dokumentkobling.InnsendingType
 import dokumentkobling.Status
 import dokumentkobling.VedtaksperiodeSoeknadKobling
@@ -20,7 +19,6 @@ import java.util.UUID
 class DokumentkoblingTest :
     FunSpecWithDb(listOf(SykepengesoeknadTable, SykmeldingTable, VedtaksperiodeSoeknadTable, ForespoerselTable, InntektsmeldingTable), { db ->
         val repository = DokumentkoblingRepository(db)
-        val service = DokumentkoblingService(repository)
 
         test("opprette og hente sykmelding") {
             val sykmelding = dokumentkoblingSykmelding

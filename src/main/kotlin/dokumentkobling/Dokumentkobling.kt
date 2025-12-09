@@ -62,15 +62,6 @@ data class ForespoerselUtgaatt(
 ) : Dokumentkobling()
 
 @Serializable
-@SerialName("InntektsmeldingAvvist")
-data class InntektsmeldingAvvist(
-    val inntektsmeldingId: UUID,
-    val forespoerselId: UUID,
-    val vedtaksperiodeId: UUID,
-    val orgnr: Orgnr,
-) // : Dokumentkobling()
-
-@Serializable
 @SerialName("InntektsmeldingGodkjent")
 data class InntektsmeldingGodkjent(
     val inntektsmeldingId: UUID,

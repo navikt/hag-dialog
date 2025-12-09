@@ -229,6 +229,7 @@ class DokumentkoblingRepository(
         val sykmeldingStatus: Status,
         val soeknadStatus: Status,
     )
+
     fun opprettInntektmeldingGodkjent(inntektsmeldingGodkjent: InntektsmeldingGodkjent) {
         transaction(db) {
             InntektsmeldingTable.insert {
