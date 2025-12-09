@@ -4,6 +4,7 @@ import dokumentkobling.Dokumentkobling
 import dokumentkobling.DokumentkoblingService
 import dokumentkobling.ForespoerselSendt
 import dokumentkobling.ForespoerselUtgaatt
+import dokumentkobling.InntektsmeldingGodkjent
 import dokumentkobling.Sykepengesoeknad
 import dokumentkobling.Sykmelding
 import dokumentkobling.VedtaksperiodeSoeknadKobling
@@ -77,6 +78,10 @@ class DokumentkoblingTolker(
                                 "ignorerer melding for forespoerselId ${dekodetMelding.forespoerselId}.",
                         )
                     }
+                }
+
+                is InntektsmeldingGodkjent -> {
+                    dokumentkoblingService.lagreInntektsmeldingGodkjent(dekodetMelding)
                 }
             }
         }.getOrElse { e ->

@@ -1,6 +1,8 @@
 
 import dokumentkobling.ForespoerselSendt
 import dokumentkobling.ForespoerselUtgaatt
+import dokumentkobling.InnsendingType
+import dokumentkobling.InntektsmeldingGodkjent
 import dokumentkobling.Sykepengesoeknad
 import dokumentkobling.Sykmelding
 import dokumentkobling.Sykmeldingsperiode
@@ -44,4 +46,13 @@ val dokumentkoblingForespoerselUtgaatt =
         forespoerselId = dokumentkoblingForespoerselSendt.forespoerselId,
         vedtaksperiodeId = dokumentkoblingVedtaksperiodeSoeknad.vedtaksperiodeId,
         orgnr = dokumentkoblingSykmelding.orgnr,
+    )
+
+val dokumentkoblingInntektsmeldingGodkjent =
+    InntektsmeldingGodkjent(
+        inntektsmeldingId = UUID.randomUUID(),
+        forespoerselId = UUID.randomUUID(),
+        vedtaksperiodeId = UUID.randomUUID(),
+        orgnr = dokumentkoblingSykmelding.orgnr,
+        innsendingType = InnsendingType.FORESPURT_EKSTERN,
     )

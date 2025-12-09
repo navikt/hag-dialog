@@ -2,6 +2,7 @@ package no.nav.helsearbeidsgiver.database
 
 import dokumentkobling.ForespoerselSendt
 import dokumentkobling.ForespoerselUtgaatt
+import dokumentkobling.InntektsmeldingGodkjent
 import dokumentkobling.Status
 import dokumentkobling.Sykepengesoeknad
 import dokumentkobling.Sykmelding
@@ -228,4 +229,25 @@ class DokumentkoblingRepository(
         val sykmeldingStatus: Status,
         val soeknadStatus: Status,
     )
+
+    fun opprettInntektmeldingGodkjent(inntektsmeldingGodkjent: InntektsmeldingGodkjent) {
+        transaction(db) {
+            InntektsmeldingTable.insert {
+                it[id] = inntektsmeldingGodkjent.inntektsmeldingId
+                it[InntektsmeldingTable.forespoerselId] = inntektsmeldingGodkjent.forespoerselId
+                it[InntektsmeldingTable.vedtaksperiodeId] = inntektsmeldingGodkjent.vedtaksperiodeId
+                it[InntektsmeldingTable.status] = Status.MOTTATT
+                it[InntektsmeldingTable.inntektsmeldingStatus] = InntektsmeldingStatus.GODKJENT
+                it[InntektsmeldingTable.innsendingType] = inntektsmeldingGodkjent.innsendingType
+            }
+        }
+    }
+
+    fun hentInntektsmeldingerMedStatusMottatt(): List<InntektsmeldingEntity> =
+        transaction(db) {
+            InntektsmeldingEntity
+                .find { InntektsmeldingTable.status eq Status.MOTTATT }
+                .orderBy(InntektsmeldingTable.opprettet to SortOrder.ASC)
+                .toList()
+        }
 }
