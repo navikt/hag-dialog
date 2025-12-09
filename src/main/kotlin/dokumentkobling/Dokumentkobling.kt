@@ -77,10 +77,11 @@ data class InntektsmeldingGodkjent(
     val forespoerselId: UUID,
     val vedtaksperiodeId: UUID,
     val orgnr: Orgnr,
-    val kanal: Kanal,
+    val innsendingType: InnsendingType,
 ) : Dokumentkobling()
 
-enum class Kanal {
-    NAV_NO,
-    HR_SYSTEM_API,
+enum class InnsendingType {
+    FORESPURT,
+    ARBEIDSGIVER_INITIERT,
+    FORESPURT_EKSTERN,
 }

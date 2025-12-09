@@ -26,11 +26,6 @@ class DokumentkoblingService(
     }
 
     fun lagreInntektsmeldingGodkjent(inntektsmeldingGodkjent: InntektsmeldingGodkjent) {
-        dokumentkoblingRepository.opprettInntektmeldingGodkjent(
-            inntektsmeldingId = inntektsmeldingGodkjent.inntektsmeldingId,
-            forespoerselId = inntektsmeldingGodkjent.forespoerselId,
-            vedtaksperiodeId = inntektsmeldingGodkjent.vedtaksperiodeId,
-            kanal = inntektsmeldingGodkjent.kanal,
-        )
+        dokumentkoblingRepository.opprettInntektmeldingGodkjent(inntektsmeldingGodkjent)
     }
 }

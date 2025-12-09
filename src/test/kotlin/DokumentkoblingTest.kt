@@ -1,3 +1,4 @@
+import dokumentkobling.InnsendingType
 import dokumentkobling.Status
 import io.kotest.matchers.collections.shouldContainOnly
 import io.kotest.matchers.nulls.shouldNotBeNull
@@ -145,12 +146,7 @@ class DokumentkoblingTest :
             val inntektsmeldingGodkjent = dokumentkoblingInntektsmeldingGodkjent
             repository.hentInntektsmeldingerMedStatusMottatt() shouldBe emptyList()
 
-            repository.opprettInntektmeldingGodkjent(
-                inntektsmeldingId = inntektsmeldingGodkjent.inntektsmeldingId,
-                forespoerselId = inntektsmeldingGodkjent.forespoerselId,
-                vedtaksperiodeId = inntektsmeldingGodkjent.vedtaksperiodeId,
-                kanal = inntektsmeldingGodkjent.kanal,
-            )
+            repository.opprettInntektmeldingGodkjent(inntektsmeldingGodkjent)
 
             val hentet = repository.hentInntektsmeldingerMedStatusMottatt()
             hentet.size shouldBe 1
@@ -158,5 +154,6 @@ class DokumentkoblingTest :
             hentet[0].vedtaksperiodeId shouldBe inntektsmeldingGodkjent.vedtaksperiodeId
             hentet[0].status shouldBe Status.MOTTATT
             hentet[0].inntektsmeldingStatus shouldBe InntektsmeldingStatus.GODKJENT
+            hentet[0].innsendingType shouldBe InnsendingType.FORESPURT_EKSTERN
         }
     })

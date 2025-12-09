@@ -2,6 +2,7 @@ package no.nav.helsearbeidsgiver.database
 
 import dokumentkobling.ForespoerselSendt
 import dokumentkobling.ForespoerselUtgaatt
+import dokumentkobling.InntektsmeldingGodkjent
 import dokumentkobling.Status
 import dokumentkobling.Sykepengesoeknad
 import dokumentkobling.Sykmelding
@@ -173,19 +174,15 @@ class DokumentkoblingRepository(
                 .toList()
         }
 
-    fun opprettInntektmeldingGodkjent(
-        inntektsmeldingId: UUID,
-        forespoerselId: UUID,
-        vedtaksperiodeId: UUID,
-        kanal: dokumentkobling.Kanal,
-    ) {
+    fun opprettInntektmeldingGodkjent(inntektsmeldingGodkjent: InntektsmeldingGodkjent) {
         transaction(db) {
             InntektsmeldingTable.insert {
-                it[id] = inntektsmeldingId
-                it[InntektsmeldingTable.forespoerselId] = forespoerselId
-                it[InntektsmeldingTable.vedtaksperiodeId] = vedtaksperiodeId
+                it[id] = inntektsmeldingGodkjent.inntektsmeldingId
+                it[InntektsmeldingTable.forespoerselId] = inntektsmeldingGodkjent.forespoerselId
+                it[InntektsmeldingTable.vedtaksperiodeId] = inntektsmeldingGodkjent.vedtaksperiodeId
                 it[InntektsmeldingTable.status] = Status.MOTTATT
                 it[InntektsmeldingTable.inntektsmeldingStatus] = InntektsmeldingStatus.GODKJENT
+                it[InntektsmeldingTable.innsendingType] = inntektsmeldingGodkjent.innsendingType
             }
         }
     }
