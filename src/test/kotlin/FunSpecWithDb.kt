@@ -16,9 +16,13 @@ abstract class FunSpecWithDb(
             Database(dbConfig())
                 .configureFlyway()
 
-        beforeTest {
+        beforeEach {
             transaction {
-                table.forEach { it.deleteAll() }
+                println("Sletter alle rader før test [${table.joinToString(", ") { it.tableName }}]")
+                table.forEach { table ->
+                    val raderSlettet = table.deleteAll()
+                    println("Slettet $raderSlettet rader fra tabel: ${table.tableName}")
+                }
             }
         }
 

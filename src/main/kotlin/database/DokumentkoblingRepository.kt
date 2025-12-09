@@ -13,9 +13,12 @@ import org.jetbrains.exposed.exceptions.ExposedSQLException
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.and
+import org.jetbrains.exposed.sql.innerJoin
 import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
+import java.time.LocalDateTime
 import java.util.UUID
 
 class DokumentkoblingRepository(
@@ -78,17 +81,24 @@ class DokumentkoblingRepository(
             }
         }
 
-    fun settSykmeldingStatusTilBehandlet(sykmeldingId: UUID): Unit =
+    fun settSykmeldingJobbTilBehandlet(sykmeldingId: UUID): Unit =
         transaction(db) {
             SykmeldingTable.update({ SykmeldingTable.id eq sykmeldingId }) {
                 it[SykmeldingTable.status] = Status.BEHANDLET
             }
         }
 
-    fun settSykepengeSoeknadStatusTilBehandlet(soeknadId: UUID): Unit =
+    fun settSykepengeSoeknadJobbTilBehandlet(soeknadId: UUID): Unit =
         transaction(db) {
             SykepengesoeknadTable.update({ SykepengesoeknadTable.id eq soeknadId }) {
                 it[SykepengesoeknadTable.status] = Status.BEHANDLET
+            }
+        }
+
+    fun settForespoerselJobbTilBehandlet(forespoerselId: UUID): Unit =
+        transaction(db) {
+            ForespoerselTable.update({ ForespoerselTable.forespoerselId eq forespoerselId }) {
+                it[ForespoerselTable.status] = Status.BEHANDLET
             }
         }
 
@@ -174,6 +184,51 @@ class DokumentkoblingRepository(
                 .toList()
         }
 
+    fun hentForespoerselSykmeldingKoblinger(): List<ForespoerselSykmeldingKobling> =
+        transaction(db) {
+            ForespoerselTable
+                .innerJoin(
+                    VedtaksperiodeSoeknadTable,
+                    { ForespoerselTable.vedtaksperiodeId },
+                    { VedtaksperiodeSoeknadTable.vedtaksperiodeId },
+                ).innerJoin(
+                    SykepengesoeknadTable,
+                    { VedtaksperiodeSoeknadTable.soeknadId },
+                    { SykepengesoeknadTable.soeknadId },
+                ).innerJoin(
+                    SykmeldingTable,
+                    { SykepengesoeknadTable.sykmeldingId },
+                    { SykmeldingTable.sykmeldingId },
+                ).selectAll()
+                .orderBy(ForespoerselTable.opprettet to SortOrder.ASC)
+                .where {
+                    (ForespoerselTable.status eq Status.MOTTATT)
+                }.map {
+                    ForespoerselSykmeldingKobling(
+                        forespoerselId = it[ForespoerselTable.forespoerselId],
+                        forespoerselStatus = it[ForespoerselTable.forespoerselStatus],
+                        forespoerselOpprettet = it[ForespoerselTable.opprettet],
+                        vedtaksperiodeId = it[VedtaksperiodeSoeknadTable.vedtaksperiodeId],
+                        soeknadId = it[SykepengesoeknadTable.id].value,
+                        sykmeldingId = it[SykmeldingTable.id].value,
+                        sykmeldingOpprettet = it[SykmeldingTable.opprettet],
+                        sykmeldingStatus = it[SykmeldingTable.status],
+                        soeknadStatus = it[SykepengesoeknadTable.status],
+                    )
+                }
+        }
+
+    data class ForespoerselSykmeldingKobling(
+        val forespoerselId: UUID,
+        val forespoerselStatus: ForespoerselStatus,
+        val forespoerselOpprettet: LocalDateTime,
+        val vedtaksperiodeId: UUID,
+        val soeknadId: UUID,
+        val sykmeldingId: UUID,
+        val sykmeldingOpprettet: LocalDateTime,
+        val sykmeldingStatus: Status,
+        val soeknadStatus: Status,
+    )
     fun opprettInntektmeldingGodkjent(inntektsmeldingGodkjent: InntektsmeldingGodkjent) {
         transaction(db) {
             InntektsmeldingTable.insert {

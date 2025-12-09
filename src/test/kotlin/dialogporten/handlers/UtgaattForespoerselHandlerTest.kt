@@ -46,7 +46,10 @@ class UtgaattForespoerselHandlerTest :
             every { dialogRepository.finnDialogMedSykemeldingId(forespoersel_utgaatt.sykmeldingId) } returns dialog
             coEvery { dialogportenClient.addTransmission(any(), any<TransmissionRequest>()) } returns newTransmissionId
 
-            utgaattForespoerselHandler.oppdaterDialog(forespoersel_utgaatt)
+            utgaattForespoerselHandler.oppdaterDialog(
+                forespoerselId = forespoersel_utgaatt.forespoerselId,
+                sykmeldingId = forespoersel_utgaatt.sykmeldingId,
+            )
 
             coVerify { dialogportenClient.addTransmission(dialogId, any<TransmissionRequest>()) }
             coVerify { dialogportenClient.removeActionsAndStatus(dialogId) }
@@ -65,7 +68,10 @@ class UtgaattForespoerselHandlerTest :
 
             every { dialogRepository.finnDialogMedSykemeldingId(forespoersel_utgaatt.sykmeldingId) } returns null
 
-            utgaattForespoerselHandler.oppdaterDialog(forespoersel_utgaatt)
+            utgaattForespoerselHandler.oppdaterDialog(
+                forespoerselId = forespoersel_utgaatt.forespoerselId,
+                sykmeldingId = forespoersel_utgaatt.sykmeldingId,
+            )
 
             coVerify(exactly = 0) { dialogportenClient.addTransmission(any(), any<TransmissionRequest>()) }
             verify(exactly = 0) { dialogRepository.oppdaterDialogMedTransmission(any(), any(), any(), any(), any()) }
@@ -84,7 +90,10 @@ class UtgaattForespoerselHandlerTest :
             every { dialogRepository.finnDialogMedSykemeldingId(forespoersel_utgaatt.sykmeldingId) } returns dialog
             coEvery { dialogportenClient.addTransmission(any(), any<TransmissionRequest>()) } returns newTransmissionId
 
-            utgaattForespoerselHandler.oppdaterDialog(forespoersel_utgaatt)
+            utgaattForespoerselHandler.oppdaterDialog(
+                forespoerselId = forespoersel_utgaatt.forespoerselId,
+                sykmeldingId = forespoersel_utgaatt.sykmeldingId,
+            )
 
             coVerify { dialogportenClient.addTransmission(dialogId, any<TransmissionRequest>()) }
             coVerify { dialogportenClient.removeActionsAndStatus(dialogId) }

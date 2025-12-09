@@ -1,5 +1,6 @@
 package no.nav.helsearbeidsgiver
 
+import dokumentkobling.DokumentkoblingService
 import dokumentkobling.SykepengeSoeknadJobb
 import dokumentkobling.SykmeldingJobb
 import dokumentkobling.startRecurringJobs
@@ -14,6 +15,7 @@ import no.nav.helsearbeidsgiver.database.DialogRepository
 import no.nav.helsearbeidsgiver.database.DokumentkoblingRepository
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenClient
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
+import no.nav.helsearbeidsgiver.dokumentkobling.ForespoerselJobb
 import no.nav.helsearbeidsgiver.helsesjekker.HelsesjekkService
 import no.nav.helsearbeidsgiver.helsesjekker.naisRoutes
 import no.nav.helsearbeidsgiver.kafka.configureKafkaConsumer
@@ -49,6 +51,7 @@ fun startServer() {
     logger.info("Setter opp DialogRepository...")
     val dialogRepository = DialogRepository(database.db)
     val dokumentkoblingRepository = DokumentkoblingRepository(database.db)
+    val dokumentKoblingSerivce = DokumentkoblingService(dokumentkoblingRepository)
     val dialogportenService =
         DialogportenService(
             dialogRepository = dialogRepository,
@@ -64,6 +67,10 @@ fun startServer() {
             ),
             SykepengeSoeknadJobb(
                 dokumentkoblingRepository = dokumentkoblingRepository,
+                dialogportenService = dialogportenService,
+            ),
+            ForespoerselJobb(
+                dokumentkoblingService = dokumentKoblingSerivce,
                 dialogportenService = dialogportenService,
             ),
         )

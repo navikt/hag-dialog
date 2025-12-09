@@ -37,14 +37,14 @@ val dokumentkoblingVedtaksperiodeSoeknad =
 val dokumentkoblingForespoerselSendt =
     ForespoerselSendt(
         forespoerselId = UUID.randomUUID(),
-        vedtaksperiodeId = UUID.randomUUID(),
+        vedtaksperiodeId = dokumentkoblingVedtaksperiodeSoeknad.vedtaksperiodeId,
         orgnr = dokumentkoblingSykmelding.orgnr,
     )
 
 val dokumentkoblingForespoerselUtgaatt =
     ForespoerselUtgaatt(
-        forespoerselId = UUID.randomUUID(),
-        vedtaksperiodeId = UUID.randomUUID(),
+        forespoerselId = dokumentkoblingForespoerselSendt.forespoerselId,
+        vedtaksperiodeId = dokumentkoblingVedtaksperiodeSoeknad.vedtaksperiodeId,
         orgnr = dokumentkoblingSykmelding.orgnr,
     )
 

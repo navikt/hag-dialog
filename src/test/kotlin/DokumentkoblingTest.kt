@@ -1,10 +1,15 @@
+import dokumentkobling.DokumentkoblingService
 import dokumentkobling.InnsendingType
 import dokumentkobling.Status
+import dokumentkobling.VedtaksperiodeSoeknadKobling
+import io.kotest.assertions.assertSoftly
 import io.kotest.matchers.collections.shouldContainOnly
+import io.kotest.matchers.collections.shouldNotBeEmpty
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import no.nav.helsearbeidsgiver.database.DokumentkoblingRepository
 import no.nav.helsearbeidsgiver.database.ForespoerselStatus
+import no.nav.helsearbeidsgiver.database.ForespoerselTable
 import no.nav.helsearbeidsgiver.database.InntektsmeldingStatus
 import no.nav.helsearbeidsgiver.database.InntektsmeldingTable
 import no.nav.helsearbeidsgiver.database.SykepengesoeknadTable
@@ -13,8 +18,9 @@ import no.nav.helsearbeidsgiver.database.VedtaksperiodeSoeknadTable
 import java.util.UUID
 
 class DokumentkoblingTest :
-    FunSpecWithDb(listOf(SykepengesoeknadTable, SykmeldingTable, VedtaksperiodeSoeknadTable, InntektsmeldingTable), { db ->
+    FunSpecWithDb(listOf(SykepengesoeknadTable, SykmeldingTable, VedtaksperiodeSoeknadTable, ForespoerselTable, InntektsmeldingTable), { db ->
         val repository = DokumentkoblingRepository(db)
+        val service = DokumentkoblingService(repository)
 
         test("opprette og hente sykmelding") {
             val sykmelding = dokumentkoblingSykmelding
@@ -70,7 +76,7 @@ class DokumentkoblingTest :
             val sykmeldingId2 = UUID.randomUUID()
             repository.opprettSykmelding(sykmelding)
             repository.opprettSykmelding(sykmelding.copy(sykmeldingId = sykmeldingId2))
-            repository.settSykmeldingStatusTilBehandlet(sykmelding.sykmeldingId)
+            repository.settSykmeldingJobbTilBehandlet(sykmelding.sykmeldingId)
 
             val hentet = repository.henteSykemeldingerMedStatusMottatt()
             hentet.size shouldBe 1
@@ -82,7 +88,7 @@ class DokumentkoblingTest :
             val soeknadId2 = UUID.randomUUID()
             repository.opprettSykepengesoeknad(soeknad)
             repository.opprettSykepengesoeknad(soeknad.copy(soeknadId = soeknadId2))
-            repository.settSykepengeSoeknadStatusTilBehandlet(soeknad.soeknadId)
+            repository.settSykepengeSoeknadJobbTilBehandlet(soeknad.soeknadId)
 
             val hentet = repository.henteSykepengeSoeknaderMedStatusMottatt()
             hentet.size shouldBe 1
@@ -140,6 +146,92 @@ class DokumentkoblingTest :
             hentetEtterUtgaatt[0].forespoerselId shouldBe forespoerselSendt.forespoerselId
             hentetEtterUtgaatt[1].forespoerselId shouldBe forespoerselUtgaatt.forespoerselId
             hentetEtterUtgaatt[1].forespoerselStatus shouldBe ForespoerselStatus.UTGAATT
+        }
+
+        fun opprettDokumentkoblinger() {
+            repository.opprettSykmelding(dokumentkoblingSykmelding)
+            repository.opprettSykepengesoeknad(dokumentkoblingSoeknad)
+            repository.opprettVedtaksperiodeSoeknadKobling(dokumentkoblingVedtaksperiodeSoeknad)
+            repository.opprettForespoerselSendt(dokumentkoblingForespoerselSendt)
+            repository.opprettForespoerselUtgaatt(dokumentkoblingForespoerselUtgaatt)
+        }
+
+        test("hentForespoerselSykmeldingKoblinger() returner riktig når jobber er behandlet") {
+            opprettDokumentkoblinger()
+            dokumentkoblingSoeknad.let {
+                repository.settSykmeldingJobbTilBehandlet(sykmeldingId = it.sykmeldingId)
+                repository.settSykepengeSoeknadJobbTilBehandlet(soeknadId = it.soeknadId)
+            }
+
+            val hentet = repository.hentForespoerselSykmeldingKoblinger()
+
+            hentet.shouldNotBeEmpty()
+            assertSoftly(hentet[0]) {
+                sykmeldingId shouldBe dokumentkoblingSykmelding.sykmeldingId
+                soeknadId shouldBe dokumentkoblingSoeknad.soeknadId
+                forespoerselId shouldBe dokumentkoblingForespoerselSendt.forespoerselId
+                sykmeldingStatus shouldBe Status.BEHANDLET
+                soeknadStatus shouldBe Status.BEHANDLET
+                forespoerselStatus shouldBe ForespoerselStatus.SENDT
+            }
+            hentet[1].forespoerselStatus shouldBe ForespoerselStatus.UTGAATT
+        }
+
+        context("hentForespoerselSykmeldingKoblinger() returner med riktig jobb status") {
+            test("når bare sykmelding er behandlet") {
+                opprettDokumentkoblinger()
+                repository.settSykmeldingJobbTilBehandlet(sykmeldingId = dokumentkoblingSoeknad.sykmeldingId)
+                val hentet = repository.hentForespoerselSykmeldingKoblinger()
+                hentet.shouldNotBeEmpty()
+                assertSoftly(hentet[0]) {
+                    sykmeldingStatus shouldBe Status.BEHANDLET
+                    soeknadStatus shouldBe Status.MOTTATT
+                }
+            }
+
+            test("når bare søknad er behandlet") {
+                opprettDokumentkoblinger()
+                repository.settSykepengeSoeknadJobbTilBehandlet(soeknadId = dokumentkoblingSoeknad.soeknadId)
+                val hentet = repository.hentForespoerselSykmeldingKoblinger()
+                hentet.shouldNotBeEmpty()
+                assertSoftly(hentet[0]) {
+                    sykmeldingStatus shouldBe Status.MOTTATT
+                    soeknadStatus shouldBe Status.BEHANDLET
+                }
+            }
+        }
+
+        test("hentForespoerselSykmeldingKoblinger() returnerer ett resultat per sykmelding koblet til forespørsel") {
+            val vedtaksperiodeId = UUID.randomUUID()
+            val forespoerselId = UUID.randomUUID()
+
+            // Opprett første sykmelding og søknad
+            val sykmeldingId1 = UUID.randomUUID()
+            val soeknadId1 = UUID.randomUUID()
+            repository.opprettSykmelding(dokumentkoblingSykmelding.copy(sykmeldingId = sykmeldingId1))
+            repository.opprettSykepengesoeknad(dokumentkoblingSoeknad.copy(sykmeldingId = sykmeldingId1, soeknadId = soeknadId1))
+            repository.opprettVedtaksperiodeSoeknadKobling(VedtaksperiodeSoeknadKobling(vedtaksperiodeId, soeknadId1))
+
+            // Opprett andre sykmelding og søknad koblet til samme vedtaksperiode
+            val sykmeldingId2 = UUID.randomUUID()
+            val soeknadId2 = UUID.randomUUID()
+            repository.opprettSykmelding(dokumentkoblingSykmelding.copy(sykmeldingId = sykmeldingId2))
+            repository.opprettSykepengesoeknad(dokumentkoblingSoeknad.copy(sykmeldingId = sykmeldingId2, soeknadId = soeknadId2))
+            repository.opprettVedtaksperiodeSoeknadKobling(VedtaksperiodeSoeknadKobling(vedtaksperiodeId, soeknadId2))
+
+            // Opprett én forespørsel koblet til vedtaksperioden
+            repository.opprettForespoerselSendt(
+                dokumentkoblingForespoerselSendt.copy(forespoerselId = forespoerselId, vedtaksperiodeId = vedtaksperiodeId),
+            )
+
+            val hentet = repository.hentForespoerselSykmeldingKoblinger()
+
+            // Forventer 2 resultater: én per sykmelding koblet til samme forespørsel
+            hentet.size shouldBe 2
+            hentet[0].forespoerselId shouldBe forespoerselId
+            hentet[1].forespoerselId shouldBe forespoerselId
+            hentet[0].sykmeldingId shouldBe sykmeldingId1
+            hentet[1].sykmeldingId shouldBe sykmeldingId2
         }
 
         test("opprette innteltsmelding godkjent") {
