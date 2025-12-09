@@ -34,4 +34,5 @@ class InntektsmeldingEntity(
 
 enum class InntektsmeldingStatus {
     GODKJENT,
+    AVVIST,
 }

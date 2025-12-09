@@ -285,5 +285,22 @@ class DokumentkoblingTest :
                     innsendingType shouldBe InnsendingType.FORESPURT_EKSTERN
                 }
             }
+
+            test("opprette inntektsmelding avvist") {
+                val inntektsmeldingAvvist = dokumentkoblingInntektsmeldingAvvist
+                repository.hentInntektsmeldingerMedStatusMottatt() shouldBe emptyList()
+
+                repository.opprettInntektmeldingAvvist(inntektsmeldingAvvist)
+
+                val hentet = repository.hentInntektsmeldingerMedStatusMottatt()
+                hentet.shouldNotBeEmpty()
+                assertSoftly(hentet[0]) {
+                    forespoerselId shouldBe inntektsmeldingAvvist.forespoerselId
+                    vedtaksperiodeId shouldBe inntektsmeldingAvvist.vedtaksperiodeId
+                    status shouldBe Status.MOTTATT
+                    inntektsmeldingStatus shouldBe InntektsmeldingStatus.AVVIST
+                    innsendingType shouldBe InnsendingType.FORESPURT_EKSTERN
+                }
+            }
         },
     )

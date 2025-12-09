@@ -2,6 +2,7 @@
 import dokumentkobling.ForespoerselSendt
 import dokumentkobling.ForespoerselUtgaatt
 import dokumentkobling.InnsendingType
+import dokumentkobling.InntektsmeldingAvvist
 import dokumentkobling.InntektsmeldingGodkjent
 import dokumentkobling.Sykepengesoeknad
 import dokumentkobling.Sykmelding
@@ -55,4 +56,12 @@ val dokumentkoblingInntektsmeldingGodkjent =
         vedtaksperiodeId = UUID.randomUUID(),
         orgnr = dokumentkoblingSykmelding.orgnr,
         innsendingType = InnsendingType.FORESPURT_EKSTERN,
+    )
+
+val dokumentkoblingInntektsmeldingAvvist =
+    InntektsmeldingAvvist(
+        inntektsmeldingId = UUID.randomUUID(),
+        forespoerselId = UUID.randomUUID(),
+        vedtaksperiodeId = UUID.randomUUID(),
+        orgnr = dokumentkoblingSykmelding.orgnr,
     )

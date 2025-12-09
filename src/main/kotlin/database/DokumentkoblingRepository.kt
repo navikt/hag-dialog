@@ -2,6 +2,8 @@ package no.nav.helsearbeidsgiver.database
 
 import dokumentkobling.ForespoerselSendt
 import dokumentkobling.ForespoerselUtgaatt
+import dokumentkobling.InnsendingType
+import dokumentkobling.InntektsmeldingAvvist
 import dokumentkobling.InntektsmeldingGodkjent
 import dokumentkobling.Status
 import dokumentkobling.Sykepengesoeknad
@@ -239,6 +241,19 @@ class DokumentkoblingRepository(
                 it[InntektsmeldingTable.status] = Status.MOTTATT
                 it[InntektsmeldingTable.inntektsmeldingStatus] = InntektsmeldingStatus.GODKJENT
                 it[InntektsmeldingTable.innsendingType] = inntektsmeldingGodkjent.innsendingType
+            }
+        }
+    }
+
+    fun opprettInntektmeldingAvvist(inntektsmeldingAvvist: InntektsmeldingAvvist) {
+        transaction(db) {
+            InntektsmeldingTable.insert {
+                it[id] = inntektsmeldingAvvist.inntektsmeldingId
+                it[InntektsmeldingTable.forespoerselId] = inntektsmeldingAvvist.forespoerselId
+                it[InntektsmeldingTable.vedtaksperiodeId] = inntektsmeldingAvvist.vedtaksperiodeId
+                it[InntektsmeldingTable.status] = Status.MOTTATT
+                it[InntektsmeldingTable.inntektsmeldingStatus] = InntektsmeldingStatus.AVVIST
+                it[InntektsmeldingTable.innsendingType] = InnsendingType.FORESPURT_EKSTERN
             }
         }
     }
