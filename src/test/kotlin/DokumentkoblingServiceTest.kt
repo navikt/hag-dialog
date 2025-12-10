@@ -8,6 +8,7 @@ import io.kotest.matchers.shouldBe
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
+import io.mockk.verify
 import no.nav.helsearbeidsgiver.database.DokumentkoblingRepository
 import no.nav.helsearbeidsgiver.database.DokumentkoblingRepository.ForespoerselSykmeldingKobling
 import no.nav.helsearbeidsgiver.database.ForespoerselStatus
@@ -81,7 +82,11 @@ class DokumentkoblingServiceTest :
             val kobling = lagKobling(forespoerselStatus = ForespoerselStatus.SENDT)
             val koblingUtgaatt = kobling.copy(forespoerselStatus = ForespoerselStatus.UTGAATT)
 
-            every { dokumentkoblingRepository.hentForespoerselSykmeldingKoblinger() } returns listOf(kobling, koblingUtgaatt)
+            every { dokumentkoblingRepository.hentForespoerselSykmeldingKoblinger() } returns
+                listOf(
+                    kobling,
+                    koblingUtgaatt,
+                )
             val forespoersler = dokumentkoblingService.hentForespoerslerKlarForBehandling()
 
             forespoersler shouldHaveSize 2
@@ -119,5 +124,14 @@ class DokumentkoblingServiceTest :
 
             forespoersler shouldHaveSize antallKoblinger
             forespoersler shouldBe koblingerTilfeldigSortert.sortedBy { it.forespoerselOpprettet }
+        }
+
+        test("lagreInntkettsmeldingGodkjent kaller repository") {
+            dokumentkoblingService.lagreInntektsmeldingGodkjent(DokumentKoblingMockUtils.inntektsmeldingGodkjent)
+            verify { dokumentkoblingRepository.opprettInntektmeldingGodkjent(DokumentKoblingMockUtils.inntektsmeldingGodkjent) }
+        }
+        test("lagreInntkettsmeldingAvvist kaller repository") {
+            dokumentkoblingService.lagreInntektsmeldingAvvist(DokumentKoblingMockUtils.inntektsmeldingAvvist)
+            verify { dokumentkoblingRepository.opprettInntektmeldingAvvist(DokumentKoblingMockUtils.inntektsmeldingAvvist) }
         }
     })
