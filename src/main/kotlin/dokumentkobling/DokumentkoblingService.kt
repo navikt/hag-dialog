@@ -50,6 +50,6 @@ class DokumentkoblingService(
     }
 
     fun lagreInntektsmeldingAvvist(inntektsmeldingAvvist: InntektsmeldingAvvist) {
-        // dokumentkoblingRepository.opprettInntektmeldingGodkjent(inntektsmeldingGodkjent)
+        dokumentkoblingRepository.opprettInntektmeldingAvvist(inntektsmeldingAvvist)
     }
 }
