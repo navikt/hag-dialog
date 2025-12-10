@@ -111,7 +111,7 @@ class DokumentkoblingTest :
                 }
             }
 
-            test("henter kun de maksAntallPerHenting eldste forespørslene-sykmelding-koblingene") {
+            test("henter kun de maksAntallPerHenting eldste forespørsel-sykmelding-koblingene") {
                 val forespoersler =
                     List(maksAntallPerHenting + 1) {
                         DokumentKoblingMockUtils.forespoerselSendt.copy(
