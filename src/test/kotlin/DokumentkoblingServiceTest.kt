@@ -34,6 +34,7 @@ class DokumentkoblingServiceTest :
             sykmeldingOpprettet: LocalDateTime = LocalDateTime.now(),
             sykmeldingStatus: Status = Status.BEHANDLET,
             soeknadStatus: Status = Status.BEHANDLET,
+            forespoerselJobbStatus: Status = Status.MOTTATT,
         ) = ForespoerselSykmeldingKobling(
             forespoerselId = forespoerselId,
             forespoerselStatus = forespoerselStatus,
@@ -44,6 +45,7 @@ class DokumentkoblingServiceTest :
             sykmeldingOpprettet = sykmeldingOpprettet,
             sykmeldingStatus = sykmeldingStatus,
             soeknadStatus = soeknadStatus,
+            forespoerselJobbStatus = forespoerselJobbStatus,
         )
 
         test("hentForespoerslerKlarForBehandling skal kun returnere forespørsler hvor sykmelding og søknad er behandlet") {
