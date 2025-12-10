@@ -59,4 +59,5 @@ class DokumentkoblingService(
 
     fun hentKoblingMedForespoerselId(forespoerselId: UUID): ForespoerselSykmeldingKobling? =
         dokumentkoblingRepository.hentKoblingMedForespoerselId(forespoerselId).firstOrNull()
+
 }
