@@ -29,6 +29,17 @@ class DokumentkoblingTest :
             hentet.status shouldBe Status.MOTTATT
         }
 
+        test("henter kun de 1000 eldste sykmeldinger med mottatt status") {
+            // TODO: Implementer test
+            val sykmelding = dokumentkoblingSykmelding
+            repository.opprettSykmelding(sykmelding)
+            val hentet = repository.hentSykmeldingEntitet(sykmelding.sykmeldingId)
+
+            hentet.shouldNotBeNull()
+            hentet.id.value shouldBe sykmelding.sykmeldingId
+            hentet.status shouldBe Status.MOTTATT
+        }
+
         test("opprette og hente sykepengesoeknad koblet til sykmelding") {
             val sykmelding = dokumentkoblingSykmelding
             val soeknad = dokumentkoblingSoeknad

@@ -23,6 +23,9 @@ import java.util.UUID
 class DokumentkoblingRepository(
     private val db: Database,
 ) {
+
+    private val antallKoblingerMaksGrense = 1000
+
     fun opprettSykmelding(sykmelding: Sykmelding) =
         try {
             transaction(db) {
@@ -64,20 +67,24 @@ class DokumentkoblingRepository(
 
     fun henteSykemeldingerMedStatusMottatt(): List<Sykmelding> =
         transaction(db) {
-            SykmeldingEntity.find { SykmeldingTable.status eq Status.MOTTATT }.map { sykmelding ->
-                sykmelding.data
-            }
+            SykmeldingEntity.find { SykmeldingTable.status eq Status.MOTTATT }
+                .orderBy(SykmeldingTable.opprettet to SortOrder.ASC)
+                .limit(antallKoblingerMaksGrense)
+                .map { it.data }
         }
 
     fun henteSykepengeSoeknaderMedStatusMottatt(): List<Sykepengesoeknad> =
         transaction(db) {
-            SykepengesoeknadEntity.find { SykepengesoeknadTable.status eq Status.MOTTATT }.map {
-                Sykepengesoeknad(
-                    soeknadId = it.id.value,
-                    sykmeldingId = it.sykmeldingId,
-                    orgnr = Orgnr(it.orgnr),
-                )
-            }
+            SykepengesoeknadEntity.find { SykepengesoeknadTable.status eq Status.MOTTATT }
+                .orderBy(SykepengesoeknadTable.opprettet to SortOrder.ASC)
+                .limit(antallKoblingerMaksGrense)
+                .map {
+                    Sykepengesoeknad(
+                        soeknadId = it.id.value,
+                        sykmeldingId = it.sykmeldingId,
+                        orgnr = Orgnr(it.orgnr),
+                    )
+                }
         }
 
     fun settSykmeldingJobbTilBehandlet(sykmeldingId: UUID): Unit =
@@ -108,7 +115,7 @@ class DokumentkoblingRepository(
                 val eksisterendeKobling =
                     VedtaksperiodeSoeknadEntity.find {
                         (VedtaksperiodeSoeknadTable.vedtaksperiodeId eq vedtaksperiodeSoeknad.vedtaksperiodeId) and
-                            (VedtaksperiodeSoeknadTable.soeknadId eq vedtaksperiodeSoeknad.soeknadId)
+                                (VedtaksperiodeSoeknadTable.soeknadId eq vedtaksperiodeSoeknad.soeknadId)
                     }
                 if (eksisterendeKobling.empty()) {
                     VedtaksperiodeSoeknadTable.insert {
@@ -202,7 +209,9 @@ class DokumentkoblingRepository(
                 .orderBy(ForespoerselTable.opprettet to SortOrder.ASC)
                 .where {
                     (ForespoerselTable.status eq Status.MOTTATT)
-                }.map {
+                }
+                .limit(antallKoblingerMaksGrense)
+                .map {
                     ForespoerselSykmeldingKobling(
                         forespoerselId = it[ForespoerselTable.forespoerselId],
                         forespoerselStatus = it[ForespoerselTable.forespoerselStatus],
