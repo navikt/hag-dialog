@@ -25,9 +25,8 @@ import java.util.UUID
 
 class DokumentkoblingRepository(
     private val db: Database,
+    private val maksAntallPerHenting: Int,
 ) {
-    private val antallKoblingerMaksGrense = 1000
-
     fun opprettSykmelding(sykmelding: Sykmelding) =
         try {
             transaction(db) {
@@ -72,7 +71,7 @@ class DokumentkoblingRepository(
             SykmeldingEntity
                 .find { SykmeldingTable.status eq Status.MOTTATT }
                 .orderBy(SykmeldingTable.opprettet to SortOrder.ASC)
-                .limit(antallKoblingerMaksGrense)
+                .limit(maksAntallPerHenting)
                 .map { it.data }
         }
 
@@ -81,7 +80,7 @@ class DokumentkoblingRepository(
             SykepengesoeknadEntity
                 .find { SykepengesoeknadTable.status eq Status.MOTTATT }
                 .orderBy(SykepengesoeknadTable.opprettet to SortOrder.ASC)
-                .limit(antallKoblingerMaksGrense)
+                .limit(maksAntallPerHenting)
                 .map {
                     Sykepengesoeknad(
                         soeknadId = it.id.value,
@@ -212,7 +211,7 @@ class DokumentkoblingRepository(
                 ).selectAll()
                 .where { (ForespoerselTable.status eq Status.MOTTATT) }
                 .orderBy(ForespoerselTable.opprettet to SortOrder.ASC)
-                .limit(antallKoblingerMaksGrense)
+                .limit(maksAntallPerHenting)
                 .map {
                     ForespoerselSykmeldingKobling(
                         forespoerselId = it[ForespoerselTable.forespoerselId],

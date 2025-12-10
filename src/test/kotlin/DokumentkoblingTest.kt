@@ -27,7 +27,9 @@ class DokumentkoblingTest :
             InntektsmeldingTable,
         ),
         { db ->
-            val repository = DokumentkoblingRepository(db)
+            val maksAntallPerHenting = 10
+
+            val repository = DokumentkoblingRepository(db = db, maksAntallPerHenting = maksAntallPerHenting)
 
             test("opprette og hente sykmelding") {
                 val sykmelding = DokumentKoblingMockUtils.sykmelding
@@ -77,10 +79,9 @@ class DokumentkoblingTest :
                 hentet[1].soeknadId shouldBe soeknadId2
             }
 
-            test("henter kun de 1000 eldste sykmeldingene med mottatt status") {
-                val maksAntallSykmeldinger = 1000
+            test("henter kun de maksAntallPerHenting eldste sykmeldingene med mottatt status") {
                 val sykmeldinger =
-                    List(maksAntallSykmeldinger + 1) {
+                    List(maksAntallPerHenting + 1) {
                         DokumentKoblingMockUtils.sykmelding.copy(sykmeldingId = UUID.randomUUID())
                     }
 
@@ -89,15 +90,14 @@ class DokumentkoblingTest :
                 val hentet = repository.henteSykemeldingerMedStatusMottatt()
 
                 assertSoftly(hentet) {
-                    size shouldBe maksAntallSykmeldinger
+                    size shouldBe maksAntallPerHenting
                     map { it.sykmeldingId }.shouldNotContain(sykmeldinger.last().sykmeldingId)
                 }
             }
 
-            test("henter kun de 1000 eldste søknadene med mottatt status") {
-                val maksAntallSoeknadene = 1000
+            test("henter kun de maksAntallPerHenting eldste søknadene med mottatt status") {
                 val soeknader =
-                    List(maksAntallSoeknadene + 1) {
+                    List(maksAntallPerHenting + 1) {
                         DokumentKoblingMockUtils.soeknad.copy(soeknadId = UUID.randomUUID())
                     }
 
@@ -106,15 +106,14 @@ class DokumentkoblingTest :
                 val hentet = repository.henteSykepengeSoeknaderMedStatusMottatt()
 
                 assertSoftly(hentet) {
-                    size shouldBe maksAntallSoeknadene
+                    size shouldBe maksAntallPerHenting
                     map { it.soeknadId }.shouldNotContain(soeknader.last().soeknadId)
                 }
             }
 
-            test("henter kun de 1000 eldste forespørslene-sykmelding-koblingene") {
-                val maksAntallFoerspoersler = 1000
+            test("henter kun de maksAntallPerHenting eldste forespørslene-sykmelding-koblingene") {
                 val forespoersler =
-                    List(maksAntallFoerspoersler + 1) {
+                    List(maksAntallPerHenting + 1) {
                         DokumentKoblingMockUtils.forespoerselSendt.copy(
                             forespoerselId = UUID.randomUUID(),
                             vedtaksperiodeId = UUID.randomUUID(),
@@ -152,7 +151,7 @@ class DokumentkoblingTest :
                 val hentet = repository.hentForespoerselSykmeldingKoblinger()
 
                 assertSoftly(hentet) {
-                    size shouldBe maksAntallFoerspoersler
+                    size shouldBe maksAntallPerHenting
                     map { it.forespoerselId }.shouldNotContain(forespoersler.last().forespoerselId)
                 }
             }
