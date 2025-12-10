@@ -60,3 +60,28 @@ data class ForespoerselUtgaatt(
     val vedtaksperiodeId: UUID,
     val orgnr: Orgnr,
 ) : Dokumentkobling()
+
+@Serializable
+@SerialName("InntektsmeldingGodkjent")
+data class InntektsmeldingGodkjent(
+    val inntektsmeldingId: UUID,
+    val forespoerselId: UUID,
+    val vedtaksperiodeId: UUID,
+    val orgnr: Orgnr,
+    val innsendingType: InnsendingType,
+) : Dokumentkobling()
+
+@Serializable
+@SerialName("InntektsmeldingAvvist")
+data class InntektsmeldingAvvist(
+    val inntektsmeldingId: UUID,
+    val forespoerselId: UUID,
+    val vedtaksperiodeId: UUID,
+    val orgnr: Orgnr,
+) : Dokumentkobling()
+
+enum class InnsendingType {
+    FORESPURT,
+    ARBEIDSGIVER_INITIERT,
+    FORESPURT_EKSTERN,
+}

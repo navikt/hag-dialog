@@ -44,4 +44,12 @@ class DokumentkoblingService(
     fun settForespoerselJobbTilBehandlet(forespoerselId: UUID) {
         dokumentkoblingRepository.settForespoerselJobbTilBehandlet(forespoerselId)
     }
+
+    fun lagreInntektsmeldingGodkjent(inntektsmeldingGodkjent: InntektsmeldingGodkjent) {
+        dokumentkoblingRepository.opprettInntektmeldingGodkjent(inntektsmeldingGodkjent)
+    }
+
+    fun lagreInntektsmeldingAvvist(inntektsmeldingAvvist: InntektsmeldingAvvist) {
+        dokumentkoblingRepository.opprettInntektmeldingAvvist(inntektsmeldingAvvist)
+    }
 }
