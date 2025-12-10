@@ -15,6 +15,7 @@ import org.jetbrains.exposed.exceptions.ExposedSQLException
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.and
+import org.jetbrains.exposed.sql.andWhere
 import org.jetbrains.exposed.sql.innerJoin
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
@@ -194,6 +195,15 @@ class DokumentkoblingRepository(
         }
 
     fun hentForespoerselSykmeldingKoblinger(): List<ForespoerselSykmeldingKobling> =
+        hentForespoerselSykmeldingKoblinger(status = Status.MOTTATT)
+
+    fun hentKoblingMedForespoerselId(forespoerselId: UUID): List<ForespoerselSykmeldingKobling> =
+        hentForespoerselSykmeldingKoblinger(forespoerselId = forespoerselId)
+
+    private fun hentForespoerselSykmeldingKoblinger(
+        forespoerselId: UUID? = null,
+        status: Status? = null,
+    ): List<ForespoerselSykmeldingKobling> =
         transaction(db) {
             ForespoerselTable
                 .innerJoin(
@@ -211,6 +221,10 @@ class DokumentkoblingRepository(
                 ).selectAll()
                 .where { (ForespoerselTable.status eq Status.MOTTATT) }
                 .orderBy(ForespoerselTable.opprettet to SortOrder.ASC)
+                .apply {
+                    forespoerselId?.let { andWhere { ForespoerselTable.forespoerselId eq it } }
+                    status?.let { andWhere { ForespoerselTable.status eq it } }
+                }
                 .limit(maksAntallPerHenting)
                 .map {
                     ForespoerselSykmeldingKobling(
@@ -223,6 +237,7 @@ class DokumentkoblingRepository(
                         sykmeldingOpprettet = it[SykmeldingTable.opprettet],
                         sykmeldingStatus = it[SykmeldingTable.status],
                         soeknadStatus = it[SykepengesoeknadTable.status],
+                        forespoerselJobbStatus = it[ForespoerselTable.status],
                     )
                 }
         }
@@ -237,6 +252,7 @@ class DokumentkoblingRepository(
         val sykmeldingOpprettet: LocalDateTime,
         val sykmeldingStatus: Status,
         val soeknadStatus: Status,
+        val forespoerselJobbStatus: Status,
     )
 
     fun opprettInntektmeldingGodkjent(inntektsmeldingGodkjent: InntektsmeldingGodkjent) {

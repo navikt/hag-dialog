@@ -2,6 +2,7 @@ package dokumentkobling
 
 import no.nav.helsearbeidsgiver.database.DokumentkoblingRepository
 import no.nav.helsearbeidsgiver.database.DokumentkoblingRepository.ForespoerselSykmeldingKobling
+import no.nav.helsearbeidsgiver.database.InntektsmeldingEntity
 import java.util.UUID
 
 class DokumentkoblingService(
@@ -52,4 +53,10 @@ class DokumentkoblingService(
     fun lagreInntektsmeldingAvvist(inntektsmeldingAvvist: InntektsmeldingAvvist) {
         dokumentkoblingRepository.opprettInntektmeldingAvvist(inntektsmeldingAvvist)
     }
+
+    fun hentInntektsmeldingerMedStatusMotatt(): List<InntektsmeldingEntity> =
+        dokumentkoblingRepository.hentInntektsmeldingerMedStatusMottatt()
+
+    fun hentKoblingMedForespoerselId(forespoerselId: UUID): ForespoerselSykmeldingKobling? =
+        dokumentkoblingRepository.hentKoblingMedForespoerselId(forespoerselId).firstOrNull()
 }

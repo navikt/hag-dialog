@@ -1,6 +1,7 @@
 package no.nav.helsearbeidsgiver.dialogporten
 
 import no.nav.helsearbeidsgiver.database.DialogRepository
+import no.nav.helsearbeidsgiver.database.InntektsmeldingStatus
 import no.nav.helsearbeidsgiver.dialogporten.handlers.ForespoerselHandler
 import no.nav.helsearbeidsgiver.dialogporten.handlers.InntektsmeldingHandler
 import no.nav.helsearbeidsgiver.dialogporten.handlers.SykepengesoeknadHandler
@@ -12,6 +13,7 @@ import no.nav.helsearbeidsgiver.kafka.Sykepengesoeknad
 import no.nav.helsearbeidsgiver.kafka.Sykmelding
 import no.nav.helsearbeidsgiver.kafka.UtgaattInntektsmeldingForespoersel
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
+import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import java.util.UUID
 
 class DialogportenService(
@@ -61,6 +63,24 @@ class DialogportenService(
         utgaattForespoerselHandler.oppdaterDialog(forespoerselId = forespoerselId, sykmeldingId = sykmeldingId)
     }
 
+    fun oppdaterDialogMedInntektsmelding(
+        forespoerselId: UUID,
+        sykmeldingId: UUID,
+    ) {
+        inntektsmeldingHandler.oppdaterDialog(
+            Inntektsmelding(
+                forespoerselId = forespoerselId,
+                sykmeldingId = sykmeldingId,
+                // TODO: gjør som andre versjoner og endre til å ikke måtte sende inn dette
+                innsendingId = UUID.randomUUID(),
+                orgnr = Orgnr("000000000"),
+                status = Inntektsmelding.Status.GODKJENT,
+                kanal = Inntektsmelding.Kanal.HR_SYSTEM_API,
+            ),
+        )
+    }
+
+    // TODO: DENNE MÅ ENDRES TIL Å IKKE BRUKE INNTEKTSMELDING-KLASSEN
     fun oppdaterDialogMedInntektsmelding(inntektsmelding: Inntektsmelding) {
         inntektsmeldingHandler.oppdaterDialog(inntektsmelding)
     }
