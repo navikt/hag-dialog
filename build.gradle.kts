@@ -72,7 +72,7 @@ dependencies {
     implementation("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
     implementation("org.jetbrains.exposed:exposed-json:$exposedVersion")
     implementation("org.jetbrains.exposed:exposed-dao:$exposedVersion")
-    implementation("no.nav.helsearbeidsgiver:hag-bakgrunnsjobb:${bakgrunnsjobbVersion}")
+    implementation("no.nav.helsearbeidsgiver:hag-bakgrunnsjobb:$bakgrunnsjobbVersion")
 
     // Test dependencies
     val kotestVersion: String by project
