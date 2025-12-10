@@ -12,7 +12,7 @@ import no.nav.helsearbeidsgiver.utils.test.wrapper.genererGyldig
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import java.util.UUID
 
-object DokumentKoblingMock {
+object DokumentKoblingMockUtils {
     val inntektsmeldingId = UUID.randomUUID()
     val forespoerselId = UUID.randomUUID()
     val soeknadId = UUID.randomUUID()

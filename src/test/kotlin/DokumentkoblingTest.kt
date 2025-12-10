@@ -29,7 +29,7 @@ class DokumentkoblingTest :
             val repository = DokumentkoblingRepository(db)
 
             test("opprette og hente sykmelding") {
-                val sykmelding = DokumentKoblingMock.sykmelding
+                val sykmelding = DokumentKoblingMockUtils.sykmelding
                 repository.opprettSykmelding(sykmelding)
                 val hentet = repository.hentSykmeldingEntitet(sykmelding.sykmeldingId)
 
@@ -39,8 +39,8 @@ class DokumentkoblingTest :
             }
 
             test("opprette og hente sykepengesoeknad koblet til sykmelding") {
-                val sykmelding = DokumentKoblingMock.sykmelding
-                val soeknad = DokumentKoblingMock.soeknad
+                val sykmelding = DokumentKoblingMockUtils.sykmelding
+                val soeknad = DokumentKoblingMockUtils.soeknad
                 repository.opprettSykmelding(sykmelding)
                 repository.opprettSykepengesoeknad(soeknad)
 
@@ -53,7 +53,7 @@ class DokumentkoblingTest :
             }
 
             test("hente mottatte sykmeldinger") {
-                val sykmelding = DokumentKoblingMock.sykmelding
+                val sykmelding = DokumentKoblingMockUtils.sykmelding
                 val sykmeldingId2 = UUID.randomUUID()
                 repository.opprettSykmelding(sykmelding)
                 repository.opprettSykmelding(sykmelding.copy(sykmeldingId = sykmeldingId2))
@@ -66,7 +66,7 @@ class DokumentkoblingTest :
             }
 
             test("hente mottatte søknader") {
-                val soeknad = DokumentKoblingMock.soeknad
+                val soeknad = DokumentKoblingMockUtils.soeknad
                 val soeknadId2 = UUID.randomUUID()
                 repository.opprettSykepengesoeknad(soeknad)
                 repository.opprettSykepengesoeknad(soeknad.copy(soeknadId = soeknadId2))
@@ -78,7 +78,7 @@ class DokumentkoblingTest :
             }
 
             test("oppdatere sykmeldinger til behandlet") {
-                val sykmelding = DokumentKoblingMock.sykmelding
+                val sykmelding = DokumentKoblingMockUtils.sykmelding
                 val sykmeldingId2 = UUID.randomUUID()
                 repository.opprettSykmelding(sykmelding)
                 repository.opprettSykmelding(sykmelding.copy(sykmeldingId = sykmeldingId2))
@@ -90,7 +90,7 @@ class DokumentkoblingTest :
             }
 
             test("oppdatere søknader til behandlet") {
-                val soeknad = DokumentKoblingMock.soeknad
+                val soeknad = DokumentKoblingMockUtils.soeknad
                 val soeknadId2 = UUID.randomUUID()
                 repository.opprettSykepengesoeknad(soeknad)
                 repository.opprettSykepengesoeknad(soeknad.copy(soeknadId = soeknadId2))
@@ -102,7 +102,7 @@ class DokumentkoblingTest :
             }
 
             test("opprette vedtaksperiode soeknad kobling") {
-                val vedtaksperiodeSoeknad = DokumentKoblingMock.vedtaksperiodeSoeknadKobling
+                val vedtaksperiodeSoeknad = DokumentKoblingMockUtils.vedtaksperiodeSoeknadKobling
                 val soeknadId2 = UUID.randomUUID()
                 repository.hentListeAvSoeknadIdForVedtaksperiodeId(vedtaksperiodeSoeknad.vedtaksperiodeId) shouldBe emptyList()
                 repository.opprettVedtaksperiodeSoeknadKobling(vedtaksperiodeSoeknad)
@@ -113,7 +113,7 @@ class DokumentkoblingTest :
             }
 
             test("håndtere vedtaksperiode soeknad kobling som finnes fra før uten å oppdatere opprettettidspunktet") {
-                val vedtaksperiodeSoeknad = DokumentKoblingMock.vedtaksperiodeSoeknadKobling
+                val vedtaksperiodeSoeknad = DokumentKoblingMockUtils.vedtaksperiodeSoeknadKobling
                 repository.hentListeAvSoeknadIdForVedtaksperiodeId(vedtaksperiodeSoeknad.vedtaksperiodeId) shouldBe emptyList()
                 repository.opprettVedtaksperiodeSoeknadKobling(vedtaksperiodeSoeknad)
 
@@ -138,8 +138,8 @@ class DokumentkoblingTest :
             }
 
             test("opprette forespoersel sendt og utgaatt") {
-                val forespoerselSendt = DokumentKoblingMock.forespoerselSendt
-                val forespoerselUtgaatt = DokumentKoblingMock.forespoerselUtgaatt
+                val forespoerselSendt = DokumentKoblingMockUtils.forespoerselSendt
+                val forespoerselUtgaatt = DokumentKoblingMockUtils.forespoerselUtgaatt
 
                 repository.hentForespoerslerMedStatusMottattEldstFoerst() shouldBe emptyList()
 
@@ -161,16 +161,16 @@ class DokumentkoblingTest :
             }
 
             fun opprettDokumentkoblinger() {
-                repository.opprettSykmelding(DokumentKoblingMock.sykmelding)
-                repository.opprettSykepengesoeknad(DokumentKoblingMock.soeknad)
-                repository.opprettVedtaksperiodeSoeknadKobling(DokumentKoblingMock.vedtaksperiodeSoeknadKobling)
-                repository.opprettForespoerselSendt(DokumentKoblingMock.forespoerselSendt)
-                repository.opprettForespoerselUtgaatt(DokumentKoblingMock.forespoerselUtgaatt)
+                repository.opprettSykmelding(DokumentKoblingMockUtils.sykmelding)
+                repository.opprettSykepengesoeknad(DokumentKoblingMockUtils.soeknad)
+                repository.opprettVedtaksperiodeSoeknadKobling(DokumentKoblingMockUtils.vedtaksperiodeSoeknadKobling)
+                repository.opprettForespoerselSendt(DokumentKoblingMockUtils.forespoerselSendt)
+                repository.opprettForespoerselUtgaatt(DokumentKoblingMockUtils.forespoerselUtgaatt)
             }
 
             test("hentForespoerselSykmeldingKoblinger() returner riktig når jobber er behandlet") {
                 opprettDokumentkoblinger()
-                DokumentKoblingMock.soeknad.let {
+                DokumentKoblingMockUtils.soeknad.let {
                     repository.settSykmeldingJobbTilBehandlet(sykmeldingId = it.sykmeldingId)
                     repository.settSykepengeSoeknadJobbTilBehandlet(soeknadId = it.soeknadId)
                 }
@@ -179,9 +179,9 @@ class DokumentkoblingTest :
 
                 hentet.shouldNotBeEmpty()
                 assertSoftly(hentet[0]) {
-                    sykmeldingId shouldBe DokumentKoblingMock.sykmelding.sykmeldingId
-                    soeknadId shouldBe DokumentKoblingMock.soeknad.soeknadId
-                    forespoerselId shouldBe DokumentKoblingMock.forespoerselSendt.forespoerselId
+                    sykmeldingId shouldBe DokumentKoblingMockUtils.sykmelding.sykmeldingId
+                    soeknadId shouldBe DokumentKoblingMockUtils.soeknad.soeknadId
+                    forespoerselId shouldBe DokumentKoblingMockUtils.forespoerselSendt.forespoerselId
                     sykmeldingStatus shouldBe Status.BEHANDLET
                     soeknadStatus shouldBe Status.BEHANDLET
                     forespoerselStatus shouldBe ForespoerselStatus.SENDT
@@ -192,7 +192,7 @@ class DokumentkoblingTest :
             context("hentForespoerselSykmeldingKoblinger() returner med riktig jobb status") {
                 test("når bare sykmelding er behandlet") {
                     opprettDokumentkoblinger()
-                    repository.settSykmeldingJobbTilBehandlet(sykmeldingId = DokumentKoblingMock.soeknad.sykmeldingId)
+                    repository.settSykmeldingJobbTilBehandlet(sykmeldingId = DokumentKoblingMockUtils.soeknad.sykmeldingId)
                     val hentet = repository.hentForespoerselSykmeldingKoblinger()
                     hentet.shouldNotBeEmpty()
                     assertSoftly(hentet[0]) {
@@ -203,7 +203,7 @@ class DokumentkoblingTest :
 
                 test("når bare søknad er behandlet") {
                     opprettDokumentkoblinger()
-                    repository.settSykepengeSoeknadJobbTilBehandlet(soeknadId = DokumentKoblingMock.soeknad.soeknadId)
+                    repository.settSykepengeSoeknadJobbTilBehandlet(soeknadId = DokumentKoblingMockUtils.soeknad.soeknadId)
                     val hentet = repository.hentForespoerselSykmeldingKoblinger()
                     hentet.shouldNotBeEmpty()
                     assertSoftly(hentet[0]) {
@@ -220,9 +220,9 @@ class DokumentkoblingTest :
                 // Opprett første sykmelding og søknad
                 val sykmeldingId1 = UUID.randomUUID()
                 val soeknadId1 = UUID.randomUUID()
-                repository.opprettSykmelding(DokumentKoblingMock.sykmelding.copy(sykmeldingId = sykmeldingId1))
+                repository.opprettSykmelding(DokumentKoblingMockUtils.sykmelding.copy(sykmeldingId = sykmeldingId1))
                 repository.opprettSykepengesoeknad(
-                    DokumentKoblingMock.soeknad.copy(
+                    DokumentKoblingMockUtils.soeknad.copy(
                         sykmeldingId = sykmeldingId1,
                         soeknadId = soeknadId1,
                     ),
@@ -237,9 +237,9 @@ class DokumentkoblingTest :
                 // Opprett andre sykmelding og søknad koblet til samme vedtaksperiode
                 val sykmeldingId2 = UUID.randomUUID()
                 val soeknadId2 = UUID.randomUUID()
-                repository.opprettSykmelding(DokumentKoblingMock.sykmelding.copy(sykmeldingId = sykmeldingId2))
+                repository.opprettSykmelding(DokumentKoblingMockUtils.sykmelding.copy(sykmeldingId = sykmeldingId2))
                 repository.opprettSykepengesoeknad(
-                    DokumentKoblingMock.soeknad.copy(
+                    DokumentKoblingMockUtils.soeknad.copy(
                         sykmeldingId = sykmeldingId2,
                         soeknadId = soeknadId2,
                     ),
@@ -253,7 +253,7 @@ class DokumentkoblingTest :
 
                 // Opprett én forespørsel koblet til vedtaksperioden
                 repository.opprettForespoerselSendt(
-                    DokumentKoblingMock.forespoerselSendt.copy(
+                    DokumentKoblingMockUtils.forespoerselSendt.copy(
                         forespoerselId = forespoerselId,
                         vedtaksperiodeId = vedtaksperiodeId,
                     ),
@@ -270,7 +270,7 @@ class DokumentkoblingTest :
             }
 
             test("opprette inntektsmelding godkjent") {
-                val inntektsmeldingGodkjent = DokumentKoblingMock.inntektsmeldingGodkjent
+                val inntektsmeldingGodkjent = DokumentKoblingMockUtils.inntektsmeldingGodkjent
                 repository.hentInntektsmeldingerMedStatusMottatt() shouldBe emptyList()
 
                 repository.opprettInntektmeldingGodkjent(inntektsmeldingGodkjent)
@@ -287,7 +287,7 @@ class DokumentkoblingTest :
             }
 
             test("opprette inntektsmelding avvist") {
-                val inntektsmeldingAvvist = DokumentKoblingMock.inntektsmeldingAvvist
+                val inntektsmeldingAvvist = DokumentKoblingMockUtils.inntektsmeldingAvvist
                 repository.hentInntektsmeldingerMedStatusMottatt() shouldBe emptyList()
 
                 repository.opprettInntektmeldingAvvist(inntektsmeldingAvvist)

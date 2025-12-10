@@ -26,19 +26,19 @@ class SykepengeSoeknadJobbTest :
                 dialogportenService = dialogportenService,
             )
 
-        val sykmeldingId: UUID = DokumentKoblingMock.sykmelding.sykmeldingId
-        val soeknadId: UUID = DokumentKoblingMock.soeknad.soeknadId
+        val sykmeldingId: UUID = DokumentKoblingMockUtils.sykmelding.sykmeldingId
+        val soeknadId: UUID = DokumentKoblingMockUtils.soeknad.soeknadId
 
         val sykmeldingEntity =
             mockk<SykmeldingEntity> {
                 every { this@mockk.sykmeldingId } returns sykmeldingId
-                every { data } returns DokumentKoblingMock.sykmelding
+                every { data } returns DokumentKoblingMockUtils.sykmelding
             }
 
         beforeTest {
             clearAllMocks()
             every { repository.settSykepengeSoeknadJobbTilBehandlet(any()) } just runs
-            every { repository.henteSykepengeSoeknaderMedStatusMottatt() } returns listOf(DokumentKoblingMock.soeknad)
+            every { repository.henteSykepengeSoeknaderMedStatusMottatt() } returns listOf(DokumentKoblingMockUtils.soeknad)
             every { repository.hentSykmeldingEntitet(sykmeldingId) } returns sykmeldingEntity
             every { dialogportenService.oppdaterDialogMedSykepengesoeknad(any()) } just runs
         }
@@ -80,10 +80,10 @@ class SykepengeSoeknadJobbTest :
 
             every { sykmeldingEntity.status } returns Status.BEHANDLET
 
-            val exceptionSoeknad = DokumentKoblingMock.soeknad.copy(soeknadId = UUID.randomUUID())
+            val exceptionSoeknad = DokumentKoblingMockUtils.soeknad.copy(soeknadId = UUID.randomUUID())
 
             every { repository.henteSykepengeSoeknaderMedStatusMottatt() } returns
-                listOf(exceptionSoeknad, DokumentKoblingMock.soeknad)
+                listOf(exceptionSoeknad, DokumentKoblingMockUtils.soeknad)
             every { dialogportenService.opprettTransmissionForSoeknad(exceptionSoeknad) } throws
                 NotFoundException("Fant ikke sykmelding for søknad")
 
