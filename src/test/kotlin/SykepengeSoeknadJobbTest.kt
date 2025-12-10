@@ -26,19 +26,19 @@ class SykepengeSoeknadJobbTest :
                 dialogportenService = dialogportenService,
             )
 
-        val sykmeldingId: UUID = dokumentkoblingSykmelding.sykmeldingId
-        val soeknadId: UUID = dokumentkoblingSoeknad.soeknadId
+        val sykmeldingId: UUID = DokumentKoblingMockUtils.sykmelding.sykmeldingId
+        val soeknadId: UUID = DokumentKoblingMockUtils.soeknad.soeknadId
 
         val sykmeldingEntity =
             mockk<SykmeldingEntity> {
                 every { this@mockk.sykmeldingId } returns sykmeldingId
-                every { data } returns dokumentkoblingSykmelding
+                every { data } returns DokumentKoblingMockUtils.sykmelding
             }
 
         beforeTest {
             clearAllMocks()
             every { repository.settSykepengeSoeknadJobbTilBehandlet(any()) } just runs
-            every { repository.henteSykepengeSoeknaderMedStatusMottatt() } returns listOf(dokumentkoblingSoeknad)
+            every { repository.henteSykepengeSoeknaderMedStatusMottatt() } returns listOf(DokumentKoblingMockUtils.soeknad)
             every { repository.hentSykmeldingEntitet(sykmeldingId) } returns sykmeldingEntity
             every { dialogportenService.oppdaterDialogMedSykepengesoeknad(any()) } just runs
         }
@@ -80,9 +80,10 @@ class SykepengeSoeknadJobbTest :
 
             every { sykmeldingEntity.status } returns Status.BEHANDLET
 
-            val exceptionSoeknad = dokumentkoblingSoeknad.copy(soeknadId = UUID.randomUUID())
+            val exceptionSoeknad = DokumentKoblingMockUtils.soeknad.copy(soeknadId = UUID.randomUUID())
 
-            every { repository.henteSykepengeSoeknaderMedStatusMottatt() } returns listOf(exceptionSoeknad, dokumentkoblingSoeknad)
+            every { repository.henteSykepengeSoeknaderMedStatusMottatt() } returns
+                listOf(exceptionSoeknad, DokumentKoblingMockUtils.soeknad)
             every { dialogportenService.opprettTransmissionForSoeknad(exceptionSoeknad) } throws
                 NotFoundException("Fant ikke sykmelding for søknad")
 

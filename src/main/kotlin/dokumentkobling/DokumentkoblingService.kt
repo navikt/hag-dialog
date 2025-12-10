@@ -48,4 +48,8 @@ class DokumentkoblingService(
     fun lagreInntektsmeldingGodkjent(inntektsmeldingGodkjent: InntektsmeldingGodkjent) {
         dokumentkoblingRepository.opprettInntektmeldingGodkjent(inntektsmeldingGodkjent)
     }
+
+    fun lagreInntektsmeldingAvvist(inntektsmeldingAvvist: InntektsmeldingAvvist) {
+        dokumentkoblingRepository.opprettInntektmeldingAvvist(inntektsmeldingAvvist)
+    }
 }

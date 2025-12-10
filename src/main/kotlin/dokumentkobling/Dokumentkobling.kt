@@ -71,6 +71,15 @@ data class InntektsmeldingGodkjent(
     val innsendingType: InnsendingType,
 ) : Dokumentkobling()
 
+@Serializable
+@SerialName("InntektsmeldingAvvist")
+data class InntektsmeldingAvvist(
+    val inntektsmeldingId: UUID,
+    val forespoerselId: UUID,
+    val vedtaksperiodeId: UUID,
+    val orgnr: Orgnr,
+) : Dokumentkobling()
+
 enum class InnsendingType {
     FORESPURT,
     ARBEIDSGIVER_INITIERT,

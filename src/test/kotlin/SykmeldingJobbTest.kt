@@ -23,11 +23,11 @@ class SykmeldingJobbTest :
                 dialogportenService = dialogportenService,
             )
 
-        val sykmeldingId: UUID = dokumentkoblingSykmelding.sykmeldingId
+        val sykmeldingId: UUID = DokumentKoblingMockUtils.sykmelding.sykmeldingId
 
         beforeTest {
             clearAllMocks()
-            every { repository.henteSykemeldingerMedStatusMottatt() } returns listOf(dokumentkoblingSykmelding)
+            every { repository.henteSykemeldingerMedStatusMottatt() } returns listOf(DokumentKoblingMockUtils.sykmelding)
             every { dialogportenService.opprettOgLagreDialog(any()) } just runs
             every { repository.settSykmeldingJobbTilBehandlet(any()) } just runs
         }
@@ -44,14 +44,14 @@ class SykmeldingJobbTest :
         test("sykmeldingjobb skal oprette dialog for sykmelding #2 selv om sykmelding #1 feiler") {
 
             val exceptionSykmeldingId = UUID.randomUUID()
-            val exceptionSykmelding = dokumentkoblingSykmelding.copy(exceptionSykmeldingId)
+            val exceptionSykmelding = DokumentKoblingMockUtils.sykmelding.copy(exceptionSykmeldingId)
             every { dialogportenService.opprettOgLagreDialog(match { it.sykmeldingId == exceptionSykmeldingId }) } throws
                 NotFoundException("Feil ved henting")
 
             every { repository.henteSykemeldingerMedStatusMottatt() } returns
                 listOf(
                     exceptionSykmelding,
-                    dokumentkoblingSykmelding,
+                    DokumentKoblingMockUtils.sykmelding,
                 )
 
             sykmeldingJobb.doJob()
