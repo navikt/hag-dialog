@@ -126,11 +126,11 @@ class DokumentkoblingServiceTest :
             forespoersler shouldBe koblingerTilfeldigSortert.sortedBy { it.forespoerselOpprettet }
         }
 
-        test("lagreInntkettsmeldingGodkjent kaller repository") {
+        test("lagreInntektsmeldingGodkjent kaller repository") {
             dokumentkoblingService.lagreInntektsmeldingGodkjent(DokumentKoblingMockUtils.inntektsmeldingGodkjent)
             verify { dokumentkoblingRepository.opprettInntektmeldingGodkjent(DokumentKoblingMockUtils.inntektsmeldingGodkjent) }
         }
-        test("lagreInntkettsmeldingAvvist kaller repository") {
+        test("llagreInntektsmeldingAvvist kaller repository") {
             dokumentkoblingService.lagreInntektsmeldingAvvist(DokumentKoblingMockUtils.inntektsmeldingAvvist)
             verify { dokumentkoblingRepository.opprettInntektmeldingAvvist(DokumentKoblingMockUtils.inntektsmeldingAvvist) }
         }
