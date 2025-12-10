@@ -1,4 +1,3 @@
-
 import dokumentkobling.ForespoerselSendt
 import dokumentkobling.ForespoerselUtgaatt
 import dokumentkobling.InnsendingType
@@ -13,55 +12,62 @@ import no.nav.helsearbeidsgiver.utils.test.wrapper.genererGyldig
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import java.util.UUID
 
-val dokumentkoblingSykmelding =
-    Sykmelding(
-        sykmeldingId = UUID.randomUUID(),
-        orgnr = Orgnr.genererGyldig(),
-        foedselsdato = 1.januar,
-        fulltNavn = "Ola Nordmann",
-        sykmeldingsperioder = listOf(Sykmeldingsperiode(1.januar, 31.januar)),
-    )
+object DokumentKoblingMock {
+    val inntektsmeldingId = UUID.randomUUID()
+    val forespoerselId = UUID.randomUUID()
+    val soeknadId = UUID.randomUUID()
+    val vedtaksperiodeId = UUID.randomUUID()
+    val sykmeldingId = UUID.randomUUID()
+    val orgnr = Orgnr.genererGyldig()
 
-val dokumentkoblingSoeknad =
-    Sykepengesoeknad(
-        soeknadId = UUID.randomUUID(),
-        sykmeldingId = dokumentkoblingSykmelding.sykmeldingId,
-        orgnr = dokumentkoblingSykmelding.orgnr,
-    )
+    val sykmelding =
+        Sykmelding(
+            sykmeldingId = sykmeldingId,
+            orgnr = orgnr,
+            foedselsdato = 1.januar,
+            fulltNavn = "Ola Nordmann",
+            sykmeldingsperioder = listOf(Sykmeldingsperiode(1.januar, 31.januar)),
+        )
 
-val dokumentkoblingVedtaksperiodeSoeknad =
-    VedtaksperiodeSoeknadKobling(
-        vedtaksperiodeId = UUID.randomUUID(),
-        soeknadId = dokumentkoblingSoeknad.soeknadId,
-    )
+    val soeknad =
+        Sykepengesoeknad(
+            soeknadId = soeknadId,
+            sykmeldingId = sykmeldingId,
+            orgnr = orgnr,
+        )
 
-val dokumentkoblingForespoerselSendt =
-    ForespoerselSendt(
-        forespoerselId = UUID.randomUUID(),
-        vedtaksperiodeId = dokumentkoblingVedtaksperiodeSoeknad.vedtaksperiodeId,
-        orgnr = dokumentkoblingSykmelding.orgnr,
-    )
+    val vedtaksperiodeSoeknadKobling =
+        VedtaksperiodeSoeknadKobling(
+            vedtaksperiodeId = vedtaksperiodeId,
+            soeknadId = soeknadId,
+        )
 
-val dokumentkoblingForespoerselUtgaatt =
-    ForespoerselUtgaatt(
-        forespoerselId = dokumentkoblingForespoerselSendt.forespoerselId,
-        vedtaksperiodeId = dokumentkoblingVedtaksperiodeSoeknad.vedtaksperiodeId,
-        orgnr = dokumentkoblingSykmelding.orgnr,
-    )
+    val forespoerselSendt =
+        ForespoerselSendt(
+            forespoerselId = forespoerselId,
+            vedtaksperiodeId = vedtaksperiodeId,
+            orgnr = orgnr,
+        )
 
-val dokumentkoblingInntektsmeldingGodkjent =
-    InntektsmeldingGodkjent(
-        inntektsmeldingId = UUID.randomUUID(),
-        forespoerselId = UUID.randomUUID(),
-        vedtaksperiodeId = UUID.randomUUID(),
-        orgnr = dokumentkoblingSykmelding.orgnr,
-        innsendingType = InnsendingType.FORESPURT_EKSTERN,
-    )
-
-val dokumentkoblingInntektsmeldingAvvist =
-    InntektsmeldingAvvist(
-        inntektsmeldingId = UUID.randomUUID(),
-        forespoerselId = UUID.randomUUID(),
-        vedtaksperiodeId = UUID.randomUUID(),
-        orgnr = dokumentkoblingSykmelding.orgnr,
-    )
+    val forespoerselUtgaatt =
+        ForespoerselUtgaatt(
+            forespoerselId = forespoerselId,
+            vedtaksperiodeId = vedtaksperiodeId,
+            orgnr = orgnr,
+        )
+    val inntektsmeldingGodkjent =
+        InntektsmeldingGodkjent(
+            inntektsmeldingId = inntektsmeldingId,
+            forespoerselId = forespoerselId,
+            vedtaksperiodeId = vedtaksperiodeId,
+            orgnr = orgnr,
+            innsendingType = InnsendingType.FORESPURT_EKSTERN,
+        )
+    val inntektsmeldingAvvist =
+        InntektsmeldingAvvist(
+            inntektsmeldingId = inntektsmeldingId,
+            forespoerselId = forespoerselId,
+            vedtaksperiodeId = vedtaksperiodeId,
+            orgnr = orgnr,
+        )
+}
