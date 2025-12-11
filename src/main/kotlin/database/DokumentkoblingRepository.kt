@@ -60,11 +60,6 @@ class DokumentkoblingRepository(
             throw e
         }
 
-    fun hentSykepengesoeknad(soeknadId: UUID): SykepengesoeknadEntity? =
-        transaction(db) {
-            SykepengesoeknadEntity.findById(soeknadId)
-        }
-
     fun henteSykemeldingerMedStatusMottatt(): List<Sykmelding> =
         transaction(db) {
             SykmeldingEntity.find { SykmeldingTable.status eq Status.MOTTATT }.map { sykmelding ->
@@ -128,20 +123,6 @@ class DokumentkoblingRepository(
             throw e
         }
 
-    fun hentListeAvSoeknadIdForVedtaksperiodeId(vedtaksperiodeId: UUID): List<UUID> =
-        transaction(db) {
-            VedtaksperiodeSoeknadEntity.find { VedtaksperiodeSoeknadTable.vedtaksperiodeId eq vedtaksperiodeId }.map {
-                it.soeknadId
-            }
-        }
-
-    fun hentSoeknaderForVedtaksperiodeId(vedtaksperiodeId: UUID): List<VedtaksperiodeSoeknadEntity> =
-        transaction(db) {
-            VedtaksperiodeSoeknadEntity
-                .find { VedtaksperiodeSoeknadTable.vedtaksperiodeId eq vedtaksperiodeId }
-                .toList()
-        }
-
     fun opprettForespoerselSendt(forespoerselSendt: ForespoerselSendt) {
         opprettForespoersel(
             forespoerselId = forespoerselSendt.forespoerselId,
@@ -177,14 +158,6 @@ class DokumentkoblingRepository(
             throw e
         }
     }
-
-    fun hentForespoerslerMedStatusMottattEldstFoerst(): List<ForespoerselEntity> =
-        transaction(db) {
-            ForespoerselEntity
-                .find { ForespoerselTable.status eq Status.MOTTATT }
-                .orderBy(ForespoerselTable.opprettet to SortOrder.ASC)
-                .toList()
-        }
 
     fun hentForespoerselSykmeldingKoblinger(): List<ForespoerselSykmeldingKobling> =
         transaction(db) {
@@ -257,12 +230,4 @@ class DokumentkoblingRepository(
             }
         }
     }
-
-    fun hentInntektsmeldingerMedStatusMottatt(): List<InntektsmeldingEntity> =
-        transaction(db) {
-            InntektsmeldingEntity
-                .find { InntektsmeldingTable.status eq Status.MOTTATT }
-                .orderBy(InntektsmeldingTable.opprettet to SortOrder.ASC)
-                .toList()
-        }
 }
