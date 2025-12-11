@@ -224,8 +224,7 @@ class DokumentkoblingRepository(
                 .apply {
                     forespoerselId?.let { andWhere { ForespoerselTable.forespoerselId eq it } }
                     status?.let { andWhere { ForespoerselTable.status eq it } }
-                }
-                .limit(maksAntallPerHenting)
+                }.limit(maksAntallPerHenting)
                 .map {
                     ForespoerselSykmeldingKobling(
                         forespoerselId = it[ForespoerselTable.forespoerselId],
