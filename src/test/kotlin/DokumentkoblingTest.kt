@@ -4,6 +4,7 @@ import dokumentkobling.VedtaksperiodeSoeknadKobling
 import io.kotest.assertions.assertSoftly
 import io.kotest.matchers.collections.shouldContainOnly
 import io.kotest.matchers.collections.shouldNotBeEmpty
+import io.kotest.matchers.collections.shouldNotContain
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import no.nav.helsearbeidsgiver.database.DokumentkoblingRepository
@@ -26,13 +27,14 @@ class DokumentkoblingTest :
             InntektsmeldingTable,
         ),
         { db ->
-            val repository = DokumentkoblingRepository(db)
+            val maksAntallPerHenting = 10
+
+            val repository = DokumentkoblingRepository(db = db, maksAntallPerHenting = maksAntallPerHenting)
 
             test("opprette og hente sykmelding") {
                 val sykmelding = DokumentKoblingMockUtils.sykmelding
                 repository.opprettSykmelding(sykmelding)
                 val hentet = repository.hentSykmeldingEntitet(sykmelding.sykmeldingId)
-
                 hentet.shouldNotBeNull()
                 hentet.id.value shouldBe sykmelding.sykmeldingId
                 hentet.status shouldBe Status.MOTTATT
@@ -75,6 +77,83 @@ class DokumentkoblingTest :
                 hentet.size shouldBe 2
                 hentet[0].soeknadId shouldBe soeknad.soeknadId
                 hentet[1].soeknadId shouldBe soeknadId2
+            }
+
+            test("henter kun de maksAntallPerHenting eldste sykmeldingene med mottatt status") {
+                val sykmeldinger =
+                    List(maksAntallPerHenting + 1) {
+                        DokumentKoblingMockUtils.sykmelding.copy(sykmeldingId = UUID.randomUUID())
+                    }
+
+                sykmeldinger.forEach { repository.opprettSykmelding(it) }
+
+                val hentet = repository.henteSykemeldingerMedStatusMottatt()
+
+                assertSoftly(hentet) {
+                    size shouldBe maksAntallPerHenting
+                    map { it.sykmeldingId }.shouldNotContain(sykmeldinger.last().sykmeldingId)
+                }
+            }
+
+            test("henter kun de maksAntallPerHenting eldste søknadene med mottatt status") {
+                val soeknader =
+                    List(maksAntallPerHenting + 1) {
+                        DokumentKoblingMockUtils.soeknad.copy(soeknadId = UUID.randomUUID())
+                    }
+
+                soeknader.forEach { repository.opprettSykepengesoeknad(it) }
+
+                val hentet = repository.henteSykepengeSoeknaderMedStatusMottatt()
+
+                assertSoftly(hentet) {
+                    size shouldBe maksAntallPerHenting
+                    map { it.soeknadId }.shouldNotContain(soeknader.last().soeknadId)
+                }
+            }
+
+            test("henter kun de maksAntallPerHenting eldste forespørsel-sykmelding-koblingene") {
+                val forespoersler =
+                    List(maksAntallPerHenting + 1) {
+                        DokumentKoblingMockUtils.forespoerselSendt.copy(
+                            forespoerselId = UUID.randomUUID(),
+                            vedtaksperiodeId = UUID.randomUUID(),
+                        )
+                    }
+
+                val vedtaksperiodeSoeknadKobling =
+                    forespoersler.map {
+                        DokumentKoblingMockUtils.vedtaksperiodeSoeknadKobling.copy(
+                            vedtaksperiodeId = it.vedtaksperiodeId,
+                            soeknadId = UUID.randomUUID(),
+                        )
+                    }
+
+                val soeknader =
+                    vedtaksperiodeSoeknadKobling.map {
+                        DokumentKoblingMockUtils.soeknad.copy(
+                            soeknadId = it.soeknadId,
+                            sykmeldingId = UUID.randomUUID(),
+                        )
+                    }
+
+                val sykmeldinger =
+                    soeknader.map {
+                        DokumentKoblingMockUtils.sykmelding.copy(
+                            sykmeldingId = it.sykmeldingId,
+                        )
+                    }
+
+                forespoersler.forEach { repository.opprettForespoerselSendt(it) }
+                vedtaksperiodeSoeknadKobling.forEach { repository.opprettVedtaksperiodeSoeknadKobling(it) }
+                soeknader.forEach { repository.opprettSykepengesoeknad(it) }
+                sykmeldinger.forEach { repository.opprettSykmelding(it) }
+
+                val hentet = repository.hentForespoerselSykmeldingKoblinger()
+
+                assertSoftly(hentet) {
+                    size shouldBe maksAntallPerHenting
+                    map { it.forespoerselId }.shouldNotContain(forespoersler.last().forespoerselId)
+                }
             }
 
             test("oppdatere sykmeldinger til behandlet") {
