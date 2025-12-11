@@ -286,6 +286,7 @@ class DokumentkoblingRepository(
             InntektsmeldingEntity
                 .find { InntektsmeldingTable.status eq Status.MOTTATT }
                 .orderBy(InntektsmeldingTable.opprettet to SortOrder.ASC)
+                .limit(maksAntallPerHenting)
                 .toList()
         }
 
