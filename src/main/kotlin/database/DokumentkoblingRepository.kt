@@ -288,4 +288,11 @@ class DokumentkoblingRepository(
                 .orderBy(InntektsmeldingTable.opprettet to SortOrder.ASC)
                 .toList()
         }
+
+    fun setInntektsmeldingJobbTilBehandlet(inntektsmeldingId: UUID): Unit =
+        transaction(db) {
+            InntektsmeldingTable.update({ InntektsmeldingTable.id eq inntektsmeldingId }) {
+                it[InntektsmeldingTable.status] = Status.BEHANDLET
+            }
+        }
 }
