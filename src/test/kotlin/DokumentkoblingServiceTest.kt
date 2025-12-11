@@ -12,6 +12,9 @@ import io.mockk.verify
 import no.nav.helsearbeidsgiver.database.DokumentkoblingRepository
 import no.nav.helsearbeidsgiver.database.DokumentkoblingRepository.ForespoerselSykmeldingKobling
 import no.nav.helsearbeidsgiver.database.ForespoerselStatus
+import no.nav.helsearbeidsgiver.database.InntektsmeldingEntity
+import no.nav.helsearbeidsgiver.database.InntektsmeldingStatus
+import no.nav.helsearbeidsgiver.database.SykmeldingEntity
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -132,8 +135,22 @@ class DokumentkoblingServiceTest :
             dokumentkoblingService.lagreInntektsmeldingGodkjent(DokumentKoblingMockUtils.inntektsmeldingGodkjent)
             verify { dokumentkoblingRepository.opprettInntektmeldingGodkjent(DokumentKoblingMockUtils.inntektsmeldingGodkjent) }
         }
+
         test("lagreInntektsmeldingAvvist kaller repository") {
             dokumentkoblingService.lagreInntektsmeldingAvvist(DokumentKoblingMockUtils.inntektsmeldingAvvist)
             verify { dokumentkoblingRepository.opprettInntektmeldingAvvist(DokumentKoblingMockUtils.inntektsmeldingAvvist) }
+        }
+
+        test("finn orgnr for sykmeldingId") {
+            val sykmelding = DokumentKoblingMockUtils.sykmelding
+            val sykmeldingEntity =
+                mockk<SykmeldingEntity> {
+                    every { sykmeldingId } returns sykmelding.sykmeldingId
+                    every { data } returns sykmelding
+                }
+            every { dokumentkoblingRepository.hentSykmeldingEntitet(sykmelding.sykmeldingId) } returns sykmeldingEntity
+            dokumentkoblingService.lagreSykmelding(sykmelding)
+            val orgnr = dokumentkoblingService.hentSykmeldingOrgnr(sykmelding.sykmeldingId)
+            orgnr shouldBe DokumentKoblingMockUtils.orgnr
         }
     })
