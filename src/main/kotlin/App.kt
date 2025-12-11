@@ -50,7 +50,7 @@ fun startServer() {
 
     logger.info("Setter opp DialogRepository...")
     val dialogRepository = DialogRepository(database.db)
-    val dokumentkoblingRepository = DokumentkoblingRepository(database.db)
+    val dokumentkoblingRepository = DokumentkoblingRepository(db = database.db, maksAntallPerHenting = 1000)
     val dokumentKoblingSerivce = DokumentkoblingService(dokumentkoblingRepository)
     val dialogportenService =
         DialogportenService(

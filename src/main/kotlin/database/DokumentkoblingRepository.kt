@@ -25,6 +25,7 @@ import java.util.UUID
 
 class DokumentkoblingRepository(
     private val db: Database,
+    private val maksAntallPerHenting: Int,
 ) {
     fun opprettSykmelding(sykmelding: Sykmelding) =
         try {
@@ -62,20 +63,26 @@ class DokumentkoblingRepository(
 
     fun henteSykemeldingerMedStatusMottatt(): List<Sykmelding> =
         transaction(db) {
-            SykmeldingEntity.find { SykmeldingTable.status eq Status.MOTTATT }.map { sykmelding ->
-                sykmelding.data
-            }
+            SykmeldingEntity
+                .find { SykmeldingTable.status eq Status.MOTTATT }
+                .orderBy(SykmeldingTable.opprettet to SortOrder.ASC)
+                .limit(maksAntallPerHenting)
+                .map { it.data }
         }
 
     fun henteSykepengeSoeknaderMedStatusMottatt(): List<Sykepengesoeknad> =
         transaction(db) {
-            SykepengesoeknadEntity.find { SykepengesoeknadTable.status eq Status.MOTTATT }.map {
-                Sykepengesoeknad(
-                    soeknadId = it.id.value,
-                    sykmeldingId = it.sykmeldingId,
-                    orgnr = Orgnr(it.orgnr),
-                )
-            }
+            SykepengesoeknadEntity
+                .find { SykepengesoeknadTable.status eq Status.MOTTATT }
+                .orderBy(SykepengesoeknadTable.opprettet to SortOrder.ASC)
+                .limit(maksAntallPerHenting)
+                .map {
+                    Sykepengesoeknad(
+                        soeknadId = it.id.value,
+                        sykmeldingId = it.sykmeldingId,
+                        orgnr = Orgnr(it.orgnr),
+                    )
+                }
         }
 
     fun settSykmeldingJobbTilBehandlet(sykmeldingId: UUID): Unit =
@@ -175,10 +182,10 @@ class DokumentkoblingRepository(
                     { SykepengesoeknadTable.sykmeldingId },
                     { SykmeldingTable.sykmeldingId },
                 ).selectAll()
+                .where { (ForespoerselTable.status eq Status.MOTTATT) }
                 .orderBy(ForespoerselTable.opprettet to SortOrder.ASC)
-                .where {
-                    (ForespoerselTable.status eq Status.MOTTATT)
-                }.map {
+                .limit(maksAntallPerHenting)
+                .map {
                     ForespoerselSykmeldingKobling(
                         forespoerselId = it[ForespoerselTable.forespoerselId],
                         forespoerselStatus = it[ForespoerselTable.forespoerselStatus],
