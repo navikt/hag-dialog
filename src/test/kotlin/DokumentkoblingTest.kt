@@ -46,7 +46,7 @@ class DokumentkoblingTest :
                 repository.opprettSykmelding(sykmelding)
                 repository.opprettSykepengesoeknad(soeknad)
 
-                val hentetSoeknad = repository.hentSykepengesoeknad(soeknad.soeknadId)
+                val hentetSoeknad = hentSykepengesoeknad(db = db, soeknadId = soeknad.soeknadId)
 
                 hentetSoeknad.shouldNotBeNull()
                 hentetSoeknad.id.value shouldBe soeknad.soeknadId
@@ -183,33 +183,45 @@ class DokumentkoblingTest :
             test("opprette vedtaksperiode soeknad kobling") {
                 val vedtaksperiodeSoeknad = DokumentKoblingMockUtils.vedtaksperiodeSoeknadKobling
                 val soeknadId2 = UUID.randomUUID()
-                repository.hentListeAvSoeknadIdForVedtaksperiodeId(vedtaksperiodeSoeknad.vedtaksperiodeId) shouldBe emptyList()
+                hentListeAvSoeknadIdForVedtaksperiodeId(
+                    db = db,
+                    vedtaksperiodeId = vedtaksperiodeSoeknad.vedtaksperiodeId,
+                ) shouldBe emptyList()
                 repository.opprettVedtaksperiodeSoeknadKobling(vedtaksperiodeSoeknad)
                 repository.opprettVedtaksperiodeSoeknadKobling(vedtaksperiodeSoeknad.copy(soeknadId = soeknadId2))
-                val hentet = repository.hentListeAvSoeknadIdForVedtaksperiodeId(vedtaksperiodeSoeknad.vedtaksperiodeId)
+                val hentet =
+                    hentListeAvSoeknadIdForVedtaksperiodeId(
+                        db = db,
+                        vedtaksperiodeId = vedtaksperiodeSoeknad.vedtaksperiodeId,
+                    )
                 hentet.size shouldBe 2
                 hentet shouldContainOnly listOf(vedtaksperiodeSoeknad.soeknadId, soeknadId2)
             }
 
             test("håndtere vedtaksperiode soeknad kobling som finnes fra før uten å oppdatere opprettettidspunktet") {
                 val vedtaksperiodeSoeknad = DokumentKoblingMockUtils.vedtaksperiodeSoeknadKobling
-                repository.hentListeAvSoeknadIdForVedtaksperiodeId(vedtaksperiodeSoeknad.vedtaksperiodeId) shouldBe emptyList()
+                hentListeAvSoeknadIdForVedtaksperiodeId(
+                    db = db,
+                    vedtaksperiodeId = vedtaksperiodeSoeknad.vedtaksperiodeId,
+                ) shouldBe emptyList()
                 repository.opprettVedtaksperiodeSoeknadKobling(vedtaksperiodeSoeknad)
 
                 val opprettetFoer =
-                    repository
-                        .hentSoeknaderForVedtaksperiodeId(vedtaksperiodeSoeknad.vedtaksperiodeId)
+                    hentSoeknaderForVedtaksperiodeId(db = db, vedtaksperiodeId = vedtaksperiodeSoeknad.vedtaksperiodeId)
                         .first()
                         .opprettet
 
                 repository.opprettVedtaksperiodeSoeknadKobling(vedtaksperiodeSoeknad)
 
                 val opprettetEtter =
-                    repository
-                        .hentSoeknaderForVedtaksperiodeId(vedtaksperiodeSoeknad.vedtaksperiodeId)
+                    hentSoeknaderForVedtaksperiodeId(db = db, vedtaksperiodeId = vedtaksperiodeSoeknad.vedtaksperiodeId)
                         .first()
                         .opprettet
-                val hentet = repository.hentListeAvSoeknadIdForVedtaksperiodeId(vedtaksperiodeSoeknad.vedtaksperiodeId)
+                val hentet =
+                    hentListeAvSoeknadIdForVedtaksperiodeId(
+                        db = db,
+                        vedtaksperiodeId = vedtaksperiodeSoeknad.vedtaksperiodeId,
+                    )
 
                 hentet.size shouldBe 1
                 hentet shouldContainOnly listOf(vedtaksperiodeSoeknad.soeknadId)
@@ -220,11 +232,11 @@ class DokumentkoblingTest :
                 val forespoerselSendt = DokumentKoblingMockUtils.forespoerselSendt
                 val forespoerselUtgaatt = DokumentKoblingMockUtils.forespoerselUtgaatt
 
-                repository.hentForespoerslerMedStatusMottattEldstFoerst() shouldBe emptyList()
+                hentForespoerslerMedStatusMottattEldstFoerst(db = db) shouldBe emptyList()
 
                 repository.opprettForespoerselSendt(forespoerselSendt)
 
-                val hentet = repository.hentForespoerslerMedStatusMottattEldstFoerst()
+                val hentet = hentForespoerslerMedStatusMottattEldstFoerst(db = db)
                 hentet.size shouldBe 1
                 hentet[0].forespoerselId shouldBe forespoerselSendt.forespoerselId
                 hentet[0].vedtaksperiodeId shouldBe forespoerselSendt.vedtaksperiodeId
@@ -232,7 +244,7 @@ class DokumentkoblingTest :
                 hentet[0].forespoerselStatus shouldBe ForespoerselStatus.SENDT
 
                 repository.opprettForespoerselUtgaatt(forespoerselUtgaatt)
-                val hentetEtterUtgaatt = repository.hentForespoerslerMedStatusMottattEldstFoerst()
+                val hentetEtterUtgaatt = hentForespoerslerMedStatusMottattEldstFoerst(db = db)
                 hentetEtterUtgaatt.size shouldBe 2
                 hentetEtterUtgaatt[0].forespoerselId shouldBe forespoerselSendt.forespoerselId
                 hentetEtterUtgaatt[1].forespoerselId shouldBe forespoerselUtgaatt.forespoerselId
@@ -350,11 +362,11 @@ class DokumentkoblingTest :
 
             test("opprette inntektsmelding godkjent") {
                 val inntektsmeldingGodkjent = DokumentKoblingMockUtils.inntektsmeldingGodkjent
-                repository.hentInntektsmeldingerMedStatusMottatt() shouldBe emptyList()
+                hentInntektsmeldingerMedStatusMottatt(db = db) shouldBe emptyList()
 
                 repository.opprettInntektmeldingGodkjent(inntektsmeldingGodkjent)
 
-                val hentet = repository.hentInntektsmeldingerMedStatusMottatt()
+                val hentet = hentInntektsmeldingerMedStatusMottatt(db = db)
                 hentet.shouldNotBeEmpty()
                 assertSoftly(hentet[0]) {
                     forespoerselId shouldBe inntektsmeldingGodkjent.forespoerselId
@@ -367,11 +379,11 @@ class DokumentkoblingTest :
 
             test("opprette inntektsmelding avvist") {
                 val inntektsmeldingAvvist = DokumentKoblingMockUtils.inntektsmeldingAvvist
-                repository.hentInntektsmeldingerMedStatusMottatt() shouldBe emptyList()
+                hentInntektsmeldingerMedStatusMottatt(db = db) shouldBe emptyList()
 
                 repository.opprettInntektmeldingAvvist(inntektsmeldingAvvist)
 
-                val hentet = repository.hentInntektsmeldingerMedStatusMottatt()
+                val hentet = hentInntektsmeldingerMedStatusMottatt(db = db)
                 hentet.shouldNotBeEmpty()
                 assertSoftly(hentet[0]) {
                     forespoerselId shouldBe inntektsmeldingAvvist.forespoerselId
