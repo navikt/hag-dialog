@@ -1,19 +1,14 @@
 import dokumentkobling.DokumentkoblingService
 import dokumentkobling.Status
-import dokumentkobling.SykepengeSoeknadJobb
-import dokumentkobling.opprettTransmissionForSoeknad
 import io.kotest.core.spec.style.FunSpec
-import io.ktor.server.plugins.NotFoundException
 import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.verify
-import no.nav.helsearbeidsgiver.database.DokumentkoblingRepository
 import no.nav.helsearbeidsgiver.database.InntektsmeldingEntity
 import no.nav.helsearbeidsgiver.database.InntektsmeldingStatus
-import no.nav.helsearbeidsgiver.database.SykmeldingEntity
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
 import no.nav.helsearbeidsgiver.dokumentkobling.InntektsmeldingJobb
 import java.util.UUID
@@ -41,7 +36,7 @@ class InntektsmeldingJobbTest :
                     every { innsendingType } returns DokumentKoblingMockUtils.inntektsmeldingGodkjent.innsendingType
                     every { inntektsmeldingStatus } returns InntektsmeldingStatus.GODKJENT
                 }
-            every { dokumentkoblingService.hentInntektsmeldingerMedStatusMotatt() } returns listOf(inntektsmeldingEntity)
+            every { dokumentkoblingService.hentInntektsmeldingerMedStatusMottatt() } returns listOf(inntektsmeldingEntity)
             every { dokumentkoblingService.hentKoblingMedForespoerselId(DokumentKoblingMockUtils.forespoerselId) } returns
                 DokumentKoblingMockUtils.forespoerselSykmeldingKobling
             every { dokumentkoblingService.hentSykmeldingOrgnr(sykmeldingId) } returns DokumentKoblingMockUtils.orgnr
@@ -61,7 +56,7 @@ class InntektsmeldingJobbTest :
 
             inntektsmeldingJobb.doJob()
 
-            verify(exactly = 1) { dokumentkoblingService.hentInntektsmeldingerMedStatusMotatt() }
+            verify(exactly = 1) { dokumentkoblingService.hentInntektsmeldingerMedStatusMottatt() }
             verify(exactly = 0) { dialogportenService.oppdaterDialogMedSykepengesoeknad(any()) }
             verify(exactly = 0) { dokumentkoblingService.settInntektsmeldingJobbTilBehandlet(DokumentKoblingMockUtils.inntektsmeldingId) }
         }
@@ -72,7 +67,7 @@ class InntektsmeldingJobbTest :
 
             inntektsmeldingJobb.doJob()
 
-            verify(exactly = 1) { dokumentkoblingService.hentInntektsmeldingerMedStatusMotatt() }
+            verify(exactly = 1) { dokumentkoblingService.hentInntektsmeldingerMedStatusMottatt() }
             verify(exactly = 0) { dialogportenService.oppdaterDialogMedSykepengesoeknad(any()) }
             verify(exactly = 0) { dokumentkoblingService.settInntektsmeldingJobbTilBehandlet(DokumentKoblingMockUtils.inntektsmeldingId) }
         }

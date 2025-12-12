@@ -57,13 +57,14 @@ class DokumentkoblingService(
         dokumentkoblingRepository.opprettInntektmeldingAvvist(inntektsmeldingAvvist)
     }
 
-    fun hentInntektsmeldingerMedStatusMotatt(): List<InntektsmeldingEntity> =
+    fun hentInntektsmeldingerMedStatusMottatt(): List<InntektsmeldingEntity> =
         dokumentkoblingRepository.hentInntektsmeldingerMedStatusMottatt()
 
     fun settInntektsmeldingJobbTilBehandlet(inntektsmeldingId: UUID) {
-        dokumentkoblingRepository.setInntektsmeldingJobbTilBehandlet(inntektsmeldingId)
+        dokumentkoblingRepository.settInntektsmeldingJobbTilBehandlet(inntektsmeldingId)
     }
 
+    // TODO sorter resultatet etter samme regel som i filtrerNyesteSykmeldingPerForespoersel
     fun hentKoblingMedForespoerselId(forespoerselId: UUID): ForespoerselSykmeldingKobling? =
         dokumentkoblingRepository.hentKoblingMedForespoerselId(forespoerselId).firstOrNull()
 }

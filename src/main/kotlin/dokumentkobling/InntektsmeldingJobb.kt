@@ -19,7 +19,7 @@ class InntektsmeldingJobb(
     private val dialogportenService: DialogportenService,
 ) : RecurringJob(CoroutineScope(Dispatchers.IO), Duration.ofSeconds(30).toMillis()) {
     override fun doJob() {
-        val inntektsmeldinger = dokumentkoblingService.hentInntektsmeldingerMedStatusMotatt()
+        val inntektsmeldinger = dokumentkoblingService.hentInntektsmeldingerMedStatusMottatt()
         inntektsmeldinger.forEach { inntektsmelding ->
             try {
                 val kobling = dokumentkoblingService.hentKoblingMedForespoerselId(inntektsmelding.forespoerselId)

@@ -289,7 +289,7 @@ class DokumentkoblingRepository(
                 .toList()
         }
 
-    fun setInntektsmeldingJobbTilBehandlet(inntektsmeldingId: UUID): Unit =
+    fun settInntektsmeldingJobbTilBehandlet(inntektsmeldingId: UUID): Unit =
         transaction(db) {
             InntektsmeldingTable.update({ InntektsmeldingTable.id eq inntektsmeldingId }) {
                 it[InntektsmeldingTable.status] = Status.BEHANDLET
