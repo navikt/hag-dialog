@@ -76,8 +76,8 @@ dependencies {
     implementation("org.jetbrains.exposed:exposed-json:$exposedVersion")
     implementation("org.jetbrains.exposed:exposed-dao:$exposedVersion")
     implementation("no.nav.helsearbeidsgiver:hag-bakgrunnsjobb:$bakgrunnsjobbVersion")
-    implementation("io.micrometer:micrometer-registry-prometheus:${microMeterVersion}")
-    implementation("io.ktor:ktor-server-metrics-micrometer:${ktorVersion}")
+    implementation("io.micrometer:micrometer-registry-prometheus:$microMeterVersion")
+    implementation("io.ktor:ktor-server-metrics-micrometer:$ktorVersion")
 
     // Test dependencies
     val kotestVersion: String by project
