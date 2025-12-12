@@ -4,6 +4,7 @@ import io.kotest.assertions.assertSoftly
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.mockk.clearAllMocks
 import io.mockk.every
@@ -152,5 +153,21 @@ class DokumentkoblingServiceTest :
             dokumentkoblingService.lagreSykmelding(sykmelding)
             val orgnr = dokumentkoblingService.hentSykmeldingOrgnr(sykmelding.sykmeldingId)
             orgnr shouldBe DokumentKoblingMockUtils.orgnr
+        }
+
+        test("hentKoblingMedForespoerselId skal velge nyeste sykmelding") {
+            val nySykmeldingKobling = lagKobling()
+            val gammelSykmeldingKobling =
+                nySykmeldingKobling.copy(
+                    sykmeldingId = UUID.randomUUID(),
+                    sykmeldingOpprettet = LocalDateTime.now().minusDays(3),
+                )
+
+            val koblinger = listOf(nySykmeldingKobling, gammelSykmeldingKobling)
+            every { dokumentkoblingRepository.hentKoblingMedForespoerselId(nySykmeldingKobling.forespoerselId) } returns koblinger
+            val forespoerselKobling = dokumentkoblingService.hentKoblingMedForespoerselId(nySykmeldingKobling.forespoerselId)
+
+            forespoerselKobling.shouldNotBeNull()
+            forespoerselKobling.sykmeldingId shouldBe nySykmeldingKobling.sykmeldingId
         }
     })
