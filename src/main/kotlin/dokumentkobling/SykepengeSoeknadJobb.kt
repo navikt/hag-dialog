@@ -5,6 +5,7 @@ import kotlinx.coroutines.Dispatchers
 import no.nav.hag.utils.bakgrunnsjobb.RecurringJob
 import no.nav.helsearbeidsgiver.database.DokumentkoblingRepository
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
+import no.nav.helsearbeidsgiver.metrikk.oppdaterMetrikkForAntallSykepengesoeknaderMedStatusMottatt
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import java.time.Duration
 
@@ -14,9 +15,14 @@ class SykepengeSoeknadJobb(
 ) : RecurringJob(CoroutineScope(Dispatchers.IO), Duration.ofSeconds(30).toMillis()) {
     override fun doJob() {
         val soeknader = dokumentkoblingRepository.henteSykepengeSoeknaderMedStatusMottatt()
+
+        oppdaterMetrikkForAntallSykepengesoeknaderMedStatusMottatt(nyVerdi = soeknader.size)
+            .also { logger.info("Fant ${soeknader.size} sykepengesøknader med status MOTTATT klar til behandling.") }
+
         soeknader.forEach { soeknad ->
             try {
                 val sykmelding = dokumentkoblingRepository.hentSykmeldingEntitet(soeknad.sykmeldingId)
+
                 if (sykmelding?.status == Status.BEHANDLET) {
                     dialogportenService.opprettTransmissionForSoeknad(soeknad)
                     dokumentkoblingRepository.settSykepengeSoeknadJobbTilBehandlet(soeknad.soeknadId)
