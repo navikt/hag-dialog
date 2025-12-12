@@ -19,6 +19,7 @@ import no.nav.helsearbeidsgiver.dokumentkobling.ForespoerselJobb
 import no.nav.helsearbeidsgiver.helsesjekker.HelsesjekkService
 import no.nav.helsearbeidsgiver.helsesjekker.naisRoutes
 import no.nav.helsearbeidsgiver.kafka.configureKafkaConsumer
+import no.nav.helsearbeidsgiver.metrikk.metrikkRoutes
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import org.slf4j.LoggerFactory
 
@@ -51,7 +52,7 @@ fun startServer() {
     logger.info("Setter opp DialogRepository...")
     val dialogRepository = DialogRepository(database.db)
     val dokumentkoblingRepository = DokumentkoblingRepository(db = database.db, maksAntallPerHenting = 1000)
-    val dokumentKoblingSerivce = DokumentkoblingService(dokumentkoblingRepository)
+    val dokumentKoblingService = DokumentkoblingService(dokumentkoblingRepository)
     val dialogportenService =
         DialogportenService(
             dialogRepository = dialogRepository,
@@ -70,7 +71,7 @@ fun startServer() {
                 dialogportenService = dialogportenService,
             ),
             ForespoerselJobb(
-                dokumentkoblingService = dokumentKoblingSerivce,
+                dokumentkoblingService = dokumentKoblingService,
                 dialogportenService = dialogportenService,
             ),
         )
@@ -82,6 +83,7 @@ fun startServer() {
         module = {
             routing {
                 naisRoutes(HelsesjekkService(database.db))
+                metrikkRoutes()
             }
             configureKafkaConsumer(unleashFeatureToggles, dokumentkoblingRepository, dialogportenService)
             startRecurringJobs(jobber)
