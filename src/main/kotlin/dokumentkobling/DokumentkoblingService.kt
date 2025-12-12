@@ -2,7 +2,6 @@ package dokumentkobling
 
 import no.nav.helsearbeidsgiver.database.DokumentkoblingRepository
 import no.nav.helsearbeidsgiver.database.DokumentkoblingRepository.ForespoerselSykmeldingKobling
-import no.nav.helsearbeidsgiver.database.InntektsmeldingEntity
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import java.util.UUID
 import kotlin.collections.filter
@@ -58,7 +57,7 @@ class DokumentkoblingService(
         dokumentkoblingRepository.opprettInntektmeldingAvvist(inntektsmeldingAvvist)
     }
 
-    fun hentInntektsmeldingerMedStatusMottatt(): List<InntektsmeldingEntity> =
+    fun hentInntektsmeldingerMedStatusMottatt(): List<DokumentkoblingRepository.InntektsmeldingResultat> =
         dokumentkoblingRepository.hentInntektsmeldingerMedStatusMottatt()
 
     fun settInntektsmeldingJobbTilBehandlet(inntektsmeldingId: UUID) {

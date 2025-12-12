@@ -28,18 +28,19 @@ class InntektsmeldingJobb(
                     dialogportenService.opprettTransmissionForInntektsmelding(
                         sykmeldingId = kobling.sykmeldingId,
                         forespoerselId = kobling.forespoerselId,
-                        inntektsmeldingId = inntektsmelding.id.value,
+                        inntektsmeldingId = inntektsmelding.inntektsmeldingId,
                         orgnr = orgnr,
                         inntektsmeldingStatus = inntektsmelding.inntektsmeldingStatus,
                         innsendingType = inntektsmelding.innsendingType,
                     )
-                    dokumentkoblingService.settInntektsmeldingJobbTilBehandlet(inntektsmelding.id.value)
+                    dokumentkoblingService.settInntektsmeldingJobbTilBehandlet(inntektsmelding.inntektsmeldingId)
                 }
             } catch (e: Exception) {
-                "Feil ved behandling av inntektsmelding med forespoersel id ${inntektsmelding.forespoerselId}".also {
-                    logger.error(it)
-                    sikkerLogger().error(it, e)
-                }
+                "Feil ved behandling av inntektsmelding med inntektsmeldingId: ${inntektsmelding.inntektsmeldingId} og forespoerselId: ${inntektsmelding.forespoerselId}"
+                    .also {
+                        logger.error(it)
+                        sikkerLogger().error(it, e)
+                    }
             }
         }
     }

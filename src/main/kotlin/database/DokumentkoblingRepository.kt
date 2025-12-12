@@ -252,13 +252,29 @@ class DokumentkoblingRepository(
         }
     }
 
-    fun hentInntektsmeldingerMedStatusMottatt(): List<InntektsmeldingEntity> =
+    data class InntektsmeldingResultat(
+        val inntektsmeldingId: UUID,
+        val forespoerselId: UUID,
+        val vedtaksperiodeId: UUID,
+        val inntektsmeldingStatus: InntektsmeldingStatus,
+        val innsendingType: InnsendingType,
+    )
+
+    fun hentInntektsmeldingerMedStatusMottatt(): List<InntektsmeldingResultat> =
         transaction(db) {
             InntektsmeldingEntity
                 .find { InntektsmeldingTable.status eq Status.MOTTATT }
                 .orderBy(InntektsmeldingTable.opprettet to SortOrder.ASC)
                 .limit(maksAntallPerHenting)
-                .toList()
+                .map {
+                    InntektsmeldingResultat(
+                        inntektsmeldingId = it.id.value,
+                        forespoerselId = it.forespoerselId,
+                        vedtaksperiodeId = it.vedtaksperiodeId,
+                        inntektsmeldingStatus = it.inntektsmeldingStatus,
+                        innsendingType = it.innsendingType,
+                    )
+                }
         }
 
     fun settInntektsmeldingJobbTilBehandlet(inntektsmeldingId: UUID): Unit =
