@@ -77,7 +77,7 @@ fun startServer() {
             InntektsmeldingJobb(
                 dokumentkoblingService = dokumentKoblingSerivce,
                 dialogportenService = dialogportenService,
-            )
+            ),
         )
 
     logger.info("Starter server...")
