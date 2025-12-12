@@ -192,7 +192,6 @@ class DokumentkoblingRepository(
                     { SykepengesoeknadTable.sykmeldingId },
                     { SykmeldingTable.sykmeldingId },
                 ).selectAll()
-                .where { (ForespoerselTable.status eq Status.MOTTATT) }
                 .orderBy(ForespoerselTable.opprettet to SortOrder.ASC)
                 .apply {
                     forespoerselId?.let { andWhere { ForespoerselTable.forespoerselId eq it } }

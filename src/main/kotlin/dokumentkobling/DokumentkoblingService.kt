@@ -5,6 +5,7 @@ import no.nav.helsearbeidsgiver.database.DokumentkoblingRepository.ForespoerselS
 import no.nav.helsearbeidsgiver.database.InntektsmeldingEntity
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import java.util.UUID
+import kotlin.collections.filter
 
 class DokumentkoblingService(
     private val dokumentkoblingRepository: DokumentkoblingRepository,
@@ -64,7 +65,11 @@ class DokumentkoblingService(
         dokumentkoblingRepository.settInntektsmeldingJobbTilBehandlet(inntektsmeldingId)
     }
 
-    // TODO sorter resultatet etter samme regel som i filtrerNyesteSykmeldingPerForespoersel
     fun hentKoblingMedForespoerselId(forespoerselId: UUID): ForespoerselSykmeldingKobling? =
-        dokumentkoblingRepository.hentKoblingMedForespoerselId(forespoerselId).firstOrNull()
+        dokumentkoblingRepository
+            .hentKoblingMedForespoerselId(forespoerselId)
+            .filter { it.sykmeldingStatus == Status.BEHANDLET }
+            .filter { it.soeknadStatus == Status.BEHANDLET }
+            .filtrerNyesteSykmeldingPerForespoersel()
+            .firstOrNull()
 }
