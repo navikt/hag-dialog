@@ -76,7 +76,7 @@ fun startServer() {
                 dialogportenService = dialogportenService,
             ),
             InntektsmeldingJobb(
-                dokumentkoblingService = dokumentKoblingSerivce,
+                dokumentkoblingService = dokumentKoblingService,
                 dialogportenService = dialogportenService,
             ),
         )
