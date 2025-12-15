@@ -30,10 +30,11 @@ class ForespoerselJobb(
                         dokumentkoblingService.settForespoerselJobbTilBehandlet(forespoerselId = forespoersel.forespoerselId)
                     }
                 } catch (e: Exception) {
-                    "Feil ved behandling av forespørsel for vedtaksperiode $vedtaksperiodeId".also {
-                        logger.error(it)
-                        sikkerLogger().error(it, e)
-                    }
+                    "Feil ved behandling av forespørsler ${forespoersler.map { it.forespoerselId }} for vedtaksperiode $vedtaksperiodeId"
+                        .also {
+                            logger.error(it)
+                            sikkerLogger().error(it, e)
+                        }
                 }
             }
     }

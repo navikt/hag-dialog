@@ -45,50 +45,50 @@ dependencies {
     implementation("no.nav.helsearbeidsgiver:utils:$utilsVersion")
 
     // Eksterne avhengigheter
-    val unleashVersion: String by project
-    val kafkaVersion: String by project
-    val logbackVersion: String by project
-    val logbackEncoderVersion: String by project
+    val bakgrunnsjobbVersion: String by project
+    val exposedVersion: String by project
     val flywayVersion: String by project
     val hikariVersion: String by project
-    val postgresqlVersion: String by project
-    val exposedVersion: String by project
-    val bakgrunnsjobbVersion: String by project
-    val microMeterVersion: String by project
+    val kafkaVersion: String by project
     val ktorVersion: String by project
+    val logbackEncoderVersion: String by project
+    val logbackVersion: String by project
+    val microMeterVersion: String by project
+    val postgresqlVersion: String by project
+    val unleashVersion: String by project
 
     implementation("ch.qos.logback:logback-classic:$logbackVersion")
-    implementation("net.logstash.logback:logstash-logback-encoder:$logbackEncoderVersion")
+    implementation("com.zaxxer:HikariCP:$hikariVersion")
     implementation("io.getunleash:unleash-client-java:$unleashVersion")
-    implementation("org.apache.kafka:kafka-clients:$kafkaVersion")
-    implementation("io.ktor:ktor-server-core")
-    implementation("io.ktor:ktor-server-netty-jvm")
     implementation("io.ktor:ktor-client-apache5")
     implementation("io.ktor:ktor-client-content-negotiation")
     implementation("io.ktor:ktor-client-core")
     implementation("io.ktor:ktor-serialization-kotlinx-json")
+    implementation("io.ktor:ktor-server-core")
+    implementation("io.ktor:ktor-server-metrics-micrometer:$ktorVersion")
+    implementation("io.ktor:ktor-server-netty-jvm")
+    implementation("io.micrometer:micrometer-registry-prometheus:$microMeterVersion")
+    implementation("net.logstash.logback:logstash-logback-encoder:$logbackEncoderVersion")
+    implementation("no.nav.helsearbeidsgiver:hag-bakgrunnsjobb:$bakgrunnsjobbVersion")
+    implementation("org.apache.kafka:kafka-clients:$kafkaVersion")
     implementation("org.flywaydb:flyway-database-postgresql:$flywayVersion")
-    implementation("com.zaxxer:HikariCP:$hikariVersion")
-    implementation("org.postgresql:postgresql:$postgresqlVersion")
     implementation("org.jetbrains.exposed:exposed-core:$exposedVersion")
+    implementation("org.jetbrains.exposed:exposed-dao:$exposedVersion")
     implementation("org.jetbrains.exposed:exposed-java-time:$exposedVersion")
     implementation("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
     implementation("org.jetbrains.exposed:exposed-json:$exposedVersion")
-    implementation("org.jetbrains.exposed:exposed-dao:$exposedVersion")
-    implementation("no.nav.helsearbeidsgiver:hag-bakgrunnsjobb:$bakgrunnsjobbVersion")
-    implementation("io.micrometer:micrometer-registry-prometheus:$microMeterVersion")
-    implementation("io.ktor:ktor-server-metrics-micrometer:$ktorVersion")
+    implementation("org.postgresql:postgresql:$postgresqlVersion")
 
     // Test dependencies
     val kotestVersion: String by project
     val mockkVersion: String by project
     val testcontainersVersion: String by project
-    testImplementation(testFixtures("no.nav.helsearbeidsgiver:utils:$utilsVersion"))
     testImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
     testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
-    testImplementation("io.mockk:mockk:$mockkVersion")
-    testImplementation("org.testcontainers:postgresql:$testcontainersVersion")
     testImplementation("io.ktor:ktor-server-test-host")
+    testImplementation("io.mockk:mockk:$mockkVersion")
+    testImplementation(testFixtures("no.nav.helsearbeidsgiver:utils:$utilsVersion"))
+    testImplementation("org.testcontainers:postgresql:$testcontainersVersion")
 }
 
 tasks {
