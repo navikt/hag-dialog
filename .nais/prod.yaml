@@ -45,6 +45,7 @@ spec:
     outbound:
       external:
         - host: helsearbeidsgiver-unleash-api.nav.cloud.nais.io
+       #  - host: platform.altinn.no
       rules:
         - application: logging
           namespace: nais-system
@@ -53,8 +54,27 @@ spec:
     scopes:
       consumes:
         - name: "digdir:dialogporten.serviceprovider"
-  azure:
-    application:
-      enabled: true
+  gcp:
+    sqlInstances:
+      - type: POSTGRES_18
+        tier: db-custom-1-3840
+        diskAutoresize: true
+        databases:
+          - name: dialog
   envFrom:
     - secret: dialog-unleash-api-token
+  env:
+    - name: ALTINN_3_BASE_URL
+      value: "https://platform.altinn.no"
+    - name: ALTINN_DIALOGPORTEN_RESSURS
+      value: "nav_sykepenger_dialog"
+    - name: DIALOGPORTEN_SCOPE
+      value: "digdir:dialogporten.serviceprovider"
+    - name: NAV_ARBEIDSGIVER_API_BASEURL
+      value: "https://sykepenger-api.ekstern.nav.no"
+    - name: NAV_ARBEIDSGIVER_GUI_BASEURL
+      value: "https://arbeidsgiver.ekstern.nav.no"
+    - name: DIALOG_KAFKA_TOPIC
+      value: helsearbeidsgiver.dialog
+    - name: DOKUMENT_KOBLING_KAFKA_TOPIC
+      value: helsearbeidsgiver.dokument-kobling
