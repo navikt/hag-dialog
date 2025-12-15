@@ -3,13 +3,17 @@ import dokumentkobling.ForespoerselUtgaatt
 import dokumentkobling.InnsendingType
 import dokumentkobling.InntektsmeldingAvvist
 import dokumentkobling.InntektsmeldingGodkjent
+import dokumentkobling.Status
 import dokumentkobling.Sykepengesoeknad
 import dokumentkobling.Sykmelding
 import dokumentkobling.Sykmeldingsperiode
 import dokumentkobling.VedtaksperiodeSoeknadKobling
+import no.nav.helsearbeidsgiver.database.DokumentkoblingRepository
+import no.nav.helsearbeidsgiver.database.ForespoerselStatus
 import no.nav.helsearbeidsgiver.utils.test.date.januar
 import no.nav.helsearbeidsgiver.utils.test.wrapper.genererGyldig
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
+import java.time.LocalDateTime
 import java.util.UUID
 
 object DokumentKoblingMockUtils {
@@ -69,5 +73,19 @@ object DokumentKoblingMockUtils {
             forespoerselId = forespoerselId,
             vedtaksperiodeId = vedtaksperiodeId,
             orgnr = orgnr,
+        )
+
+    val forespoerselSykmeldingKobling =
+        DokumentkoblingRepository.ForespoerselSykmeldingKobling(
+            forespoerselId = forespoerselId,
+            forespoerselStatus = ForespoerselStatus.SENDT,
+            forespoerselOpprettet = LocalDateTime.now(),
+            vedtaksperiodeId = vedtaksperiodeId,
+            soeknadId = soeknadId,
+            sykmeldingId = sykmeldingId,
+            sykmeldingOpprettet = LocalDateTime.now(),
+            sykmeldingStatus = Status.BEHANDLET,
+            soeknadStatus = Status.BEHANDLET,
+            forespoerselJobbStatus = Status.BEHANDLET,
         )
 }

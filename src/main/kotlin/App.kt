@@ -16,6 +16,7 @@ import no.nav.helsearbeidsgiver.database.DokumentkoblingRepository
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenClient
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
 import no.nav.helsearbeidsgiver.dokumentkobling.ForespoerselJobb
+import no.nav.helsearbeidsgiver.dokumentkobling.InntektsmeldingJobb
 import no.nav.helsearbeidsgiver.helsesjekker.HelsesjekkService
 import no.nav.helsearbeidsgiver.helsesjekker.naisRoutes
 import no.nav.helsearbeidsgiver.kafka.configureKafkaConsumer
@@ -71,6 +72,10 @@ fun startServer() {
                 dialogportenService = dialogportenService,
             ),
             ForespoerselJobb(
+                dokumentkoblingService = dokumentKoblingService,
+                dialogportenService = dialogportenService,
+            ),
+            InntektsmeldingJobb(
                 dokumentkoblingService = dokumentKoblingService,
                 dialogportenService = dialogportenService,
             ),
