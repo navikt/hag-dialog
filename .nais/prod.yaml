@@ -71,9 +71,9 @@ spec:
     - name: DIALOGPORTEN_SCOPE
       value: "digdir:dialogporten.serviceprovider"
     - name: NAV_ARBEIDSGIVER_API_BASEURL
-      value: "https://sykepenger-api.ekstern.nav.no"
+      value: "https://sykepenger-api.nav.no"
     - name: NAV_ARBEIDSGIVER_GUI_BASEURL
-      value: "https://arbeidsgiver.ekstern.nav.no"
+      value: "https://arbeidsgiver.nav.no"
     - name: DIALOG_KAFKA_TOPIC
       value: helsearbeidsgiver.dialog
     - name: DOKUMENT_KOBLING_KAFKA_TOPIC
