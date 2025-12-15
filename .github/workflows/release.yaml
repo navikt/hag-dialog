@@ -22,7 +22,7 @@ jobs:
           distribution: temurin
 
       - name: Test and build
-        run: ./gradlew build
+        run: ./gradlew test installDist
 
       - name: Upload test report
         if: failure()
@@ -37,7 +37,7 @@ jobs:
         with:
           team: helsearbeidsgiver
 
-      - name: deploy new Unleash Apikey to dev
+      - name: deploy new Unleash Apikey to prod
         uses: nais/deploy/actions/deploy@v2
         env:
           CLUSTER: prod-gcp
