@@ -4,6 +4,7 @@ import io.kotest.assertions.assertSoftly
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.collections.shouldBeEmpty
 import io.kotest.matchers.collections.shouldHaveSize
+import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.mockk.clearAllMocks
 import io.mockk.every
@@ -12,6 +13,7 @@ import io.mockk.verify
 import no.nav.helsearbeidsgiver.database.DokumentkoblingRepository
 import no.nav.helsearbeidsgiver.database.DokumentkoblingRepository.ForespoerselSykmeldingKobling
 import no.nav.helsearbeidsgiver.database.ForespoerselStatus
+import no.nav.helsearbeidsgiver.database.SykmeldingEntity
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -34,6 +36,7 @@ class DokumentkoblingServiceTest :
             sykmeldingOpprettet: LocalDateTime = LocalDateTime.now(),
             sykmeldingStatus: Status = Status.BEHANDLET,
             soeknadStatus: Status = Status.BEHANDLET,
+            forespoerselJobbStatus: Status = Status.MOTTATT,
         ) = ForespoerselSykmeldingKobling(
             forespoerselId = forespoerselId,
             forespoerselStatus = forespoerselStatus,
@@ -44,6 +47,7 @@ class DokumentkoblingServiceTest :
             sykmeldingOpprettet = sykmeldingOpprettet,
             sykmeldingStatus = sykmeldingStatus,
             soeknadStatus = soeknadStatus,
+            forespoerselJobbStatus = forespoerselJobbStatus,
         )
 
         test("hentForespoerslerKlarForBehandling skal kun returnere forespørsler hvor sykmelding og søknad er behandlet") {
@@ -130,8 +134,38 @@ class DokumentkoblingServiceTest :
             dokumentkoblingService.lagreInntektsmeldingGodkjent(DokumentKoblingMockUtils.inntektsmeldingGodkjent)
             verify { dokumentkoblingRepository.opprettInntektmeldingGodkjent(DokumentKoblingMockUtils.inntektsmeldingGodkjent) }
         }
+
         test("lagreInntektsmeldingAvvist kaller repository") {
             dokumentkoblingService.lagreInntektsmeldingAvvist(DokumentKoblingMockUtils.inntektsmeldingAvvist)
             verify { dokumentkoblingRepository.opprettInntektmeldingAvvist(DokumentKoblingMockUtils.inntektsmeldingAvvist) }
+        }
+
+        test("finn orgnr for sykmeldingId") {
+            val sykmelding = DokumentKoblingMockUtils.sykmelding
+            val sykmeldingEntity =
+                mockk<SykmeldingEntity> {
+                    every { sykmeldingId } returns sykmelding.sykmeldingId
+                    every { data } returns sykmelding
+                }
+            every { dokumentkoblingRepository.hentSykmeldingEntitet(sykmelding.sykmeldingId) } returns sykmeldingEntity
+            dokumentkoblingService.lagreSykmelding(sykmelding)
+            val orgnr = dokumentkoblingService.hentSykmeldingOrgnr(sykmelding.sykmeldingId)
+            orgnr shouldBe DokumentKoblingMockUtils.orgnr
+        }
+
+        test("hentKoblingMedForespoerselId skal velge nyeste sykmelding") {
+            val nySykmeldingKobling = lagKobling()
+            val gammelSykmeldingKobling =
+                nySykmeldingKobling.copy(
+                    sykmeldingId = UUID.randomUUID(),
+                    sykmeldingOpprettet = LocalDateTime.now().minusDays(3),
+                )
+
+            val koblinger = listOf(nySykmeldingKobling, gammelSykmeldingKobling)
+            every { dokumentkoblingRepository.hentKoblingerMedForespoerselId(nySykmeldingKobling.forespoerselId) } returns koblinger
+            val forespoerselKobling = dokumentkoblingService.hentKoblingMedForespoerselId(nySykmeldingKobling.forespoerselId)
+
+            forespoerselKobling.shouldNotBeNull()
+            forespoerselKobling.sykmeldingId shouldBe nySykmeldingKobling.sykmeldingId
         }
     })

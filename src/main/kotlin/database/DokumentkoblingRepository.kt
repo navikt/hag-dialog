@@ -15,6 +15,7 @@ import org.jetbrains.exposed.exceptions.ExposedSQLException
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.and
+import org.jetbrains.exposed.sql.andWhere
 import org.jetbrains.exposed.sql.innerJoin
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
@@ -167,6 +168,15 @@ class DokumentkoblingRepository(
     }
 
     fun hentForespoerselSykmeldingKoblinger(): List<ForespoerselSykmeldingKobling> =
+        hentForespoerselSykmeldingKoblinger(status = Status.MOTTATT)
+
+    fun hentKoblingerMedForespoerselId(forespoerselId: UUID): List<ForespoerselSykmeldingKobling> =
+        hentForespoerselSykmeldingKoblinger(forespoerselId = forespoerselId)
+
+    private fun hentForespoerselSykmeldingKoblinger(
+        forespoerselId: UUID? = null,
+        status: Status? = null,
+    ): List<ForespoerselSykmeldingKobling> =
         transaction(db) {
             ForespoerselTable
                 .innerJoin(
@@ -182,9 +192,11 @@ class DokumentkoblingRepository(
                     { SykepengesoeknadTable.sykmeldingId },
                     { SykmeldingTable.sykmeldingId },
                 ).selectAll()
-                .where { (ForespoerselTable.status eq Status.MOTTATT) }
                 .orderBy(ForespoerselTable.opprettet to SortOrder.ASC)
-                .limit(maksAntallPerHenting)
+                .apply {
+                    forespoerselId?.let { andWhere { ForespoerselTable.forespoerselId eq it } }
+                    status?.let { andWhere { ForespoerselTable.status eq it } }
+                }.limit(maksAntallPerHenting)
                 .map {
                     ForespoerselSykmeldingKobling(
                         forespoerselId = it[ForespoerselTable.forespoerselId],
@@ -196,6 +208,7 @@ class DokumentkoblingRepository(
                         sykmeldingOpprettet = it[SykmeldingTable.opprettet],
                         sykmeldingStatus = it[SykmeldingTable.status],
                         soeknadStatus = it[SykepengesoeknadTable.status],
+                        forespoerselJobbStatus = it[ForespoerselTable.status],
                     )
                 }
         }
@@ -210,6 +223,7 @@ class DokumentkoblingRepository(
         val sykmeldingOpprettet: LocalDateTime,
         val sykmeldingStatus: Status,
         val soeknadStatus: Status,
+        val forespoerselJobbStatus: Status,
     )
 
     fun opprettInntektmeldingGodkjent(inntektsmeldingGodkjent: InntektsmeldingGodkjent) {
@@ -237,4 +251,36 @@ class DokumentkoblingRepository(
             }
         }
     }
+
+    data class InntektsmeldingResultat(
+        val inntektsmeldingId: UUID,
+        val forespoerselId: UUID,
+        val vedtaksperiodeId: UUID,
+        val inntektsmeldingStatus: InntektsmeldingStatus,
+        val innsendingType: InnsendingType,
+    )
+
+    fun hentInntektsmeldingerMedStatusMottatt(): List<InntektsmeldingResultat> =
+        transaction(db) {
+            InntektsmeldingEntity
+                .find { InntektsmeldingTable.status eq Status.MOTTATT }
+                .orderBy(InntektsmeldingTable.opprettet to SortOrder.ASC)
+                .limit(maksAntallPerHenting)
+                .map {
+                    InntektsmeldingResultat(
+                        inntektsmeldingId = it.id.value,
+                        forespoerselId = it.forespoerselId,
+                        vedtaksperiodeId = it.vedtaksperiodeId,
+                        inntektsmeldingStatus = it.inntektsmeldingStatus,
+                        innsendingType = it.innsendingType,
+                    )
+                }
+        }
+
+    fun settInntektsmeldingJobbTilBehandlet(inntektsmeldingId: UUID): Unit =
+        transaction(db) {
+            InntektsmeldingTable.update({ InntektsmeldingTable.id eq inntektsmeldingId }) {
+                it[InntektsmeldingTable.status] = Status.BEHANDLET
+            }
+        }
 }
