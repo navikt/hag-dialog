@@ -66,7 +66,7 @@ class DokumentkoblingService(
 
     fun hentKoblingMedForespoerselId(forespoerselId: UUID): ForespoerselSykmeldingKobling? =
         dokumentkoblingRepository
-            .hentKoblingMedForespoerselId(forespoerselId)
+            .hentKoblingerMedForespoerselId(forespoerselId)
             .filter { it.sykmeldingStatus == Status.BEHANDLET }
             .filter { it.soeknadStatus == Status.BEHANDLET }
             .filtrerNyesteSykmeldingPerForespoersel()

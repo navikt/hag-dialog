@@ -170,7 +170,7 @@ class DokumentkoblingRepository(
     fun hentForespoerselSykmeldingKoblinger(): List<ForespoerselSykmeldingKobling> =
         hentForespoerselSykmeldingKoblinger(status = Status.MOTTATT)
 
-    fun hentKoblingMedForespoerselId(forespoerselId: UUID): List<ForespoerselSykmeldingKobling> =
+    fun hentKoblingerMedForespoerselId(forespoerselId: UUID): List<ForespoerselSykmeldingKobling> =
         hentForespoerselSykmeldingKoblinger(forespoerselId = forespoerselId)
 
     private fun hentForespoerselSykmeldingKoblinger(

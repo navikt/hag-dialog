@@ -13,8 +13,6 @@ import io.mockk.verify
 import no.nav.helsearbeidsgiver.database.DokumentkoblingRepository
 import no.nav.helsearbeidsgiver.database.DokumentkoblingRepository.ForespoerselSykmeldingKobling
 import no.nav.helsearbeidsgiver.database.ForespoerselStatus
-import no.nav.helsearbeidsgiver.database.InntektsmeldingEntity
-import no.nav.helsearbeidsgiver.database.InntektsmeldingStatus
 import no.nav.helsearbeidsgiver.database.SykmeldingEntity
 import java.time.LocalDateTime
 import java.util.UUID
@@ -164,7 +162,7 @@ class DokumentkoblingServiceTest :
                 )
 
             val koblinger = listOf(nySykmeldingKobling, gammelSykmeldingKobling)
-            every { dokumentkoblingRepository.hentKoblingMedForespoerselId(nySykmeldingKobling.forespoerselId) } returns koblinger
+            every { dokumentkoblingRepository.hentKoblingerMedForespoerselId(nySykmeldingKobling.forespoerselId) } returns koblinger
             val forespoerselKobling = dokumentkoblingService.hentKoblingMedForespoerselId(nySykmeldingKobling.forespoerselId)
 
             forespoerselKobling.shouldNotBeNull()
