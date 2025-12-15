@@ -92,10 +92,6 @@ dependencies {
 }
 
 tasks {
-    named<ShadowJar>("shadowJar") {
-        mergeServiceFiles()
-        archiveBaseName.set("${project.name}-all")
-    }
     withType<Test> {
         useJUnitPlatform()
     }
