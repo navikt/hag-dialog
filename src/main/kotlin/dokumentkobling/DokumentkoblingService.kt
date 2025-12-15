@@ -2,7 +2,9 @@ package dokumentkobling
 
 import no.nav.helsearbeidsgiver.database.DokumentkoblingRepository
 import no.nav.helsearbeidsgiver.database.DokumentkoblingRepository.ForespoerselSykmeldingKobling
+import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import java.util.UUID
+import kotlin.collections.filter
 
 class DokumentkoblingService(
     private val dokumentkoblingRepository: DokumentkoblingRepository,
@@ -10,6 +12,8 @@ class DokumentkoblingService(
     fun lagreSykmelding(sykmelding: Sykmelding) {
         dokumentkoblingRepository.opprettSykmelding(sykmelding)
     }
+
+    fun hentSykmeldingOrgnr(sykmeldingId: UUID): Orgnr? = dokumentkoblingRepository.hentSykmeldingEntitet(sykmeldingId)?.data?.orgnr
 
     fun lagreSykepengesoeknad(sykepengesoeknad: Sykepengesoeknad) {
         dokumentkoblingRepository.opprettSykepengesoeknad(sykepengesoeknad)
@@ -52,4 +56,19 @@ class DokumentkoblingService(
     fun lagreInntektsmeldingAvvist(inntektsmeldingAvvist: InntektsmeldingAvvist) {
         dokumentkoblingRepository.opprettInntektmeldingAvvist(inntektsmeldingAvvist)
     }
+
+    fun hentInntektsmeldingerMedStatusMottatt(): List<DokumentkoblingRepository.InntektsmeldingResultat> =
+        dokumentkoblingRepository.hentInntektsmeldingerMedStatusMottatt()
+
+    fun settInntektsmeldingJobbTilBehandlet(inntektsmeldingId: UUID) {
+        dokumentkoblingRepository.settInntektsmeldingJobbTilBehandlet(inntektsmeldingId)
+    }
+
+    fun hentKoblingMedForespoerselId(forespoerselId: UUID): ForespoerselSykmeldingKobling? =
+        dokumentkoblingRepository
+            .hentKoblingerMedForespoerselId(forespoerselId)
+            .filter { it.sykmeldingStatus == Status.BEHANDLET }
+            .filter { it.soeknadStatus == Status.BEHANDLET }
+            .filtrerNyesteSykmeldingPerForespoersel()
+            .firstOrNull()
 }

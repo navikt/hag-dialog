@@ -144,4 +144,5 @@ fun lagKobling(): DokumentkoblingRepository.ForespoerselSykmeldingKobling =
         sykmeldingOpprettet = LocalDateTime.now(),
         sykmeldingStatus = Status.BEHANDLET,
         soeknadStatus = Status.BEHANDLET,
+        forespoerselJobbStatus = Status.MOTTATT,
     )
