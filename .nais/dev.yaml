@@ -54,9 +54,6 @@ spec:
     scopes:
       consumes:
         - name: "digdir:dialogporten.serviceprovider"
-  azure:
-    application:
-      enabled: true
   gcp:
     sqlInstances:
       - type: POSTGRES_18
