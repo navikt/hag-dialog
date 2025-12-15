@@ -5,6 +5,7 @@ import kotlinx.coroutines.Dispatchers
 import no.nav.hag.utils.bakgrunnsjobb.RecurringJob
 import no.nav.helsearbeidsgiver.database.DokumentkoblingRepository
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
+import no.nav.helsearbeidsgiver.metrikk.oppdaterMetrikkForAntallSykmeldingerMedStatusMottatt
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import java.time.Duration
 import no.nav.helsearbeidsgiver.kafka.Sykmelding as SykmeldingGammel
@@ -16,6 +17,10 @@ class SykmeldingJobb(
 ) : RecurringJob(CoroutineScope(Dispatchers.IO), Duration.ofSeconds(30).toMillis()) {
     override fun doJob() {
         val sykmeldinger = dokumentkoblingRepository.henteSykemeldingerMedStatusMottatt()
+
+        oppdaterMetrikkForAntallSykmeldingerMedStatusMottatt(nyVerdi = sykmeldinger.size)
+            .also { logger.info("Fant ${sykmeldinger.size} sykmeldinger med status MOTTATT klar til behandling.") }
+
         sykmeldinger.forEach { sykmelding ->
             try {
                 dialogportenService.opprettDialogForSykmelding(sykmelding)
