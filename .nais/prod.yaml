@@ -44,8 +44,8 @@ spec:
   accessPolicy:
     outbound:
       external:
-        - host: helsearbeidsgiver-unleash-api.nav.cloud.nais.io
        #  - host: platform.altinn.no
+        - host: helsearbeidsgiver-unleash-api.nav.cloud.nais.io
       rules:
         - application: logging
           namespace: nais-system

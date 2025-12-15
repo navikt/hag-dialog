@@ -3,9 +3,6 @@ on:
   release:
     types: [released]
 
-concurrency:
-  group: deploy-prod
-
 env:
   ORG_GRADLE_PROJECT_githubPassword: ${{ secrets.GITHUB_TOKEN }}
 
