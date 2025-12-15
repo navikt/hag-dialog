@@ -77,7 +77,7 @@ fun startServer() {
             routing {
                 naisRoutes(HelsesjekkService(database.db))
             }
-            configureKafkaConsumer(unleashFeatureToggles, dokumentkoblingRepository, dialogportenService)
+            configureKafkaConsumer(unleashFeatureToggles, dokumentkoblingRepository)
             startRecurringJobs(jobber)
             monitor.subscribe(ApplicationStopPreparing) {
                 logger.info("Applikasjonen stopper, avslutter eventuelle jobber...")
