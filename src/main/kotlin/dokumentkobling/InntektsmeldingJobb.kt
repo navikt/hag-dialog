@@ -9,6 +9,7 @@ import no.nav.hag.utils.bakgrunnsjobb.RecurringJob
 import no.nav.helsearbeidsgiver.database.InntektsmeldingStatus
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
 import no.nav.helsearbeidsgiver.kafka.Inntektsmelding
+import no.nav.helsearbeidsgiver.metrikk.oppdaterMetrikkForAntallInntektsmeldingerMedStatusMottatt
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import java.time.Duration
@@ -20,6 +21,10 @@ class InntektsmeldingJobb(
 ) : RecurringJob(CoroutineScope(Dispatchers.IO), Duration.ofSeconds(30).toMillis()) {
     override fun doJob() {
         val inntektsmeldinger = dokumentkoblingService.hentInntektsmeldingerMedStatusMottatt()
+
+        oppdaterMetrikkForAntallInntektsmeldingerMedStatusMottatt(nyVerdi = inntektsmeldinger.size)
+            .also { logger.info("Fant ${inntektsmeldinger.size} inntektsmeldinger med status MOTTATT klar til behandling.") }
+
         inntektsmeldinger.forEach { inntektsmelding ->
             try {
                 val kobling = dokumentkoblingService.hentKoblingMedForespoerselId(inntektsmelding.forespoerselId)
