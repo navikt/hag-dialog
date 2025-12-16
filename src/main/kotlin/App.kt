@@ -66,6 +66,7 @@ fun startServer() {
             SykmeldingJobb(
                 dokumentkoblingRepository = dokumentkoblingRepository,
                 dialogportenService = dialogportenService,
+                unleashFeatureToggles = unleashFeatureToggles,
             ),
             SykepengeSoeknadJobb(
                 dokumentkoblingRepository = dokumentkoblingRepository,

@@ -34,14 +34,7 @@ class DokumentkoblingTolker(
         runCatching {
             when (dekodetMelding) {
                 is Sykmelding -> {
-                    if (unleashFeatureToggles.skalOppretteDialogVedMottattSykmelding(orgnr = dekodetMelding.orgnr)) {
-                        dokumentkoblingService.lagreSykmelding(dekodetMelding)
-                    } else {
-                        logger.info(
-                            "Feature toggle for dialogopprettelse for sykmelding er avskrudd, " +
-                                "ignorerer melding for sykmeldingId ${dekodetMelding.sykmeldingId}.",
-                        )
-                    }
+                    dokumentkoblingService.lagreSykmelding(dekodetMelding)
                 }
 
                 is Sykepengesoeknad -> {

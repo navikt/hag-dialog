@@ -1,4 +1,5 @@
 import dokumentkobling.SykmeldingJobb
+import io.getunleash.FakeUnleash
 import io.kotest.core.spec.style.FunSpec
 import io.ktor.server.plugins.NotFoundException
 import io.mockk.clearAllMocks
@@ -9,6 +10,7 @@ import io.mockk.runs
 import io.mockk.verify
 import no.nav.helsearbeidsgiver.database.DokumentkoblingRepository
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
+import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import java.util.UUID
 
 class SykmeldingJobbTest :
@@ -16,11 +18,13 @@ class SykmeldingJobbTest :
 
         val repository = mockk<DokumentkoblingRepository>()
         val dialogportenService = mockk<DialogportenService>(relaxed = true)
+        val unleashFeatureToggles = UnleashFeatureToggles()
 
         val sykmeldingJobb =
             SykmeldingJobb(
                 dokumentkoblingRepository = repository,
                 dialogportenService = dialogportenService,
+                unleashFeatureToggles = unleashFeatureToggles,
             )
 
         val sykmeldingId: UUID = DokumentKoblingMockUtils.sykmelding.sykmeldingId

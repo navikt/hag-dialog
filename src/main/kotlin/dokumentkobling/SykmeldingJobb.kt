@@ -6,6 +6,7 @@ import no.nav.hag.utils.bakgrunnsjobb.RecurringJob
 import no.nav.helsearbeidsgiver.database.DokumentkoblingRepository
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
 import no.nav.helsearbeidsgiver.metrikk.oppdaterMetrikkForAntallSykmeldingerMedStatusMottatt
+import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import java.time.Duration
 import no.nav.helsearbeidsgiver.kafka.Sykmelding as SykmeldingGammel
@@ -14,6 +15,7 @@ import no.nav.helsearbeidsgiver.kafka.Sykmeldingsperiode as SykmeldingSperiodeGa
 class SykmeldingJobb(
     private val dokumentkoblingRepository: DokumentkoblingRepository,
     private val dialogportenService: DialogportenService,
+    private val unleashFeatureToggles: UnleashFeatureToggles,
 ) : RecurringJob(CoroutineScope(Dispatchers.IO), Duration.ofSeconds(30).toMillis()) {
     override fun doJob() {
         val sykmeldinger = dokumentkoblingRepository.henteSykemeldingerMedStatusMottatt()
@@ -22,14 +24,18 @@ class SykmeldingJobb(
             .also { logger.info("Fant ${sykmeldinger.size} sykmeldinger med status MOTTATT klar til behandling.") }
 
         sykmeldinger.forEach { sykmelding ->
-            try {
-                dialogportenService.opprettDialogForSykmelding(sykmelding)
-                dokumentkoblingRepository.settSykmeldingJobbTilBehandlet(sykmelding.sykmeldingId)
-            } catch (e: Exception) {
-                "Feil ved behandling av sykmelding med id ${sykmelding.sykmeldingId}".also {
-                    logger.error(it)
-                    sikkerLogger().error(it, e)
+            if (unleashFeatureToggles.skalOppretteDialogVedMottattSykmelding(sykmelding.orgnr)) {
+                try {
+                    dialogportenService.opprettDialogForSykmelding(sykmelding)
+                    dokumentkoblingRepository.settSykmeldingJobbTilBehandlet(sykmelding.sykmeldingId)
+                } catch (e: Exception) {
+                    "Feil ved behandling av sykmelding med id ${sykmelding.sykmeldingId}".also {
+                        logger.error(it)
+                        sikkerLogger().error(it, e)
+                    }
                 }
+            } else {
+                logger.info("Oppretter ikke dialog for sykmelding med id ${sykmelding.sykmeldingId} da orgnr er deaktivert i Unleash.")
             }
         }
     }
