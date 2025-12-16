@@ -19,7 +19,6 @@ import java.time.Duration
 fun Application.configureKafkaConsumer(
     unleashFeatureToggles: UnleashFeatureToggles,
     dokumentkoblingRepository: DokumentkoblingRepository,
-    dialogportenService: DialogportenService,
 ) {
     val kafkaConsumerExceptionHandler =
         CoroutineExceptionHandler { _, exception ->
@@ -31,15 +30,6 @@ fun Application.configureKafkaConsumer(
         }
 
     launch(Dispatchers.Default + kafkaConsumerExceptionHandler) {
-        startDialogMeldingKafkaConsumer(
-            meldingTolker =
-                MeldingTolker(
-                    unleashFeatureToggles = unleashFeatureToggles,
-                    dialogportenService = dialogportenService,
-                ),
-        )
-    }
-    launch(Dispatchers.Default + kafkaConsumerExceptionHandler) {
         startDokumentkoblingKafkaConsumer(
             dokumentkoblingTolker =
                 DokumentkoblingTolker(
@@ -50,20 +40,6 @@ fun Application.configureKafkaConsumer(
                         ),
                 ),
         )
-    }
-}
-
-private fun startDialogMeldingKafkaConsumer(meldingTolker: MeldingTolker) {
-    val consumer = KafkaConsumer<String, String>(createKafkaConsumerConfig() as Map<String, Any>)
-    val topic = Env.Kafka.topic
-    consumer.subscribe(listOf(topic))
-    val running = true
-    while (running) {
-        val records = consumer.poll(Duration.ofMillis(1000))
-        for (record in records) {
-            meldingTolker.lesMelding(record.value())
-            consumer.commitSync()
-        }
     }
 }
 

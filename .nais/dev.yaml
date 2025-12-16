@@ -73,8 +73,6 @@ spec:
       value: "https://sykepenger-api.ekstern.dev.nav.no"
     - name: NAV_ARBEIDSGIVER_GUI_BASEURL
       value: "https://arbeidsgiver.ekstern.dev.nav.no"
-    - name: DIALOG_KAFKA_TOPIC
-      value: helsearbeidsgiver.dialog
     - name: DOKUMENT_KOBLING_KAFKA_TOPIC
       value: helsearbeidsgiver.dokument-kobling
 
