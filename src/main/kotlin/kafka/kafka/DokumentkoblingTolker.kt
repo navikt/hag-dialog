@@ -38,14 +38,7 @@ class DokumentkoblingTolker(
                 }
 
                 is Sykepengesoeknad -> {
-                    if (unleashFeatureToggles.skalOppdatereDialogVedMottattSoeknad(orgnr = dekodetMelding.orgnr)) {
-                        dokumentkoblingService.lagreSykepengesoeknad(dekodetMelding)
-                    } else {
-                        logger.info(
-                            "Feature toggle for oppdatering av dialog med sykepengesøknad er avskrudd, " +
-                                "ignorerer melding for sykepengesøknadId ${dekodetMelding.soeknadId}.",
-                        )
-                    }
+                    dokumentkoblingService.lagreSykepengesoeknad(dekodetMelding)
                 }
 
                 is VedtaksperiodeSoeknadKobling -> {
