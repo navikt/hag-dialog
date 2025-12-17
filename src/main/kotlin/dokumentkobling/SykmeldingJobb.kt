@@ -18,24 +18,24 @@ class SykmeldingJobb(
     private val unleashFeatureToggles: UnleashFeatureToggles,
 ) : RecurringJob(CoroutineScope(Dispatchers.IO), Duration.ofSeconds(30).toMillis()) {
     override fun doJob() {
+        if (!unleashFeatureToggles.skalOppretteDialoger()) {
+            logger.warn("Oppretter ikke dialoger for sykmeldinger da det er deaktivert i Unleash.")
+            return
+        }
         val sykmeldinger = dokumentkoblingRepository.henteSykemeldingerMedStatusMottatt()
 
         oppdaterMetrikkForAntallSykmeldingerMedStatusMottatt(nyVerdi = sykmeldinger.size)
             .also { logger.info("Fant ${sykmeldinger.size} sykmeldinger med status MOTTATT klar til behandling.") }
 
         sykmeldinger.forEach { sykmelding ->
-            if (unleashFeatureToggles.skalOppretteDialogVedMottattSykmelding(sykmelding.orgnr)) {
-                try {
-                    dialogportenService.opprettDialogForSykmelding(sykmelding)
-                    dokumentkoblingRepository.settSykmeldingJobbTilBehandlet(sykmelding.sykmeldingId)
-                } catch (e: Exception) {
-                    "Feil ved behandling av sykmelding med id ${sykmelding.sykmeldingId}".also {
-                        logger.error(it)
-                        sikkerLogger().error(it, e)
-                    }
+            try {
+                dialogportenService.opprettDialogForSykmelding(sykmelding)
+                dokumentkoblingRepository.settSykmeldingJobbTilBehandlet(sykmelding.sykmeldingId)
+            } catch (e: Exception) {
+                "Feil ved behandling av sykmelding med id ${sykmelding.sykmeldingId}".also {
+                    logger.error(it)
+                    sikkerLogger().error(it, e)
                 }
-            } else {
-                logger.info("Oppretter ikke dialog for sykmelding med id ${sykmelding.sykmeldingId} da orgnr er deaktivert i Unleash.")
             }
         }
     }

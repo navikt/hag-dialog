@@ -26,10 +26,9 @@ class UnleashFeatureToggles {
             )
         }
 
-    fun skalOppretteDialogVedMottattSykmelding(orgnr: Orgnr): Boolean =
+    fun skalOppretteDialoger(): Boolean =
         defaultUnleash.isEnabled(
-            "opprett-dialog-ved-mottatt-sykmelding",
-            UnleashContext.builder().addProperty("orgnr", orgnr.toString()).build(),
+            "opprett-dialoger",
             false,
         )
 
