@@ -6,6 +6,7 @@ import no.nav.hag.utils.bakgrunnsjobb.RecurringJob
 import no.nav.helsearbeidsgiver.database.DokumentkoblingRepository
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
 import no.nav.helsearbeidsgiver.metrikk.oppdaterMetrikkForAntallSykmeldingerMedStatusMottatt
+import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import java.time.Duration
 import no.nav.helsearbeidsgiver.kafka.Sykmelding as SykmeldingGammel
@@ -14,8 +15,13 @@ import no.nav.helsearbeidsgiver.kafka.Sykmeldingsperiode as SykmeldingSperiodeGa
 class SykmeldingJobb(
     private val dokumentkoblingRepository: DokumentkoblingRepository,
     private val dialogportenService: DialogportenService,
+    private val unleashFeatureToggles: UnleashFeatureToggles,
 ) : RecurringJob(CoroutineScope(Dispatchers.IO), Duration.ofSeconds(30).toMillis()) {
     override fun doJob() {
+        if (!unleashFeatureToggles.skalOppretteDialoger()) {
+            logger.warn("Oppretter ikke dialoger for sykmeldinger da det er deaktivert i Unleash.")
+            return
+        }
         val sykmeldinger = dokumentkoblingRepository.henteSykemeldingerMedStatusMottatt()
 
         oppdaterMetrikkForAntallSykmeldingerMedStatusMottatt(nyVerdi = sykmeldinger.size)

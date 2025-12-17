@@ -6,14 +6,20 @@ import no.nav.hag.utils.bakgrunnsjobb.RecurringJob
 import no.nav.helsearbeidsgiver.database.DokumentkoblingRepository
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
 import no.nav.helsearbeidsgiver.metrikk.oppdaterMetrikkForAntallSykepengesoeknaderMedStatusMottatt
+import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import java.time.Duration
 
 class SykepengeSoeknadJobb(
     private val dokumentkoblingRepository: DokumentkoblingRepository,
     private val dialogportenService: DialogportenService,
+    private val unleashFeatureToggles: UnleashFeatureToggles,
 ) : RecurringJob(CoroutineScope(Dispatchers.IO), Duration.ofSeconds(30).toMillis()) {
     override fun doJob() {
+        if (!unleashFeatureToggles.skalOppretteDialoger()) {
+            logger.warn("Oppretter ikke dialoger for sykepengesøknader da det er deaktivert i Unleash.")
+            return
+        }
         val soeknader = dokumentkoblingRepository.henteSykepengeSoeknaderMedStatusMottatt()
 
         oppdaterMetrikkForAntallSykepengesoeknaderMedStatusMottatt(nyVerdi = soeknader.size)

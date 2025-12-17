@@ -8,14 +8,20 @@ import no.nav.helsearbeidsgiver.database.DokumentkoblingRepository
 import no.nav.helsearbeidsgiver.database.ForespoerselStatus
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
 import no.nav.helsearbeidsgiver.metrikk.oppdaterMetrikkForAntallForespoerslerMedStatusMottatt
+import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import java.time.Duration
 
 class ForespoerselJobb(
     private val dokumentkoblingService: DokumentkoblingService,
     private val dialogportenService: DialogportenService,
+    private val unleashFeatureToggles: UnleashFeatureToggles,
 ) : RecurringJob(CoroutineScope(Dispatchers.IO), Duration.ofSeconds(30).toMillis()) {
     override fun doJob() {
+        if (!unleashFeatureToggles.skalOppretteDialoger()) {
+            logger.warn("Oppretter ikke dialoger for forespørsler da det er deaktivert i Unleash.")
+            return
+        }
         val forespoersler = dokumentkoblingService.hentForespoerslerKlarForBehandling()
 
         oppdaterMetrikkForAntallForespoerslerMedStatusMottatt(nyVerdi = forespoersler.size)

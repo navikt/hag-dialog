@@ -34,25 +34,11 @@ class DokumentkoblingTolker(
         runCatching {
             when (dekodetMelding) {
                 is Sykmelding -> {
-                    if (unleashFeatureToggles.skalOppretteDialogVedMottattSykmelding(orgnr = dekodetMelding.orgnr)) {
-                        dokumentkoblingService.lagreSykmelding(dekodetMelding)
-                    } else {
-                        logger.info(
-                            "Feature toggle for dialogopprettelse for sykmelding er avskrudd, " +
-                                "ignorerer melding for sykmeldingId ${dekodetMelding.sykmeldingId}.",
-                        )
-                    }
+                    dokumentkoblingService.lagreSykmelding(dekodetMelding)
                 }
 
                 is Sykepengesoeknad -> {
-                    if (unleashFeatureToggles.skalOppdatereDialogVedMottattSoeknad(orgnr = dekodetMelding.orgnr)) {
-                        dokumentkoblingService.lagreSykepengesoeknad(dekodetMelding)
-                    } else {
-                        logger.info(
-                            "Feature toggle for oppdatering av dialog med sykepengesøknad er avskrudd, " +
-                                "ignorerer melding for sykepengesøknadId ${dekodetMelding.soeknadId}.",
-                        )
-                    }
+                    dokumentkoblingService.lagreSykepengesoeknad(dekodetMelding)
                 }
 
                 is VedtaksperiodeSoeknadKobling -> {
@@ -60,47 +46,19 @@ class DokumentkoblingTolker(
                 }
 
                 is ForespoerselSendt -> {
-                    if (unleashFeatureToggles.skalOppdatereDialogVedMottattInntektsmeldingsforespoersel(orgnr = dekodetMelding.orgnr)) {
-                        dokumentkoblingService.lagreForespoerselSendt(dekodetMelding)
-                    } else {
-                        logger.info(
-                            "Feature toggle for oppdatering av dialog med forespørsel sendt er avskrudd, " +
-                                "ignorerer melding for forespoerselId ${dekodetMelding.forespoerselId}.",
-                        )
-                    }
+                    dokumentkoblingService.lagreForespoerselSendt(dekodetMelding)
                 }
 
                 is ForespoerselUtgaatt -> {
-                    if (unleashFeatureToggles.skalOppdatereDialogVedMottattInntektsmeldingsforespoersel(orgnr = dekodetMelding.orgnr)) {
-                        dokumentkoblingService.lagreForespoerselUtgaatt(dekodetMelding)
-                    } else {
-                        logger.info(
-                            "Feature toggle for oppdatering av dialog med forespørsel utgaatt er avskrudd, " +
-                                "ignorerer melding for forespoerselId ${dekodetMelding.forespoerselId}.",
-                        )
-                    }
+                    dokumentkoblingService.lagreForespoerselUtgaatt(dekodetMelding)
                 }
 
                 is InntektsmeldingGodkjent -> {
-                    if (unleashFeatureToggles.skalOppdatereDialogVedMottattInntektsmelding(orgnr = dekodetMelding.orgnr)) {
-                        dokumentkoblingService.lagreInntektsmeldingGodkjent(dekodetMelding)
-                    } else {
-                        logger.info(
-                            "Feature toggle for oppdatering av dialog med inntektsmelding_godkjent er avskrudd, " +
-                                "ignorerer melding for inntektsmeldingId ${dekodetMelding.inntektsmeldingId}.",
-                        )
-                    }
+                    dokumentkoblingService.lagreInntektsmeldingGodkjent(dekodetMelding)
                 }
 
                 is InntektsmeldingAvvist -> {
-                    if (unleashFeatureToggles.skalOppdatereDialogVedMottattInntektsmelding(orgnr = dekodetMelding.orgnr)) {
-                        dokumentkoblingService.lagreInntektsmeldingAvvist(dekodetMelding)
-                    } else {
-                        logger.info(
-                            "Feature toggle for oppdatering av dialog med inntektsmelding_avvist er avskrudd, " +
-                                "ignorerer melding for inntektsmeldingId ${dekodetMelding.inntektsmeldingId}.",
-                        )
-                    }
+                    dokumentkoblingService.lagreInntektsmeldingAvvist(dekodetMelding)
                 }
             }
         }.getOrElse { e ->

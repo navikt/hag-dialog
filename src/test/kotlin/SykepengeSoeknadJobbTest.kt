@@ -12,6 +12,7 @@ import io.mockk.verify
 import no.nav.helsearbeidsgiver.database.DokumentkoblingRepository
 import no.nav.helsearbeidsgiver.database.SykmeldingEntity
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
+import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import java.util.UUID
 
 class SykepengeSoeknadJobbTest :
@@ -19,11 +20,13 @@ class SykepengeSoeknadJobbTest :
 
         val repository = mockk<DokumentkoblingRepository>()
         val dialogportenService = mockk<DialogportenService>(relaxed = true)
+        val unleashFeatureToggles = UnleashFeatureToggles()
 
         val sykepengeSoeknadJobb =
             SykepengeSoeknadJobb(
                 dokumentkoblingRepository = repository,
                 dialogportenService = dialogportenService,
+                unleashFeatureToggles = unleashFeatureToggles,
             )
 
         val sykmeldingId: UUID = DokumentKoblingMockUtils.sykmelding.sykmeldingId

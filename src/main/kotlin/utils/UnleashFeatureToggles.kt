@@ -26,31 +26,9 @@ class UnleashFeatureToggles {
             )
         }
 
-    fun skalOppretteDialogVedMottattSykmelding(orgnr: Orgnr): Boolean =
+    fun skalOppretteDialoger(): Boolean =
         defaultUnleash.isEnabled(
-            "opprett-dialog-ved-mottatt-sykmelding",
-            UnleashContext.builder().addProperty("orgnr", orgnr.toString()).build(),
-            false,
-        )
-
-    fun skalOppdatereDialogVedMottattSoeknad(orgnr: Orgnr): Boolean =
-        defaultUnleash.isEnabled(
-            "oppdater-dialog-ved-mottatt-soknad",
-            UnleashContext.builder().addProperty("orgnr", orgnr.toString()).build(),
-            false,
-        )
-
-    fun skalOppdatereDialogVedMottattInntektsmeldingsforespoersel(orgnr: Orgnr): Boolean =
-        defaultUnleash.isEnabled(
-            "forespor-inntektsmelding-via-dialogporten",
-            UnleashContext.builder().addProperty("orgnr", orgnr.toString()).build(),
-            false,
-        )
-
-    fun skalOppdatereDialogVedMottattInntektsmelding(orgnr: Orgnr): Boolean =
-        defaultUnleash.isEnabled(
-            "oppdater-dialog-ved-mottatt-inntektsmelding",
-            UnleashContext.builder().addProperty("orgnr", orgnr.toString()).build(),
+            "opprett-dialoger",
             false,
         )
 

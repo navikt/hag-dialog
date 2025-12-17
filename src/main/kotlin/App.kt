@@ -66,18 +66,22 @@ fun startServer() {
             SykmeldingJobb(
                 dokumentkoblingRepository = dokumentkoblingRepository,
                 dialogportenService = dialogportenService,
+                unleashFeatureToggles = unleashFeatureToggles,
             ),
             SykepengeSoeknadJobb(
                 dokumentkoblingRepository = dokumentkoblingRepository,
                 dialogportenService = dialogportenService,
+                unleashFeatureToggles = unleashFeatureToggles,
             ),
             ForespoerselJobb(
                 dokumentkoblingService = dokumentKoblingService,
                 dialogportenService = dialogportenService,
+                unleashFeatureToggles = unleashFeatureToggles,
             ),
             InntektsmeldingJobb(
                 dokumentkoblingService = dokumentKoblingService,
                 dialogportenService = dialogportenService,
+                unleashFeatureToggles = unleashFeatureToggles,
             ),
         )
 

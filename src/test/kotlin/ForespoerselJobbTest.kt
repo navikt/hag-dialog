@@ -12,6 +12,7 @@ import no.nav.helsearbeidsgiver.database.DokumentkoblingRepository
 import no.nav.helsearbeidsgiver.database.ForespoerselStatus
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
 import no.nav.helsearbeidsgiver.dokumentkobling.ForespoerselJobb
+import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -19,11 +20,13 @@ class ForespoerselJobbTest :
     FunSpec({
         val dialogportenService = mockk<DialogportenService>(relaxed = true)
         val dokumentKoblingService = mockk<DokumentkoblingService>(relaxed = true)
+        val unleashFeatureToggles = UnleashFeatureToggles()
 
         val forespoerselJobb =
             ForespoerselJobb(
                 dokumentkoblingService = dokumentKoblingService,
                 dialogportenService = dialogportenService,
+                unleashFeatureToggles = unleashFeatureToggles,
             )
 
         val kobling = lagKobling()

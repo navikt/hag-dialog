@@ -66,6 +66,7 @@ fun startServer() {
             SykepengeSoeknadJobb(
                 dokumentkoblingRepository = dokumentkoblingRepository,
                 dialogportenService = dialogportenService,
+                unleashFeatureToggles = unleashFeatureToggles,
             ),
         )
 
