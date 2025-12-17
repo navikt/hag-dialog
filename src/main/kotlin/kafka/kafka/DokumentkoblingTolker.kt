@@ -46,25 +46,11 @@ class DokumentkoblingTolker(
                 }
 
                 is ForespoerselSendt -> {
-                    if (unleashFeatureToggles.skalOppdatereDialogVedMottattInntektsmeldingsforespoersel(orgnr = dekodetMelding.orgnr)) {
-                        dokumentkoblingService.lagreForespoerselSendt(dekodetMelding)
-                    } else {
-                        logger.info(
-                            "Feature toggle for oppdatering av dialog med forespørsel sendt er avskrudd, " +
-                                "ignorerer melding for forespoerselId ${dekodetMelding.forespoerselId}.",
-                        )
-                    }
+                    dokumentkoblingService.lagreForespoerselSendt(dekodetMelding)
                 }
 
                 is ForespoerselUtgaatt -> {
-                    if (unleashFeatureToggles.skalOppdatereDialogVedMottattInntektsmeldingsforespoersel(orgnr = dekodetMelding.orgnr)) {
-                        dokumentkoblingService.lagreForespoerselUtgaatt(dekodetMelding)
-                    } else {
-                        logger.info(
-                            "Feature toggle for oppdatering av dialog med forespørsel utgaatt er avskrudd, " +
-                                "ignorerer melding for forespoerselId ${dekodetMelding.forespoerselId}.",
-                        )
-                    }
+                    dokumentkoblingService.lagreForespoerselUtgaatt(dekodetMelding)
                 }
 
                 is InntektsmeldingGodkjent -> {

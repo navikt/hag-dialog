@@ -76,6 +76,7 @@ fun startServer() {
             ForespoerselJobb(
                 dokumentkoblingService = dokumentKoblingService,
                 dialogportenService = dialogportenService,
+                unleashFeatureToggles = unleashFeatureToggles,
             ),
             InntektsmeldingJobb(
                 dokumentkoblingService = dokumentKoblingService,
