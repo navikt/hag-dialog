@@ -86,6 +86,18 @@ class DokumentkoblingRepository(
                 }
         }
 
+    fun tidsavbrytSykepengeSoeknaderMedStatusMottattOpprettetFoer(opprettetFoer: LocalDateTime): Int =
+        transaction(db) {
+            SykepengesoeknadTable.update(
+                where = {
+                    (SykepengesoeknadTable.status eq Status.MOTTATT) and
+                        (SykepengesoeknadTable.opprettet less opprettetFoer)
+                },
+            ) {
+                it[status] = Status.TIDSAVBRUTT
+            }
+        }
+
     fun settSykmeldingJobbTilBehandlet(sykmeldingId: UUID): Unit =
         transaction(db) {
             SykmeldingTable.update({ SykmeldingTable.id eq sykmeldingId }) {
