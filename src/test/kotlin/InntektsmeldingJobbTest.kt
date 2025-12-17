@@ -13,6 +13,7 @@ import no.nav.helsearbeidsgiver.database.DokumentkoblingRepository
 import no.nav.helsearbeidsgiver.database.InntektsmeldingStatus
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
 import no.nav.helsearbeidsgiver.dokumentkobling.InntektsmeldingJobb
+import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import java.util.UUID
 
 class InntektsmeldingJobbTest :
@@ -20,6 +21,7 @@ class InntektsmeldingJobbTest :
 
         val dialogportenService = mockk<DialogportenService>(relaxed = true)
         val dokumentkoblingService = mockk<DokumentkoblingService>(relaxed = true)
+        val unleashFeatureToggles = UnleashFeatureToggles()
         val innteksmeldingResultat =
             DokumentkoblingRepository.InntektsmeldingResultat(
                 inntektsmeldingId = DokumentKoblingMockUtils.inntektsmeldingId,
@@ -33,6 +35,7 @@ class InntektsmeldingJobbTest :
             InntektsmeldingJobb(
                 dokumentkoblingService = dokumentkoblingService,
                 dialogportenService = dialogportenService,
+                unleashFeatureToggles = unleashFeatureToggles,
             )
 
         val sykmeldingId: UUID = DokumentKoblingMockUtils.sykmeldingId

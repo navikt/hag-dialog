@@ -10,6 +10,7 @@ import no.nav.helsearbeidsgiver.database.InntektsmeldingStatus
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
 import no.nav.helsearbeidsgiver.kafka.Inntektsmelding
 import no.nav.helsearbeidsgiver.metrikk.oppdaterMetrikkForAntallInntektsmeldingerMedStatusMottatt
+import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import java.time.Duration
@@ -18,8 +19,13 @@ import java.util.UUID
 class InntektsmeldingJobb(
     private val dokumentkoblingService: DokumentkoblingService,
     private val dialogportenService: DialogportenService,
+    private val unleashFeatureToggles: UnleashFeatureToggles,
 ) : RecurringJob(CoroutineScope(Dispatchers.IO), Duration.ofSeconds(30).toMillis()) {
     override fun doJob() {
+        if (!unleashFeatureToggles.skalOppretteDialoger()) {
+            logger.warn("Oppretter ikke dialoger for inntektsmeldinger da det er deaktivert i Unleash.")
+            return
+        }
         val inntektsmeldinger = dokumentkoblingService.hentInntektsmeldingerMedStatusMottatt()
 
         oppdaterMetrikkForAntallInntektsmeldingerMedStatusMottatt(nyVerdi = inntektsmeldinger.size)

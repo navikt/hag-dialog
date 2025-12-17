@@ -32,13 +32,6 @@ class UnleashFeatureToggles {
             false,
         )
 
-    fun skalOppdatereDialogVedMottattInntektsmelding(orgnr: Orgnr): Boolean =
-        defaultUnleash.isEnabled(
-            "oppdater-dialog-ved-mottatt-inntektsmelding",
-            UnleashContext.builder().addProperty("orgnr", orgnr.toString()).build(),
-            false,
-        )
-
     fun skalOppretteDialogKunForApi() =
         defaultUnleash.isEnabled(
             "opprett-dialog-kun-for-api",

@@ -54,25 +54,11 @@ class DokumentkoblingTolker(
                 }
 
                 is InntektsmeldingGodkjent -> {
-                    if (unleashFeatureToggles.skalOppdatereDialogVedMottattInntektsmelding(orgnr = dekodetMelding.orgnr)) {
-                        dokumentkoblingService.lagreInntektsmeldingGodkjent(dekodetMelding)
-                    } else {
-                        logger.info(
-                            "Feature toggle for oppdatering av dialog med inntektsmelding_godkjent er avskrudd, " +
-                                "ignorerer melding for inntektsmeldingId ${dekodetMelding.inntektsmeldingId}.",
-                        )
-                    }
+                    dokumentkoblingService.lagreInntektsmeldingGodkjent(dekodetMelding)
                 }
 
                 is InntektsmeldingAvvist -> {
-                    if (unleashFeatureToggles.skalOppdatereDialogVedMottattInntektsmelding(orgnr = dekodetMelding.orgnr)) {
-                        dokumentkoblingService.lagreInntektsmeldingAvvist(dekodetMelding)
-                    } else {
-                        logger.info(
-                            "Feature toggle for oppdatering av dialog med inntektsmelding_avvist er avskrudd, " +
-                                "ignorerer melding for inntektsmeldingId ${dekodetMelding.inntektsmeldingId}.",
-                        )
-                    }
+                    dokumentkoblingService.lagreInntektsmeldingAvvist(dekodetMelding)
                 }
             }
         }.getOrElse { e ->

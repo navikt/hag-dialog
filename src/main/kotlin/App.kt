@@ -81,6 +81,7 @@ fun startServer() {
             InntektsmeldingJobb(
                 dokumentkoblingService = dokumentKoblingService,
                 dialogportenService = dialogportenService,
+                unleashFeatureToggles = unleashFeatureToggles,
             ),
         )
 
