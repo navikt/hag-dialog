@@ -7,7 +7,7 @@ import no.nav.helsearbeidsgiver.database.DokumentkoblingRepository
 import java.time.Duration
 import java.time.LocalDateTime
 
-private const val ANTALL_MINUTTER_FOER_TIDSAVBRUDD = 10L
+private const val ANTALL_MINUTTER_FOER_TIDSAVBRUDD = 60L
 
 class AvbrytSykepengeSoeknadJobb(
     private val dokumentkoblingRepository: DokumentkoblingRepository,
@@ -17,6 +17,6 @@ class AvbrytSykepengeSoeknadJobb(
             dokumentkoblingRepository.tidsavbrytSykepengeSoeknaderMedStatusMottatt(
                 tidsavbruddgrense = LocalDateTime.now().minusMinutes(ANTALL_MINUTTER_FOER_TIDSAVBRUDD),
             )
-        logger.info("Satte $antallAvbrutteSoeknader til status TIDSAVBRUTT")
+        logger.info("Satte $antallAvbrutteSoeknader sykepengesøknader til status TIDSAVBRUTT")
     }
 }
