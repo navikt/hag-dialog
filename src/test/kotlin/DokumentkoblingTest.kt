@@ -15,6 +15,7 @@ import no.nav.helsearbeidsgiver.database.InntektsmeldingTable
 import no.nav.helsearbeidsgiver.database.SykepengesoeknadTable
 import no.nav.helsearbeidsgiver.database.SykmeldingTable
 import no.nav.helsearbeidsgiver.database.VedtaksperiodeSoeknadTable
+import java.time.LocalDateTime
 import java.util.UUID
 
 class DokumentkoblingTest :
@@ -178,6 +179,33 @@ class DokumentkoblingTest :
                 val hentet = repository.henteSykepengeSoeknaderMedStatusMottatt()
                 hentet.size shouldBe 1
                 hentet[0].soeknadId shouldBe soeknadId2
+            }
+
+            test("setter mottatte søknader før tidsavbruddgrense til tidsavbrutt") {
+                // Opprett to søknader, en gammel og en ny på hver sin side av tidsavbruddsgrensen
+                val gammelSoeknad = DokumentKoblingMockUtils.soeknad
+                val nySoeknad = DokumentKoblingMockUtils.soeknad.copy(soeknadId = UUID.randomUUID())
+                repository.opprettSykepengesoeknad(gammelSoeknad)
+                val tidsavbruddgrense = LocalDateTime.now()
+                repository.opprettSykepengesoeknad(nySoeknad)
+
+                // Sjekk at begge søknadene er mottatt før vi tidsavbryter
+                val mottatteSoeknaderFoer = repository.henteSykepengeSoeknaderMedStatusMottatt()
+                mottatteSoeknaderFoer shouldBe listOf(gammelSoeknad, nySoeknad)
+
+                // Tidsavbryt søknader før grensen
+                val antallOppdatert =
+                    repository.tidsavbrytSykepengeSoeknaderMedStatusMottatt(tidsavbruddgrense = tidsavbruddgrense)
+
+                // Sjekk at kun den gamle søknaden er satt til tidsavbrutt
+                antallOppdatert shouldBe 1
+                val mottatteSoeknaderEtter = repository.henteSykepengeSoeknaderMedStatusMottatt()
+                mottatteSoeknaderEtter shouldBe listOf(nySoeknad)
+
+                // Sjekk at den gamle søknaden faktisk har status TIDSAVBRUTT
+                val tidsavbruttSoeknad = hentSykepengesoeknad(db = db, soeknadId = gammelSoeknad.soeknadId)
+                tidsavbruttSoeknad.shouldNotBeNull()
+                tidsavbruttSoeknad.status shouldBe Status.TIDSAVBRUTT
             }
 
             test("opprette vedtaksperiode soeknad kobling") {

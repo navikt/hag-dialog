@@ -86,12 +86,12 @@ class DokumentkoblingRepository(
                 }
         }
 
-    fun tidsavbrytSykepengeSoeknaderMedStatusMottattOpprettetFoer(opprettetFoer: LocalDateTime): Int =
+    fun tidsavbrytSykepengeSoeknaderMedStatusMottatt(tidsavbruddgrense: LocalDateTime): Int =
         transaction(db) {
             SykepengesoeknadTable.update(
                 where = {
                     (SykepengesoeknadTable.status eq Status.MOTTATT) and
-                        (SykepengesoeknadTable.opprettet less opprettetFoer)
+                        (SykepengesoeknadTable.opprettet less tidsavbruddgrense)
                 },
             ) {
                 it[status] = Status.TIDSAVBRUTT
