@@ -86,12 +86,48 @@ class DokumentkoblingRepository(
                 }
         }
 
+    fun settSykmeldingerMedStatusMottattTilTidsavbrutt(tidsavbruddgrense: LocalDateTime): Int =
+        transaction(db) {
+            SykmeldingTable.update(
+                where = {
+                    (SykmeldingTable.status eq Status.MOTTATT) and
+                        (SykmeldingTable.opprettet less tidsavbruddgrense)
+                },
+            ) {
+                it[status] = Status.TIDSAVBRUTT
+            }
+        }
+
     fun settSykepengeSoeknaderMedStatusMottattTilTidsavbrutt(tidsavbruddgrense: LocalDateTime): Int =
         transaction(db) {
             SykepengesoeknadTable.update(
                 where = {
                     (SykepengesoeknadTable.status eq Status.MOTTATT) and
                         (SykepengesoeknadTable.opprettet less tidsavbruddgrense)
+                },
+            ) {
+                it[status] = Status.TIDSAVBRUTT
+            }
+        }
+
+    fun settForespoerslerMedStatusMottattTilTidsavbrutt(tidsavbruddgrense: LocalDateTime): Int =
+        transaction(db) {
+            ForespoerselTable.update(
+                where = {
+                    (ForespoerselTable.status eq Status.MOTTATT) and
+                        (ForespoerselTable.opprettet less tidsavbruddgrense)
+                },
+            ) {
+                it[status] = Status.TIDSAVBRUTT
+            }
+        }
+
+    fun settInntektsmeldingerMedStatusMottattTilTidsavbrutt(tidsavbruddgrense: LocalDateTime): Int =
+        transaction(db) {
+            InntektsmeldingTable.update(
+                where = {
+                    (InntektsmeldingTable.status eq Status.MOTTATT) and
+                        (InntektsmeldingTable.opprettet less tidsavbruddgrense)
                 },
             ) {
                 it[status] = Status.TIDSAVBRUTT
