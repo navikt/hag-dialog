@@ -61,7 +61,9 @@ fun hentForespoersel(
     forespoerselId: UUID,
 ): ForespoerselEntity? =
     transaction(db) {
-        ForespoerselEntity.findById(forespoerselId)
+        ForespoerselEntity
+            .find { ForespoerselTable.forespoerselId eq forespoerselId }
+            .firstOrNull()
     }
 
 fun hentInntektsmeldingerMedStatusMottatt(db: Database): List<InntektsmeldingEntity> =
