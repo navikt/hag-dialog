@@ -9,14 +9,14 @@ import java.time.LocalDateTime
 
 private const val ANTALL_MINUTTER_FOER_TIDSAVBRUDD = 60L
 
-class AvbrytSykepengeSoeknadJobb(
+class AvbrytForespoerselJobb(
     private val dokumentkoblingRepository: DokumentkoblingRepository,
 ) : RecurringJob(CoroutineScope(Dispatchers.IO), Duration.ofMinutes(1).toMillis()) {
     override fun doJob() {
-        val antallAvbrutteSoeknader =
-            dokumentkoblingRepository.settSykepengeSoeknaderMedStatusMottattTilTidsavbrutt(
+        val antallAvbrutteForespoersler =
+            dokumentkoblingRepository.settForespoerslerMedStatusMottattTilTidsavbrutt(
                 tidsavbruddgrense = LocalDateTime.now().minusMinutes(ANTALL_MINUTTER_FOER_TIDSAVBRUDD),
             )
-        logger.info("Satte $antallAvbrutteSoeknader sykepengesøknader til status TIDSAVBRUTT")
+        logger.info("Satte $antallAvbrutteForespoersler forespørsler til status TIDSAVBRUTT")
     }
 }

@@ -181,6 +181,33 @@ class DokumentkoblingTest :
                 hentet[0].soeknadId shouldBe soeknadId2
             }
 
+            test("setter mottatte sykmeldinger før tidsavbruddgrense til tidsavbrutt") {
+                // Opprett to sykmeldinger, en gammel og en ny på hver sin side av tidsavbruddsgrensen
+                val gammelSykmelding = DokumentKoblingMockUtils.sykmelding
+                val nySykmelding = DokumentKoblingMockUtils.sykmelding.copy(sykmeldingId = UUID.randomUUID())
+                repository.opprettSykmelding(gammelSykmelding)
+                val tidsavbruddgrense = LocalDateTime.now()
+                repository.opprettSykmelding(nySykmelding)
+
+                // Sjekk at begge sykmeldingene er mottatt før vi setter til tidsavbrutt
+                val mottatteSykmeldingerFoer = repository.henteSykemeldingerMedStatusMottatt()
+                mottatteSykmeldingerFoer shouldBe listOf(gammelSykmelding, nySykmelding)
+
+                // Sett sykmeldinger til tidsavbrutt før grensen
+                val antallOppdatert =
+                    repository.settSykmeldingerMedStatusMottattTilTidsavbrutt(tidsavbruddgrense = tidsavbruddgrense)
+
+                // Sjekk at kun den gamle sykmeldingen er satt til tidsavbrutt
+                antallOppdatert shouldBe 1
+                val mottatteSykmeldingerEtter = repository.henteSykemeldingerMedStatusMottatt()
+                mottatteSykmeldingerEtter shouldBe listOf(nySykmelding)
+
+                // Sjekk at den gamle sykmeldingen faktisk har status TIDSAVBRUTT
+                val tidsavbruttSykmelding = hentSykmelding(db = db, sykmeldingId = gammelSykmelding.sykmeldingId)
+                tidsavbruttSykmelding.shouldNotBeNull()
+                tidsavbruttSykmelding.status shouldBe Status.TIDSAVBRUTT
+            }
+
             test("setter mottatte søknader før tidsavbruddgrense til tidsavbrutt") {
                 // Opprett to søknader, en gammel og en ny på hver sin side av tidsavbruddsgrensen
                 val gammelSoeknad = DokumentKoblingMockUtils.soeknad
@@ -189,13 +216,13 @@ class DokumentkoblingTest :
                 val tidsavbruddgrense = LocalDateTime.now()
                 repository.opprettSykepengesoeknad(nySoeknad)
 
-                // Sjekk at begge søknadene er mottatt før vi tidsavbryter
+                // Sjekk at begge søknadene er mottatt før vi setter til tidsavbrutt
                 val mottatteSoeknaderFoer = repository.henteSykepengeSoeknaderMedStatusMottatt()
                 mottatteSoeknaderFoer shouldBe listOf(gammelSoeknad, nySoeknad)
 
-                // Tidsavbryt søknader før grensen
+                // Sett søknader til tidsavbrutt før grensen
                 val antallOppdatert =
-                    repository.tidsavbrytSykepengeSoeknaderMedStatusMottatt(tidsavbruddgrense = tidsavbruddgrense)
+                    repository.settSykepengeSoeknaderMedStatusMottattTilTidsavbrutt(tidsavbruddgrense = tidsavbruddgrense)
 
                 // Sjekk at kun den gamle søknaden er satt til tidsavbrutt
                 antallOppdatert shouldBe 1
@@ -206,6 +233,76 @@ class DokumentkoblingTest :
                 val tidsavbruttSoeknad = hentSykepengesoeknad(db = db, soeknadId = gammelSoeknad.soeknadId)
                 tidsavbruttSoeknad.shouldNotBeNull()
                 tidsavbruttSoeknad.status shouldBe Status.TIDSAVBRUTT
+            }
+
+            test("setter mottatte forespørsler før tidsavbruddgrense til tidsavbrutt") {
+                // Opprett to forespørsler, en gammel og en ny på hver sin side av tidsavbruddsgrensen
+                val gammelForespoersel = DokumentKoblingMockUtils.forespoerselSendt
+                val nyForespoersel =
+                    DokumentKoblingMockUtils.forespoerselSendt.copy(
+                        forespoerselId = UUID.randomUUID(),
+                        vedtaksperiodeId = UUID.randomUUID(),
+                    )
+                repository.opprettForespoerselSendt(gammelForespoersel)
+                val tidsavbruddgrense = LocalDateTime.now()
+                repository.opprettForespoerselSendt(nyForespoersel)
+
+                // Sjekk at begge forespørslene er mottatt før vi setter til tidsavbrutt
+                val mottatteForespoerslerFoer = hentForespoerslerMedStatusMottattEldstFoerst(db = db)
+                mottatteForespoerslerFoer.size shouldBe 2
+                mottatteForespoerslerFoer[0].forespoerselId shouldBe gammelForespoersel.forespoerselId
+                mottatteForespoerslerFoer[1].forespoerselId shouldBe nyForespoersel.forespoerselId
+
+                // Sett forespørsler til tidsavbrutt før grensen
+                val antallOppdatert =
+                    repository.settForespoerslerMedStatusMottattTilTidsavbrutt(tidsavbruddgrense = tidsavbruddgrense)
+
+                // Sjekk at kun den gamle forespørselen er satt til tidsavbrutt
+                antallOppdatert shouldBe 1
+                val mottatteForespoerslerEtter = hentForespoerslerMedStatusMottattEldstFoerst(db = db)
+                mottatteForespoerslerEtter.size shouldBe 1
+                mottatteForespoerslerEtter[0].forespoerselId shouldBe nyForespoersel.forespoerselId
+
+                // Sjekk at den gamle forespørselen faktisk har status TIDSAVBRUTT
+                val tidsavbruttForespoersel = hentForespoersel(db = db, forespoerselId = gammelForespoersel.forespoerselId)
+                tidsavbruttForespoersel.shouldNotBeNull()
+                tidsavbruttForespoersel.status shouldBe Status.TIDSAVBRUTT
+            }
+
+            test("setter mottatte inntektsmeldinger før tidsavbruddgrense til tidsavbrutt") {
+                // Opprett to inntektsmeldinger, en gammel og en ny på hver sin side av tidsavbruddsgrensen
+                val gammelInntektsmelding = DokumentKoblingMockUtils.inntektsmeldingGodkjent
+                val nyInntektsmelding =
+                    DokumentKoblingMockUtils.inntektsmeldingGodkjent.copy(
+                        inntektsmeldingId = UUID.randomUUID(),
+                        forespoerselId = UUID.randomUUID(),
+                        vedtaksperiodeId = UUID.randomUUID(),
+                    )
+                repository.opprettInntektmeldingGodkjent(gammelInntektsmelding)
+                val tidsavbruddgrense = LocalDateTime.now()
+                repository.opprettInntektmeldingGodkjent(nyInntektsmelding)
+
+                // Sjekk at begge inntektsmeldingene er mottatt før vi setter til tidsavbrutt
+                val mottatteInnteksmeldingerFoer = hentInntektsmeldingerMedStatusMottatt(db = db)
+                mottatteInnteksmeldingerFoer.size shouldBe 2
+                mottatteInnteksmeldingerFoer[0].id.value shouldBe gammelInntektsmelding.inntektsmeldingId
+                mottatteInnteksmeldingerFoer[1].id.value shouldBe nyInntektsmelding.inntektsmeldingId
+
+                // Sett inntektsmeldinger til tidsavbrutt før grensen
+                val antallOppdatert =
+                    repository.settInntektsmeldingerMedStatusMottattTilTidsavbrutt(tidsavbruddgrense = tidsavbruddgrense)
+
+                // Sjekk at kun den gamle inntektsmeldingen er satt til tidsavbrutt
+                antallOppdatert shouldBe 1
+                val mottatteInntektsmeldingerEtter = hentInntektsmeldingerMedStatusMottatt(db = db)
+                mottatteInntektsmeldingerEtter.size shouldBe 1
+                mottatteInntektsmeldingerEtter[0].id.value shouldBe nyInntektsmelding.inntektsmeldingId
+
+                // Sjekk at den gamle inntektsmeldingen faktisk har status TIDSAVBRUTT
+                val tidsavbruttInntektsmelding =
+                    hentInntektsmelding(db = db, inntektsmeldingId = gammelInntektsmelding.inntektsmeldingId)
+                tidsavbruttInntektsmelding.shouldNotBeNull()
+                tidsavbruttInntektsmelding.status shouldBe Status.TIDSAVBRUTT
             }
 
             test("opprette vedtaksperiode soeknad kobling") {
