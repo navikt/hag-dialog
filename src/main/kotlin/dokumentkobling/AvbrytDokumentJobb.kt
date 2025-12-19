@@ -17,8 +17,8 @@ abstract class AvbrytDokumentJobb(
         waitMillisBetweenRuns = Duration.ofMinutes(ANTALL_MINUTTER_MELLOM_KJOERINGER).toMillis(),
     ) {
     override fun doJob() {
-        val tidsavbruttgrense = LocalDateTime.now().minusMinutes(antallMinutterFoerTidsavbrudd)
-        val antallAvbrutte = settTilTidsavbrutt(tidsavbruttgrense)
+        val tidsavbruddgrense = LocalDateTime.now().minusMinutes(antallMinutterFoerTidsavbrudd)
+        val antallAvbrutte = settTilTidsavbrutt(tidsavbruddgrense)
         logger.info("Satte $antallAvbrutte $dokumentNavn til status TIDSAVBRUTT")
     }
 }
