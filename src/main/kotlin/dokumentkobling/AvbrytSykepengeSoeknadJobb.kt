@@ -14,7 +14,7 @@ class AvbrytSykepengeSoeknadJobb(
 ) : RecurringJob(CoroutineScope(Dispatchers.IO), Duration.ofMinutes(1).toMillis()) {
     override fun doJob() {
         val antallAvbrutteSoeknader =
-            dokumentkoblingRepository.tidsavbrytSykepengeSoeknaderMedStatusMottatt(
+            dokumentkoblingRepository.settSykepengeSoeknaderMedStatusMottattTilTidsavbrutt(
                 tidsavbruddgrense = LocalDateTime.now().minusMinutes(ANTALL_MINUTTER_FOER_TIDSAVBRUDD),
             )
         logger.info("Satte $antallAvbrutteSoeknader sykepengesøknader til status TIDSAVBRUTT")

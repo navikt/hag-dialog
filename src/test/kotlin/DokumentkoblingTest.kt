@@ -189,13 +189,13 @@ class DokumentkoblingTest :
                 val tidsavbruddgrense = LocalDateTime.now()
                 repository.opprettSykepengesoeknad(nySoeknad)
 
-                // Sjekk at begge søknadene er mottatt før vi tidsavbryter
+                // Sjekk at begge søknadene er mottatt før vi setter til tidsavbrutt
                 val mottatteSoeknaderFoer = repository.henteSykepengeSoeknaderMedStatusMottatt()
                 mottatteSoeknaderFoer shouldBe listOf(gammelSoeknad, nySoeknad)
 
-                // Tidsavbryt søknader før grensen
+                // Sett søknader til tidsavbrutt før grensen
                 val antallOppdatert =
-                    repository.tidsavbrytSykepengeSoeknaderMedStatusMottatt(tidsavbruddgrense = tidsavbruddgrense)
+                    repository.settSykepengeSoeknaderMedStatusMottattTilTidsavbrutt(tidsavbruddgrense = tidsavbruddgrense)
 
                 // Sjekk at kun den gamle søknaden er satt til tidsavbrutt
                 antallOppdatert shouldBe 1

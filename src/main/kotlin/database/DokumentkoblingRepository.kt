@@ -86,7 +86,7 @@ class DokumentkoblingRepository(
                 }
         }
 
-    fun tidsavbrytSykepengeSoeknaderMedStatusMottatt(tidsavbruddgrense: LocalDateTime): Int =
+    fun settSykepengeSoeknaderMedStatusMottattTilTidsavbrutt(tidsavbruddgrense: LocalDateTime): Int =
         transaction(db) {
             SykepengesoeknadTable.update(
                 where = {
