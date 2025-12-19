@@ -15,6 +15,7 @@ import no.nav.helsearbeidsgiver.database.DialogRepository
 import no.nav.helsearbeidsgiver.database.DokumentkoblingRepository
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenClient
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
+import no.nav.helsearbeidsgiver.dokumentkobling.AvbrytSykepengeSoeknadJobb
 import no.nav.helsearbeidsgiver.dokumentkobling.ForespoerselJobb
 import no.nav.helsearbeidsgiver.dokumentkobling.InntektsmeldingJobb
 import no.nav.helsearbeidsgiver.helsesjekker.HelsesjekkService
@@ -72,6 +73,9 @@ fun startServer() {
                 dokumentkoblingRepository = dokumentkoblingRepository,
                 dialogportenService = dialogportenService,
                 unleashFeatureToggles = unleashFeatureToggles,
+            ),
+            AvbrytSykepengeSoeknadJobb(
+                dokumentkoblingRepository = dokumentkoblingRepository,
             ),
             ForespoerselJobb(
                 dokumentkoblingService = dokumentKoblingService,

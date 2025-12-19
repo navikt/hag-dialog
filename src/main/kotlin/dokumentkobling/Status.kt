@@ -4,4 +4,5 @@ enum class Status {
     MOTTATT,
     BEHANDLET,
     AVBRUTT,
+    TIDSAVBRUTT,
 }
