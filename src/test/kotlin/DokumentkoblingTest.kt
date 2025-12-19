@@ -181,7 +181,7 @@ class DokumentkoblingTest :
                 hentet[0].soeknadId shouldBe soeknadId2
             }
 
-            test("setter mottatte sykmeldinger før tidsavbruddgrense til tidsavbrutt") {
+            test("bare mottatte sykmeldinger før tidsavbruddgrense blir satt til tidsavbrutt") {
                 // Opprett to sykmeldinger, en gammel og en ny på hver sin side av tidsavbruddsgrensen
                 val gammelSykmelding = DokumentKoblingMockUtils.sykmelding
                 val nySykmelding = DokumentKoblingMockUtils.sykmelding.copy(sykmeldingId = UUID.randomUUID())
@@ -204,11 +204,10 @@ class DokumentkoblingTest :
 
                 // Sjekk at den gamle sykmeldingen faktisk har status TIDSAVBRUTT
                 val tidsavbruttSykmelding = hentSykmelding(db = db, sykmeldingId = gammelSykmelding.sykmeldingId)
-                tidsavbruttSykmelding.shouldNotBeNull()
-                tidsavbruttSykmelding.status shouldBe Status.TIDSAVBRUTT
+                tidsavbruttSykmelding.shouldNotBeNull().status shouldBe Status.TIDSAVBRUTT
             }
 
-            test("setter mottatte søknader før tidsavbruddgrense til tidsavbrutt") {
+            test("bare mottatte søknader før tidsavbruddgrense blir satt til tidsavbrutt") {
                 // Opprett to søknader, en gammel og en ny på hver sin side av tidsavbruddsgrensen
                 val gammelSoeknad = DokumentKoblingMockUtils.soeknad
                 val nySoeknad = DokumentKoblingMockUtils.soeknad.copy(soeknadId = UUID.randomUUID())
@@ -231,11 +230,10 @@ class DokumentkoblingTest :
 
                 // Sjekk at den gamle søknaden faktisk har status TIDSAVBRUTT
                 val tidsavbruttSoeknad = hentSykepengesoeknad(db = db, soeknadId = gammelSoeknad.soeknadId)
-                tidsavbruttSoeknad.shouldNotBeNull()
-                tidsavbruttSoeknad.status shouldBe Status.TIDSAVBRUTT
+                tidsavbruttSoeknad.shouldNotBeNull().status shouldBe Status.TIDSAVBRUTT
             }
 
-            test("setter mottatte forespørsler før tidsavbruddgrense til tidsavbrutt") {
+            test("bare mottatte forespørsler før tidsavbruddgrense blir satt til tidsavbrutt") {
                 // Opprett to forespørsler, en gammel og en ny på hver sin side av tidsavbruddsgrensen
                 val gammelForespoersel = DokumentKoblingMockUtils.forespoerselSendt
                 val nyForespoersel =
@@ -265,11 +263,10 @@ class DokumentkoblingTest :
 
                 // Sjekk at den gamle forespørselen faktisk har status TIDSAVBRUTT
                 val tidsavbruttForespoersel = hentForespoersel(db = db, forespoerselId = gammelForespoersel.forespoerselId)
-                tidsavbruttForespoersel.shouldNotBeNull()
-                tidsavbruttForespoersel.status shouldBe Status.TIDSAVBRUTT
+                tidsavbruttForespoersel.shouldNotBeNull().status shouldBe Status.TIDSAVBRUTT
             }
 
-            test("setter mottatte inntektsmeldinger før tidsavbruddgrense til tidsavbrutt") {
+            test("bare mottatte inntektsmeldinger før tidsavbruddgrense blir satt til tidsavbrutt") {
                 // Opprett to inntektsmeldinger, en gammel og en ny på hver sin side av tidsavbruddsgrensen
                 val gammelInntektsmelding = DokumentKoblingMockUtils.inntektsmeldingGodkjent
                 val nyInntektsmelding =
@@ -301,8 +298,7 @@ class DokumentkoblingTest :
                 // Sjekk at den gamle inntektsmeldingen faktisk har status TIDSAVBRUTT
                 val tidsavbruttInntektsmelding =
                     hentInntektsmelding(db = db, inntektsmeldingId = gammelInntektsmelding.inntektsmeldingId)
-                tidsavbruttInntektsmelding.shouldNotBeNull()
-                tidsavbruttInntektsmelding.status shouldBe Status.TIDSAVBRUTT
+                tidsavbruttInntektsmelding.shouldNotBeNull().status shouldBe Status.TIDSAVBRUTT
             }
 
             test("opprette vedtaksperiode soeknad kobling") {
