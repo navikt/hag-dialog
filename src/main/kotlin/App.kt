@@ -77,18 +77,6 @@ fun startServer() {
                 dialogportenService = dialogportenService,
                 unleashFeatureToggles = unleashFeatureToggles,
             ),
-            AvbrytSykepengeSoeknadJobb(
-                dokumentkoblingRepository = dokumentkoblingRepository,
-            ),
-            AvbrytSykmeldingJobb(
-                dokumentkoblingRepository = dokumentkoblingRepository,
-            ),
-            AvbrytForespoerselJobb(
-                dokumentkoblingRepository = dokumentkoblingRepository,
-            ),
-            AvbrytInntektsmeldingJobb(
-                dokumentkoblingRepository = dokumentkoblingRepository,
-            ),
             ForespoerselJobb(
                 dokumentkoblingService = dokumentKoblingService,
                 dialogportenService = dialogportenService,
@@ -98,6 +86,18 @@ fun startServer() {
                 dokumentkoblingService = dokumentKoblingService,
                 dialogportenService = dialogportenService,
                 unleashFeatureToggles = unleashFeatureToggles,
+            ),
+            AvbrytSykmeldingJobb(
+                dokumentkoblingRepository = dokumentkoblingRepository,
+            ),
+            AvbrytSykepengeSoeknadJobb(
+                dokumentkoblingRepository = dokumentkoblingRepository,
+            ),
+            AvbrytForespoerselJobb(
+                dokumentkoblingRepository = dokumentkoblingRepository,
+            ),
+            AvbrytInntektsmeldingJobb(
+                dokumentkoblingRepository = dokumentkoblingRepository,
             ),
         )
 
