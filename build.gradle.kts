@@ -1,17 +1,13 @@
-import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
     kotlin("jvm")
     kotlin("plugin.serialization")
     id("org.jmailen.kotlinter")
-    id("io.ktor.plugin") version "3.1.2"
     application
 }
 
 kotlin {
-    compilerOptions {
-        jvmTarget.set(JvmTarget.JVM_21)
-    }
+    jvmToolchain(21)
 }
 
 application {
@@ -58,13 +54,13 @@ dependencies {
     implementation("ch.qos.logback:logback-classic:$logbackVersion")
     implementation("com.zaxxer:HikariCP:$hikariVersion")
     implementation("io.getunleash:unleash-client-java:$unleashVersion")
-    implementation("io.ktor:ktor-client-apache5")
-    implementation("io.ktor:ktor-client-content-negotiation")
-    implementation("io.ktor:ktor-client-core")
-    implementation("io.ktor:ktor-serialization-kotlinx-json")
-    implementation("io.ktor:ktor-server-core")
+    implementation("io.ktor:ktor-client-apache5:$ktorVersion")
+    implementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
+    implementation("io.ktor:ktor-client-core:$ktorVersion")
+    implementation("io.ktor:ktor-serialization-kotlinx-json:$ktorVersion")
+    implementation("io.ktor:ktor-server-core:$ktorVersion")
     implementation("io.ktor:ktor-server-metrics-micrometer:$ktorVersion")
-    implementation("io.ktor:ktor-server-netty-jvm")
+    implementation("io.ktor:ktor-server-netty-jvm:$ktorVersion")
     implementation("io.micrometer:micrometer-registry-prometheus:$microMeterVersion")
     implementation("net.logstash.logback:logstash-logback-encoder:$logbackEncoderVersion")
     implementation("no.nav.helsearbeidsgiver:hag-bakgrunnsjobb:$bakgrunnsjobbVersion")
@@ -83,7 +79,7 @@ dependencies {
     val testcontainersVersion: String by project
     testImplementation("io.kotest:kotest-assertions-core:$kotestVersion")
     testImplementation("io.kotest:kotest-runner-junit5:$kotestVersion")
-    testImplementation("io.ktor:ktor-server-test-host")
+    testImplementation("io.ktor:ktor-server-test-host:$ktorVersion")
     testImplementation("io.mockk:mockk:$mockkVersion")
     testImplementation(testFixtures("no.nav.helsearbeidsgiver:utils:$utilsVersion"))
     testImplementation("org.testcontainers:postgresql:$testcontainersVersion")
