@@ -15,6 +15,7 @@ import no.nav.helsearbeidsgiver.kafka.getSykmeldingsPerioderString
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.tilNorskFormat
+import java.awt.PageAttributes
 
 class SykmeldingHandler(
     private val dialogRepository: DialogRepository,
@@ -61,6 +62,7 @@ fun sykmeldingTransmission(sykmelding: Sykmelding): TransmissionRequest =
             createGuiAttachment(
                 displayName = "sykmelding.pdf",
                 url = "${Env.Nav.dokumentProxyBaseUrl}/sykmelding/${sykmelding.sykmeldingId}.pdf",
+                mediaType = "application/pdf",
             ),
         ),
     )
