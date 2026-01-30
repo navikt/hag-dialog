@@ -8,6 +8,7 @@ import no.nav.helsearbeidsgiver.dialogporten.SykmeldingTransmissionRequest
 import no.nav.helsearbeidsgiver.dialogporten.domene.CreateDialogRequest
 import no.nav.helsearbeidsgiver.dialogporten.domene.TransmissionRequest
 import no.nav.helsearbeidsgiver.dialogporten.domene.createApiAttachment
+import no.nav.helsearbeidsgiver.dialogporten.domene.createGuiAttachment
 import no.nav.helsearbeidsgiver.dialogporten.domene.toTransmission
 import no.nav.helsearbeidsgiver.kafka.Sykmelding
 import no.nav.helsearbeidsgiver.kafka.getSykmeldingsPerioderString
@@ -56,6 +57,10 @@ fun sykmeldingTransmission(sykmelding: Sykmelding): TransmissionRequest =
             createApiAttachment(
                 displayName = "sykmelding.json",
                 url = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/sykmelding/${sykmelding.sykmeldingId}",
+            ),
+            createGuiAttachment(
+                displayName = "sykmelding.pdf",
+                url = "${Env.Nav.dokumentProxyBaseUrl}/sykmelding/${sykmelding.sykmeldingId}.pdf",
             ),
         ),
     )
