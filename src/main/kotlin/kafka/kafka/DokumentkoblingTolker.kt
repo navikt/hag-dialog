@@ -30,6 +30,11 @@ class DokumentkoblingTolker(
                     sikkerLogger.error("Klarte ikke dekode melding. Melding blir ignorert", e)
                     return
                 }
+        if (dokumentkoblingService.erDuplikat(dekodetMelding)) {
+            logger.info("Dokumentet er duplikat. Melding blir ignorert.")
+            sikkerLogger.info("Dokumentet er duplikat. Melding blir ignorert. Melding: $melding")
+            return
+        }
 
         runCatching {
             when (dekodetMelding) {
@@ -62,6 +67,10 @@ class DokumentkoblingTolker(
                 }
             }
         }.getOrElse { e ->
+            if (e is IllegalArgumentException) {
+                logger.warn("Klarte ikke opprette/oppdatere dialog. Melding blir ignorert.", e)
+                return
+            }
             sikkerLogger.error("Klarte ikke opprette/oppdatere dialog. Avbryter.", e)
             throw e
         }
