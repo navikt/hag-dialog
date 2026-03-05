@@ -67,10 +67,6 @@ class DokumentkoblingTolker(
                 }
             }
         }.getOrElse { e ->
-            if (e is IllegalArgumentException) {
-                logger.warn("Klarte ikke opprette/oppdatere dialog. Melding blir ignorert.", e)
-                return
-            }
             sikkerLogger.error("Klarte ikke opprette/oppdatere dialog. Avbryter.", e)
             throw e
         }
