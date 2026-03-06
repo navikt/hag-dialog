@@ -2,6 +2,9 @@ package dokumentkobling
 
 import no.nav.helsearbeidsgiver.database.DokumentkoblingRepository
 import no.nav.helsearbeidsgiver.database.DokumentkoblingRepository.ForespoerselSykmeldingKobling
+import no.nav.helsearbeidsgiver.database.ForespoerselStatus
+import no.nav.helsearbeidsgiver.kafka.Inntektsmelding
+import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import java.util.UUID
 import kotlin.collections.filter
@@ -71,4 +74,47 @@ class DokumentkoblingService(
             .filter { it.soeknadStatus == Status.BEHANDLET }
             .filtrerNyesteSykmeldingPerForespoersel()
             .firstOrNull()
+
+    fun erDuplikat(dokumentkobling: Dokumentkobling): Boolean {
+        val dokument =
+            when (dokumentkobling) {
+                is Sykmelding -> {
+                    dokumentkoblingRepository.hentSykmeldingEntitet(dokumentkobling.sykmeldingId)
+                }
+
+                is Sykepengesoeknad -> {
+                    dokumentkoblingRepository.hentSykepengesoeknad(dokumentkobling.soeknadId, dokumentkobling.sykmeldingId)
+                }
+
+                is VedtaksperiodeSoeknadKobling -> {
+                    dokumentkoblingRepository.hentVedtaksperiodeSoeknadKobling(
+                        dokumentkobling.vedtaksperiodeId,
+                        dokumentkobling.soeknadId,
+                    )
+                }
+
+                is ForespoerselSendt -> {
+                    dokumentkoblingRepository.hentForespoerselMedStatus(
+                        dokumentkobling.forespoerselId,
+                        ForespoerselStatus.SENDT,
+                    )
+                }
+
+                is ForespoerselUtgaatt -> {
+                    dokumentkoblingRepository.hentForespoerselMedStatus(
+                        dokumentkobling.forespoerselId,
+                        ForespoerselStatus.UTGAATT,
+                    )
+                }
+
+                is InntektsmeldingGodkjent -> {
+                    dokumentkoblingRepository.hentInntektsmelding(dokumentkobling.inntektsmeldingId)
+                }
+
+                is InntektsmeldingAvvist -> {
+                    dokumentkoblingRepository.hentInntektsmelding(dokumentkobling.inntektsmeldingId)
+                }
+            }
+        return dokument != null
+    }
 }

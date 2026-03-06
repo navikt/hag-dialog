@@ -12,8 +12,12 @@ import io.mockk.mockk
 import io.mockk.verify
 import no.nav.helsearbeidsgiver.database.DokumentkoblingRepository
 import no.nav.helsearbeidsgiver.database.DokumentkoblingRepository.ForespoerselSykmeldingKobling
+import no.nav.helsearbeidsgiver.database.ForespoerselEntity
 import no.nav.helsearbeidsgiver.database.ForespoerselStatus
+import no.nav.helsearbeidsgiver.database.InntektsmeldingEntity
+import no.nav.helsearbeidsgiver.database.SykepengesoeknadEntity
 import no.nav.helsearbeidsgiver.database.SykmeldingEntity
+import no.nav.helsearbeidsgiver.database.VedtaksperiodeSoeknadEntity
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -167,5 +171,171 @@ class DokumentkoblingServiceTest :
 
             forespoerselKobling.shouldNotBeNull()
             forespoerselKobling.sykmeldingId shouldBe nySykmeldingKobling.sykmeldingId
+        }
+        test("erDuplikat returnerer false når sykmelding ikke eksisterer") {
+            val sykmelding = DokumentKoblingMockUtils.sykmelding
+            every { dokumentkoblingRepository.hentSykmeldingEntitet(sykmelding.sykmeldingId) } returns null
+
+            val erDuplikat = dokumentkoblingService.erDuplikat(sykmelding)
+
+            erDuplikat shouldBe false
+        }
+
+        test("erDuplikat returnerer true når sykmelding allerede eksisterer") {
+            val sykmelding = DokumentKoblingMockUtils.sykmelding
+            val sykmeldingEntity =
+                mockk<SykmeldingEntity> {
+                    every { sykmeldingId } returns sykmelding.sykmeldingId
+                    every { data } returns sykmelding
+                }
+            every { dokumentkoblingRepository.hentSykmeldingEntitet(sykmelding.sykmeldingId) } returns sykmeldingEntity
+
+            val erDuplikat = dokumentkoblingService.erDuplikat(sykmelding)
+
+            erDuplikat shouldBe true
+        }
+
+        test("erDuplikat returnerer false når sykepengesoeknad ikke eksisterer") {
+            val soeknad = DokumentKoblingMockUtils.soeknad
+            every { dokumentkoblingRepository.hentSykepengesoeknad(soeknad.soeknadId, soeknad.sykmeldingId) } returns null
+
+            val erDuplikat = dokumentkoblingService.erDuplikat(soeknad)
+
+            erDuplikat shouldBe false
+        }
+
+        test("erDuplikat returnerer true når sykepengesoeknad allerede eksisterer") {
+            val soeknad = DokumentKoblingMockUtils.soeknad
+            val soeknadEntity = mockk<SykepengesoeknadEntity>()
+            every { dokumentkoblingRepository.hentSykepengesoeknad(soeknad.soeknadId, soeknad.sykmeldingId) } returns soeknadEntity
+
+            val erDuplikat = dokumentkoblingService.erDuplikat(soeknad)
+
+            erDuplikat shouldBe true
+        }
+
+        test("erDuplikat returnerer false når vedtaksperiode-søknad kobling ikke eksisterer") {
+            val kobling = DokumentKoblingMockUtils.vedtaksperiodeSoeknadKobling
+            every {
+                dokumentkoblingRepository.hentVedtaksperiodeSoeknadKobling(
+                    kobling.vedtaksperiodeId,
+                    kobling.soeknadId,
+                )
+            } returns null
+
+            val erDuplikat = dokumentkoblingService.erDuplikat(kobling)
+
+            erDuplikat shouldBe false
+        }
+
+        test("erDuplikat returnerer true når vedtaksperiode-søknad kobling allerede eksisterer") {
+            val kobling = DokumentKoblingMockUtils.vedtaksperiodeSoeknadKobling
+            val koblingEntity = mockk<VedtaksperiodeSoeknadEntity>()
+            every {
+                dokumentkoblingRepository.hentVedtaksperiodeSoeknadKobling(
+                    kobling.vedtaksperiodeId,
+                    kobling.soeknadId,
+                )
+            } returns koblingEntity
+
+            val erDuplikat = dokumentkoblingService.erDuplikat(kobling)
+
+            erDuplikat shouldBe true
+        }
+
+        test("erDuplikat returnerer false når forespørsel sendt ikke eksisterer") {
+            val forespoersel = DokumentKoblingMockUtils.forespoerselSendt
+            every {
+                dokumentkoblingRepository.hentForespoerselMedStatus(
+                    forespoersel.forespoerselId,
+                    ForespoerselStatus.SENDT,
+                )
+            } returns null
+
+            val erDuplikat = dokumentkoblingService.erDuplikat(forespoersel)
+
+            erDuplikat shouldBe false
+        }
+
+        test("erDuplikat returnerer true når forespørsel sendt allerede eksisterer") {
+            val forespoersel = DokumentKoblingMockUtils.forespoerselSendt
+            val forespoerselEntity = mockk<ForespoerselEntity>()
+            every {
+                dokumentkoblingRepository.hentForespoerselMedStatus(
+                    forespoersel.forespoerselId,
+                    ForespoerselStatus.SENDT,
+                )
+            } returns forespoerselEntity
+
+            val erDuplikat = dokumentkoblingService.erDuplikat(forespoersel)
+
+            erDuplikat shouldBe true
+        }
+
+        test("erDuplikat returnerer false når forespørsel utgått ikke eksisterer") {
+            val forespoersel = DokumentKoblingMockUtils.forespoerselUtgaatt
+            every {
+                dokumentkoblingRepository.hentForespoerselMedStatus(
+                    forespoersel.forespoerselId,
+                    ForespoerselStatus.UTGAATT,
+                )
+            } returns null
+
+            val erDuplikat = dokumentkoblingService.erDuplikat(forespoersel)
+
+            erDuplikat shouldBe false
+        }
+
+        test("erDuplikat returnerer true når forespørsel utgått allerede eksisterer") {
+            val forespoersel = DokumentKoblingMockUtils.forespoerselUtgaatt
+            val forespoerselEntity = mockk<ForespoerselEntity>()
+            every {
+                dokumentkoblingRepository.hentForespoerselMedStatus(
+                    forespoersel.forespoerselId,
+                    ForespoerselStatus.UTGAATT,
+                )
+            } returns forespoerselEntity
+
+            val erDuplikat = dokumentkoblingService.erDuplikat(forespoersel)
+
+            erDuplikat shouldBe true
+        }
+
+        test("erDuplikat returnerer false når inntektsmelding godkjent ikke eksisterer") {
+            val inntektsmelding = DokumentKoblingMockUtils.inntektsmeldingGodkjent
+            every { dokumentkoblingRepository.hentInntektsmelding(inntektsmelding.inntektsmeldingId) } returns null
+
+            val erDuplikat = dokumentkoblingService.erDuplikat(inntektsmelding)
+
+            erDuplikat shouldBe false
+        }
+
+        test("erDuplikat returnerer true når inntektsmelding godkjent allerede eksisterer") {
+            val inntektsmelding = DokumentKoblingMockUtils.inntektsmeldingGodkjent
+            val inntektsmeldingEntity = mockk<InntektsmeldingEntity>()
+            every { dokumentkoblingRepository.hentInntektsmelding(inntektsmelding.inntektsmeldingId) } returns inntektsmeldingEntity
+
+            val erDuplikat = dokumentkoblingService.erDuplikat(inntektsmelding)
+
+            erDuplikat shouldBe true
+        }
+
+        test("erDuplikat returnerer false når inntektsmelding avvist ikke eksisterer") {
+            val inntektsmelding = DokumentKoblingMockUtils.inntektsmeldingAvvist
+            every { dokumentkoblingRepository.hentInntektsmelding(inntektsmelding.inntektsmeldingId) } returns null
+
+            val erDuplikat = dokumentkoblingService.erDuplikat(inntektsmelding)
+
+            erDuplikat shouldBe false
+        }
+
+        test("erDuplikat returnerer true når inntektsmelding avvist allerede eksisterer") {
+            val inntektsmelding = DokumentKoblingMockUtils.inntektsmeldingAvvist
+            val inntektsmeldingEntity = mockk<InntektsmeldingEntity>()
+            every { dokumentkoblingRepository.hentInntektsmelding(inntektsmelding.inntektsmeldingId) } returns inntektsmeldingEntity
+
+            val erDuplikat = dokumentkoblingService.erDuplikat(inntektsmelding)
+
+            erDuplikat shouldBe true
         }
     })

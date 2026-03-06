@@ -331,4 +331,46 @@ class DokumentkoblingRepository(
                 it[InntektsmeldingTable.status] = Status.BEHANDLET
             }
         }
+
+    fun hentSykepengesoeknad(
+        soeknadId: UUID,
+        sykmeldingId: UUID,
+    ): SykepengesoeknadEntity? =
+        transaction(db) {
+            SykepengesoeknadEntity
+                .find {
+                    (SykepengesoeknadTable.id eq soeknadId) and
+                        (SykepengesoeknadTable.sykmeldingId eq sykmeldingId)
+                }.firstOrNull()
+        }
+
+    fun hentVedtaksperiodeSoeknadKobling(
+        vedtaksperiodeId: UUID,
+        soeknadId: UUID,
+    ): VedtaksperiodeSoeknadEntity? =
+        transaction(db) {
+            VedtaksperiodeSoeknadEntity
+                .find {
+                    (VedtaksperiodeSoeknadTable.vedtaksperiodeId eq vedtaksperiodeId) and
+                        (VedtaksperiodeSoeknadTable.soeknadId eq soeknadId)
+                }.firstOrNull()
+        }
+
+    fun hentForespoerselMedStatus(
+        forespoerselId: UUID,
+        forespoerselStatus: ForespoerselStatus,
+    ): ForespoerselEntity? =
+        transaction {
+            ForespoerselEntity
+                .find {
+                    (ForespoerselTable.forespoerselId eq forespoerselId) and
+                        (ForespoerselTable.forespoerselStatus eq forespoerselStatus)
+                }.firstOrNull()
+        }
+
+    fun hentInntektsmelding(inntektsmeldingId: UUID): InntektsmeldingEntity? =
+        transaction {
+            InntektsmeldingEntity
+                .findById(inntektsmeldingId)
+        }
 }
