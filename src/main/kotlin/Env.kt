@@ -34,7 +34,7 @@ object Env {
     object Nav {
         val arbeidsgiverApiBaseUrl = "arbeidsgiver.apiBaseUrl".fromEnv()
         val arbeidsgiverGuiBaseUrl = "arbeidsgiver.guiBaseUrl".fromEnv()
-        val dokumentProxyBaseUrl = "https://dokument-proxy.ekstern.dev.nav.no"
+        val dokumentProxyBaseUrl = "arbeidsgiver.dokumentProxyBaseUrl".fromEnv()
     }
 
     object Nais {

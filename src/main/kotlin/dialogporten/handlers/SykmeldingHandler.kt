@@ -59,9 +59,14 @@ fun sykmeldingTransmission(sykmelding: Sykmelding): TransmissionRequest =
                 displayName = "sykmelding.json",
                 url = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/sykmelding/${sykmelding.sykmeldingId}",
             ),
+            createApiAttachment(
+                displayName = "sykmelding.pdf",
+                url = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/sykmelding/${sykmelding.sykmeldingId}/pdf",
+                mediaType = "application/pdf",
+            ),
             createGuiAttachment(
                 displayName = "sykmelding.pdf",
-                url = "${Env.Nav.dokumentProxyBaseUrl}/sykmelding/${sykmelding.sykmeldingId}.pdf",
+                url = "${Env.Nav.dokumentProxyBaseUrl}/hent-dokument/sykmelding/${sykmelding.sykmeldingId}.pdf",
                 mediaType = "application/pdf",
             ),
         ),
