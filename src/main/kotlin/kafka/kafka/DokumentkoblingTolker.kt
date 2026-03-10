@@ -30,6 +30,11 @@ class DokumentkoblingTolker(
                     sikkerLogger.error("Klarte ikke dekode melding. Melding blir ignorert", e)
                     return
                 }
+        if (dokumentkoblingService.erDuplikat(dekodetMelding)) {
+            logger.info("Dokumentet er duplikat. Melding blir ignorert.")
+            sikkerLogger.info("Dokumentet er duplikat. Melding blir ignorert. Melding: $melding")
+            return
+        }
 
         runCatching {
             when (dekodetMelding) {
