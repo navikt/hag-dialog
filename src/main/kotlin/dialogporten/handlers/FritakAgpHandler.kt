@@ -21,6 +21,7 @@ class FritakAgpHandler(
                         "Kvittering for mottatt søknad om fritak fra" +
                             " arbeidsgiverperioden grunnet risiko for høyt sykefravær knyttet til graviditet.",
                     transmissions = emptyList(),
+                    isApiOnly = false,
                 ),
             )
         }
