@@ -74,7 +74,7 @@ spec:
     - name: NAV_ARBEIDSGIVER_GUI_BASEURL
       value: "https://arbeidsgiver.ekstern.dev.nav.no"
     - name: NAV_DOKUMENT_PROXY_GUI_BASEURL
-      value: "https://arbeidsgiver.intern.dev.nav.no"
+      value: "https://arbeidsgiver.ekstern.dev.nav.no"
     - name: DOKUMENT_KOBLING_KAFKA_TOPIC
       value: helsearbeidsgiver.dokument-kobling
 

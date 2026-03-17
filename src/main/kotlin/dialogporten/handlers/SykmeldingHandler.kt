@@ -65,7 +65,7 @@ fun sykmeldingTransmission(sykmelding: Sykmelding): TransmissionRequest =
                 mediaType = "application/pdf",
             ),
             createGuiAttachment(
-                displayName = "sykmelding.pdf",
+                displayName = "sykmelding",
                 url = "${Env.Nav.dokumentProxyBaseUrl}/dokument/sykmelding/${sykmelding.sykmeldingId}.pdf",
                 mediaType = "application/pdf",
             ),
