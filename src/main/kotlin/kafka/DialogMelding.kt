@@ -2,6 +2,7 @@
 
 package no.nav.helsearbeidsgiver.kafka
 
+import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateSerializer
@@ -11,6 +12,7 @@ import no.nav.helsearbeidsgiver.utils.json.serializer.UuidSerializer
 sealed class DialogMelding
 
 @Serializable
+@SerialName("GravidSoeknadMelding")
 data class GravidSoeknadMelding(
     val orgnr: String,
     val sykemeldt: String,
