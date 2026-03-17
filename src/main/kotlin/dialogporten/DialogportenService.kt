@@ -2,6 +2,7 @@ package no.nav.helsearbeidsgiver.dialogporten
 
 import no.nav.helsearbeidsgiver.database.DialogRepository
 import no.nav.helsearbeidsgiver.dialogporten.handlers.ForespoerselHandler
+import no.nav.helsearbeidsgiver.dialogporten.handlers.FritakAgpHandler
 import no.nav.helsearbeidsgiver.dialogporten.handlers.InntektsmeldingHandler
 import no.nav.helsearbeidsgiver.dialogporten.handlers.SykepengesoeknadHandler
 import no.nav.helsearbeidsgiver.dialogporten.handlers.SykmeldingHandler
@@ -25,6 +26,11 @@ class DialogportenService(
     private val forespoerselHandler = ForespoerselHandler(dialogRepository, dialogportenClient)
     private val inntektsmeldingHandler = InntektsmeldingHandler(dialogRepository, dialogportenClient)
     private val utgaattForespoerselHandler = UtgaattForespoerselHandler(dialogRepository, dialogportenClient)
+    private val fritakAgpHandler = FritakAgpHandler(dialogportenClient)
+
+    fun opprettDialogForFritakAgp() {
+        fritakAgpHandler.opprettOgLagreDialog()
+    }
 
     fun opprettOgLagreDialog(sykmelding: Sykmelding) {
         sykmeldingHandler.opprettOgLagreDialog(sykmelding)

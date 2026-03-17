@@ -60,7 +60,10 @@ fun startServer() {
             dialogportenClient = dialogportenClient,
             unleashFeatureToggles = unleashFeatureToggles,
         )
-
+    val dokumentkoblingService =
+        dokumentkobling.DokumentkoblingService(
+            dokumentkoblingRepository = dokumentkoblingRepository,
+        )
     val jobber =
         listOf(
             SykepengeSoeknadJobb(
@@ -78,7 +81,7 @@ fun startServer() {
             routing {
                 naisRoutes(HelsesjekkService(database.db))
             }
-            configureKafkaConsumer(unleashFeatureToggles, dokumentkoblingRepository)
+            configureKafkaConsumer(unleashFeatureToggles, dokumentkoblingService, dialogportenService)
             startRecurringJobs(jobber)
             monitor.subscribe(ApplicationStopPreparing) {
                 logger.info("Applikasjonen stopper, avslutter eventuelle jobber...")

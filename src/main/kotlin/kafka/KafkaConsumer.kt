@@ -9,6 +9,7 @@ import no.nav.helsearbeidsgiver.Env
 import no.nav.helsearbeidsgiver.database.DokumentkoblingRepository
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
 import no.nav.helsearbeidsgiver.helsesjekker.ShutDownAppState
+import no.nav.helsearbeidsgiver.kafka.kafka.DialogMeldingTolker
 import no.nav.helsearbeidsgiver.kafka.kafka.DokumentkoblingTolker
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.log.logger
@@ -18,7 +19,8 @@ import java.time.Duration
 
 fun Application.configureKafkaConsumer(
     unleashFeatureToggles: UnleashFeatureToggles,
-    dokumentkoblingRepository: DokumentkoblingRepository,
+    dokumentkoblingService: DokumentkoblingService,
+    dialogportenService: DialogportenService,
 ) {
     val kafkaConsumerExceptionHandler =
         CoroutineExceptionHandler { _, exception ->
@@ -34,11 +36,14 @@ fun Application.configureKafkaConsumer(
             dokumentkoblingTolker =
                 DokumentkoblingTolker(
                     unleashFeatureToggles = unleashFeatureToggles,
-                    dokumentkoblingService =
-                        DokumentkoblingService(
-                            dokumentkoblingRepository = dokumentkoblingRepository,
-                        ),
+                    dokumentkoblingService = dokumentkoblingService,
                 ),
+        )
+    }
+
+    launch(Dispatchers.Default + kafkaConsumerExceptionHandler) {
+        startDialogKafkaConsumer(
+            dialogMeldingTolker = DialogMeldingTolker(dialogportenService),
         )
     }
 }
@@ -52,6 +57,20 @@ private fun startDokumentkoblingKafkaConsumer(dokumentkoblingTolker: Dokumentkob
         val records = consumer.poll(Duration.ofMillis(1000))
         for (record in records) {
             dokumentkoblingTolker.lesMelding(record.value())
+            consumer.commitSync()
+        }
+    }
+}
+
+private fun startDialogKafkaConsumer(dialogMeldingTolker: DialogMeldingTolker) {
+    val consumer = KafkaConsumer<String, String>(createKafkaConsumerConfig() as Map<String, Any>)
+    val topic = Env.Kafka.dialogTopic
+    consumer.subscribe(listOf(topic))
+    val running = true
+    while (running) {
+        val records = consumer.poll(Duration.ofMillis(1000))
+        for (record in records) {
+            dialogMeldingTolker.lesMelding(record.value())
             consumer.commitSync()
         }
     }

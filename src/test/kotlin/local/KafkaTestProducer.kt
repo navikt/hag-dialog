@@ -4,7 +4,10 @@ import forespoersel_utgaatt
 import inntektsmelding_feilet
 import inntektsmelding_godkjent
 import inntektsmeldingsforespoersel
+import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.JsonElement
+import no.nav.helsearbeidsgiver.kafka.DialogMelding
+import no.nav.helsearbeidsgiver.kafka.GravidSoeknadMelding
 import no.nav.helsearbeidsgiver.kafka.Melding
 import no.nav.helsearbeidsgiver.utils.json.toJson
 import org.apache.kafka.clients.producer.KafkaProducer
@@ -30,10 +33,10 @@ class ConsumerProducerFactory {
 class DialogKlient(
     val factory: ConsumerProducerFactory,
 ) {
-    fun sendToKafka(melding: Melding): Boolean {
+    fun sendToKafka(melding: DialogMelding): Boolean {
         try {
             factory.createProducer().use { producer ->
-                val message = melding.toJson(Melding.serializer())
+                val message = melding.toJson(DialogMelding.serializer())
                 println(message)
                 val record = message.toRecord()
                 producer.send(record).get().also { metadata ->
@@ -56,12 +59,7 @@ fun main() {
     val factory = producerFactory("dev")
     val dialogKlient = DialogKlient(factory)
 
-    dialogKlient.sendToKafka(sykmelding)
-    dialogKlient.sendToKafka(sykepengesoeknad)
-    dialogKlient.sendToKafka(inntektsmeldingsforespoersel)
-    dialogKlient.sendToKafka(forespoersel_utgaatt)
-    dialogKlient.sendToKafka(inntektsmelding_godkjent)
-    dialogKlient.sendToKafka(inntektsmelding_feilet)
+    dialogKlient.sendToKafka(GravidSoeknadMelding("999999999", "111111111111"))
 }
 
 private fun JsonElement.toRecord(): ProducerRecord<String, String> = ProducerRecord("helsearbeidsgiver.dialog", "key", this.toString())
