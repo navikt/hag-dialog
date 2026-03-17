@@ -7,6 +7,7 @@ import no.nav.helsearbeidsgiver.dialogporten.handlers.InntektsmeldingHandler
 import no.nav.helsearbeidsgiver.dialogporten.handlers.SykepengesoeknadHandler
 import no.nav.helsearbeidsgiver.dialogporten.handlers.SykmeldingHandler
 import no.nav.helsearbeidsgiver.dialogporten.handlers.UtgaattForespoerselHandler
+import no.nav.helsearbeidsgiver.kafka.DialogMelding
 import no.nav.helsearbeidsgiver.kafka.Inntektsmelding
 import no.nav.helsearbeidsgiver.kafka.Inntektsmeldingsforespoersel
 import no.nav.helsearbeidsgiver.kafka.Sykepengesoeknad
@@ -28,8 +29,8 @@ class DialogportenService(
     private val utgaattForespoerselHandler = UtgaattForespoerselHandler(dialogRepository, dialogportenClient)
     private val fritakAgpHandler = FritakAgpHandler(dialogportenClient)
 
-    fun opprettDialogForFritakAgp() {
-        fritakAgpHandler.opprettOgLagreDialog()
+    fun opprettDialogForFritakAgp(dialogMelding: DialogMelding) {
+        fritakAgpHandler.opprettOgLagreDialog(dialogMelding)
     }
 
     fun opprettOgLagreDialog(sykmelding: Sykmelding) {
