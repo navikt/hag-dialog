@@ -10,6 +10,7 @@ import no.nav.helsearbeidsgiver.kafka.DialogMelding
 import no.nav.helsearbeidsgiver.kafka.GravidSoeknadMelding
 import no.nav.helsearbeidsgiver.kafka.Melding
 import no.nav.helsearbeidsgiver.utils.json.toJson
+import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.apache.kafka.clients.producer.ProducerConfig
 import org.apache.kafka.clients.producer.ProducerRecord
@@ -59,7 +60,7 @@ fun main() {
     val factory = producerFactory("dev")
     val dialogKlient = DialogKlient(factory)
 
-    dialogKlient.sendToKafka(GravidSoeknadMelding("999999999", "111111111111"))
+    dialogKlient.sendToKafka(GravidSoeknadMelding(Orgnr("999999999"), "111111111111"))
 }
 
 private fun JsonElement.toRecord(): ProducerRecord<String, String> = ProducerRecord("helsearbeidsgiver.dialog", "key", this.toString())
