@@ -5,8 +5,6 @@ import no.nav.helsearbeidsgiver.dialogporten.DialogportenClient
 import no.nav.helsearbeidsgiver.dialogporten.domene.CreateDialogRequest
 import no.nav.helsearbeidsgiver.kafka.DialogMelding
 import no.nav.helsearbeidsgiver.kafka.GravidSoeknadMelding
-import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
-import java.util.UUID
 
 class FritakAgpHandler(
     private val dialogportenClient: DialogportenClient,
@@ -23,8 +21,8 @@ class FritakAgpHandler(
                 CreateDialogRequest(
                     orgnr = gravidSoeknadMelding.orgnr,
                     externalReference = "fritak-agp",
-                    idempotentKey = UUID.randomUUID().toString(),
-                    title = "Søknad om fritak fra arbeidsgiverperioden grunnet graviditet.",
+                    idempotentKey = gravidSoeknadMelding.id.toString(),
+                    title = "${sladdFnr(gravidSoeknadMelding.fnr)}-Søknad om fritak fra arbeidsgiverperioden grunnet graviditet.",
                     summary =
                         "Kvittering for mottatt søknad om fritak fra" +
                             " arbeidsgiverperioden grunnet risiko for høyt sykefravær knyttet til graviditet.",
@@ -35,3 +33,5 @@ class FritakAgpHandler(
         }
     }
 }
+
+fun sladdFnr(fnr: String): String = fnr.take(6) + "*****"
