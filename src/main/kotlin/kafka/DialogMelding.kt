@@ -8,6 +8,7 @@ import kotlinx.serialization.UseSerializers
 import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateSerializer
 import no.nav.helsearbeidsgiver.utils.json.serializer.UuidSerializer
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
+import java.util.UUID
 
 @Serializable
 sealed class DialogMelding
@@ -15,6 +16,8 @@ sealed class DialogMelding
 @Serializable
 @SerialName("GravidSoeknadMelding")
 data class GravidSoeknadMelding(
+    val id: UUID,
     val orgnr: Orgnr,
-    val sykemeldt: String,
+    val navn: String,
+    val fnr: String
 ) : DialogMelding()
