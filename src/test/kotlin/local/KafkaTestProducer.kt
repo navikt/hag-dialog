@@ -59,8 +59,6 @@ fun producerFactory(env: String): ConsumerProducerFactory = ConsumerProducerFact
 fun main() {
     val factory = producerFactory("dev")
     val dialogKlient = DialogKlient(factory)
-
-    dialogKlient.sendToKafka(GravidSoeknadMelding(Orgnr("999999999"), "111111111111"))
 }
 
 private fun JsonElement.toRecord(): ProducerRecord<String, String> = ProducerRecord("helsearbeidsgiver.dialog", "key", this.toString())
