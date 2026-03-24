@@ -24,7 +24,7 @@ class FritakAgpHandler(
                     idempotentKey = gravidSoeknadMelding.id.toString(),
                     title =
                         "Søknad om fritak fra arbeidsgiverperioden grunnet graviditet." +
-                            " ${gravidSoeknadMelding.navn} (${gravidSoeknadMelding.foedselsdato})",
+                            " ${gravidSoeknadMelding.navn} (f. ${gravidSoeknadMelding.foedselsdato})",
                     summary =
                         "Kvittering for mottatt søknad om fritak fra" +
                             " arbeidsgiverperioden grunnet risiko for høyt sykefravær knyttet til graviditet.",
