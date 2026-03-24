@@ -22,7 +22,9 @@ class FritakAgpHandler(
                     orgnr = gravidSoeknadMelding.orgnr,
                     externalReference = "fritak-agp",
                     idempotentKey = gravidSoeknadMelding.id.toString(),
-                    title = "${sladdFnr(gravidSoeknadMelding.fnr)}-Søknad om fritak fra arbeidsgiverperioden grunnet graviditet.",
+                    title =
+                        "Søknad om fritak fra arbeidsgiverperioden grunnet graviditet." +
+                            " ${gravidSoeknadMelding.navn} (${gravidSoeknadMelding.foedselsdato})",
                     summary =
                         "Kvittering for mottatt søknad om fritak fra" +
                             " arbeidsgiverperioden grunnet risiko for høyt sykefravær knyttet til graviditet.",
@@ -33,5 +35,3 @@ class FritakAgpHandler(
         }
     }
 }
-
-fun sladdFnr(fnr: String): String = fnr.take(6) + "*****"
