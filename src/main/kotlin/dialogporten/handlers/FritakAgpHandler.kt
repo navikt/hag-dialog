@@ -7,7 +7,9 @@ import no.nav.helsearbeidsgiver.dialogporten.domene.CreateDialogRequest
 import no.nav.helsearbeidsgiver.dialogporten.domene.createApiAttachment
 import no.nav.helsearbeidsgiver.dialogporten.domene.createGuiAttachment
 import no.nav.helsearbeidsgiver.kafka.DialogMelding
+import no.nav.helsearbeidsgiver.kafka.GravidKravMelding
 import no.nav.helsearbeidsgiver.kafka.GravidSoeknadMelding
+import no.nav.helsearbeidsgiver.kafka.foedselsdatoFraFnr
 
 class FritakAgpHandler(
     private val dialogportenClient: DialogportenClient,
@@ -15,7 +17,12 @@ class FritakAgpHandler(
     fun opprettOgLagreDialog(dialogMelding: DialogMelding) {
         when (dialogMelding) {
             is GravidSoeknadMelding -> opprettDialogForGravidSoeknad(dialogMelding)
+            is GravidKravMelding -> opprettDialogForGravidKrav(dialogMelding)
         }
+    }
+
+    private fun opprettDialogForGravidKrav(dialogMelding: GravidKravMelding) {
+        TODO("Not yet implemented")
     }
 
     private fun opprettDialogForGravidSoeknad(gravidSoeknadMelding: GravidSoeknadMelding) {
@@ -27,7 +34,7 @@ class FritakAgpHandler(
                     idempotentKey = gravidSoeknadMelding.id.toString(),
                     title =
                         "Søknad om fritak fra arbeidsgiverperioden grunnet graviditet." +
-                            " ${gravidSoeknadMelding.navn} (f. ${gravidSoeknadMelding.foedselsdato})",
+                            " ${gravidSoeknadMelding.navn} (f. ${foedselsdatoFraFnr(gravidSoeknadMelding.fnr)})",
                     summary =
                         "Kvittering for mottatt søknad om fritak fra" +
                             " arbeidsgiverperioden grunnet risiko for høyt sykefravær knyttet til graviditet.",
