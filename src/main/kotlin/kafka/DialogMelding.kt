@@ -23,7 +23,7 @@ data class GravidSoeknadMelding(
 ) : DialogMelding()
 
 @Serializable
-@SerialName("GravidSoeknadMelding")
+@SerialName("GravidKravMelding")
 data class GravidKravMelding(
     val id: UUID,
     val orgnr: Orgnr,
