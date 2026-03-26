@@ -52,6 +52,9 @@ fun startServer() {
     }
     logger.info("Setter opp DialogRepository...")
     val dialogRepository = DialogRepository(database.db)
+    val fritakDialogRepository =
+        no.nav.helsearbeidsgiver.database
+            .FritakDialogRepository(database.db)
     val dokumentkoblingRepository = DokumentkoblingRepository(db = database.db, maksAntallPerHenting = 1000)
 
     val dialogportenService =
@@ -59,6 +62,7 @@ fun startServer() {
             dialogRepository = dialogRepository,
             dialogportenClient = dialogportenClient,
             unleashFeatureToggles = unleashFeatureToggles,
+            fritakDialogRepository = fritakDialogRepository,
         )
     val dokumentkoblingService =
         dokumentkobling.DokumentkoblingService(
