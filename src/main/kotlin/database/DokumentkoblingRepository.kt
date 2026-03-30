@@ -23,7 +23,6 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
 import java.time.LocalDateTime
 import java.util.UUID
-import kotlin.math.absoluteValue
 import kotlin.random.Random
 
 class DokumentkoblingRepository(
@@ -73,7 +72,7 @@ class DokumentkoblingRepository(
                 .map { it.data }
         }
 
-    fun henteSykepengeSoeknaderMedStatusMotattPartionertTilfeldig(): List<Sykepengesoeknad> =
+    fun henteSykepengeSoeknaderMedStatusMottattPartisjonertTilfeldig(): List<Sykepengesoeknad> =
         transaction(db) {
             val alleSykmeldingIder =
                 SykepengesoeknadTable
@@ -88,7 +87,7 @@ class DokumentkoblingRepository(
 
             val valgteSykmeldingIder =
                 alleSykmeldingIder.filter {
-                    it.hashCode().absoluteValue % antallPartisjoner == valgtPartisjon
+                    Math.floorMod(it.hashCode(), antallPartisjoner) == valgtPartisjon
                 }
 
             SykepengesoeknadEntity

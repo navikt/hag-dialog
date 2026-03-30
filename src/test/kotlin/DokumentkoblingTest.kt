@@ -75,7 +75,7 @@ class DokumentkoblingTest :
                 repository.opprettSykepengesoeknad(soeknad)
                 repository.opprettSykepengesoeknad(soeknad.copy(soeknadId = soeknadId2))
 
-                val hentet = repository.henteSykepengeSoeknaderMedStatusMotattPartionertTilfeldig()
+                val hentet = repository.henteSykepengeSoeknaderMedStatusMottattPartisjonertTilfeldig()
                 hentet.size shouldBe 2
                 hentet[0].soeknadId shouldBe soeknad.soeknadId
                 hentet[1].soeknadId shouldBe soeknadId2
@@ -100,7 +100,10 @@ class DokumentkoblingTest :
             test("hente mottatte søknader partisjonert tilfeldig dekker alle elementer") {
                 val soeknader =
                     List(maksAntallPerHenting * 3) {
-                        DokumentKoblingMockUtils.soeknad.copy(soeknadId = UUID.randomUUID())
+                        DokumentKoblingMockUtils.soeknad.copy(
+                            soeknadId = UUID.randomUUID(),
+                            sykmeldingId = UUID.randomUUID(),
+                        )
                     }
 
                 soeknader.forEach { repository.opprettSykepengesoeknad(it) }
@@ -108,7 +111,7 @@ class DokumentkoblingTest :
                 val hentetSoeknadIder =
                     (1..17)
                         .flatMap {
-                            repository.henteSykepengeSoeknaderMedStatusMotattPartionertTilfeldig()
+                            repository.henteSykepengeSoeknaderMedStatusMottattPartisjonertTilfeldig()
                         }.map { it.soeknadId }
                         .toSet()
 
@@ -123,7 +126,7 @@ class DokumentkoblingTest :
 
                 soeknader.forEach { repository.opprettSykepengesoeknad(it) }
 
-                val hentet = repository.henteSykepengeSoeknaderMedStatusMotattPartionertTilfeldig()
+                val hentet = repository.henteSykepengeSoeknaderMedStatusMottattPartisjonertTilfeldig()
                 val forventetSekvens = soeknader.map { it.soeknadId }
                 val partisjonIForventetSekvens = hentet.map { it.soeknadId }.sortedBy { forventetSekvens.indexOf(it) }
 
@@ -194,7 +197,7 @@ class DokumentkoblingTest :
                 repository.opprettSykepengesoeknad(soeknad.copy(soeknadId = soeknadId2))
                 repository.settSykepengeSoeknadJobbTilBehandlet(soeknad.soeknadId)
 
-                val hentet = repository.henteSykepengeSoeknaderMedStatusMotattPartionertTilfeldig()
+                val hentet = repository.henteSykepengeSoeknaderMedStatusMottattPartisjonertTilfeldig()
                 hentet.size shouldBe 1
                 hentet[0].soeknadId shouldBe soeknadId2
             }
@@ -234,7 +237,7 @@ class DokumentkoblingTest :
                 repository.opprettSykepengesoeknad(nySoeknad)
 
                 // Sjekk at begge søknadene er mottatt før vi setter til tidsavbrutt
-                val mottatteSoeknaderFoer = repository.henteSykepengeSoeknaderMedStatusMotattPartionertTilfeldig()
+                val mottatteSoeknaderFoer = repository.henteSykepengeSoeknaderMedStatusMottattPartisjonertTilfeldig()
                 mottatteSoeknaderFoer shouldBe listOf(gammelSoeknad, nySoeknad)
 
                 // Sett søknader til tidsavbrutt før grensen
@@ -243,7 +246,7 @@ class DokumentkoblingTest :
 
                 // Sjekk at kun den gamle søknaden er satt til tidsavbrutt
                 antallOppdatert shouldBe 1
-                val mottatteSoeknaderEtter = repository.henteSykepengeSoeknaderMedStatusMotattPartionertTilfeldig()
+                val mottatteSoeknaderEtter = repository.henteSykepengeSoeknaderMedStatusMottattPartisjonertTilfeldig()
                 mottatteSoeknaderEtter shouldBe listOf(nySoeknad)
 
                 // Sjekk at den gamle søknaden faktisk har status TIDSAVBRUTT

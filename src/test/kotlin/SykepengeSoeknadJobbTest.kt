@@ -41,7 +41,7 @@ class SykepengeSoeknadJobbTest :
         beforeTest {
             clearAllMocks()
             every { repository.settSykepengeSoeknadJobbTilBehandlet(any()) } just runs
-            every { repository.henteSykepengeSoeknaderMedStatusMotattPartionertTilfeldig() } returns
+            every { repository.henteSykepengeSoeknaderMedStatusMottattPartisjonertTilfeldig() } returns
                 listOf(DokumentKoblingMockUtils.soeknad)
             every { repository.hentSykmeldingEntitet(sykmeldingId) } returns sykmeldingEntity
             every { dialogportenService.oppdaterDialogMedSykepengesoeknad(any()) } just runs
@@ -53,7 +53,7 @@ class SykepengeSoeknadJobbTest :
 
             sykepengeSoeknadJobb.doJob()
 
-            verify(exactly = 1) { repository.henteSykepengeSoeknaderMedStatusMotattPartionertTilfeldig() }
+            verify(exactly = 1) { repository.henteSykepengeSoeknaderMedStatusMottattPartisjonertTilfeldig() }
             verify(exactly = 1) { dialogportenService.oppdaterDialogMedSykepengesoeknad(match { it.sykmeldingId == sykmeldingId }) }
             verify(exactly = 1) { repository.settSykepengeSoeknadJobbTilBehandlet(soeknadId) }
         }
@@ -64,7 +64,7 @@ class SykepengeSoeknadJobbTest :
 
             sykepengeSoeknadJobb.doJob()
 
-            verify(exactly = 1) { repository.henteSykepengeSoeknaderMedStatusMotattPartionertTilfeldig() }
+            verify(exactly = 1) { repository.henteSykepengeSoeknaderMedStatusMottattPartisjonertTilfeldig() }
             verify(exactly = 0) { dialogportenService.oppdaterDialogMedSykepengesoeknad(any()) }
             verify(exactly = 0) { repository.settSykepengeSoeknadJobbTilBehandlet(soeknadId) }
         }
@@ -75,7 +75,7 @@ class SykepengeSoeknadJobbTest :
 
             sykepengeSoeknadJobb.doJob()
 
-            verify(exactly = 1) { repository.henteSykepengeSoeknaderMedStatusMotattPartionertTilfeldig() }
+            verify(exactly = 1) { repository.henteSykepengeSoeknaderMedStatusMottattPartisjonertTilfeldig() }
             verify(exactly = 0) { dialogportenService.oppdaterDialogMedSykepengesoeknad(any()) }
             verify(exactly = 0) { repository.settSykepengeSoeknadJobbTilBehandlet(soeknadId) }
         }
@@ -86,14 +86,14 @@ class SykepengeSoeknadJobbTest :
 
             val exceptionSoeknad = DokumentKoblingMockUtils.soeknad.copy(soeknadId = UUID.randomUUID())
 
-            every { repository.henteSykepengeSoeknaderMedStatusMotattPartionertTilfeldig() } returns
+            every { repository.henteSykepengeSoeknaderMedStatusMottattPartisjonertTilfeldig() } returns
                 listOf(exceptionSoeknad, DokumentKoblingMockUtils.soeknad)
             every { dialogportenService.opprettTransmissionForSoeknad(exceptionSoeknad) } throws
                 NotFoundException("Fant ikke sykmelding for søknad")
 
             sykepengeSoeknadJobb.doJob()
 
-            verify(exactly = 1) { repository.henteSykepengeSoeknaderMedStatusMotattPartionertTilfeldig() }
+            verify(exactly = 1) { repository.henteSykepengeSoeknaderMedStatusMottattPartisjonertTilfeldig() }
             verify(exactly = 2) { dialogportenService.oppdaterDialogMedSykepengesoeknad(any()) }
             verify(exactly = 1) { repository.settSykepengeSoeknadJobbTilBehandlet(soeknadId) }
         }

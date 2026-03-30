@@ -21,7 +21,7 @@ class SykepengeSoeknadJobb(
             return
         }
 
-        val soeknader = dokumentkoblingRepository.henteSykepengeSoeknaderMedStatusMotattPartionertTilfeldig()
+        val soeknader = dokumentkoblingRepository.henteSykepengeSoeknaderMedStatusMottattPartisjonertTilfeldig()
 
         oppdaterMetrikkForAntallSykepengesoeknaderMedStatusMottatt(nyVerdi = soeknader.size)
             .also { logger.info("Fant ${soeknader.size} sykepengesøknader med status MOTTATT klar til behandling.") }
