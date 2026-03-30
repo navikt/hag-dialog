@@ -2,6 +2,7 @@ import dokumentkobling.InnsendingType
 import dokumentkobling.Status
 import dokumentkobling.VedtaksperiodeSoeknadKobling
 import io.kotest.assertions.assertSoftly
+import io.kotest.matchers.collections.shouldContainAll
 import io.kotest.matchers.collections.shouldContainOnly
 import io.kotest.matchers.collections.shouldNotBeEmpty
 import io.kotest.matchers.collections.shouldNotContain
@@ -74,7 +75,7 @@ class DokumentkoblingTest :
                 repository.opprettSykepengesoeknad(soeknad)
                 repository.opprettSykepengesoeknad(soeknad.copy(soeknadId = soeknadId2))
 
-                val hentet = repository.henteSykepengeSoeknaderMedStatusMottatt()
+                val hentet = repository.henteSykepengeSoeknaderMedStatusMotattPartionertTilfeldig()
                 hentet.size shouldBe 2
                 hentet[0].soeknadId shouldBe soeknad.soeknadId
                 hentet[1].soeknadId shouldBe soeknadId2
@@ -96,7 +97,25 @@ class DokumentkoblingTest :
                 }
             }
 
-            test("henter kun de maksAntallPerHenting eldste søknadene med mottatt status") {
+            test("hente mottatte søknader partisjonert tilfeldig dekker alle elementer") {
+                val soeknader =
+                    List(maksAntallPerHenting * 3) {
+                        DokumentKoblingMockUtils.soeknad.copy(soeknadId = UUID.randomUUID())
+                    }
+
+                soeknader.forEach { repository.opprettSykepengesoeknad(it) }
+
+                val hentetSoeknadIder =
+                    (1..17)
+                        .flatMap {
+                            repository.henteSykepengeSoeknaderMedStatusMotattPartionertTilfeldig()
+                        }.map { it.soeknadId }
+                        .toSet()
+
+                hentetSoeknadIder shouldContainAll soeknader.map { it.soeknadId }
+            }
+
+            test("hente mottatte søknader partisjonert tilfeldig er sortert stigende") {
                 val soeknader =
                     List(maksAntallPerHenting + 1) {
                         DokumentKoblingMockUtils.soeknad.copy(soeknadId = UUID.randomUUID())
@@ -104,12 +123,11 @@ class DokumentkoblingTest :
 
                 soeknader.forEach { repository.opprettSykepengesoeknad(it) }
 
-                val hentet = repository.henteSykepengeSoeknaderMedStatusMottatt()
+                val hentet = repository.henteSykepengeSoeknaderMedStatusMotattPartionertTilfeldig()
+                val forventetSekvens = soeknader.map { it.soeknadId }
+                val partisjonIForventetSekvens = hentet.map { it.soeknadId }.sortedBy { forventetSekvens.indexOf(it) }
 
-                assertSoftly(hentet) {
-                    size shouldBe maksAntallPerHenting
-                    map { it.soeknadId }.shouldNotContain(soeknader.last().soeknadId)
-                }
+                hentet.map { it.soeknadId } shouldBe partisjonIForventetSekvens
             }
 
             test("henter kun de maksAntallPerHenting eldste forespørsel-sykmelding-koblingene") {
@@ -176,7 +194,7 @@ class DokumentkoblingTest :
                 repository.opprettSykepengesoeknad(soeknad.copy(soeknadId = soeknadId2))
                 repository.settSykepengeSoeknadJobbTilBehandlet(soeknad.soeknadId)
 
-                val hentet = repository.henteSykepengeSoeknaderMedStatusMottatt()
+                val hentet = repository.henteSykepengeSoeknaderMedStatusMotattPartionertTilfeldig()
                 hentet.size shouldBe 1
                 hentet[0].soeknadId shouldBe soeknadId2
             }
@@ -216,7 +234,7 @@ class DokumentkoblingTest :
                 repository.opprettSykepengesoeknad(nySoeknad)
 
                 // Sjekk at begge søknadene er mottatt før vi setter til tidsavbrutt
-                val mottatteSoeknaderFoer = repository.henteSykepengeSoeknaderMedStatusMottatt()
+                val mottatteSoeknaderFoer = repository.henteSykepengeSoeknaderMedStatusMotattPartionertTilfeldig()
                 mottatteSoeknaderFoer shouldBe listOf(gammelSoeknad, nySoeknad)
 
                 // Sett søknader til tidsavbrutt før grensen
@@ -225,7 +243,7 @@ class DokumentkoblingTest :
 
                 // Sjekk at kun den gamle søknaden er satt til tidsavbrutt
                 antallOppdatert shouldBe 1
-                val mottatteSoeknaderEtter = repository.henteSykepengeSoeknaderMedStatusMottatt()
+                val mottatteSoeknaderEtter = repository.henteSykepengeSoeknaderMedStatusMotattPartionertTilfeldig()
                 mottatteSoeknaderEtter shouldBe listOf(nySoeknad)
 
                 // Sjekk at den gamle søknaden faktisk har status TIDSAVBRUTT
