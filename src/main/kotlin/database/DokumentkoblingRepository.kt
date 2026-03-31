@@ -23,6 +23,7 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
 import java.time.LocalDateTime
 import java.util.UUID
+import kotlin.random.Random
 
 class DokumentkoblingRepository(
     private val db: Database,
@@ -71,12 +72,29 @@ class DokumentkoblingRepository(
                 .map { it.data }
         }
 
-    fun henteSykepengeSoeknaderMedStatusMottatt(): List<Sykepengesoeknad> =
+    fun henteSykepengeSoeknaderMedStatusMottattPartisjonertTilfeldig(): List<Sykepengesoeknad> =
         transaction(db) {
+            val alleSykmeldingIder =
+                SykepengesoeknadTable
+                    .select(SykepengesoeknadTable.sykmeldingId)
+                    .where { SykepengesoeknadTable.status eq Status.MOTTATT }
+                    .map { it[SykepengesoeknadTable.sykmeldingId] }
+
+            if (alleSykmeldingIder.isEmpty()) return@transaction emptyList()
+
+            val antallPartisjoner = maxOf(1, alleSykmeldingIder.size / maksAntallPerHenting)
+            val valgtPartisjon = Random.nextInt(antallPartisjoner)
+
+            val valgteSykmeldingIder =
+                alleSykmeldingIder.filter {
+                    Math.floorMod(it.hashCode(), antallPartisjoner) == valgtPartisjon
+                }
+
             SykepengesoeknadEntity
-                .find { SykepengesoeknadTable.status eq Status.MOTTATT }
-                .orderBy(SykepengesoeknadTable.opprettet to SortOrder.ASC)
-                .limit(maksAntallPerHenting)
+                .find {
+                    (SykepengesoeknadTable.status eq Status.MOTTATT) and
+                        (SykepengesoeknadTable.sykmeldingId inList valgteSykmeldingIder)
+                }.orderBy(SykepengesoeknadTable.opprettet to SortOrder.ASC)
                 .map {
                     Sykepengesoeknad(
                         soeknadId = it.id.value,

@@ -20,7 +20,8 @@ class SykepengeSoeknadJobb(
             logger.warn("Oppretter ikke dialoger for sykepengesøknader da det er deaktivert i Unleash.")
             return
         }
-        val soeknader = dokumentkoblingRepository.henteSykepengeSoeknaderMedStatusMottatt()
+
+        val soeknader = dokumentkoblingRepository.henteSykepengeSoeknaderMedStatusMottattPartisjonertTilfeldig()
 
         oppdaterMetrikkForAntallSykepengesoeknaderMedStatusMottatt(nyVerdi = soeknader.size)
             .also { logger.info("Fant ${soeknader.size} sykepengesøknader med status MOTTATT klar til behandling.") }
