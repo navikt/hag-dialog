@@ -10,19 +10,21 @@ import java.util.UUID
 class FritakDialogRepository(
     private val db: Database,
 ) {
-    fun lagreDialog(
+    fun lagreSoeknadDialog(
         dialogId: UUID,
-        dokumentId: UUID,
-        dokumentType: FritakAgpDokType,
+        soeknadId: UUID,
+        soeknadType: FritakAgpDokType,
         fnr: String,
+        orgnr: String,
     ) {
         try {
             transaction(db) {
-                FritakAgpDialogTable.insert {
-                    it[this.dialogId] = dialogId
-                    it[this.dokumentId] = dokumentId
-                    it[this.dokumentType] = dokumentType
+                FritakAgpSoeknadTable.insert {
+                    it[id] = dialogId
+                    it[this.soeknadId] = soeknadId
+                    it[this.soeknadType] = soeknadType
                     it[this.fnr] = fnr
+                    it[this.orgnr] = orgnr
                 }
             }
         } catch (e: ExposedSQLException) {
@@ -31,10 +33,28 @@ class FritakDialogRepository(
         }
     }
 
-    fun finnDialogMedDokumentId(dokumentId: UUID): FritakAgpDialogEntity? =
-        transaction(db) {
-            FritakAgpDialogEntity
-                .find { FritakAgpDialogTable.dokumentId eq dokumentId }
-                .firstOrNull()
+    fun lagreKravDialog(
+        dialogId: UUID,
+        transmissionId: UUID,
+        kravId: UUID,
+        kravType: FritakAgpType,
+        fnr: String,
+        orgnr: String,
+    ) {
+        try {
+            transaction(db) {
+                FritakAgpKravTable.insert {
+                    it[id] = transmissionId
+                    it[this.dialogId] = dialogId
+                    it[this.kravId] = kravId
+                    it[this.kravType] = kravType
+                    it[this.fnr] = fnr
+                    it[this.orgnr] = orgnr
+                }
+            }
+        } catch (e: ExposedSQLException) {
+            sikkerLogger().error("Klarte ikke å lagre fritak-krav-dialog med dialogId $dialogId i databasen", e)
+            throw e
         }
+    }
 }

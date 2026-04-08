@@ -1,8 +1,10 @@
 package no.nav.helsearbeidsgiver.dialogporten
 
+import no.nav.helsearbeidsgiver.database.finnTypeForFritakKrav
 import no.nav.helsearbeidsgiver.dialogporten.domene.Attachment
 import no.nav.helsearbeidsgiver.dialogporten.domene.Transmission
 import no.nav.helsearbeidsgiver.dialogporten.domene.TransmissionRequest
+import no.nav.helsearbeidsgiver.kafka.GravidKravMelding
 import no.nav.helsearbeidsgiver.kafka.Inntektsmelding
 import no.nav.helsearbeidsgiver.kafka.Sykepengesoeknad
 import no.nav.helsearbeidsgiver.kafka.Sykmelding
@@ -84,4 +86,16 @@ class InntektsmeldingTransmissionRequest(
     override val tittel = inntektsmelding.status.toTittel()
     override val sammendrag = null
     override val type = inntektsmelding.status.toTransmissionType()
+}
+
+class FritakGravidKravTransmissionRequest(
+    kravMelding: GravidKravMelding,
+) : TransmissionRequest() {
+    override val relatedTransmissionId = null
+    override val dokumentId = kravMelding.id
+    override val extendedType = finnTypeForFritakKrav(kravMelding).toString()
+    override val tittel = "Krav om fritak for arbeidsgiverperiode ved graviditet ${kravMelding.status.verdi}"
+    override val sammendrag = null
+    override val type = Transmission.TransmissionType.Information
+    override val attachments = emptyList<Attachment>()
 }

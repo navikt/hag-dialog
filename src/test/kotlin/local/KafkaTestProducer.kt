@@ -7,6 +7,8 @@ import inntektsmeldingsforespoersel
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.JsonElement
 import no.nav.helsearbeidsgiver.kafka.DialogMelding
+import no.nav.helsearbeidsgiver.kafka.FritakKravStatus
+import no.nav.helsearbeidsgiver.kafka.GravidKravMelding
 import no.nav.helsearbeidsgiver.kafka.GravidSoeknadMelding
 import no.nav.helsearbeidsgiver.kafka.Melding
 import no.nav.helsearbeidsgiver.utils.json.toJson
@@ -65,6 +67,33 @@ fun main() {
             orgnr = Orgnr("214398982"),
             navn = "Test Navn",
             fnr = "01010112345",
+        ),
+    )
+    dialogKlient.sendToKafka(
+        GravidKravMelding(
+            id = java.util.UUID.randomUUID(),
+            orgnr = Orgnr("214398982"),
+            navn = "Test Navn",
+            fnr = "01010112345",
+            status = FritakKravStatus.OPPRETTET,
+        ),
+    )
+    dialogKlient.sendToKafka(
+        GravidKravMelding(
+            id = java.util.UUID.randomUUID(),
+            orgnr = Orgnr("214398982"),
+            navn = "Test Navn",
+            fnr = "01010112345",
+           status = FritakKravStatus.ENDRET,
+        ),
+    )
+    dialogKlient.sendToKafka(
+        GravidKravMelding(
+            id = java.util.UUID.randomUUID(),
+            orgnr = Orgnr("214398982"),
+            navn = "Test Navn",
+            fnr = "01010112345",
+            status = FritakKravStatus.SLETTET,
         ),
     )
 }

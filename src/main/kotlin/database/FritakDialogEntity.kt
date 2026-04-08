@@ -1,30 +1,15 @@
 package no.nav.helsearbeidsgiver.database
 
-import org.jetbrains.exposed.dao.LongEntity
-import org.jetbrains.exposed.dao.LongEntityClass
-import org.jetbrains.exposed.dao.id.EntityID
-import org.jetbrains.exposed.dao.id.LongIdTable
+import org.jetbrains.exposed.dao.id.UUIDTable
 import org.jetbrains.exposed.sql.javatime.datetime
 import java.time.LocalDateTime
 
-object FritakAgpDialogTable : LongIdTable("fritakagp_dialog") {
-    val dialogId = uuid("dialog_id").uniqueIndex()
-    val dokumentId = uuid("dokument_id").uniqueIndex()
-    val dokumentType = enumerationByName(name = "dokument_type", length = 50, klass = FritakAgpDokType::class)
-    val fnr = text("fnr")
+object FritakAgpSoeknadTable : UUIDTable("fritakagp_soeknad", "dialog_id") {
+    val soeknadId = uuid("soeknad_id").uniqueIndex()
+    val soeknadType = enumerationByName(name = "soeknad_type", length = 50, klass = FritakAgpDokType::class)
+    val fnr = varchar("fnr", 50)
+    val orgnr = varchar("orgnr", 50)
     val opprettet = datetime("opprettet").clientDefault { LocalDateTime.now() }
-}
-
-class FritakAgpDialogEntity(
-    id: EntityID<Long>,
-) : LongEntity(id) {
-    companion object : LongEntityClass<FritakAgpDialogEntity>(FritakAgpDialogTable)
-
-    val dialogId by FritakAgpDialogTable.dialogId
-    val dokumentId by FritakAgpDialogTable.dokumentId
-    val dokumentType by FritakAgpDialogTable.dokumentType
-    val fnr by FritakAgpDialogTable.fnr
-    val opprettet by FritakAgpDialogTable.opprettet
 }
 
 enum class FritakAgpDokType {

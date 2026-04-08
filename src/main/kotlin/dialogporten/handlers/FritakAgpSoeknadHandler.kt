@@ -8,23 +8,23 @@ import no.nav.helsearbeidsgiver.dialogporten.DialogportenClient
 import no.nav.helsearbeidsgiver.dialogporten.domene.CreateDialogRequest
 import no.nav.helsearbeidsgiver.dialogporten.domene.createApiAttachment
 import no.nav.helsearbeidsgiver.dialogporten.domene.createGuiAttachment
-import no.nav.helsearbeidsgiver.kafka.DialogMelding
-import no.nav.helsearbeidsgiver.kafka.GravidKravMelding
+import no.nav.helsearbeidsgiver.kafka.FritakSoeknadMelding
 import no.nav.helsearbeidsgiver.kafka.GravidSoeknadMelding
+import no.nav.helsearbeidsgiver.kafka.KroniskSoeknadMelding
 import no.nav.helsearbeidsgiver.kafka.foedselsdatoFraFnr
 
-class FritakAgpHandler(
+class FritakAgpSoeknadHandler(
     private val dialogportenClient: DialogportenClient,
     private val fritakDialogRepository: FritakDialogRepository,
 ) {
-    fun opprettOgLagreDialog(dialogMelding: DialogMelding) {
-        when (dialogMelding) {
-            is GravidSoeknadMelding -> opprettDialogForGravidSoeknad(dialogMelding)
-            is GravidKravMelding -> opprettDialogForGravidKrav(dialogMelding)
+    fun behandleSoeknadDialog(soeknadMelding: FritakSoeknadMelding) {
+        when (soeknadMelding) {
+            is GravidSoeknadMelding -> opprettDialogForGravidSoeknad(soeknadMelding)
+            is KroniskSoeknadMelding -> opprettDialogForKroniskSoeknad(soeknadMelding)
         }
     }
 
-    private fun opprettDialogForGravidKrav(dialogMelding: GravidKravMelding) {
+    private fun opprettDialogForKroniskSoeknad(soeknadMelding: KroniskSoeknadMelding) {
         TODO("Not yet implemented")
     }
 
@@ -47,7 +47,7 @@ class FritakAgpHandler(
                         attachments =
                             listOf(
                                 createApiAttachment(
-                                    displayName = "sykmelding.pdf",
+                                    displayName = "Søknad on fritak fra arbeidsgiverperioden",
                                     url = "${Env.Nav.dokumentProxyBaseUrl}/v1/fritakagp/gravid/soeknad/${gravidSoeknadMelding.id}/pdf",
                                     mediaType = "application/pdf",
                                 ),
@@ -59,11 +59,12 @@ class FritakAgpHandler(
                             ),
                     ),
                 )
-            fritakDialogRepository.lagreDialog(
+            fritakDialogRepository.lagreSoeknadDialog(
                 dialogId = dialogId,
-                dokumentId = gravidSoeknadMelding.id,
-                dokumentType = FritakAgpDokType.GRAVID_SOEKNAD,
+                soeknadId = gravidSoeknadMelding.id,
+                soeknadType = FritakAgpDokType.GRAVID_SOEKNAD,
                 fnr = gravidSoeknadMelding.fnr,
+                orgnr = gravidSoeknadMelding.orgnr.verdi,
             )
         }
     }
