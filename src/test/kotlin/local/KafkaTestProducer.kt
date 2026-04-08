@@ -84,7 +84,7 @@ fun main() {
             orgnr = Orgnr("214398982"),
             navn = "Test Navn",
             fnr = "01010112345",
-           status = FritakKravStatus.ENDRET,
+            status = FritakKravStatus.ENDRET,
         ),
     )
     dialogKlient.sendToKafka(
