@@ -56,10 +56,10 @@ fun startServer() {
 
     logger.info("Setter opp DialogRepository...")
     val dialogRepository = DialogRepository(database.db)
-    val dokumentkoblingRepository = DokumentkoblingRepository(db = database.db, maksAntallPerHenting = 1000)
     val fritakDialogRepository =
         no.nav.helsearbeidsgiver.database
             .FritakDialogRepository(database.db)
+    val dokumentkoblingRepository = DokumentkoblingRepository(db = database.db, maksAntallPerHenting = 5000)
     val dokumentKoblingService = DokumentkoblingService(dokumentkoblingRepository)
     val dialogportenService =
         DialogportenService(
