@@ -1,10 +1,12 @@
 package dialogporten.handlers
 
 import kotlinx.coroutines.runBlocking
+import no.nav.helsearbeidsgiver.database.FritakAgpType
 import no.nav.helsearbeidsgiver.database.FritakDialogRepository
 import no.nav.helsearbeidsgiver.database.finnTypeForFritakKrav
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenClient
 import no.nav.helsearbeidsgiver.dialogporten.FritakGravidKravTransmissionRequest
+import no.nav.helsearbeidsgiver.dialogporten.FritakKroniskKravTransmissionRequest
 import no.nav.helsearbeidsgiver.dialogporten.domene.CreateDialogRequest
 import no.nav.helsearbeidsgiver.dialogporten.domene.toTransmission
 import no.nav.helsearbeidsgiver.kafka.FritakKravMelding
@@ -41,15 +43,98 @@ class FritakAgpKravHandler(
     }
 
     private fun opprettDialogForKroniskKrav(kravmelding: KroniskKravMelding) {
-        TODO("Not yet implemented")
+        runBlocking {
+            val dialogId =
+                dialogportenClient.createDialog(
+                    CreateDialogRequest(
+                        orgnr = kravmelding.orgnr,
+                        externalReference = "fritak-agp",
+                        idempotentKey = kravmelding.id.toString(),
+                        title =
+                            "Krav om fritak fra arbeidsgiverperioden grunnet kronisk sykdom." +
+                                " ${kravmelding.navn} (f. ${foedselsdatoFraFnr(kravmelding.fnr)})",
+                        summary =
+                            "Kvittering for mottatt krav om fritak fra" +
+                                " arbeidsgiverperioden grunnet kronisk sykdom.",
+                        transmissions = emptyList(),
+                        isApiOnly = false,
+                    ),
+                )
+
+            val transmissionId =
+                dialogportenClient.addTransmission(
+                    dialogId,
+                    FritakKroniskKravTransmissionRequest(
+                        kravMelding = kravmelding,
+                    ).toTransmission(),
+                )
+
+            fritakDialogRepository.lagreKravDialog(
+                dialogId = dialogId,
+                transmissionId = transmissionId,
+                kravId = kravmelding.id,
+                kravType = finnTypeForFritakKrav(kravmelding),
+                fnr = kravmelding.fnr,
+                orgnr = kravmelding.orgnr.verdi,
+            )
+        }
     }
 
     private fun oppdaterDialogForKroniskKrav(kravmelding: KroniskKravMelding) {
-        TODO("Not yet implemented")
+        val opprinneligeKrav =
+            fritakDialogRepository.finnDialogMedKravIdOgKravType(
+                kravId = kravmelding.id,
+                kravType = FritakAgpType.KRONISK_KRAV_OPPRETTET,
+            )
+
+        runBlocking {
+            if (opprinneligeKrav != null) {
+                val transmissionId =
+                    dialogportenClient.addTransmission(
+                        dialogId = opprinneligeKrav.dialogId,
+                        FritakKroniskKravTransmissionRequest(
+                            kravMelding = kravmelding,
+                        ).toTransmission(),
+                    )
+
+                fritakDialogRepository.lagreKravDialog(
+                    dialogId = opprinneligeKrav.dialogId,
+                    transmissionId = transmissionId,
+                    kravId = kravmelding.id,
+                    kravType = finnTypeForFritakKrav(kravmelding),
+                    fnr = kravmelding.fnr,
+                    orgnr = kravmelding.orgnr.verdi,
+                )
+            }
+        }
     }
 
     private fun oppdaterDialogForGravidKrav(kravmelding: GravidKravMelding) {
-        TODO("Not yet implemented")
+        val opprinneligeKrav =
+            fritakDialogRepository.finnDialogMedKravIdOgKravType(
+                kravmelding.id,
+                FritakAgpType.GRAVID_KRAV_OPPRETTET,
+            )
+        runBlocking {
+            if (opprinneligeKrav != null) {
+                val transmissionId =
+                    dialogportenClient.addTransmission(
+                        dialogId = opprinneligeKrav.dialogId,
+                        FritakGravidKravTransmissionRequest(
+                            kravMelding = kravmelding,
+                        ).toTransmission(),
+                    )
+
+                fritakDialogRepository.lagreKravDialog(
+                    dialogId = opprinneligeKrav.dialogId,
+                    transmissionId = transmissionId,
+                    kravId = kravmelding.id,
+                    kravType = finnTypeForFritakKrav(kravmelding),
+                    fnr = kravmelding.fnr,
+                    orgnr = kravmelding.orgnr.verdi,
+                )
+            }
+        }
     }
 
     private fun opprettDialogForGravidKrav(gravidKravMelding: GravidKravMelding) {

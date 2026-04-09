@@ -25,7 +25,45 @@ class FritakAgpSoeknadHandler(
     }
 
     private fun opprettDialogForKroniskSoeknad(soeknadMelding: KroniskSoeknadMelding) {
-        TODO("Not yet implemented")
+        runBlocking {
+            val dialogId =
+                dialogportenClient.createDialog(
+                    CreateDialogRequest(
+                        orgnr = soeknadMelding.orgnr,
+                        externalReference = "fritak-agp",
+                        idempotentKey = soeknadMelding.id.toString(),
+                        title =
+                            "Søknad om fritak fra arbeidsgiverperioden grunnet kronisk sykdom." +
+                                " ${soeknadMelding.navn} (f. ${foedselsdatoFraFnr(soeknadMelding.fnr)})",
+                        summary =
+                            "Kvittering for mottatt søknad om fritak fra" +
+                                " arbeidsgiverperioden grunnet kronisk sykdom.",
+                        transmissions = emptyList(),
+                        isApiOnly = false,
+                        attachments =
+                            listOf(
+                                createApiAttachment(
+                                    displayName = "Søknad om fritak fra arbeidsgiverperioden",
+                                    url = "${Env.Nav.dokumentProxyBaseUrl}/v1/fritakagp/kronisk/soeknad/${soeknadMelding.id}/pdf",
+                                    mediaType = "application/pdf",
+                                ),
+                                createGuiAttachment(
+                                    displayName = "Søknad om fritak fra arbeidsgiverperioden",
+                                    url = "${Env.Nav.dokumentProxyBaseUrl}/v1/fritakagp/kronisk/soeknad/${soeknadMelding.id}/pdf",
+                                    mediaType = "application/pdf",
+                                ),
+                            ),
+                    ),
+                )
+
+            fritakDialogRepository.lagreSoeknadDialog(
+                dialogId = dialogId,
+                soeknadId = soeknadMelding.id,
+                soeknadType = FritakAgpDokType.KRONISK_SOEKNAD,
+                fnr = soeknadMelding.fnr,
+                orgnr = soeknadMelding.orgnr.verdi,
+            )
+        }
     }
 
     private fun opprettDialogForGravidSoeknad(gravidSoeknadMelding: GravidSoeknadMelding) {

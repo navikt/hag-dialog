@@ -1,25 +1,20 @@
 package local
 
-import forespoersel_utgaatt
-import inntektsmelding_feilet
-import inntektsmelding_godkjent
-import inntektsmeldingsforespoersel
-import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.JsonElement
 import no.nav.helsearbeidsgiver.kafka.DialogMelding
 import no.nav.helsearbeidsgiver.kafka.FritakKravStatus
 import no.nav.helsearbeidsgiver.kafka.GravidKravMelding
 import no.nav.helsearbeidsgiver.kafka.GravidSoeknadMelding
-import no.nav.helsearbeidsgiver.kafka.Melding
+import no.nav.helsearbeidsgiver.kafka.KroniskKravMelding
+import no.nav.helsearbeidsgiver.kafka.KroniskSoeknadMelding
 import no.nav.helsearbeidsgiver.utils.json.toJson
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import org.apache.kafka.clients.producer.KafkaProducer
 import org.apache.kafka.clients.producer.ProducerConfig
 import org.apache.kafka.clients.producer.ProducerRecord
 import org.apache.kafka.common.serialization.StringSerializer
-import sykepengesoeknad
-import sykmelding
 import java.util.Properties
+import java.util.UUID
 
 class ConsumerProducerFactory {
     fun createProducer(): KafkaProducer<String, String> {
@@ -61,9 +56,11 @@ fun producerFactory(env: String): ConsumerProducerFactory = ConsumerProducerFact
 fun main() {
     val factory = producerFactory("dev")
     val dialogKlient = DialogKlient(factory)
+    val gravidkravId = UUID.randomUUID()
+    val kroniskKravId = UUID.randomUUID()
     dialogKlient.sendToKafka(
         GravidSoeknadMelding(
-            id = java.util.UUID.randomUUID(),
+            id = UUID.randomUUID(),
             orgnr = Orgnr("214398982"),
             navn = "Test Navn",
             fnr = "01010112345",
@@ -71,7 +68,7 @@ fun main() {
     )
     dialogKlient.sendToKafka(
         GravidKravMelding(
-            id = java.util.UUID.randomUUID(),
+            id = gravidkravId,
             orgnr = Orgnr("214398982"),
             navn = "Test Navn",
             fnr = "01010112345",
@@ -80,7 +77,7 @@ fun main() {
     )
     dialogKlient.sendToKafka(
         GravidKravMelding(
-            id = java.util.UUID.randomUUID(),
+            id = gravidkravId,
             orgnr = Orgnr("214398982"),
             navn = "Test Navn",
             fnr = "01010112345",
@@ -89,7 +86,43 @@ fun main() {
     )
     dialogKlient.sendToKafka(
         GravidKravMelding(
-            id = java.util.UUID.randomUUID(),
+            id = gravidkravId,
+            orgnr = Orgnr("214398982"),
+            navn = "Test Navn",
+            fnr = "01010112345",
+            status = FritakKravStatus.SLETTET,
+        ),
+    )
+    dialogKlient.sendToKafka(
+        KroniskSoeknadMelding(
+            id = UUID.randomUUID(),
+            orgnr = Orgnr("214398982"),
+            navn = "Test Navn",
+            fnr = "01010112345",
+        ),
+    )
+
+    dialogKlient.sendToKafka(
+        KroniskKravMelding(
+            id = kroniskKravId,
+            orgnr = Orgnr("214398982"),
+            navn = "Test Navn",
+            fnr = "01010112345",
+            status = FritakKravStatus.OPPRETTET,
+        ),
+    )
+    dialogKlient.sendToKafka(
+        KroniskKravMelding(
+            id = kroniskKravId,
+            orgnr = Orgnr("214398982"),
+            navn = "Test Navn",
+            fnr = "01010112345",
+            status = FritakKravStatus.ENDRET,
+        ),
+    )
+    dialogKlient.sendToKafka(
+        KroniskKravMelding(
+            id = kroniskKravId,
             orgnr = Orgnr("214398982"),
             navn = "Test Navn",
             fnr = "01010112345",

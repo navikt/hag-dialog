@@ -6,6 +6,7 @@ import no.nav.helsearbeidsgiver.dialogporten.domene.Transmission
 import no.nav.helsearbeidsgiver.dialogporten.domene.TransmissionRequest
 import no.nav.helsearbeidsgiver.kafka.GravidKravMelding
 import no.nav.helsearbeidsgiver.kafka.Inntektsmelding
+import no.nav.helsearbeidsgiver.kafka.KroniskKravMelding
 import no.nav.helsearbeidsgiver.kafka.Sykepengesoeknad
 import no.nav.helsearbeidsgiver.kafka.Sykmelding
 import java.util.UUID
@@ -95,6 +96,18 @@ class FritakGravidKravTransmissionRequest(
     override val dokumentId = kravMelding.id
     override val extendedType = finnTypeForFritakKrav(kravMelding).toString()
     override val tittel = "Krav om fritak for arbeidsgiverperiode ved graviditet ${kravMelding.status.verdi}"
+    override val sammendrag = null
+    override val type = Transmission.TransmissionType.Information
+    override val attachments = emptyList<Attachment>()
+}
+
+class FritakKroniskKravTransmissionRequest(
+    kravMelding: KroniskKravMelding,
+) : TransmissionRequest() {
+    override val relatedTransmissionId = null
+    override val dokumentId = kravMelding.id
+    override val extendedType = finnTypeForFritakKrav(kravMelding).toString()
+    override val tittel = "Krav om fritak for arbeidsgiverperiode ved kronisk sykdom ${kravMelding.status.verdi}"
     override val sammendrag = null
     override val type = Transmission.TransmissionType.Information
     override val attachments = emptyList<Attachment>()
