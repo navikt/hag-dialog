@@ -5,7 +5,11 @@ import no.nav.helsearbeidsgiver.Env
 import no.nav.helsearbeidsgiver.database.FritakAgpDokType
 import no.nav.helsearbeidsgiver.database.FritakDialogRepository
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenClient
+import no.nav.helsearbeidsgiver.dialogporten.domene.Action
+import no.nav.helsearbeidsgiver.dialogporten.domene.ApiAction
+import no.nav.helsearbeidsgiver.dialogporten.domene.ContentValueItem
 import no.nav.helsearbeidsgiver.dialogporten.domene.CreateDialogRequest
+import no.nav.helsearbeidsgiver.dialogporten.domene.GuiAction
 import no.nav.helsearbeidsgiver.dialogporten.domene.createApiAttachment
 import no.nav.helsearbeidsgiver.dialogporten.domene.createGuiAttachment
 import no.nav.helsearbeidsgiver.kafka.FritakSoeknadMelding
@@ -55,7 +59,17 @@ class FritakAgpSoeknadHandler(
                             ),
                     ),
                 )
-
+            dialogportenClient.addGuiAction(
+                dialogId = dialogId,
+                guiAction =
+                    GuiAction(
+                        name = "Send inn krav",
+                        url = "${Env.Nav.arbeidsgiverGuiBaseUrl}/fritak-agp/nb/kronisk/krav",
+                        action = Action.READ.value,
+                        title = listOf(ContentValueItem("Send inn krav")),
+                        priority = GuiAction.Priority.Primary,
+                    ),
+            )
             fritakDialogRepository.lagreSoeknadDialog(
                 dialogId = dialogId,
                 soeknadId = soeknadMelding.id,
@@ -97,6 +111,17 @@ class FritakAgpSoeknadHandler(
                             ),
                     ),
                 )
+            dialogportenClient.addGuiAction(
+                dialogId = dialogId,
+                guiAction =
+                    GuiAction(
+                        name = "Send inn krav",
+                        url = "${Env.Nav.arbeidsgiverGuiBaseUrl}/fritak-agp/nb/gravid/krav",
+                        action = Action.READ.value,
+                        title = listOf(ContentValueItem("Send inn krav")),
+                        priority = GuiAction.Priority.Primary,
+                    ),
+            )
             fritakDialogRepository.lagreSoeknadDialog(
                 dialogId = dialogId,
                 soeknadId = gravidSoeknadMelding.id,
