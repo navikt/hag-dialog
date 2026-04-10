@@ -1,13 +1,17 @@
 package dialogporten.handlers
 
 import kotlinx.coroutines.runBlocking
+import no.nav.helsearbeidsgiver.Env
 import no.nav.helsearbeidsgiver.database.FritakAgpType
 import no.nav.helsearbeidsgiver.database.FritakDialogRepository
 import no.nav.helsearbeidsgiver.database.finnTypeForFritakKrav
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenClient
 import no.nav.helsearbeidsgiver.dialogporten.FritakGravidKravTransmissionRequest
 import no.nav.helsearbeidsgiver.dialogporten.FritakKroniskKravTransmissionRequest
+import no.nav.helsearbeidsgiver.dialogporten.domene.Action
+import no.nav.helsearbeidsgiver.dialogporten.domene.ContentValueItem
 import no.nav.helsearbeidsgiver.dialogporten.domene.CreateDialogRequest
+import no.nav.helsearbeidsgiver.dialogporten.domene.GuiAction
 import no.nav.helsearbeidsgiver.dialogporten.domene.toTransmission
 import no.nav.helsearbeidsgiver.kafka.FritakKravMelding
 import no.nav.helsearbeidsgiver.kafka.FritakKravStatus
@@ -60,7 +64,17 @@ class FritakAgpKravHandler(
                         isApiOnly = false,
                     ),
                 )
-
+            dialogportenClient.addGuiAction(
+                dialogId = dialogId,
+                guiAction =
+                    GuiAction(
+                        name = "Endre krav",
+                        url = "${Env.Nav.arbeidsgiverGuiBaseUrl}/fritak-agp/nb/gravid/krav/${kravmelding.id}",
+                        action = Action.READ.value,
+                        title = listOf(ContentValueItem("Send inn krav")),
+                        priority = GuiAction.Priority.Primary,
+                    ),
+            )
             val transmissionId =
                 dialogportenClient.addTransmission(
                     dialogId,
