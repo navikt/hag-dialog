@@ -80,7 +80,7 @@ class FritakAgpKravHandler(
                         name = "Endre krav",
                         url = "${Env.Nav.arbeidsgiverGuiBaseUrl}/fritak-agp/nb/kronisk/krav/${kroniskKravMelding.id}",
                         action = Action.READ.value,
-                        title = listOf(ContentValueItem("Send inn krav")),
+                        title = listOf(ContentValueItem("Endre krav")),
                         priority = GuiAction.Priority.Primary,
                     ),
             )
@@ -185,7 +185,7 @@ class FritakAgpKravHandler(
                         name = "Endre krav",
                         url = "${Env.Nav.arbeidsgiverGuiBaseUrl}/fritak-agp/nb/gravid/krav/${gravidKravMelding.id}",
                         action = Action.READ.value,
-                        title = listOf(ContentValueItem("Send inn krav")),
+                        title = listOf(ContentValueItem("Endre krav")),
                         priority = GuiAction.Priority.Primary,
                     ),
             )
