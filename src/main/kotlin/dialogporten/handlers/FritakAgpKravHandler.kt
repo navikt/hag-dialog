@@ -46,17 +46,17 @@ class FritakAgpKravHandler(
         }
     }
 
-    private fun opprettDialogForKroniskKrav(kravmelding: KroniskKravMelding) {
+    private fun opprettDialogForKroniskKrav(kroniskKravMelding: KroniskKravMelding) {
         runBlocking {
             val dialogId =
                 dialogportenClient.createDialog(
                     CreateDialogRequest(
-                        orgnr = kravmelding.orgnr,
+                        orgnr = kroniskKravMelding.orgnr,
                         externalReference = "fritak-agp",
-                        idempotentKey = kravmelding.id.toString(),
+                        idempotentKey = kroniskKravMelding.id.toString(),
                         title =
                             "Krav om fritak fra arbeidsgiverperioden grunnet kronisk sykdom." +
-                                " ${kravmelding.navn} (f. ${foedselsdatoFraFnr(kravmelding.fnr)})",
+                                " ${kroniskKravMelding.navn} (f. ${foedselsdatoFraFnr(kroniskKravMelding.fnr)})",
                         summary =
                             "Kvittering for mottatt krav om fritak fra" +
                                 " arbeidsgiverperioden grunnet kronisk sykdom.",
@@ -64,32 +64,34 @@ class FritakAgpKravHandler(
                         isApiOnly = false,
                     ),
                 )
+
+            val transmissionId =
+                dialogportenClient.addTransmission(
+                    dialogId,
+                    FritakKroniskKravTransmissionRequest(
+                        kravMelding = kroniskKravMelding,
+                    ).toTransmission(),
+                )
+
             dialogportenClient.addGuiAction(
                 dialogId = dialogId,
                 guiAction =
                     GuiAction(
                         name = "Endre krav",
-                        url = "${Env.Nav.arbeidsgiverGuiBaseUrl}/fritak-agp/nb/gravid/krav/${kravmelding.id}",
+                        url = "${Env.Nav.arbeidsgiverGuiBaseUrl}/fritak-agp/nb/kronisk/krav/${kroniskKravMelding.id}",
                         action = Action.READ.value,
                         title = listOf(ContentValueItem("Send inn krav")),
                         priority = GuiAction.Priority.Primary,
                     ),
             )
-            val transmissionId =
-                dialogportenClient.addTransmission(
-                    dialogId,
-                    FritakKroniskKravTransmissionRequest(
-                        kravMelding = kravmelding,
-                    ).toTransmission(),
-                )
 
             fritakDialogRepository.lagreKravDialog(
                 dialogId = dialogId,
                 transmissionId = transmissionId,
-                kravId = kravmelding.id,
-                kravType = finnTypeForFritakKrav(kravmelding),
-                fnr = kravmelding.fnr,
-                orgnr = kravmelding.orgnr.verdi,
+                kravId = kroniskKravMelding.id,
+                kravType = finnTypeForFritakKrav(kroniskKravMelding),
+                fnr = kroniskKravMelding.fnr,
+                orgnr = kroniskKravMelding.orgnr.verdi,
             )
         }
     }
@@ -176,6 +178,17 @@ class FritakAgpKravHandler(
                         kravMelding = gravidKravMelding,
                     ).toTransmission(),
                 )
+            dialogportenClient.addGuiAction(
+                dialogId = dialogId,
+                guiAction =
+                    GuiAction(
+                        name = "Endre krav",
+                        url = "${Env.Nav.arbeidsgiverGuiBaseUrl}/fritak-agp/nb/gravid/krav/${gravidKravMelding.id}",
+                        action = Action.READ.value,
+                        title = listOf(ContentValueItem("Send inn krav")),
+                        priority = GuiAction.Priority.Primary,
+                    ),
+            )
             fritakDialogRepository.lagreKravDialog(
                 dialogId = dialogId,
                 transmissionId = transmissionId,
