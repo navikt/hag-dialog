@@ -12,6 +12,8 @@ import no.nav.helsearbeidsgiver.dialogporten.domene.Action
 import no.nav.helsearbeidsgiver.dialogporten.domene.ContentValueItem
 import no.nav.helsearbeidsgiver.dialogporten.domene.CreateDialogRequest
 import no.nav.helsearbeidsgiver.dialogporten.domene.GuiAction
+import no.nav.helsearbeidsgiver.dialogporten.domene.createApiAttachment
+import no.nav.helsearbeidsgiver.dialogporten.domene.createGuiAttachment
 import no.nav.helsearbeidsgiver.dialogporten.domene.toTransmission
 import no.nav.helsearbeidsgiver.kafka.FritakKravMelding
 import no.nav.helsearbeidsgiver.kafka.FritakKravStatus
@@ -62,6 +64,19 @@ class FritakAgpKravHandler(
                                 " arbeidsgiverperioden grunnet kronisk sykdom.",
                         transmissions = emptyList(),
                         isApiOnly = false,
+                        attachments =
+                            listOf(
+                                createApiAttachment(
+                                    displayName = "Krav on fritak fra arbeidsgiverperioden",
+                                    url = "${Env.Nav.dokumentProxyBaseUrl}/v1/fritakagp/kronisk/krav/${kroniskKravMelding.id}/pdf",
+                                    mediaType = "application/pdf",
+                                ),
+                                createGuiAttachment(
+                                    displayName = "Krav on fritak fra arbeidsgiverperioden",
+                                    url = "${Env.Nav.dokumentProxyBaseUrl}/v1/fritakagp/kronisk/krav/${kroniskKravMelding.id}/pdf",
+                                    mediaType = "application/pdf",
+                                ),
+                            ),
                     ),
                 )
 
@@ -169,6 +184,19 @@ class FritakAgpKravHandler(
                                 " arbeidsgiverperioden grunnet risiko for høyt sykefravær knyttet til graviditet.",
                         transmissions = emptyList(),
                         isApiOnly = false,
+                        attachments =
+                            listOf(
+                                createApiAttachment(
+                                    displayName = "Krav on fritak fra arbeidsgiverperioden",
+                                    url = "${Env.Nav.dokumentProxyBaseUrl}/v1/fritakagp/gravid/krav/${gravidKravMelding.id}/pdf",
+                                    mediaType = "application/pdf",
+                                ),
+                                createGuiAttachment(
+                                    displayName = "Krav on fritak fra arbeidsgiverperioden",
+                                    url = "${Env.Nav.dokumentProxyBaseUrl}/v1/fritakagp/gravid/krav/${gravidKravMelding.id}/pdf",
+                                    mediaType = "application/pdf",
+                                ),
+                            ),
                     ),
                 )
             val transmissionId =
