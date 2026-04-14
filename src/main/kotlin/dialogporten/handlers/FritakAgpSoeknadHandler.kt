@@ -6,15 +6,14 @@ import no.nav.helsearbeidsgiver.database.FritakAgpDokType
 import no.nav.helsearbeidsgiver.database.FritakDialogRepository
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenClient
 import no.nav.helsearbeidsgiver.dialogporten.domene.Action
-import no.nav.helsearbeidsgiver.dialogporten.domene.ApiAction
 import no.nav.helsearbeidsgiver.dialogporten.domene.ContentValueItem
 import no.nav.helsearbeidsgiver.dialogporten.domene.CreateDialogRequest
 import no.nav.helsearbeidsgiver.dialogporten.domene.GuiAction
 import no.nav.helsearbeidsgiver.dialogporten.domene.createApiAttachment
 import no.nav.helsearbeidsgiver.dialogporten.domene.createGuiAttachment
 import no.nav.helsearbeidsgiver.kafka.FritakSoeknadMelding
-import no.nav.helsearbeidsgiver.kafka.GravidSoeknadMelding
-import no.nav.helsearbeidsgiver.kafka.KroniskSoeknadMelding
+import no.nav.helsearbeidsgiver.kafka.GravidSoeknad
+import no.nav.helsearbeidsgiver.kafka.KroniskSoeknad
 import no.nav.helsearbeidsgiver.kafka.foedselsdatoFraFnr
 
 class FritakAgpSoeknadHandler(
@@ -23,12 +22,12 @@ class FritakAgpSoeknadHandler(
 ) {
     fun behandleSoeknadDialog(soeknadMelding: FritakSoeknadMelding) {
         when (soeknadMelding) {
-            is GravidSoeknadMelding -> opprettDialogForGravidSoeknad(soeknadMelding)
-            is KroniskSoeknadMelding -> opprettDialogForKroniskSoeknad(soeknadMelding)
+            is GravidSoeknad -> opprettDialogForGravidSoeknad(soeknadMelding)
+            is KroniskSoeknad -> opprettDialogForKroniskSoeknad(soeknadMelding)
         }
     }
 
-    private fun opprettDialogForKroniskSoeknad(soeknadMelding: KroniskSoeknadMelding) {
+    private fun opprettDialogForKroniskSoeknad(soeknadMelding: KroniskSoeknad) {
         runBlocking {
             val dialogId =
                 dialogportenClient.createDialog(
@@ -80,17 +79,17 @@ class FritakAgpSoeknadHandler(
         }
     }
 
-    private fun opprettDialogForGravidSoeknad(gravidSoeknadMelding: GravidSoeknadMelding) {
+    private fun opprettDialogForGravidSoeknad(gravidSoeknad: GravidSoeknad) {
         runBlocking {
             val dialogId =
                 dialogportenClient.createDialog(
                     CreateDialogRequest(
-                        orgnr = gravidSoeknadMelding.orgnr,
+                        orgnr = gravidSoeknad.orgnr,
                         externalReference = "fritak-agp",
-                        idempotentKey = gravidSoeknadMelding.id.toString(),
+                        idempotentKey = gravidSoeknad.id.toString(),
                         title =
                             "Søknad om fritak fra arbeidsgiverperioden grunnet graviditet." +
-                                " ${gravidSoeknadMelding.navn} (f. ${foedselsdatoFraFnr(gravidSoeknadMelding.fnr)})",
+                                " ${gravidSoeknad.navn} (f. ${foedselsdatoFraFnr(gravidSoeknad.fnr)})",
                         summary =
                             "Kvittering for mottatt søknad om fritak fra" +
                                 " arbeidsgiverperioden grunnet risiko for høyt sykefravær knyttet til graviditet.",
@@ -100,12 +99,12 @@ class FritakAgpSoeknadHandler(
                             listOf(
                                 createApiAttachment(
                                     displayName = "Søknad on fritak fra arbeidsgiverperioden",
-                                    url = "${Env.Nav.dokumentProxyBaseUrl}/v1/fritakagp/gravid/soeknad/${gravidSoeknadMelding.id}/pdf",
+                                    url = "${Env.Nav.dokumentProxyBaseUrl}/v1/fritakagp/gravid/soeknad/${gravidSoeknad.id}/pdf",
                                     mediaType = "application/pdf",
                                 ),
                                 createGuiAttachment(
                                     displayName = "Søknad on fritak fra arbeidsgiverperioden",
-                                    url = "${Env.Nav.dokumentProxyBaseUrl}/v1/fritakagp/gravid/soeknad/${gravidSoeknadMelding.id}/pdf",
+                                    url = "${Env.Nav.dokumentProxyBaseUrl}/v1/fritakagp/gravid/soeknad/${gravidSoeknad.id}/pdf",
                                     mediaType = "application/pdf",
                                 ),
                             ),
@@ -124,10 +123,10 @@ class FritakAgpSoeknadHandler(
             )
             fritakDialogRepository.lagreSoeknadDialog(
                 dialogId = dialogId,
-                soeknadId = gravidSoeknadMelding.id,
+                soeknadId = gravidSoeknad.id,
                 soeknadType = FritakAgpDokType.GRAVID_SOEKNAD,
-                fnr = gravidSoeknadMelding.fnr,
-                orgnr = gravidSoeknadMelding.orgnr.verdi,
+                fnr = gravidSoeknad.fnr,
+                orgnr = gravidSoeknad.orgnr.verdi,
             )
         }
     }

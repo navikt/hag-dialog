@@ -3,7 +3,6 @@ package no.nav.helsearbeidsgiver.database
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import org.jetbrains.exposed.exceptions.ExposedSQLException
 import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.util.UUID
@@ -59,15 +58,11 @@ class FritakDialogRepository(
         }
     }
 
-    fun finnDialogMedKravIdOgKravType(
-        kravId: UUID,
-        kravType: FritakAgpType,
-    ): FritakAgpKravEntity? =
+    fun finnDialogMedKravId(kravId: UUID): FritakAgpKravEntity? =
         transaction(db) {
             FritakAgpKravEntity
                 .find {
-                    (FritakAgpKravTable.kravId eq kravId) and
-                        (FritakAgpKravTable.kravType eq kravType)
+                    (FritakAgpKravTable.kravId eq kravId)
                 }.firstOrNull()
         }
 }

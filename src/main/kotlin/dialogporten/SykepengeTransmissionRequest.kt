@@ -4,11 +4,11 @@ import no.nav.helsearbeidsgiver.database.finnTypeForFritakKrav
 import no.nav.helsearbeidsgiver.dialogporten.domene.Attachment
 import no.nav.helsearbeidsgiver.dialogporten.domene.Transmission
 import no.nav.helsearbeidsgiver.dialogporten.domene.TransmissionRequest
-import no.nav.helsearbeidsgiver.kafka.GravidKravMelding
+import no.nav.helsearbeidsgiver.kafka.FritakKravMelding
 import no.nav.helsearbeidsgiver.kafka.Inntektsmelding
-import no.nav.helsearbeidsgiver.kafka.KroniskKravMelding
 import no.nav.helsearbeidsgiver.kafka.Sykepengesoeknad
 import no.nav.helsearbeidsgiver.kafka.Sykmelding
+import no.nav.helsearbeidsgiver.kafka.statusVerdi
 import java.util.UUID
 
 class SykmeldingTransmissionRequest(
@@ -90,24 +90,24 @@ class InntektsmeldingTransmissionRequest(
 }
 
 class FritakGravidKravTransmissionRequest(
-    kravMelding: GravidKravMelding,
+    kravMelding: FritakKravMelding,
 ) : TransmissionRequest() {
     override val relatedTransmissionId = null
     override val dokumentId = kravMelding.id
     override val extendedType = finnTypeForFritakKrav(kravMelding).toString()
-    override val tittel = "Krav om fritak for arbeidsgiverperiode ved graviditet ${kravMelding.status.verdi}"
+    override val tittel = "Krav om fritak for arbeidsgiverperiode ved graviditet ${kravMelding.statusVerdi()}"
     override val sammendrag = null
     override val type = Transmission.TransmissionType.Information
     override val attachments = emptyList<Attachment>()
 }
 
 class FritakKroniskKravTransmissionRequest(
-    kravMelding: KroniskKravMelding,
+    kravMelding: FritakKravMelding,
 ) : TransmissionRequest() {
     override val relatedTransmissionId = null
     override val dokumentId = kravMelding.id
     override val extendedType = finnTypeForFritakKrav(kravMelding).toString()
-    override val tittel = "Krav om fritak for arbeidsgiverperiode ved kronisk sykdom ${kravMelding.status.verdi}"
+    override val tittel = "Krav om fritak for arbeidsgiverperiode ved kronisk sykdom ${kravMelding.statusVerdi()}"
     override val sammendrag = null
     override val type = Transmission.TransmissionType.Information
     override val attachments = emptyList<Attachment>()

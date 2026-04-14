@@ -2,11 +2,14 @@ package local
 
 import kotlinx.serialization.json.JsonElement
 import no.nav.helsearbeidsgiver.kafka.DialogMelding
-import no.nav.helsearbeidsgiver.kafka.FritakKravStatus
-import no.nav.helsearbeidsgiver.kafka.GravidKravMelding
-import no.nav.helsearbeidsgiver.kafka.GravidSoeknadMelding
-import no.nav.helsearbeidsgiver.kafka.KroniskKravMelding
-import no.nav.helsearbeidsgiver.kafka.KroniskSoeknadMelding
+import no.nav.helsearbeidsgiver.kafka.GravidKrav
+import no.nav.helsearbeidsgiver.kafka.GravidKravEndret
+import no.nav.helsearbeidsgiver.kafka.GravidKravSlettet
+import no.nav.helsearbeidsgiver.kafka.GravidSoeknad
+import no.nav.helsearbeidsgiver.kafka.KroniskKrav
+import no.nav.helsearbeidsgiver.kafka.KroniskKravEndret
+import no.nav.helsearbeidsgiver.kafka.KroniskKravSlettet
+import no.nav.helsearbeidsgiver.kafka.KroniskSoeknad
 import no.nav.helsearbeidsgiver.utils.json.toJson
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import org.apache.kafka.clients.producer.KafkaProducer
@@ -59,7 +62,7 @@ fun main() {
     val gravidkravId = UUID.randomUUID()
     val kroniskKravId = UUID.randomUUID()
     dialogKlient.sendToKafka(
-        GravidSoeknadMelding(
+        GravidSoeknad(
             id = UUID.randomUUID(),
             orgnr = Orgnr("214398982"),
             navn = "Test Navn",
@@ -67,34 +70,32 @@ fun main() {
         ),
     )
     dialogKlient.sendToKafka(
-        GravidKravMelding(
+        GravidKrav(
             id = gravidkravId,
             orgnr = Orgnr("214398982"),
             navn = "Test Navn",
             fnr = "01010112345",
-            status = FritakKravStatus.OPPRETTET,
         ),
     )
     dialogKlient.sendToKafka(
-        GravidKravMelding(
+        GravidKravEndret(
             id = gravidkravId,
             orgnr = Orgnr("214398982"),
             navn = "Test Navn",
             fnr = "01010112345",
-            status = FritakKravStatus.ENDRET,
+            forrigeKrav = gravidkravId,
         ),
     )
     dialogKlient.sendToKafka(
-        GravidKravMelding(
+        GravidKravSlettet(
             id = gravidkravId,
             orgnr = Orgnr("214398982"),
             navn = "Test Navn",
             fnr = "01010112345",
-            status = FritakKravStatus.SLETTET,
         ),
     )
     dialogKlient.sendToKafka(
-        KroniskSoeknadMelding(
+        KroniskSoeknad(
             id = UUID.randomUUID(),
             orgnr = Orgnr("214398982"),
             navn = "Test Navn",
@@ -103,30 +104,28 @@ fun main() {
     )
 
     dialogKlient.sendToKafka(
-        KroniskKravMelding(
+        KroniskKrav(
             id = kroniskKravId,
             orgnr = Orgnr("214398982"),
             navn = "Test Navn",
             fnr = "01010112345",
-            status = FritakKravStatus.OPPRETTET,
         ),
     )
     dialogKlient.sendToKafka(
-        KroniskKravMelding(
+        KroniskKravEndret(
             id = kroniskKravId,
             orgnr = Orgnr("214398982"),
             navn = "Test Navn",
             fnr = "01010112345",
-            status = FritakKravStatus.ENDRET,
+            forrigeKrav = kroniskKravId,
         ),
     )
     dialogKlient.sendToKafka(
-        KroniskKravMelding(
+        KroniskKravSlettet(
             id = kroniskKravId,
             orgnr = Orgnr("214398982"),
             navn = "Test Navn",
             fnr = "01010112345",
-            status = FritakKravStatus.SLETTET,
         ),
     )
 }

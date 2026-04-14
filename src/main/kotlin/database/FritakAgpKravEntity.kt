@@ -1,9 +1,12 @@
 package no.nav.helsearbeidsgiver.database
 
 import no.nav.helsearbeidsgiver.kafka.FritakKravMelding
-import no.nav.helsearbeidsgiver.kafka.FritakKravStatus
-import no.nav.helsearbeidsgiver.kafka.GravidKravMelding
-import no.nav.helsearbeidsgiver.kafka.KroniskKravMelding
+import no.nav.helsearbeidsgiver.kafka.GravidKrav
+import no.nav.helsearbeidsgiver.kafka.GravidKravEndret
+import no.nav.helsearbeidsgiver.kafka.GravidKravSlettet
+import no.nav.helsearbeidsgiver.kafka.KroniskKrav
+import no.nav.helsearbeidsgiver.kafka.KroniskKravEndret
+import no.nav.helsearbeidsgiver.kafka.KroniskKravSlettet
 import org.jetbrains.exposed.dao.UUIDEntity
 import org.jetbrains.exposed.dao.UUIDEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
@@ -47,19 +50,10 @@ enum class FritakAgpType {
 
 fun finnTypeForFritakKrav(kravMelding: FritakKravMelding): FritakAgpType =
     when (kravMelding) {
-        is GravidKravMelding -> {
-            when (kravMelding.status) {
-                FritakKravStatus.OPPRETTET -> FritakAgpType.GRAVID_KRAV_OPPRETTET
-                FritakKravStatus.ENDRET -> FritakAgpType.GRAVID_KRAV_ENDRET
-                FritakKravStatus.SLETTET -> FritakAgpType.GRAVID_KRAV_SLETTET
-            }
-        }
-
-        is KroniskKravMelding -> {
-            when (kravMelding.status) {
-                FritakKravStatus.OPPRETTET -> FritakAgpType.KRONISK_KRAV_OPPRETTET
-                FritakKravStatus.ENDRET -> FritakAgpType.KRONISK_KRAV_ENDRET
-                FritakKravStatus.SLETTET -> FritakAgpType.KRONISK_KRAV_SLETTET
-            }
-        }
+        is GravidKrav -> FritakAgpType.GRAVID_KRAV_OPPRETTET
+        is GravidKravEndret -> FritakAgpType.GRAVID_KRAV_ENDRET
+        is GravidKravSlettet -> FritakAgpType.GRAVID_KRAV_SLETTET
+        is KroniskKrav -> FritakAgpType.KRONISK_KRAV_OPPRETTET
+        is KroniskKravEndret -> FritakAgpType.KRONISK_KRAV_ENDRET
+        is KroniskKravSlettet -> FritakAgpType.KRONISK_KRAV_SLETTET
     }

@@ -14,14 +14,19 @@ import java.util.UUID
 sealed class DialogMelding
 
 @Serializable
-sealed class FritakKravMelding : DialogMelding()
+sealed class FritakKravMelding : DialogMelding() {
+    abstract val id: UUID
+    abstract val orgnr: Orgnr
+    abstract val navn: String
+    abstract val fnr: String
+}
 
 @Serializable
 sealed class FritakSoeknadMelding : DialogMelding()
 
 @Serializable
-@SerialName("GravidSoeknadMelding")
-data class GravidSoeknadMelding(
+@SerialName("GravidSoeknad")
+data class GravidSoeknad(
     val id: UUID,
     val orgnr: Orgnr,
     val navn: String,
@@ -29,8 +34,8 @@ data class GravidSoeknadMelding(
 ) : FritakSoeknadMelding()
 
 @Serializable
-@SerialName("KroniskSoeknadMelding")
-data class KroniskSoeknadMelding(
+@SerialName("KroniskSoeknad")
+data class KroniskSoeknad(
     val id: UUID,
     val orgnr: Orgnr,
     val navn: String,
@@ -38,31 +43,66 @@ data class KroniskSoeknadMelding(
 ) : FritakSoeknadMelding()
 
 @Serializable
-@SerialName("GravidKravMelding")
-data class GravidKravMelding(
-    val id: UUID,
-    val orgnr: Orgnr,
-    val navn: String,
-    val fnr: String,
-    val status: FritakKravStatus,
+@SerialName("KroniskKrav")
+data class KroniskKrav(
+    override val id: UUID,
+    override val orgnr: Orgnr,
+    override val navn: String,
+    override val fnr: String,
 ) : FritakKravMelding()
 
 @Serializable
-@SerialName("KroniskKravMelding")
-data class KroniskKravMelding(
-    val id: UUID,
-    val orgnr: Orgnr,
-    val navn: String,
-    val fnr: String,
-    val status: FritakKravStatus,
+@SerialName("KroniskKravEndret")
+data class KroniskKravEndret(
+    override val id: UUID,
+    override val orgnr: Orgnr,
+    override val navn: String,
+    override val fnr: String,
+    val forrigeKrav: UUID,
 ) : FritakKravMelding()
 
-enum class FritakKravStatus(
-    val verdi: String,
-) {
-    OPPRETTET("opprettet"),
-    ENDRET("endret"),
-    SLETTET("slettet"),
-}
+@Serializable
+@SerialName("KroniskKravSlettet")
+data class KroniskKravSlettet(
+    override val id: UUID,
+    override val orgnr: Orgnr,
+    override val navn: String,
+    override val fnr: String,
+) : FritakKravMelding()
+
+@Serializable
+@SerialName("GravidKrav")
+data class GravidKrav(
+    override val id: UUID,
+    override val orgnr: Orgnr,
+    override val navn: String,
+    override val fnr: String,
+) : FritakKravMelding()
+
+@Serializable
+@SerialName("GravidKravEndret")
+data class GravidKravEndret(
+    override val id: UUID,
+    override val orgnr: Orgnr,
+    override val navn: String,
+    override val fnr: String,
+    val forrigeKrav: UUID,
+) : FritakKravMelding()
+
+@Serializable
+@SerialName("GravidKravSlettet")
+data class GravidKravSlettet(
+    override val id: UUID,
+    override val orgnr: Orgnr,
+    override val navn: String,
+    override val fnr: String,
+) : FritakKravMelding()
+
+fun FritakKravMelding.statusVerdi(): String =
+    when (this) {
+        is GravidKrav, is KroniskKrav -> "opprettet"
+        is GravidKravEndret, is KroniskKravEndret -> "endret"
+        is GravidKravSlettet, is KroniskKravSlettet -> "slettet"
+    }
 
 fun foedselsdatoFraFnr(fnr: String): String = fnr.take(6)
