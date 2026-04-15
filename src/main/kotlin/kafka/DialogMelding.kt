@@ -5,6 +5,7 @@ package no.nav.helsearbeidsgiver.kafka
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
+import no.nav.hag.utils.bakgrunnsjobb.exposed.ExposedBakgrunnsjobb.type
 import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateSerializer
 import no.nav.helsearbeidsgiver.utils.json.serializer.UuidSerializer
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
@@ -98,11 +99,5 @@ data class GravidKravSlettet(
     override val fnr: String,
 ) : FritakKravMelding()
 
-fun FritakKravMelding.statusVerdi(): String =
-    when (this) {
-        is GravidKrav, is KroniskKrav -> "opprettet"
-        is GravidKravEndret, is KroniskKravEndret -> "endret"
-        is GravidKravSlettet, is KroniskKravSlettet -> "slettet"
-    }
 
 fun foedselsdatoFraFnr(fnr: String): String = fnr.take(6)

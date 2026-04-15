@@ -6,8 +6,7 @@ import no.nav.helsearbeidsgiver.database.FritakAgpType
 import no.nav.helsearbeidsgiver.database.FritakDialogRepository
 import no.nav.helsearbeidsgiver.database.finnTypeForFritakKrav
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenClient
-import no.nav.helsearbeidsgiver.dialogporten.FritakGravidKravTransmissionRequest
-import no.nav.helsearbeidsgiver.dialogporten.FritakKroniskKravTransmissionRequest
+import no.nav.helsearbeidsgiver.dialogporten.FritakKravTransmissionRequest
 import no.nav.helsearbeidsgiver.dialogporten.domene.Action
 import no.nav.helsearbeidsgiver.dialogporten.domene.ContentValueItem
 import no.nav.helsearbeidsgiver.dialogporten.domene.CreateDialogRequest
@@ -74,7 +73,7 @@ class FritakAgpKravHandler(
             val transmissionId =
                 dialogportenClient.addTransmission(
                     dialogId,
-                    FritakKroniskKravTransmissionRequest(
+                    FritakKravTransmissionRequest(
                         kravMelding = kroniskKravMelding,
                     ).toTransmission(),
                 )
@@ -113,7 +112,7 @@ class FritakAgpKravHandler(
                 val transmissionId =
                     dialogportenClient.addTransmission(
                         dialogId = opprinneligeKrav.dialogId,
-                        FritakKroniskKravTransmissionRequest(
+                        FritakKravTransmissionRequest(
                             kravMelding = kroniskKravEndret,
                         ).toTransmission(),
                     )
@@ -179,7 +178,7 @@ class FritakAgpKravHandler(
             val transmissionId =
                 dialogportenClient.addTransmission(
                     dialogId,
-                    FritakGravidKravTransmissionRequest(
+                    FritakKravTransmissionRequest(
                         kravMelding = gravidKrav,
                     ).toTransmission(),
                 )
@@ -215,7 +214,7 @@ class FritakAgpKravHandler(
                 val transmissionId =
                     dialogportenClient.addTransmission(
                         dialogId = opprinneligeKrav.dialogId,
-                        FritakGravidKravTransmissionRequest(
+                        FritakKravTransmissionRequest(
                             kravMelding = gravidKravEndret,
                         ).toTransmission(),
                     )
@@ -247,6 +246,32 @@ class FritakAgpKravHandler(
     }
 
     private fun oppdaterDialogForKroniskravSlettet(kravmelding: KroniskKravSlettet) {
+        val opprinneligeKrav =
+            fritakDialogRepository.finnDialogMedKravId(
+                kravmelding.id,
+            )
+        runBlocking {
+            if (opprinneligeKrav != null) {
+                val transmissionId =
+                    dialogportenClient.addTransmission(
+                        dialogId = opprinneligeKrav.dialogId,
+                        FritakKravTransmissionRequest(
+                            kravMelding = kravmelding,
+                        ).toTransmission(),
+                    )
+                dialogportenClient.removeActionsAndStatus(
+                    dialogId = opprinneligeKrav.dialogId,
+                )
+                fritakDialogRepository.lagreKravDialog(
+                    dialogId = opprinneligeKrav.dialogId,
+                    transmissionId = transmissionId,
+                    kravId = kravmelding.id,
+                    kravType = FritakAgpType.KRONISK_KRAV_SLETTET,
+                    fnr = kravmelding.fnr,
+                    orgnr = kravmelding.orgnr.verdi,
+                )
+            }
+        }
     }
 
     private fun oppdaterDialogForGravidKravSlettet(gravidKravSlettet: GravidKravSlettet) {
@@ -259,7 +284,7 @@ class FritakAgpKravHandler(
                 val transmissionId =
                     dialogportenClient.addTransmission(
                         dialogId = opprinneligeKrav.dialogId,
-                        FritakGravidKravTransmissionRequest(
+                        FritakKravTransmissionRequest(
                             kravMelding = gravidKravSlettet,
                         ).toTransmission(),
                     )
