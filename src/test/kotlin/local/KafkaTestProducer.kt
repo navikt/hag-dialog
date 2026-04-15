@@ -61,14 +61,14 @@ fun main() {
     val dialogKlient = DialogKlient(factory)
     val gravidkravId = UUID.randomUUID()
     val kroniskKravId = UUID.randomUUID()
-    dialogKlient.sendToKafka(
-        GravidSoeknad(
-            id = UUID.randomUUID(),
-            orgnr = Orgnr("214398982"),
-            navn = "Test Navn",
-            fnr = "01010112345",
-        ),
-    )
+//    dialogKlient.sendToKafka(
+//        GravidSoeknad(
+//            id = UUID.randomUUID(),
+//            orgnr = Orgnr("214398982"),
+//            navn = "Test Navn",
+//            fnr = "01010112345",
+//        ),
+//    )
     dialogKlient.sendToKafka(
         GravidKrav(
             id = gravidkravId,
@@ -77,57 +77,57 @@ fun main() {
             fnr = "01010112345",
         ),
     )
-    dialogKlient.sendToKafka(
-        GravidKravEndret(
-            id = gravidkravId,
-            orgnr = Orgnr("214398982"),
-            navn = "Test Navn",
-            fnr = "01010112345",
-            forrigeKrav = gravidkravId,
-        ),
-    )
-    dialogKlient.sendToKafka(
-        GravidKravSlettet(
-            id = gravidkravId,
-            orgnr = Orgnr("214398982"),
-            navn = "Test Navn",
-            fnr = "01010112345",
-        ),
-    )
-    dialogKlient.sendToKafka(
-        KroniskSoeknad(
-            id = UUID.randomUUID(),
-            orgnr = Orgnr("214398982"),
-            navn = "Test Navn",
-            fnr = "01010112345",
-        ),
-    )
-
-    dialogKlient.sendToKafka(
-        KroniskKrav(
-            id = kroniskKravId,
-            orgnr = Orgnr("214398982"),
-            navn = "Test Navn",
-            fnr = "01010112345",
-        ),
-    )
-    dialogKlient.sendToKafka(
-        KroniskKravEndret(
-            id = kroniskKravId,
-            orgnr = Orgnr("214398982"),
-            navn = "Test Navn",
-            fnr = "01010112345",
-            forrigeKrav = kroniskKravId,
-        ),
-    )
-    dialogKlient.sendToKafka(
-        KroniskKravSlettet(
-            id = kroniskKravId,
-            orgnr = Orgnr("214398982"),
-            navn = "Test Navn",
-            fnr = "01010112345",
-        ),
-    )
+//    dialogKlient.sendToKafka(
+//        GravidKravEndret(
+//            id = gravidkravId,
+//            orgnr = Orgnr("214398982"),
+//            navn = "Test Navn",
+//            fnr = "01010112345",
+//            forrigeKrav = gravidkravId,
+//        ),
+//    )
+//    dialogKlient.sendToKafka(
+//        GravidKravSlettet(
+//            id = gravidkravId,
+//            orgnr = Orgnr("214398982"),
+//            navn = "Test Navn",
+//            fnr = "01010112345",
+//        ),
+//    )
+//    dialogKlient.sendToKafka(
+//        KroniskSoeknad(
+//            id = UUID.randomUUID(),
+//            orgnr = Orgnr("214398982"),
+//            navn = "Test Navn",
+//            fnr = "01010112345",
+//        ),
+//    )
+//
+//    dialogKlient.sendToKafka(
+//        KroniskKrav(
+//            id = kroniskKravId,
+//            orgnr = Orgnr("214398982"),
+//            navn = "Test Navn",
+//            fnr = "01010112345",
+//        ),
+//    )
+//    dialogKlient.sendToKafka(
+//        KroniskKravEndret(
+//            id = kroniskKravId,
+//            orgnr = Orgnr("214398982"),
+//            navn = "Test Navn",
+//            fnr = "01010112345",
+//            forrigeKrav = kroniskKravId,
+//        ),
+//    )
+//    dialogKlient.sendToKafka(
+//        KroniskKravSlettet(
+//            id = kroniskKravId,
+//            orgnr = Orgnr("214398982"),
+//            navn = "Test Navn",
+//            fnr = "01010112345",
+//        ),
+//    )
 }
 
 private fun JsonElement.toRecord(): ProducerRecord<String, String> = ProducerRecord("helsearbeidsgiver.dialog", "key", this.toString())
