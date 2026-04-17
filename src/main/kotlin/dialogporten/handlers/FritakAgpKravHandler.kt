@@ -8,6 +8,7 @@ import no.nav.helsearbeidsgiver.database.finnTypeForFritakKrav
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenClient
 import no.nav.helsearbeidsgiver.dialogporten.FritakKravTransmissionRequest
 import no.nav.helsearbeidsgiver.dialogporten.domene.Action
+import no.nav.helsearbeidsgiver.dialogporten.domene.ApiAction
 import no.nav.helsearbeidsgiver.dialogporten.domene.ContentValueItem
 import no.nav.helsearbeidsgiver.dialogporten.domene.CreateDialogRequest
 import no.nav.helsearbeidsgiver.dialogporten.domene.GuiAction
@@ -116,7 +117,7 @@ class FritakAgpKravHandler(
                             kravMelding = kroniskKravEndret,
                         ).toTransmission(),
                     )
-                dialogportenClient.replaceAttachment(
+                dialogportenClient.replaceAttachmentsAndActions(
                     opprinneligeKrav.dialogId,
                     listOf(
                         createApiAttachment(
@@ -130,6 +131,17 @@ class FritakAgpKravHandler(
                             mediaType = "application/pdf",
                         ),
                     ),
+                    apiActions = emptyList(),
+                    guiActions =
+                        listOf(
+                            GuiAction(
+                                name = "Endre krav",
+                                url = "${Env.Nav.arbeidsgiverGuiBaseUrl}/fritak-agp/nb/kronisk/krav/${kroniskKravEndret.id}",
+                                action = Action.READ.value,
+                                title = listOf(ContentValueItem("Endre krav")),
+                                priority = GuiAction.Priority.Primary,
+                            ),
+                        ),
                 )
 
                 fritakDialogRepository.lagreKravDialog(
@@ -218,20 +230,32 @@ class FritakAgpKravHandler(
                             kravMelding = gravidKravEndret,
                         ).toTransmission(),
                     )
-                dialogportenClient.replaceAttachment(
-                    opprinneligeKrav.dialogId,
-                    listOf(
-                        createApiAttachment(
-                            displayName = "Krav på fritak fra arbeidsgiverperioden",
-                            url = "${Env.Nav.dokumentProxyBaseUrl}/v1/fritakagp/gravid/krav/${gravidKravEndret.id}/pdf",
-                            mediaType = "application/pdf",
+                dialogportenClient.replaceAttachmentsAndActions(
+                    dialogId = opprinneligeKrav.dialogId,
+                    attachments =
+                        listOf(
+                            createApiAttachment(
+                                displayName = "Krav på fritak fra arbeidsgiverperioden",
+                                url = "${Env.Nav.dokumentProxyBaseUrl}/v1/fritakagp/gravid/krav/${gravidKravEndret.id}/pdf",
+                                mediaType = "application/pdf",
+                            ),
+                            createGuiAttachment(
+                                displayName = "Krav på fritak fra arbeidsgiverperioden",
+                                url = "${Env.Nav.dokumentProxyBaseUrl}/v1/fritakagp/gravid/krav/${gravidKravEndret.id}/pdf",
+                                mediaType = "application/pdf",
+                            ),
                         ),
-                        createGuiAttachment(
-                            displayName = "Krav på fritak fra arbeidsgiverperioden",
-                            url = "${Env.Nav.dokumentProxyBaseUrl}/v1/fritakagp/gravid/krav/${gravidKravEndret.id}/pdf",
-                            mediaType = "application/pdf",
+                    apiActions = emptyList(),
+                    guiActions =
+                        listOf(
+                            GuiAction(
+                                name = "Endre krav",
+                                url = "${Env.Nav.arbeidsgiverGuiBaseUrl}/fritak-agp/nb/gravid/krav/${gravidKravEndret.id}",
+                                action = Action.READ.value,
+                                title = listOf(ContentValueItem("Endre krav")),
+                                priority = GuiAction.Priority.Primary,
+                            ),
                         ),
-                    ),
                 )
                 fritakDialogRepository.lagreKravDialog(
                     dialogId = opprinneligeKrav.dialogId,
