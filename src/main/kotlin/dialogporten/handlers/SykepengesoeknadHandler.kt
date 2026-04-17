@@ -8,6 +8,7 @@ import no.nav.helsearbeidsgiver.dialogporten.LpsApiExtendedType
 import no.nav.helsearbeidsgiver.dialogporten.SykepengesoknadTransmissionRequest
 import no.nav.helsearbeidsgiver.dialogporten.domene.TransmissionRequest
 import no.nav.helsearbeidsgiver.dialogporten.domene.createApiAttachment
+import no.nav.helsearbeidsgiver.dialogporten.domene.createGuiAttachment
 import no.nav.helsearbeidsgiver.kafka.Sykepengesoeknad
 import no.nav.helsearbeidsgiver.utils.log.logger
 
@@ -58,6 +59,16 @@ fun sykepengesoknadTransmission(sykepengesoeknad: Sykepengesoeknad): Transmissio
             createApiAttachment(
                 "sykepengesoeknad.json",
                 "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/sykepengesoeknad/${sykepengesoeknad.soeknadId}",
+            ),
+            createApiAttachment(
+                displayName = "sykepengesoeknad.pdf",
+                url = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/sykepengesoeknad/${sykepengesoeknad.soeknadId}/pdf",
+                mediaType = "application/pdf",
+            ),
+            createGuiAttachment(
+                displayName = "sykepengesoeknad",
+                url = "${Env.Nav.dokumentProxyBaseUrl}/dokument/sykepengesoeknad/${sykepengesoeknad.soeknadId}.pdf",
+                mediaType = "application/pdf",
             ),
         ),
     )
