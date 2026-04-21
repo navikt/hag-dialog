@@ -34,7 +34,7 @@ class DialogportenService(
     private val fritakAgpSoeknadHandler = FritakAgpSoeknadHandler(dialogportenClient, fritakDialogRepository)
     private val fritakAgpKravHandler = FritakAgpKravHandler(dialogportenClient, fritakDialogRepository)
 
-    fun opprettDialogForFritakAgp(dialogMelding: DialogMelding) {
+    suspend fun opprettDialogForFritakAgp(dialogMelding: DialogMelding) {
         when (dialogMelding) {
             is FritakKravMelding -> fritakAgpKravHandler.behandleKravDialog(dialogMelding)
             is FritakSoeknadMelding -> fritakAgpSoeknadHandler.behandleSoeknadDialog(dialogMelding)

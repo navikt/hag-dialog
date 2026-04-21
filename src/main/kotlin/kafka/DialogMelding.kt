@@ -22,24 +22,29 @@ sealed class FritakKravMelding : DialogMelding() {
 }
 
 @Serializable
-sealed class FritakSoeknadMelding : DialogMelding()
+sealed class FritakSoeknadMelding : DialogMelding() {
+    abstract val id: UUID
+    abstract val orgnr: Orgnr
+    abstract val navn: String
+    abstract val fnr: String
+}
 
 @Serializable
 @SerialName("GravidSoeknad")
 data class GravidSoeknad(
-    val id: UUID,
-    val orgnr: Orgnr,
-    val navn: String,
-    val fnr: String,
+    override val id: UUID,
+    override val orgnr: Orgnr,
+    override val navn: String,
+    override val fnr: String,
 ) : FritakSoeknadMelding()
 
 @Serializable
 @SerialName("KroniskSoeknad")
 data class KroniskSoeknad(
-    val id: UUID,
-    val orgnr: Orgnr,
-    val navn: String,
-    val fnr: String,
+    override val id: UUID,
+    override val orgnr: Orgnr,
+    override val navn: String,
+    override val fnr: String,
 ) : FritakSoeknadMelding()
 
 @Serializable

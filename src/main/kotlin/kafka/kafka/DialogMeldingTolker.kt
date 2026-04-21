@@ -12,16 +12,23 @@ class DialogMeldingTolker(
     private val logger = LoggerFactory.getLogger(DialogMeldingTolker::class.java)
     private val sikkerLogger = sikkerLogger()
 
-    fun lesMelding(melding: String) {
+    suspend fun lesMelding(melding: String) {
         sikkerLogger.info("Leser mottatt dialog-melding: $melding")
 
-        runCatching {
-            val dekodMelding = dekodMelding(melding)
-            dialogportenService.opprettDialogForFritakAgp(dekodMelding)
-        }.getOrElse { e ->
-            logger.error("Klarte ikke behandle dialog-melding. Melding blir ignorert.")
-            sikkerLogger.error("Klarte ikke behandle dialog-melding. Melding blir ignorert. Melding: $melding", e)
-        }
+        val dekodMelding =
+            runCatching { dekodMelding(melding) }
+                .getOrElse { e ->
+                    logger.error("Klarte ikke deserialisere dialog-melding. Melding blir ikke prosessert.")
+                    sikkerLogger.error("Klarte ikke deserialisere dialog-melding. Melding blir ikke prosessert. Melding: $melding", e)
+                    throw e
+                }
+
+        runCatching { dialogportenService.opprettDialogForFritakAgp(dekodMelding) }
+            .getOrElse { e ->
+                logger.error("Klarte ikke sende dialog-melding til Dialogporten. Melding blir ikke prosessert.")
+                sikkerLogger.error("Klarte ikke sende dialog-melding til Dialogporten. Melding blir ikke prosessert. Melding: $melding", e)
+                throw e
+            }
     }
 }
 

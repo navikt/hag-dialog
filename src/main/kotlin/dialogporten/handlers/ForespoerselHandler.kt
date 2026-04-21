@@ -58,7 +58,7 @@ class ForespoerselHandler(
                             ),
                         action = Action.WRITE.value,
                     ),
-                guiActions =
+                guiAction =
                     GuiAction(
                         name = "Send inn inntektsmelding",
                         url = "${Env.Nav.arbeidsgiverGuiBaseUrl}/im-dialog/$forespoerselId",

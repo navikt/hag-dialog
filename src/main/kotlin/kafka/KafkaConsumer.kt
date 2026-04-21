@@ -62,7 +62,7 @@ private fun startDokumentkoblingKafkaConsumer(dokumentkoblingTolker: Dokumentkob
     }
 }
 
-private fun startDialogKafkaConsumer(dialogMeldingTolker: DialogMeldingTolker) {
+private suspend fun startDialogKafkaConsumer(dialogMeldingTolker: DialogMeldingTolker) {
     val consumer = KafkaConsumer<String, String>(createKafkaConsumerConfig() as Map<String, Any>)
     val topic = Env.Kafka.dialogTopic
     consumer.subscribe(listOf(topic))
