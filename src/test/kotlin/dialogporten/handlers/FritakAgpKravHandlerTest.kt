@@ -16,10 +16,10 @@ import no.nav.helsearbeidsgiver.dialogporten.DialogportenClient
 import no.nav.helsearbeidsgiver.dialogporten.domene.CreateDialogRequest
 import no.nav.helsearbeidsgiver.dialogporten.domene.GuiAction
 import no.nav.helsearbeidsgiver.dialogporten.domene.Transmission
-import no.nav.helsearbeidsgiver.kafka.GravidKrav
+import no.nav.helsearbeidsgiver.kafka.GravidKravOpprettet
 import no.nav.helsearbeidsgiver.kafka.GravidKravEndret
 import no.nav.helsearbeidsgiver.kafka.GravidKravSlettet
-import no.nav.helsearbeidsgiver.kafka.KroniskKrav
+import no.nav.helsearbeidsgiver.kafka.KroniskKravOpprettet
 import no.nav.helsearbeidsgiver.kafka.KroniskKravEndret
 import no.nav.helsearbeidsgiver.kafka.KroniskKravSlettet
 import no.nav.helsearbeidsgiver.utils.test.wrapper.genererGyldig
@@ -47,7 +47,7 @@ class FritakAgpKravHandlerTest :
 
         test("skal opprette dialog for KroniskKrav") {
             val kravId = UUID.randomUUID()
-            val kravmelding = KroniskKrav(id = kravId, orgnr = orgnr, navn = "Ola Nordmann", fnr = "010190123456")
+            val kravmelding = KroniskKravOpprettet(id = kravId, orgnr = orgnr, navn = "Ola Nordmann", fnr = "010190123456")
 
             handler.behandleKravDialog(kravmelding)
 
@@ -161,9 +161,9 @@ class FritakAgpKravHandlerTest :
             }
         }
 
-        test("skal opprette dialog for GravidKrav") {
+        test("skal opprette dialog for GravidKravOpprettet") {
             val kravId = UUID.randomUUID()
-            val kravmelding = GravidKrav(id = kravId, orgnr = orgnr, navn = "Kari Nordmann", fnr = "020290123456")
+            val kravmelding = GravidKravOpprettet(id = kravId, orgnr = orgnr, navn = "Kari Nordmann", fnr = "020290123456")
 
             handler.behandleKravDialog(kravmelding)
 

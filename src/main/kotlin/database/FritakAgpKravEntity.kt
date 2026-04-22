@@ -1,10 +1,10 @@
 package no.nav.helsearbeidsgiver.database
 
 import no.nav.helsearbeidsgiver.kafka.FritakKravMelding
-import no.nav.helsearbeidsgiver.kafka.GravidKrav
+import no.nav.helsearbeidsgiver.kafka.GravidKravOpprettet
 import no.nav.helsearbeidsgiver.kafka.GravidKravEndret
 import no.nav.helsearbeidsgiver.kafka.GravidKravSlettet
-import no.nav.helsearbeidsgiver.kafka.KroniskKrav
+import no.nav.helsearbeidsgiver.kafka.KroniskKravOpprettet
 import no.nav.helsearbeidsgiver.kafka.KroniskKravEndret
 import no.nav.helsearbeidsgiver.kafka.KroniskKravSlettet
 import org.jetbrains.exposed.dao.UUIDEntity
@@ -50,10 +50,10 @@ enum class FritakAgpType {
 
 fun finnTypeForFritakKrav(kravMelding: FritakKravMelding): FritakAgpType =
     when (kravMelding) {
-        is GravidKrav -> FritakAgpType.GRAVID_KRAV_OPPRETTET
+        is GravidKravOpprettet -> FritakAgpType.GRAVID_KRAV_OPPRETTET
         is GravidKravEndret -> FritakAgpType.GRAVID_KRAV_ENDRET
         is GravidKravSlettet -> FritakAgpType.GRAVID_KRAV_SLETTET
-        is KroniskKrav -> FritakAgpType.KRONISK_KRAV_OPPRETTET
+        is KroniskKravOpprettet -> FritakAgpType.KRONISK_KRAV_OPPRETTET
         is KroniskKravEndret -> FritakAgpType.KRONISK_KRAV_ENDRET
         is KroniskKravSlettet -> FritakAgpType.KRONISK_KRAV_SLETTET
     }

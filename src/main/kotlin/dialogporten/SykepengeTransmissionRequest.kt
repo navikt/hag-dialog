@@ -8,11 +8,11 @@ import no.nav.helsearbeidsgiver.dialogporten.domene.TransmissionRequest
 import no.nav.helsearbeidsgiver.dialogporten.domene.createApiAttachment
 import no.nav.helsearbeidsgiver.dialogporten.domene.createGuiAttachment
 import no.nav.helsearbeidsgiver.kafka.FritakKravMelding
-import no.nav.helsearbeidsgiver.kafka.GravidKrav
+import no.nav.helsearbeidsgiver.kafka.GravidKravOpprettet
 import no.nav.helsearbeidsgiver.kafka.GravidKravEndret
 import no.nav.helsearbeidsgiver.kafka.GravidKravSlettet
 import no.nav.helsearbeidsgiver.kafka.Inntektsmelding
-import no.nav.helsearbeidsgiver.kafka.KroniskKrav
+import no.nav.helsearbeidsgiver.kafka.KroniskKravOpprettet
 import no.nav.helsearbeidsgiver.kafka.KroniskKravEndret
 import no.nav.helsearbeidsgiver.kafka.KroniskKravSlettet
 import no.nav.helsearbeidsgiver.kafka.Sykepengesoeknad
@@ -124,18 +124,18 @@ class FritakKravTransmissionRequest(
 fun FritakKravMelding.toPdfUrl(): String {
     val type =
         when (this) {
-            is GravidKrav, is GravidKravEndret, is GravidKravSlettet -> "gravid"
-            is KroniskKrav, is KroniskKravEndret, is KroniskKravSlettet -> "kronisk"
+            is GravidKravOpprettet, is GravidKravEndret, is GravidKravSlettet -> "gravid"
+            is KroniskKravOpprettet, is KroniskKravEndret, is KroniskKravSlettet -> "kronisk"
         }
     return "${Env.Nav.dokumentProxyBaseUrl}/v1/fritakagp/$type/krav/$id/pdf"
 }
 
 fun FritakKravMelding.toTittel(): String =
     when (this) {
-        is GravidKrav -> "Krav om fritak for arbeidsgiverperiode ved graviditet er opprettet"
+        is GravidKravOpprettet -> "Krav om fritak for arbeidsgiverperiode ved graviditet er opprettet"
         is GravidKravEndret -> "Krav om fritak for arbeidsgiverperiode ved graviditet er endret"
         is GravidKravSlettet -> "Krav om fritak for arbeidsgiverperiode ved graviditet er slettet"
-        is KroniskKrav -> "Krav om fritak for arbeidsgiverperiode ved kronisk sykdom er opprettet"
+        is KroniskKravOpprettet -> "Krav om fritak for arbeidsgiverperiode ved kronisk sykdom er opprettet"
         is KroniskKravEndret -> "Krav om fritak for arbeidsgiverperiode ved kronisk sykdom er endret"
         is KroniskKravSlettet -> "Krav om fritak for arbeidsgiverperiode ved kronisk sykdom er slettet"
     }

@@ -11,8 +11,8 @@ import no.nav.helsearbeidsgiver.dialogporten.domene.GuiAction
 import no.nav.helsearbeidsgiver.dialogporten.domene.createApiAttachment
 import no.nav.helsearbeidsgiver.dialogporten.domene.createGuiAttachment
 import no.nav.helsearbeidsgiver.kafka.FritakSoeknadMelding
-import no.nav.helsearbeidsgiver.kafka.GravidSoeknad
-import no.nav.helsearbeidsgiver.kafka.KroniskSoeknad
+import no.nav.helsearbeidsgiver.kafka.GravidSoeknadOpprettet
+import no.nav.helsearbeidsgiver.kafka.KroniskSoeknadOpprettet
 import no.nav.helsearbeidsgiver.kafka.foedselsdatoFraFnr
 
 class FritakAgpSoeknadHandler(
@@ -21,12 +21,12 @@ class FritakAgpSoeknadHandler(
 ) {
     suspend fun behandleSoeknadDialog(soeknadMelding: FritakSoeknadMelding) {
         when (soeknadMelding) {
-            is GravidSoeknad -> opprettDialogForGravidSoeknad(soeknadMelding)
-            is KroniskSoeknad -> opprettDialogForKroniskSoeknad(soeknadMelding)
+            is GravidSoeknadOpprettet -> opprettDialogForGravidSoeknad(soeknadMelding)
+            is KroniskSoeknadOpprettet -> opprettDialogForKroniskSoeknad(soeknadMelding)
         }
     }
 
-    private suspend fun opprettDialogForKroniskSoeknad(soeknadMelding: KroniskSoeknad) {
+    private suspend fun opprettDialogForKroniskSoeknad(soeknadMelding: KroniskSoeknadOpprettet) {
         val dialogId =
             dialogportenClient.createDialog(
                 CreateDialogRequest(
@@ -78,16 +78,16 @@ class FritakAgpSoeknadHandler(
         )
     }
 
-    private suspend fun opprettDialogForGravidSoeknad(gravidSoeknad: GravidSoeknad) {
+    private suspend fun opprettDialogForGravidSoeknad(gravidSoeknadOpprettet: GravidSoeknadOpprettet) {
         val dialogId =
             dialogportenClient.createDialog(
                 CreateDialogRequest(
-                    orgnr = gravidSoeknad.orgnr,
-                    externalReference = gravidSoeknad.id.toString(),
-                    idempotentKey = gravidSoeknad.id.toString(),
+                    orgnr = gravidSoeknadOpprettet.orgnr,
+                    externalReference = gravidSoeknadOpprettet.id.toString(),
+                    idempotentKey = gravidSoeknadOpprettet.id.toString(),
                     title =
                         "Søknad om fritak fra arbeidsgiverperioden grunnet graviditet." +
-                            " ${gravidSoeknad.navn} (f. ${foedselsdatoFraFnr(gravidSoeknad.fnr)})",
+                            " ${gravidSoeknadOpprettet.navn} (f. ${foedselsdatoFraFnr(gravidSoeknadOpprettet.fnr)})",
                     summary =
                         "Kvittering for mottatt søknad om fritak fra" +
                             " arbeidsgiverperioden grunnet risiko for høyt sykefravær knyttet til graviditet.",
@@ -97,12 +97,12 @@ class FritakAgpSoeknadHandler(
                         listOf(
                             createApiAttachment(
                                 displayName = "Søknad om fritak fra arbeidsgiverperioden",
-                                url = "${Env.Nav.dokumentProxyBaseUrl}/v1/fritakagp/gravid/soeknad/${gravidSoeknad.id}/pdf",
+                                url = "${Env.Nav.dokumentProxyBaseUrl}/v1/fritakagp/gravid/soeknad/${gravidSoeknadOpprettet.id}/pdf",
                                 mediaType = "application/pdf",
                             ),
                             createGuiAttachment(
                                 displayName = "Søknad om fritak fra arbeidsgiverperioden",
-                                url = "${Env.Nav.dokumentProxyBaseUrl}/v1/fritakagp/gravid/soeknad/${gravidSoeknad.id}/pdf",
+                                url = "${Env.Nav.dokumentProxyBaseUrl}/v1/fritakagp/gravid/soeknad/${gravidSoeknadOpprettet.id}/pdf",
                                 mediaType = "application/pdf",
                             ),
                         ),
@@ -123,10 +123,10 @@ class FritakAgpSoeknadHandler(
 
         fritakDialogRepository.lagreSoeknadDialog(
             dialogId = dialogId,
-            soeknadId = gravidSoeknad.id,
+            soeknadId = gravidSoeknadOpprettet.id,
             soeknadType = FritakAgpDokType.GRAVID_SOEKNAD,
-            fnr = gravidSoeknad.fnr,
-            orgnr = gravidSoeknad.orgnr.verdi,
+            fnr = gravidSoeknadOpprettet.fnr,
+            orgnr = gravidSoeknadOpprettet.orgnr.verdi,
         )
     }
 }
