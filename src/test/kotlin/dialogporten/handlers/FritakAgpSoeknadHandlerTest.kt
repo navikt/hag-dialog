@@ -92,7 +92,8 @@ class FritakAgpSoeknadHandlerTest :
         }
 
         test("skal ikke lagre soeknad dersom createDialog feiler") {
-            coEvery { dialogportenClientMock.createDialog(any<CreateDialogRequest>()) } throws RuntimeException("Dialogporten utilgjengelig")
+            coEvery { dialogportenClientMock.createDialog(any<CreateDialogRequest>()) } throws
+                RuntimeException("Dialogporten utilgjengelig")
 
             val soeknadMelding =
                 KroniskSoeknadOpprettet(
