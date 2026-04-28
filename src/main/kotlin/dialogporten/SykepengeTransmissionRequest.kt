@@ -8,13 +8,16 @@ import no.nav.helsearbeidsgiver.dialogporten.domene.TransmissionRequest
 import no.nav.helsearbeidsgiver.dialogporten.domene.createApiAttachment
 import no.nav.helsearbeidsgiver.dialogporten.domene.createGuiAttachment
 import no.nav.helsearbeidsgiver.kafka.FritakKravMelding
+import no.nav.helsearbeidsgiver.kafka.FritakSoeknadMelding
 import no.nav.helsearbeidsgiver.kafka.GravidKravEndret
 import no.nav.helsearbeidsgiver.kafka.GravidKravOpprettet
 import no.nav.helsearbeidsgiver.kafka.GravidKravSlettet
+import no.nav.helsearbeidsgiver.kafka.GravidSoeknadOpprettet
 import no.nav.helsearbeidsgiver.kafka.Inntektsmelding
 import no.nav.helsearbeidsgiver.kafka.KroniskKravEndret
 import no.nav.helsearbeidsgiver.kafka.KroniskKravOpprettet
 import no.nav.helsearbeidsgiver.kafka.KroniskKravSlettet
+import no.nav.helsearbeidsgiver.kafka.KroniskSoeknadOpprettet
 import no.nav.helsearbeidsgiver.kafka.Sykepengesoeknad
 import no.nav.helsearbeidsgiver.kafka.Sykmelding
 import java.util.UUID
@@ -124,10 +127,19 @@ class FritakKravTransmissionRequest(
 fun FritakKravMelding.toPdfUrl(): String {
     val type =
         when (this) {
-            is GravidKravOpprettet, is GravidKravEndret, is GravidKravSlettet -> "gravid"
-            is KroniskKravOpprettet, is KroniskKravEndret, is KroniskKravSlettet -> "kronisk"
+            is GravidKravOpprettet, is GravidKravEndret, is GravidKravSlettet -> "gravid-krav"
+            is KroniskKravOpprettet, is KroniskKravEndret, is KroniskKravSlettet -> "kronisk-krav"
         }
-    return "${Env.Nav.dokumentProxyBaseUrl}/v1/fritakagp/$type/krav/$id/pdf"
+    return "${Env.Nav.dokumentProxyBaseUrl}/dokument/$type/$id.pdf"
+}
+
+fun FritakSoeknadMelding.toPdfUrl(): String {
+    val type =
+        when (this) {
+            is GravidSoeknadOpprettet -> "gravid-soeknad"
+            is KroniskSoeknadOpprettet -> "kronisk-soeknad"
+        }
+    return "${Env.Nav.dokumentProxyBaseUrl}/dokument/$type/$id/pdf"
 }
 
 fun FritakKravMelding.toTittel(): String =

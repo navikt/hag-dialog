@@ -13,6 +13,7 @@ import no.nav.helsearbeidsgiver.dialogporten.domene.GuiAction
 import no.nav.helsearbeidsgiver.dialogporten.domene.createApiAttachment
 import no.nav.helsearbeidsgiver.dialogporten.domene.createGuiAttachment
 import no.nav.helsearbeidsgiver.dialogporten.domene.toTransmission
+import no.nav.helsearbeidsgiver.dialogporten.toPdfUrl
 import no.nav.helsearbeidsgiver.kafka.FritakKravMelding
 import no.nav.helsearbeidsgiver.kafka.GravidKravEndret
 import no.nav.helsearbeidsgiver.kafka.GravidKravOpprettet
@@ -56,12 +57,12 @@ class FritakAgpKravHandler(
                         listOf(
                             createApiAttachment(
                                 displayName = "Krav på fritak fra arbeidsgiverperioden",
-                                url = "${Env.Nav.dokumentProxyBaseUrl}/v1/fritakagp/kronisk/krav/${kroniskKravOpprettetMelding.id}/pdf",
+                                url = kroniskKravOpprettetMelding.toPdfUrl(),
                                 mediaType = "application/pdf",
                             ),
                             createGuiAttachment(
                                 displayName = "Krav på fritak fra arbeidsgiverperioden",
-                                url = "${Env.Nav.dokumentProxyBaseUrl}/v1/fritakagp/kronisk/krav/${kroniskKravOpprettetMelding.id}/pdf",
+                                url = kroniskKravOpprettetMelding.toPdfUrl(),
                                 mediaType = "application/pdf",
                             ),
                         ),
@@ -117,12 +118,12 @@ class FritakAgpKravHandler(
                 listOf(
                     createApiAttachment(
                         displayName = "Krav på fritak fra arbeidsgiverperioden",
-                        url = "${Env.Nav.dokumentProxyBaseUrl}/v1/fritakagp/kronisk/krav/${kroniskKravEndret.id}/pdf",
+                        url = kroniskKravEndret.toPdfUrl(),
                         mediaType = "application/pdf",
                     ),
                     createGuiAttachment(
                         displayName = "Krav på fritak fra arbeidsgiverperioden",
-                        url = "${Env.Nav.dokumentProxyBaseUrl}/v1/fritakagp/kronisk/krav/${kroniskKravEndret.id}/pdf",
+                        url = kroniskKravEndret.toPdfUrl(),
                         mediaType = "application/pdf",
                     ),
                 ),
@@ -169,12 +170,12 @@ class FritakAgpKravHandler(
                         listOf(
                             createApiAttachment(
                                 displayName = "Krav på fritak fra arbeidsgiverperioden",
-                                url = "${Env.Nav.dokumentProxyBaseUrl}/v1/fritakagp/gravid/krav/${gravidKrav.id}/pdf",
+                                url = gravidKrav.toPdfUrl(),
                                 mediaType = "application/pdf",
                             ),
                             createGuiAttachment(
                                 displayName = "Krav på fritak fra arbeidsgiverperioden",
-                                url = "${Env.Nav.dokumentProxyBaseUrl}/v1/fritakagp/gravid/krav/${gravidKrav.id}/pdf",
+                                url = gravidKrav.toPdfUrl(),
                                 mediaType = "application/pdf",
                             ),
                         ),
@@ -231,12 +232,12 @@ class FritakAgpKravHandler(
                     listOf(
                         createApiAttachment(
                             displayName = "Krav på fritak fra arbeidsgiverperioden",
-                            url = "${Env.Nav.dokumentProxyBaseUrl}/v1/fritakagp/gravid/krav/${gravidKravEndret.id}/pdf",
+                            url = gravidKravEndret.toPdfUrl(),
                             mediaType = "application/pdf",
                         ),
                         createGuiAttachment(
                             displayName = "Krav på fritak fra arbeidsgiverperioden",
-                            url = "${Env.Nav.dokumentProxyBaseUrl}/v1/fritakagp/gravid/krav/${gravidKravEndret.id}/pdf",
+                            url = gravidKravEndret.toPdfUrl(),
                             mediaType = "application/pdf",
                         ),
                     ),

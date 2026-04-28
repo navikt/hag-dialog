@@ -10,6 +10,7 @@ import no.nav.helsearbeidsgiver.dialogporten.domene.CreateDialogRequest
 import no.nav.helsearbeidsgiver.dialogporten.domene.GuiAction
 import no.nav.helsearbeidsgiver.dialogporten.domene.createApiAttachment
 import no.nav.helsearbeidsgiver.dialogporten.domene.createGuiAttachment
+import no.nav.helsearbeidsgiver.dialogporten.toPdfUrl
 import no.nav.helsearbeidsgiver.kafka.FritakSoeknadMelding
 import no.nav.helsearbeidsgiver.kafka.GravidSoeknadOpprettet
 import no.nav.helsearbeidsgiver.kafka.KroniskSoeknadOpprettet
@@ -45,12 +46,12 @@ class FritakAgpSoeknadHandler(
                         listOf(
                             createApiAttachment(
                                 displayName = "Søknad om fritak fra arbeidsgiverperioden",
-                                url = "${Env.Nav.dokumentProxyBaseUrl}/v1/fritakagp/kronisk/soeknad/${soeknadMelding.id}/pdf",
+                                url = soeknadMelding.toPdfUrl(),
                                 mediaType = "application/pdf",
                             ),
                             createGuiAttachment(
                                 displayName = "Søknad om fritak fra arbeidsgiverperioden",
-                                url = "${Env.Nav.dokumentProxyBaseUrl}/v1/fritakagp/kronisk/soeknad/${soeknadMelding.id}/pdf",
+                                url = soeknadMelding.toPdfUrl(),
                                 mediaType = "application/pdf",
                             ),
                         ),
@@ -97,12 +98,12 @@ class FritakAgpSoeknadHandler(
                         listOf(
                             createApiAttachment(
                                 displayName = "Søknad om fritak fra arbeidsgiverperioden",
-                                url = "${Env.Nav.dokumentProxyBaseUrl}/v1/fritakagp/gravid/soeknad/${gravidSoeknadOpprettet.id}/pdf",
+                                url = gravidSoeknadOpprettet.toPdfUrl(),
                                 mediaType = "application/pdf",
                             ),
                             createGuiAttachment(
                                 displayName = "Søknad om fritak fra arbeidsgiverperioden",
-                                url = "${Env.Nav.dokumentProxyBaseUrl}/v1/fritakagp/gravid/soeknad/${gravidSoeknadOpprettet.id}/pdf",
+                                url = gravidSoeknadOpprettet.toPdfUrl(),
                                 mediaType = "application/pdf",
                             ),
                         ),
