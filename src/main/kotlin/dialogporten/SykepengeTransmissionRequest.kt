@@ -139,7 +139,7 @@ fun FritakSoeknadMelding.toPdfUrl(): String {
             is GravidSoeknadOpprettet -> "gravid-soeknad"
             is KroniskSoeknadOpprettet -> "kronisk-soeknad"
         }
-    return "${Env.Nav.dokumentProxyBaseUrl}/dokument/$type/$id/pdf"
+    return "${Env.Nav.dokumentProxyBaseUrl}/dokument/$type/$id.pdf"
 }
 
 fun FritakKravMelding.toTittel(): String =
