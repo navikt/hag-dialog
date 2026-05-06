@@ -1,0 +1,7 @@
+ALTER TABLE fritakagp_krav
+    ALTER COLUMN fnr TYPE VARCHAR(11),
+    ALTER COLUMN orgnr TYPE VARCHAR(9);
+
+ALTER TABLE fritakagp_soeknad
+    ALTER COLUMN fnr TYPE VARCHAR(11),
+    ALTER COLUMN orgnr TYPE VARCHAR(9);
