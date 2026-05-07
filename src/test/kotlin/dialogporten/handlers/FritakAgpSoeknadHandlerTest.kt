@@ -17,6 +17,7 @@ import no.nav.helsearbeidsgiver.dialogporten.domene.GuiAction
 import no.nav.helsearbeidsgiver.kafka.GravidSoeknadOpprettet
 import no.nav.helsearbeidsgiver.kafka.KroniskSoeknadOpprettet
 import no.nav.helsearbeidsgiver.utils.test.wrapper.genererGyldig
+import no.nav.helsearbeidsgiver.utils.wrapper.Fnr
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import java.util.UUID
 
@@ -48,7 +49,7 @@ class FritakAgpSoeknadHandlerTest :
                     id = soeknadId,
                     orgnr = orgnr,
                     navn = "Ola Nordmann",
-                    fnr = "010190123456",
+                    fnr = Fnr.genererGyldig().verdi,
                 )
 
             handler.behandleSoeknadDialog(soeknadMelding)
@@ -73,7 +74,7 @@ class FritakAgpSoeknadHandlerTest :
                     id = soeknadId,
                     orgnr = orgnr,
                     navn = "Kari Nordmann",
-                    fnr = "020290123456",
+                    fnr = Fnr.genererGyldig().verdi,
                 )
 
             handler.behandleSoeknadDialog(soeknadMelding)
@@ -100,7 +101,7 @@ class FritakAgpSoeknadHandlerTest :
                     id = UUID.randomUUID(),
                     orgnr = orgnr,
                     navn = "Ola Nordmann",
-                    fnr = "010190123456",
+                    fnr = Fnr.genererGyldig().verdi,
                 )
 
             runCatching { handler.behandleSoeknadDialog(soeknadMelding) }

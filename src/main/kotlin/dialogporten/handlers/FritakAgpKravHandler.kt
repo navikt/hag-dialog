@@ -22,6 +22,7 @@ import no.nav.helsearbeidsgiver.kafka.KroniskKravEndret
 import no.nav.helsearbeidsgiver.kafka.KroniskKravOpprettet
 import no.nav.helsearbeidsgiver.kafka.KroniskKravSlettet
 import no.nav.helsearbeidsgiver.kafka.foedselsdatoFraFnr
+import no.nav.helsearbeidsgiver.utils.log.logger
 
 class FritakAgpKravHandler(
     val dialogportenClient: DialogportenClient,
@@ -38,16 +39,16 @@ class FritakAgpKravHandler(
         }
     }
 
-    private suspend fun opprettDialogForKroniskKrav(kroniskKravOpprettetMelding: KroniskKravOpprettet) {
+    private suspend fun opprettDialogForKroniskKrav(kroniskKrav: FritakKravMelding) {
         val dialogId =
             dialogportenClient.createDialog(
                 CreateDialogRequest(
-                    orgnr = kroniskKravOpprettetMelding.orgnr,
+                    orgnr = kroniskKrav.orgnr,
                     externalReference = "fritak-agp",
-                    idempotentKey = kroniskKravOpprettetMelding.id.toString(),
+                    idempotentKey = kroniskKrav.id.toString(),
                     title =
                         "Krav om fritak fra arbeidsgiverperioden grunnet kronisk sykdom." +
-                            " ${kroniskKravOpprettetMelding.navn} (f. ${foedselsdatoFraFnr(kroniskKravOpprettetMelding.fnr)})",
+                            " ${kroniskKrav.navn} (f. ${foedselsdatoFraFnr(kroniskKrav.fnr)})",
                     summary =
                         "Kvittering for mottatt krav om fritak fra" +
                             " arbeidsgiverperioden grunnet kronisk sykdom.",
@@ -57,12 +58,12 @@ class FritakAgpKravHandler(
                         listOf(
                             createApiAttachment(
                                 displayName = "Krav på fritak fra arbeidsgiverperioden",
-                                url = kroniskKravOpprettetMelding.toPdfUrl(),
+                                url = kroniskKrav.toPdfUrl(),
                                 mediaType = "application/pdf",
                             ),
                             createGuiAttachment(
                                 displayName = "Krav på fritak fra arbeidsgiverperioden",
-                                url = kroniskKravOpprettetMelding.toPdfUrl(),
+                                url = kroniskKrav.toPdfUrl(),
                                 mediaType = "application/pdf",
                             ),
                         ),
@@ -73,7 +74,7 @@ class FritakAgpKravHandler(
             dialogportenClient.addTransmission(
                 dialogId,
                 FritakKravTransmissionRequest(
-                    kravMelding = kroniskKravOpprettetMelding,
+                    kravMelding = kroniskKrav,
                 ).toTransmission(),
             )
 
@@ -82,7 +83,7 @@ class FritakAgpKravHandler(
             guiAction =
                 GuiAction(
                     name = "Endre krav",
-                    url = "${Env.Nav.arbeidsgiverGuiBaseUrl}/fritak-agp/nb/kronisk/krav/${kroniskKravOpprettetMelding.id}",
+                    url = "${Env.Nav.arbeidsgiverGuiBaseUrl}/fritak-agp/nb/kronisk/krav/${kroniskKrav.id}",
                     action = Action.READ.value,
                     title = listOf(ContentValueItem("Endre krav")),
                     priority = GuiAction.Priority.Primary,
@@ -92,10 +93,10 @@ class FritakAgpKravHandler(
         fritakDialogRepository.lagreKravDialog(
             dialogId = dialogId,
             transmissionId = transmissionId,
-            kravId = kroniskKravOpprettetMelding.id,
-            kravType = finnTypeForFritakKrav(kroniskKravOpprettetMelding),
-            fnr = kroniskKravOpprettetMelding.fnr,
-            orgnr = kroniskKravOpprettetMelding.orgnr.verdi,
+            kravId = kroniskKrav.id,
+            kravType = finnTypeForFritakKrav(kroniskKrav),
+            fnr = kroniskKrav.fnr,
+            orgnr = kroniskKrav.orgnr.verdi,
         )
     }
 
@@ -148,10 +149,15 @@ class FritakAgpKravHandler(
                 fnr = kroniskKravEndret.fnr,
                 orgnr = kroniskKravEndret.orgnr.verdi,
             )
+        } else {
+            logger().info(
+                "Klarte ikke å finne opprinnelig krav for kronisk krav endret med id ${kroniskKravEndret.id}. Oppretter ny dialog.",
+            )
+            opprettDialogForKroniskKrav(kroniskKravEndret)
         }
     }
 
-    private suspend fun opprettDialogForGravidKrav(gravidKrav: GravidKravOpprettet) {
+    private suspend fun opprettDialogForGravidKrav(gravidKrav: FritakKravMelding) {
         val dialogId =
             dialogportenClient.createDialog(
                 CreateDialogRequest(
@@ -262,6 +268,11 @@ class FritakAgpKravHandler(
                 fnr = gravidKravEndret.fnr,
                 orgnr = gravidKravEndret.orgnr.verdi,
             )
+        } else {
+            logger().info(
+                "Klarte ikke å finne opprinnelig krav for gravid krav endret med id ${gravidKravEndret.id}. Oppretter ny dialog.",
+            )
+            opprettDialogForGravidKrav(gravidKravEndret)
         }
     }
 
@@ -290,6 +301,10 @@ class FritakAgpKravHandler(
                 fnr = kravmelding.fnr,
                 orgnr = kravmelding.orgnr.verdi,
             )
+        } else {
+            logger().warn(
+                "Klarte ikke å finne opprinnelig krav for kronisk krav slettet med id ${kravmelding.id}. Ingen dialog å oppdatere.",
+            )
         }
     }
 
@@ -317,6 +332,10 @@ class FritakAgpKravHandler(
                 kravType = FritakAgpType.GRAVID_KRAV_SLETTET,
                 fnr = gravidKravSlettet.fnr,
                 orgnr = gravidKravSlettet.orgnr.verdi,
+            )
+        } else {
+            logger().warn(
+                "Klarte ikke å finne opprinnelig krav for gravid krav slettet med id ${gravidKravSlettet.id}. Ingen dialog å oppdatere.",
             )
         }
     }

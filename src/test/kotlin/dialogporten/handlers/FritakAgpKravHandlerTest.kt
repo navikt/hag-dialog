@@ -23,6 +23,7 @@ import no.nav.helsearbeidsgiver.kafka.KroniskKravEndret
 import no.nav.helsearbeidsgiver.kafka.KroniskKravOpprettet
 import no.nav.helsearbeidsgiver.kafka.KroniskKravSlettet
 import no.nav.helsearbeidsgiver.utils.test.wrapper.genererGyldig
+import no.nav.helsearbeidsgiver.utils.wrapper.Fnr
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import java.util.UUID
 
@@ -47,7 +48,7 @@ class FritakAgpKravHandlerTest :
 
         test("skal opprette dialog for KroniskKrav") {
             val kravId = UUID.randomUUID()
-            val kravmelding = KroniskKravOpprettet(id = kravId, orgnr = orgnr, navn = "Ola Nordmann", fnr = "010190123456")
+            val kravmelding = KroniskKravOpprettet(id = kravId, orgnr = orgnr, navn = "Ola Nordmann", fnr = Fnr.genererGyldig().verdi)
 
             handler.behandleKravDialog(kravmelding)
 
@@ -108,7 +109,7 @@ class FritakAgpKravHandlerTest :
                     id = nyttKravId,
                     orgnr = orgnr,
                     navn = "Ola Nordmann",
-                    fnr = "010190123456",
+                    fnr = Fnr.genererGyldig().verdi,
                     forrigeKrav = forrigeKravId,
                 )
             val eksisterendeKrav =
@@ -137,7 +138,7 @@ class FritakAgpKravHandlerTest :
         test("skal oppdatere dialog for KroniskKravSlettet ") {
             val kravId = UUID.randomUUID()
             val kravmelding =
-                KroniskKravSlettet(id = kravId, orgnr = orgnr, navn = "Ola Nordmann", fnr = "010190123456")
+                KroniskKravSlettet(id = kravId, orgnr = orgnr, navn = "Ola Nordmann", fnr = Fnr.genererGyldig().verdi)
             val eksisterendeKrav =
                 mockk<FritakAgpKravEntity> {
                     every { this@mockk.dialogId } returns dialogId
@@ -163,7 +164,7 @@ class FritakAgpKravHandlerTest :
 
         test("skal opprette dialog for GravidKravOpprettet") {
             val kravId = UUID.randomUUID()
-            val kravmelding = GravidKravOpprettet(id = kravId, orgnr = orgnr, navn = "Kari Nordmann", fnr = "020290123456")
+            val kravmelding = GravidKravOpprettet(id = kravId, orgnr = orgnr, navn = "Kari Nordmann", fnr = Fnr.genererGyldig().verdi)
 
             handler.behandleKravDialog(kravmelding)
 
@@ -207,5 +208,77 @@ class FritakAgpKravHandlerTest :
                     orgnr = kravmelding.orgnr.verdi,
                 )
             }
+        }
+
+        test("skal opprette ny dialog når KroniskKravEndret ikke finner opprinnelig krav") {
+            val forrigeKravId = UUID.randomUUID()
+            val nyttKravId = UUID.randomUUID()
+            val kravmelding =
+                KroniskKravEndret(
+                    id = nyttKravId,
+                    orgnr = orgnr,
+                    navn = "Ola Nordmann",
+                    fnr = Fnr.genererGyldig().verdi,
+                    forrigeKrav = forrigeKravId,
+                )
+
+            every { fritakDialogRepositoryMock.finnDialogMedKravId(forrigeKravId) } returns null
+
+            handler.behandleKravDialog(kravmelding)
+
+            coVerify(exactly = 1) { dialogportenClientMock.createDialog(any<CreateDialogRequest>()) }
+            coVerify(exactly = 1) { dialogportenClientMock.addTransmission(dialogId, any<Transmission>()) }
+            coVerify(exactly = 1) { dialogportenClientMock.addGuiAction(dialogId, any<GuiAction>()) }
+            coVerify(exactly = 0) { dialogportenClientMock.replaceAttachmentsAndActions(any(), any(), any(), any()) }
+        }
+
+        test("skal opprette ny dialog når GravidKravEndret ikke finner opprinnelig krav") {
+            val forrigeKravId = UUID.randomUUID()
+            val nyttKravId = UUID.randomUUID()
+            val kravmelding =
+                GravidKravEndret(
+                    id = nyttKravId,
+                    orgnr = orgnr,
+                    navn = "Kari Nordmann",
+                    fnr = Fnr.genererGyldig().verdi,
+                    forrigeKrav = forrigeKravId,
+                )
+
+            every { fritakDialogRepositoryMock.finnDialogMedKravId(forrigeKravId) } returns null
+
+            handler.behandleKravDialog(kravmelding)
+
+            coVerify(exactly = 1) { dialogportenClientMock.createDialog(any<CreateDialogRequest>()) }
+            coVerify(exactly = 1) { dialogportenClientMock.addTransmission(dialogId, any<Transmission>()) }
+            coVerify(exactly = 1) { dialogportenClientMock.addGuiAction(dialogId, any<GuiAction>()) }
+            coVerify(exactly = 0) { dialogportenClientMock.replaceAttachmentsAndActions(any(), any(), any(), any()) }
+        }
+
+        test("skal ikke gjøre noe når KroniskKravSlettet ikke finner opprinnelig krav") {
+            val kravId = UUID.randomUUID()
+            val kravmelding =
+                KroniskKravSlettet(id = kravId, orgnr = orgnr, navn = "Ola Nordmann", fnr = Fnr.genererGyldig().verdi)
+
+            every { fritakDialogRepositoryMock.finnDialogMedKravId(kravId) } returns null
+
+            handler.behandleKravDialog(kravmelding)
+
+            coVerify(exactly = 0) { dialogportenClientMock.addTransmission(any(), any<Transmission>()) }
+            coVerify(exactly = 0) { dialogportenClientMock.removeActionsAndStatus(any()) }
+            verify(exactly = 0) { fritakDialogRepositoryMock.lagreKravDialog(any(), any(), any(), any(), any(), any()) }
+        }
+
+        test("skal ikke gjøre noe når GravidKravSlettet ikke finner opprinnelig krav") {
+            val kravId = UUID.randomUUID()
+            val kravmelding =
+                GravidKravSlettet(id = kravId, orgnr = orgnr, navn = "Kari Nordmann", fnr = Fnr.genererGyldig().verdi)
+
+            every { fritakDialogRepositoryMock.finnDialogMedKravId(kravId) } returns null
+
+            handler.behandleKravDialog(kravmelding)
+
+            coVerify(exactly = 0) { dialogportenClientMock.addTransmission(any(), any<Transmission>()) }
+            coVerify(exactly = 0) { dialogportenClientMock.removeActionsAndStatus(any()) }
+            verify(exactly = 0) { fritakDialogRepositoryMock.lagreKravDialog(any(), any(), any(), any(), any(), any()) }
         }
     })
