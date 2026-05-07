@@ -9,7 +9,7 @@ import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
-import no.nav.helsearbeidsgiver.database.FritakAgpDokType
+import no.nav.helsearbeidsgiver.database.FritakAgpSoeknadType
 import no.nav.helsearbeidsgiver.database.FritakDialogRepository
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenClient
 import no.nav.helsearbeidsgiver.dialogporten.domene.CreateDialogRequest
@@ -59,7 +59,7 @@ class FritakAgpSoeknadHandlerTest :
                 fritakDialogRepositoryMock.lagreSoeknadDialog(
                     dialogId = dialogId,
                     soeknadId = soeknadId,
-                    soeknadType = FritakAgpDokType.KRONISK_SOEKNAD,
+                    soeknadType = FritakAgpSoeknadType.KRONISK_SOEKNAD,
                     fnr = soeknadMelding.fnr,
                     orgnr = soeknadMelding.orgnr.verdi,
                 )
@@ -84,7 +84,7 @@ class FritakAgpSoeknadHandlerTest :
                 fritakDialogRepositoryMock.lagreSoeknadDialog(
                     dialogId = dialogId,
                     soeknadId = soeknadId,
-                    soeknadType = FritakAgpDokType.GRAVID_SOEKNAD,
+                    soeknadType = FritakAgpSoeknadType.GRAVID_SOEKNAD,
                     fnr = soeknadMelding.fnr,
                     orgnr = soeknadMelding.orgnr.verdi,
                 )

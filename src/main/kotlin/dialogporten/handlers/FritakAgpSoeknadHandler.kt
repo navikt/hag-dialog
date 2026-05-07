@@ -1,7 +1,7 @@
 package no.nav.helsearbeidsgiver.dialogporten.handlers
 
 import no.nav.helsearbeidsgiver.Env
-import no.nav.helsearbeidsgiver.database.FritakAgpDokType
+import no.nav.helsearbeidsgiver.database.FritakAgpSoeknadType
 import no.nav.helsearbeidsgiver.database.FritakDialogRepository
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenClient
 import no.nav.helsearbeidsgiver.dialogporten.domene.Action
@@ -73,7 +73,7 @@ class FritakAgpSoeknadHandler(
         fritakDialogRepository.lagreSoeknadDialog(
             dialogId = dialogId,
             soeknadId = soeknadMelding.id,
-            soeknadType = FritakAgpDokType.KRONISK_SOEKNAD,
+            soeknadType = FritakAgpSoeknadType.KRONISK_SOEKNAD,
             fnr = soeknadMelding.fnr,
             orgnr = soeknadMelding.orgnr.verdi,
         )
@@ -125,7 +125,7 @@ class FritakAgpSoeknadHandler(
         fritakDialogRepository.lagreSoeknadDialog(
             dialogId = dialogId,
             soeknadId = gravidSoeknadOpprettet.id,
-            soeknadType = FritakAgpDokType.GRAVID_SOEKNAD,
+            soeknadType = FritakAgpSoeknadType.GRAVID_SOEKNAD,
             fnr = gravidSoeknadOpprettet.fnr,
             orgnr = gravidSoeknadOpprettet.orgnr.verdi,
         )

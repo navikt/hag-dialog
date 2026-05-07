@@ -6,15 +6,13 @@ import java.time.LocalDateTime
 
 object FritakAgpSoeknadTable : UUIDTable("fritakagp_soeknad", "dialog_id") {
     val soeknadId = uuid("soeknad_id").uniqueIndex()
-    val soeknadType = enumerationByName(name = "soeknad_type", length = 50, klass = FritakAgpDokType::class)
-    val fnr = varchar("fnr", 50)
-    val orgnr = varchar("orgnr", 50)
+    val soeknadType = enumerationByName(name = "soeknad_type", length = 50, klass = FritakAgpSoeknadType::class)
+    val fnr = varchar("fnr", 11)
+    val orgnr = varchar("orgnr", 9)
     val opprettet = datetime("opprettet").clientDefault { LocalDateTime.now() }
 }
 
-enum class FritakAgpDokType {
-    GRAVID_KRAV,
+enum class FritakAgpSoeknadType {
     GRAVID_SOEKNAD,
-    KRONISK_KRAV,
     KRONISK_SOEKNAD,
 }

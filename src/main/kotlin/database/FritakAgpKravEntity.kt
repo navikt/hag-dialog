@@ -19,8 +19,8 @@ object FritakAgpKravTable : UUIDTable("fritakagp_krav", "transmission_id") {
     val dialogId = uuid("dialog_id")
     val kravId = uuid("krav_id")
     val kravType = enumerationByName<FritakAgpType>("krav_type", 50)
-    val fnr = varchar("fnr", 50)
-    val orgnr = varchar("orgnr", 50)
+    val fnr = varchar("fnr", 11)
+    val orgnr = varchar("orgnr", 9)
     val opprettet = datetime("opprettet").clientDefault { LocalDateTime.now() }
 }
 

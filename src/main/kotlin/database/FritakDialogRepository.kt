@@ -13,7 +13,7 @@ class FritakDialogRepository(
     fun lagreSoeknadDialog(
         dialogId: UUID,
         soeknadId: UUID,
-        soeknadType: FritakAgpDokType,
+        soeknadType: FritakAgpSoeknadType,
         fnr: String,
         orgnr: String,
     ) {
