@@ -75,7 +75,7 @@ class FritakAgpKravHandlerTest :
                     id = nyttKravId,
                     orgnr = orgnr,
                     navn = "Kari Nordmann",
-                    fnr = "020290123456",
+                    fnr = Fnr.genererGyldig().verdi,
                     forrigeKrav = forrigeKravId,
                 )
             val eksisterendeKrav =
