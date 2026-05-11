@@ -1,9 +1,23 @@
 package no.nav.helsearbeidsgiver.dialogporten
 
+import no.nav.helsearbeidsgiver.Env
+import no.nav.helsearbeidsgiver.database.finnTypeForFritakKrav
 import no.nav.helsearbeidsgiver.dialogporten.domene.Attachment
 import no.nav.helsearbeidsgiver.dialogporten.domene.Transmission
 import no.nav.helsearbeidsgiver.dialogporten.domene.TransmissionRequest
+import no.nav.helsearbeidsgiver.dialogporten.domene.createApiAttachment
+import no.nav.helsearbeidsgiver.dialogporten.domene.createGuiAttachment
+import no.nav.helsearbeidsgiver.kafka.FritakKravMelding
+import no.nav.helsearbeidsgiver.kafka.FritakSoeknadMelding
+import no.nav.helsearbeidsgiver.kafka.GravidKravEndret
+import no.nav.helsearbeidsgiver.kafka.GravidKravOpprettet
+import no.nav.helsearbeidsgiver.kafka.GravidKravSlettet
+import no.nav.helsearbeidsgiver.kafka.GravidSoeknadOpprettet
 import no.nav.helsearbeidsgiver.kafka.Inntektsmelding
+import no.nav.helsearbeidsgiver.kafka.KroniskKravEndret
+import no.nav.helsearbeidsgiver.kafka.KroniskKravOpprettet
+import no.nav.helsearbeidsgiver.kafka.KroniskKravSlettet
+import no.nav.helsearbeidsgiver.kafka.KroniskSoeknadOpprettet
 import no.nav.helsearbeidsgiver.kafka.Sykepengesoeknad
 import no.nav.helsearbeidsgiver.kafka.Sykmelding
 import java.util.UUID
@@ -85,3 +99,55 @@ class InntektsmeldingTransmissionRequest(
     override val sammendrag = null
     override val type = inntektsmelding.status.toTransmissionType()
 }
+
+class FritakKravTransmissionRequest(
+    kravMelding: FritakKravMelding,
+) : TransmissionRequest() {
+    override val relatedTransmissionId = null
+    override val dokumentId = kravMelding.id
+    override val extendedType = finnTypeForFritakKrav(kravMelding).toString()
+    override val tittel = kravMelding.toTittel()
+    override val sammendrag = null
+    override val type = Transmission.TransmissionType.Information
+    override val attachments =
+        listOf(
+            createApiAttachment(
+                displayName = "Krav på fritak fra arbeidsgiverperioden",
+                url = kravMelding.toPdfUrl(),
+                mediaType = "application/pdf",
+            ),
+            createGuiAttachment(
+                displayName = "Krav på fritak fra arbeidsgiverperioden",
+                url = kravMelding.toPdfUrl(),
+                mediaType = "application/pdf",
+            ),
+        )
+}
+
+fun FritakKravMelding.toPdfUrl(): String {
+    val type =
+        when (this) {
+            is GravidKravOpprettet, is GravidKravEndret, is GravidKravSlettet -> "gravid-krav"
+            is KroniskKravOpprettet, is KroniskKravEndret, is KroniskKravSlettet -> "kronisk-krav"
+        }
+    return "${Env.Nav.dokumentProxyBaseUrl}/dokument/$type/$id.pdf"
+}
+
+fun FritakSoeknadMelding.toPdfUrl(): String {
+    val type =
+        when (this) {
+            is GravidSoeknadOpprettet -> "gravid-soeknad"
+            is KroniskSoeknadOpprettet -> "kronisk-soeknad"
+        }
+    return "${Env.Nav.dokumentProxyBaseUrl}/dokument/$type/$id.pdf"
+}
+
+fun FritakKravMelding.toTittel(): String =
+    when (this) {
+        is GravidKravOpprettet -> "Krav om fritak for arbeidsgiverperiode ved graviditet er opprettet"
+        is GravidKravEndret -> "Krav om fritak for arbeidsgiverperiode ved graviditet er endret"
+        is GravidKravSlettet -> "Krav om fritak for arbeidsgiverperiode ved graviditet er slettet"
+        is KroniskKravOpprettet -> "Krav om fritak for arbeidsgiverperiode ved kronisk sykdom er opprettet"
+        is KroniskKravEndret -> "Krav om fritak for arbeidsgiverperiode ved kronisk sykdom er endret"
+        is KroniskKravSlettet -> "Krav om fritak for arbeidsgiverperiode ved kronisk sykdom er slettet"
+    }

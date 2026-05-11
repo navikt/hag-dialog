@@ -56,6 +56,9 @@ fun startServer() {
 
     logger.info("Setter opp DialogRepository...")
     val dialogRepository = DialogRepository(database.db)
+    val fritakDialogRepository =
+        no.nav.helsearbeidsgiver.database
+            .FritakDialogRepository(database.db)
     val dokumentkoblingRepository = DokumentkoblingRepository(db = database.db, maksAntallPerHenting = 5000)
     val dokumentKoblingService = DokumentkoblingService(dokumentkoblingRepository)
     val dialogportenService =
@@ -63,6 +66,7 @@ fun startServer() {
             dialogRepository = dialogRepository,
             dialogportenClient = dialogportenClient,
             unleashFeatureToggles = unleashFeatureToggles,
+            fritakDialogRepository = fritakDialogRepository,
         )
 
     val jobber =
@@ -110,7 +114,7 @@ fun startServer() {
                 naisRoutes(HelsesjekkService(database.db))
                 metrikkRoutes()
             }
-            configureKafkaConsumer(unleashFeatureToggles, dokumentkoblingRepository)
+            configureKafkaConsumer(unleashFeatureToggles, dokumentKoblingService, dialogportenService)
             startRecurringJobs(jobber)
             monitor.subscribe(ApplicationStopPreparing) {
                 logger.info("Applikasjonen stopper, avslutter eventuelle jobber...")

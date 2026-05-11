@@ -77,5 +77,7 @@ spec:
       value: "https://arbeidsgiver.ekstern.dev.nav.no"
     - name: DOKUMENT_KOBLING_KAFKA_TOPIC
       value: helsearbeidsgiver.dokument-kobling
+    - name: DIALOG_KAFKA_TOPIC
+      value: helsearbeidsgiver.dialog
 
 
