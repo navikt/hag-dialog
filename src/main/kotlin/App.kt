@@ -15,6 +15,7 @@ import no.nav.helsearbeidsgiver.database.DialogRepository
 import no.nav.helsearbeidsgiver.database.DokumentkoblingRepository
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenClient
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
+import no.nav.helsearbeidsgiver.dialogporten.FritakDialogportenService
 import no.nav.helsearbeidsgiver.dokumentkobling.AvbrytForespoerselJobb
 import no.nav.helsearbeidsgiver.dokumentkobling.AvbrytInntektsmeldingJobb
 import no.nav.helsearbeidsgiver.dokumentkobling.AvbrytSykepengeSoeknadJobb
@@ -47,13 +48,18 @@ fun startServer() {
     val authClient = AuthClient()
 
     logger.info("Setter opp DialogportenClient...")
-    val dialogportenClient =
+    val sykePengerdialogportenClient =
         DialogportenClient(
             baseUrl = Env.Altinn.baseUrl,
             ressurs = Env.Altinn.dialogportenRessurs,
             getToken = authClient.dialogportenTokenGetter(),
         )
-
+    val fritakDialogportenClient =
+        DialogportenClient(
+            baseUrl = Env.Altinn.baseUrl,
+            ressurs = Env.Altinn.fritakDialogportenRessurs,
+            getToken = authClient.dialogportenTokenGetter(),
+        )
     logger.info("Setter opp DialogRepository...")
     val dialogRepository = DialogRepository(database.db)
     val fritakDialogRepository =
@@ -64,11 +70,14 @@ fun startServer() {
     val dialogportenService =
         DialogportenService(
             dialogRepository = dialogRepository,
-            dialogportenClient = dialogportenClient,
+            dialogportenClient = sykePengerdialogportenClient,
             unleashFeatureToggles = unleashFeatureToggles,
-            fritakDialogRepository = fritakDialogRepository,
         )
-
+    val fritakDialogportenService =
+        FritakDialogportenService(
+            fritakDialogRepository = fritakDialogRepository,
+            dialogportenClient = fritakDialogportenClient,
+        )
     val jobber =
         listOf(
             SykmeldingJobb(
@@ -114,7 +123,7 @@ fun startServer() {
                 naisRoutes(HelsesjekkService(database.db))
                 metrikkRoutes()
             }
-            configureKafkaConsumer(unleashFeatureToggles, dokumentKoblingService, dialogportenService)
+            configureKafkaConsumer(unleashFeatureToggles, dokumentKoblingService, fritakDialogportenService)
             startRecurringJobs(jobber)
             monitor.subscribe(ApplicationStopPreparing) {
                 logger.info("Applikasjonen stopper, avslutter eventuelle jobber...")

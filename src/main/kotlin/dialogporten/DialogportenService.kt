@@ -24,22 +24,12 @@ class DialogportenService(
     dialogRepository: DialogRepository,
     dialogportenClient: DialogportenClient,
     unleashFeatureToggles: UnleashFeatureToggles,
-    fritakDialogRepository: FritakDialogRepository,
 ) {
     private val sykmeldingHandler = SykmeldingHandler(dialogRepository, dialogportenClient, unleashFeatureToggles)
     private val sykepengesoeknadHandler = SykepengesoeknadHandler(dialogRepository, dialogportenClient)
     private val forespoerselHandler = ForespoerselHandler(dialogRepository, dialogportenClient)
     private val inntektsmeldingHandler = InntektsmeldingHandler(dialogRepository, dialogportenClient)
     private val utgaattForespoerselHandler = UtgaattForespoerselHandler(dialogRepository, dialogportenClient)
-    private val fritakAgpSoeknadHandler = FritakAgpSoeknadHandler(dialogportenClient, fritakDialogRepository)
-    private val fritakAgpKravHandler = FritakAgpKravHandler(dialogportenClient, fritakDialogRepository)
-
-    suspend fun opprettDialogForFritakAgp(dialogMelding: DialogMelding) {
-        when (dialogMelding) {
-            is FritakKravMelding -> fritakAgpKravHandler.behandleKravDialog(dialogMelding)
-            is FritakSoeknadMelding -> fritakAgpSoeknadHandler.behandleSoeknadDialog(dialogMelding)
-        }
-    }
 
     fun opprettOgLagreDialog(sykmelding: Sykmelding) {
         sykmeldingHandler.opprettOgLagreDialog(sykmelding)

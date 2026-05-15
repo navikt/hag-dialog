@@ -13,6 +13,7 @@ import no.nav.helsearbeidsgiver.database.DialogRepository
 import no.nav.helsearbeidsgiver.database.DokumentkoblingRepository
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenClient
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
+import no.nav.helsearbeidsgiver.dialogporten.FritakDialogportenService
 import no.nav.helsearbeidsgiver.dialogporten.domene.CreateDialogRequest
 import no.nav.helsearbeidsgiver.dialogporten.domene.Transmission
 import no.nav.helsearbeidsgiver.helsesjekker.HelsesjekkService
@@ -62,7 +63,11 @@ fun startServer() {
             dialogRepository = dialogRepository,
             dialogportenClient = dialogportenClient,
             unleashFeatureToggles = unleashFeatureToggles,
+        )
+    val fritakDialogportenService =
+        FritakDialogportenService(
             fritakDialogRepository = fritakDialogRepository,
+            dialogportenClient = dialogportenClient,
         )
     val dokumentkoblingService =
         dokumentkobling.DokumentkoblingService(
@@ -85,7 +90,7 @@ fun startServer() {
             routing {
                 naisRoutes(HelsesjekkService(database.db))
             }
-            configureKafkaConsumer(unleashFeatureToggles, dokumentkoblingService, dialogportenService)
+            configureKafkaConsumer(unleashFeatureToggles, dokumentkoblingService, fritakDialogportenService)
             startRecurringJobs(jobber)
             monitor.subscribe(ApplicationStopPreparing) {
                 logger.info("Applikasjonen stopper, avslutter eventuelle jobber...")
