@@ -11,7 +11,7 @@ import io.mockk.runs
 import io.mockk.verify
 import no.nav.helsearbeidsgiver.database.DokumentkoblingRepository
 import no.nav.helsearbeidsgiver.database.InntektsmeldingStatus
-import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
+import no.nav.helsearbeidsgiver.dialogporten.SykepengerDialogportenService
 import no.nav.helsearbeidsgiver.dokumentkobling.InntektsmeldingJobb
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import java.util.UUID
@@ -19,7 +19,7 @@ import java.util.UUID
 class InntektsmeldingJobbTest :
     FunSpec({
 
-        val dialogportenService = mockk<DialogportenService>(relaxed = true)
+        val sykepengerDialogportenService = mockk<SykepengerDialogportenService>(relaxed = true)
         val dokumentkoblingService = mockk<DokumentkoblingService>(relaxed = true)
         val unleashFeatureToggles = UnleashFeatureToggles()
         val innteksmeldingResultat =
@@ -34,7 +34,7 @@ class InntektsmeldingJobbTest :
         val inntektsmeldingJobb =
             InntektsmeldingJobb(
                 dokumentkoblingService = dokumentkoblingService,
-                dialogportenService = dialogportenService,
+                sykepengerDialogportenService = sykepengerDialogportenService,
                 unleashFeatureToggles = unleashFeatureToggles,
             )
 
@@ -49,13 +49,15 @@ class InntektsmeldingJobbTest :
             every { dokumentkoblingService.hentKoblingMedForespoerselId(DokumentKoblingMockUtils.forespoerselId) } returns
                 DokumentKoblingMockUtils.forespoerselSykmeldingKobling
             every { dokumentkoblingService.hentSykmeldingOrgnr(sykmeldingId) } returns DokumentKoblingMockUtils.orgnr
-            every { dialogportenService.oppdaterDialogMedSykepengesoeknad(any()) } just runs
+            every { sykepengerDialogportenService.oppdaterDialogMedSykepengesoeknad(any()) } just runs
         }
 
         test("inntektsmeldingJobb skal opprette transmission når forespoersel er behandlet") {
             inntektsmeldingJobb.doJob()
             verify(exactly = 1) { dokumentkoblingService.hentKoblingMedForespoerselId(DokumentKoblingMockUtils.forespoerselId) }
-            verify(exactly = 1) { dialogportenService.oppdaterDialogMedInntektsmelding(match { it.sykmeldingId == sykmeldingId }) }
+            verify(
+                exactly = 1,
+            ) { sykepengerDialogportenService.oppdaterDialogMedInntektsmelding(match { it.sykmeldingId == sykmeldingId }) }
             verify(exactly = 1) { dokumentkoblingService.settInntektsmeldingJobbTilBehandlet(DokumentKoblingMockUtils.inntektsmeldingId) }
         }
 
@@ -66,7 +68,7 @@ class InntektsmeldingJobbTest :
             inntektsmeldingJobb.doJob()
 
             verify(exactly = 1) { dokumentkoblingService.hentInntektsmeldingerMedStatusMottatt() }
-            verify(exactly = 0) { dialogportenService.oppdaterDialogMedSykepengesoeknad(any()) }
+            verify(exactly = 0) { sykepengerDialogportenService.oppdaterDialogMedSykepengesoeknad(any()) }
             verify(exactly = 0) { dokumentkoblingService.settInntektsmeldingJobbTilBehandlet(DokumentKoblingMockUtils.inntektsmeldingId) }
         }
 
@@ -77,7 +79,7 @@ class InntektsmeldingJobbTest :
             inntektsmeldingJobb.doJob()
 
             verify(exactly = 1) { dokumentkoblingService.hentInntektsmeldingerMedStatusMottatt() }
-            verify(exactly = 0) { dialogportenService.oppdaterDialogMedSykepengesoeknad(any()) }
+            verify(exactly = 0) { sykepengerDialogportenService.oppdaterDialogMedSykepengesoeknad(any()) }
             verify(exactly = 0) { dokumentkoblingService.settInntektsmeldingJobbTilBehandlet(DokumentKoblingMockUtils.inntektsmeldingId) }
         }
 
@@ -85,7 +87,7 @@ class InntektsmeldingJobbTest :
             val exceptionInntektsmelding = innteksmeldingResultat.copy(inntektsmeldingId = UUID.randomUUID())
 
             every {
-                dialogportenService.oppdaterDialogMedInntektsmelding(
+                sykepengerDialogportenService.oppdaterDialogMedInntektsmelding(
                     match { it.innsendingId == exceptionInntektsmelding.inntektsmeldingId },
                 )
             } throws
@@ -94,7 +96,9 @@ class InntektsmeldingJobbTest :
                 listOf(exceptionInntektsmelding, innteksmeldingResultat)
             inntektsmeldingJobb.doJob()
             verify(exactly = 2) { dokumentkoblingService.hentKoblingMedForespoerselId(DokumentKoblingMockUtils.forespoerselId) }
-            verify(exactly = 2) { dialogportenService.oppdaterDialogMedInntektsmelding(match { it.sykmeldingId == sykmeldingId }) }
+            verify(
+                exactly = 2,
+            ) { sykepengerDialogportenService.oppdaterDialogMedInntektsmelding(match { it.sykmeldingId == sykmeldingId }) }
             verify(exactly = 1) { dokumentkoblingService.settInntektsmeldingJobbTilBehandlet(DokumentKoblingMockUtils.inntektsmeldingId) }
         }
     })

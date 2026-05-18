@@ -6,8 +6,6 @@ import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import no.nav.helsearbeidsgiver.Env
-import no.nav.helsearbeidsgiver.database.DokumentkoblingRepository
-import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
 import no.nav.helsearbeidsgiver.dialogporten.FritakDialogportenService
 import no.nav.helsearbeidsgiver.helsesjekker.ShutDownAppState
 import no.nav.helsearbeidsgiver.kafka.kafka.DialogMeldingTolker

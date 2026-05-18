@@ -14,8 +14,8 @@ import no.nav.helsearbeidsgiver.database.Database
 import no.nav.helsearbeidsgiver.database.DialogRepository
 import no.nav.helsearbeidsgiver.database.DokumentkoblingRepository
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenClient
-import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
 import no.nav.helsearbeidsgiver.dialogporten.FritakDialogportenService
+import no.nav.helsearbeidsgiver.dialogporten.SykepengerDialogportenService
 import no.nav.helsearbeidsgiver.dokumentkobling.AvbrytForespoerselJobb
 import no.nav.helsearbeidsgiver.dokumentkobling.AvbrytInntektsmeldingJobb
 import no.nav.helsearbeidsgiver.dokumentkobling.AvbrytSykepengeSoeknadJobb
@@ -67,8 +67,8 @@ fun startServer() {
             .FritakDialogRepository(database.db)
     val dokumentkoblingRepository = DokumentkoblingRepository(db = database.db, maksAntallPerHenting = 5000)
     val dokumentKoblingService = DokumentkoblingService(dokumentkoblingRepository)
-    val dialogportenService =
-        DialogportenService(
+    val sykepengerDialogportenService =
+        SykepengerDialogportenService(
             dialogRepository = dialogRepository,
             dialogportenClient = sykePengerdialogportenClient,
             unleashFeatureToggles = unleashFeatureToggles,
@@ -82,22 +82,22 @@ fun startServer() {
         listOf(
             SykmeldingJobb(
                 dokumentkoblingRepository = dokumentkoblingRepository,
-                dialogportenService = dialogportenService,
+                sykepengerDialogportenService = sykepengerDialogportenService,
                 unleashFeatureToggles = unleashFeatureToggles,
             ),
             SykepengeSoeknadJobb(
                 dokumentkoblingRepository = dokumentkoblingRepository,
-                dialogportenService = dialogportenService,
+                sykepengerDialogportenService = sykepengerDialogportenService,
                 unleashFeatureToggles = unleashFeatureToggles,
             ),
             ForespoerselJobb(
                 dokumentkoblingService = dokumentKoblingService,
-                dialogportenService = dialogportenService,
+                sykepengerDialogportenService = sykepengerDialogportenService,
                 unleashFeatureToggles = unleashFeatureToggles,
             ),
             InntektsmeldingJobb(
                 dokumentkoblingService = dokumentKoblingService,
-                dialogportenService = dialogportenService,
+                sykepengerDialogportenService = sykepengerDialogportenService,
                 unleashFeatureToggles = unleashFeatureToggles,
             ),
             AvbrytSykmeldingJobb(
