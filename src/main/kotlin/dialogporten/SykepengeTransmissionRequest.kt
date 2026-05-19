@@ -146,8 +146,8 @@ fun FritakKravMelding.toTittel(): String =
     when (this) {
         is GravidKravOpprettet -> "Krav om fritak for arbeidsgiverperiode ved graviditet er opprettet"
         is GravidKravEndret -> "Krav om fritak for arbeidsgiverperiode ved graviditet er endret"
-        is GravidKravSlettet -> "Krav om fritak for arbeidsgiverperiode ved graviditet er slettet"
+        is GravidKravSlettet -> "Krav om fritak for arbeidsgiverperiode ved graviditet er annulert"
         is KroniskKravOpprettet -> "Krav om fritak for arbeidsgiverperiode ved kronisk sykdom er opprettet"
         is KroniskKravEndret -> "Krav om fritak for arbeidsgiverperiode ved kronisk sykdom er endret"
-        is KroniskKravSlettet -> "Krav om fritak for arbeidsgiverperiode ved kronisk sykdom er slettet"
+        is KroniskKravSlettet -> "Krav om fritak for arbeidsgiverperiode ved kronisk sykdom er annulert"
     }
