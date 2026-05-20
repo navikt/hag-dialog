@@ -5,7 +5,10 @@ import no.nav.helsearbeidsgiver.Env
 import no.nav.helsearbeidsgiver.database.DialogRepository
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenClient
 import no.nav.helsearbeidsgiver.dialogporten.InntektsmeldingTransmissionRequest
+import no.nav.helsearbeidsgiver.dialogporten.domene.Action
+import no.nav.helsearbeidsgiver.dialogporten.domene.ContentValueItem
 import no.nav.helsearbeidsgiver.dialogporten.domene.DialogStatus
+import no.nav.helsearbeidsgiver.dialogporten.domene.GuiAction
 import no.nav.helsearbeidsgiver.dialogporten.domene.TransmissionRequest
 import no.nav.helsearbeidsgiver.dialogporten.domene.createApiAttachment
 import no.nav.helsearbeidsgiver.dialogporten.domene.createGuiAttachment
@@ -53,6 +56,23 @@ class InntektsmeldingHandler(
                         ),
                     ).also {
                         dialogportenClient.setDialogStatus(dialog.dialogId, DialogStatus.NotApplicable)
+                        if (inntektsmelding.status == Inntektsmelding.Status.GODKJENT) {
+                            dialogportenClient.replaceAttachmentsAndActions(
+                                dialogId = dialog.dialogId,
+                                attachments = emptyList(),
+                                apiActions = emptyList(),
+                                guiActions =
+                                    listOf(
+                                        GuiAction(
+                                            name = "Se og endre inntektsmelding",
+                                            url = "${Env.Nav.arbeidsgiverGuiBaseUrl}/im-dialog/${inntektsmelding.forespoerselId}",
+                                            action = Action.READ.value,
+                                            title = listOf(ContentValueItem("Se og endre inntektsmelding")),
+                                            priority = GuiAction.Priority.Secondary,
+                                        ),
+                                    ),
+                            )
+                        }
                     }
             }
 
