@@ -85,7 +85,7 @@ fun Inntektsmelding.Status.toTittel(): String =
 fun Inntektsmelding.Status.toTransmissionType(): Transmission.TransmissionType =
     when (this) {
         Inntektsmelding.Status.FEILET -> Transmission.TransmissionType.Rejection
-        Inntektsmelding.Status.GODKJENT -> Transmission.TransmissionType.Acceptance
+        Inntektsmelding.Status.GODKJENT -> Transmission.TransmissionType.Submission
     }
 
 class InntektsmeldingTransmissionRequest(

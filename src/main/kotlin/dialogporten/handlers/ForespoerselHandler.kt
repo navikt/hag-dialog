@@ -47,7 +47,7 @@ class ForespoerselHandler(
                 dialogId = dialog.dialogId,
                 apiAction =
                     ApiAction(
-                        name = "Send inn inntektsmelding",
+                        name = "Se og endre inntektsmelding",
                         endpoints =
                             listOf(
                                 ApiAction.Endpoint(
@@ -60,10 +60,10 @@ class ForespoerselHandler(
                     ),
                 guiAction =
                     GuiAction(
-                        name = "Send inn inntektsmelding",
+                        name = "Se og endre inntektsmelding",
                         url = "${Env.Nav.arbeidsgiverGuiBaseUrl}/im-dialog/$forespoerselId",
                         action = Action.READ.value,
-                        title = listOf(ContentValueItem("Send inn inntektsmelding")),
+                        title = listOf(ContentValueItem("Se og endre inntektsmelding")),
                         priority = GuiAction.Priority.Primary,
                     ),
             )

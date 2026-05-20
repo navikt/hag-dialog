@@ -75,19 +75,26 @@ class InntektsmeldingHandler(
 fun inntektsmeldingTransmissionRequest(
     inntektsmelding: Inntektsmelding,
     relatedTransmissionId: UUID?,
-): TransmissionRequest =
-    InntektsmeldingTransmissionRequest(
+): TransmissionRequest {
+    val apiAttachment =
+        createApiAttachment(
+            displayName = "inntektsmelding.json",
+            url = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/inntektsmelding/${inntektsmelding.innsendingId}",
+        )
+    val guiAttachment =
+        createGuiAttachment(
+            displayName = "Se inntektsmelding i Arbeidsgiverportalen",
+            url = "${Env.Nav.arbeidsgiverGuiBaseUrl}/im-dialog/${inntektsmelding.forespoerselId}",
+        )
+    val attachments =
+        if (inntektsmelding.status == Inntektsmelding.Status.FEILET) {
+            listOf(apiAttachment) // feilet så vises bare for API, ikke i GUI.
+        } else {
+            listOf(apiAttachment, guiAttachment)
+        }
+    return InntektsmeldingTransmissionRequest(
         inntektsmelding = inntektsmelding,
         relatedTransmissionId = relatedTransmissionId,
-        attachments =
-            listOf(
-                createApiAttachment(
-                    displayName = "inntektsmelding.json",
-                    url = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/inntektsmelding/${inntektsmelding.innsendingId}",
-                ),
-                createGuiAttachment(
-                    displayName = "Se inntektsmelding i Arbeidsgiverportalen",
-                    url = "${Env.Nav.arbeidsgiverGuiBaseUrl}/im-dialog/${inntektsmelding.forespoerselId}",
-                ),
-            ),
+        attachments = attachments,
     )
+}
