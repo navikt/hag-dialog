@@ -66,8 +66,6 @@ spec:
   env:
     - name: ALTINN_3_BASE_URL
       value: "https://platform.altinn.no"
-    - name: ALTINN_DIALOGPORTEN_RESSURS
-      value: "nav_sykepenger_dialog"
     - name: SYKEPENGER_DIALOGPORTEN_RESSURS
       value: "nav_sykepenger_dialog"
     - name: FRITAK_AGP_DIALOGPORTEN_RESSURS
