@@ -79,7 +79,7 @@ fun Inntektsmelding.Status.toExtendedType(): String =
 fun Inntektsmelding.Status.toTittel(): String =
     when (this) {
         Inntektsmelding.Status.FEILET -> "Inntektsmelding avvist"
-        Inntektsmelding.Status.GODKJENT -> "Inntektsmelding godkjent"
+        Inntektsmelding.Status.GODKJENT -> "Inntektsmelding mottatt"
     }
 
 fun Inntektsmelding.Status.toTransmissionType(): Transmission.TransmissionType =
