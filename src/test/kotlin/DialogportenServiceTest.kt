@@ -8,7 +8,6 @@ import io.mockk.clearAllMocks
 import io.mockk.mockk
 import io.mockk.verify
 import no.nav.helsearbeidsgiver.database.DialogRepository
-import no.nav.helsearbeidsgiver.database.FritakDialogRepository
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import sykepengesoeknad
 import sykmelding
@@ -21,10 +20,9 @@ class DialogportenServiceTest :
         val dialogRepository = mockk<DialogRepository>(relaxed = true)
         val dialogportenClient = mockk<DialogportenClient>(relaxed = true)
         val unleashFeatureToggles = mockk<UnleashFeatureToggles>(relaxed = true)
-        val fritakDialogRepository = mockk<FritakDialogRepository>(relaxed = true)
 
         test("opprettOgLagreDialog skal kalle sykmeldingHandler") {
-            val service = DialogportenService(dialogRepository, dialogportenClient, unleashFeatureToggles, fritakDialogRepository)
+            val service = SykepengerDialogportenService(dialogRepository, dialogportenClient, unleashFeatureToggles)
 
             service.opprettOgLagreDialog(sykmelding)
 
@@ -32,7 +30,7 @@ class DialogportenServiceTest :
         }
 
         test("oppdaterDialogMedSykepengesoeknad skal kalle sykepengesoeknadHandler") {
-            val service = DialogportenService(dialogRepository, dialogportenClient, unleashFeatureToggles, fritakDialogRepository)
+            val service = SykepengerDialogportenService(dialogRepository, dialogportenClient, unleashFeatureToggles)
 
             service.oppdaterDialogMedSykepengesoeknad(sykepengesoeknad)
 
@@ -40,7 +38,7 @@ class DialogportenServiceTest :
         }
 
         test("oppdaterDialogMedInntektsmeldingsforespoersel skal kalle forespoerselHandler") {
-            val service = DialogportenService(dialogRepository, dialogportenClient, unleashFeatureToggles, fritakDialogRepository)
+            val service = SykepengerDialogportenService(dialogRepository, dialogportenClient, unleashFeatureToggles)
 
             service.oppdaterDialogMedInntektsmeldingsforespoersel(inntektsmeldingsforespoersel)
 
@@ -48,7 +46,7 @@ class DialogportenServiceTest :
         }
 
         test("oppdaterDialogMedInntektsmelding skal kalle inntektsmeldingHandler") {
-            val service = DialogportenService(dialogRepository, dialogportenClient, unleashFeatureToggles, fritakDialogRepository)
+            val service = SykepengerDialogportenService(dialogRepository, dialogportenClient, unleashFeatureToggles)
 
             service.oppdaterDialogMedInntektsmelding(inntektsmelding_godkjent)
 
@@ -56,7 +54,7 @@ class DialogportenServiceTest :
         }
 
         test("oppdaterDialogMedUtgaattForespoersel skal kalle utgaattForespoerselHandler") {
-            val service = DialogportenService(dialogRepository, dialogportenClient, unleashFeatureToggles, fritakDialogRepository)
+            val service = SykepengerDialogportenService(dialogRepository, dialogportenClient, unleashFeatureToggles)
 
             service.oppdaterDialogMedUtgaattForespoersel(forespoersel_utgaatt)
 

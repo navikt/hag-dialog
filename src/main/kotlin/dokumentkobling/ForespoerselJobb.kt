@@ -6,7 +6,7 @@ import kotlinx.coroutines.Dispatchers
 import no.nav.hag.utils.bakgrunnsjobb.RecurringJob
 import no.nav.helsearbeidsgiver.database.DokumentkoblingRepository
 import no.nav.helsearbeidsgiver.database.ForespoerselStatus
-import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
+import no.nav.helsearbeidsgiver.dialogporten.SykepengerDialogportenService
 import no.nav.helsearbeidsgiver.metrikk.oppdaterMetrikkForAntallForespoerslerMedStatusMottatt
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
@@ -14,7 +14,7 @@ import java.time.Duration
 
 class ForespoerselJobb(
     private val dokumentkoblingService: DokumentkoblingService,
-    private val dialogportenService: DialogportenService,
+    private val sykepengerDialogportenService: SykepengerDialogportenService,
     private val unleashFeatureToggles: UnleashFeatureToggles,
 ) : RecurringJob(CoroutineScope(Dispatchers.IO), Duration.ofSeconds(30).toMillis()) {
     override fun doJob() {
@@ -32,7 +32,7 @@ class ForespoerselJobb(
             .forEach { (vedtaksperiodeId, forespoersler) ->
                 try {
                     forespoersler.forEach { forespoersel ->
-                        dialogportenService.opprettTransmissionForForespoersel(forespoersel)
+                        sykepengerDialogportenService.opprettTransmissionForForespoersel(forespoersel)
                         dokumentkoblingService.settForespoerselJobbTilBehandlet(forespoerselId = forespoersel.forespoerselId)
                     }
                 } catch (e: Exception) {
@@ -46,7 +46,7 @@ class ForespoerselJobb(
     }
 }
 
-fun DialogportenService.opprettTransmissionForForespoersel(
+fun SykepengerDialogportenService.opprettTransmissionForForespoersel(
     forespoerselSykmeldingKobling: DokumentkoblingRepository.ForespoerselSykmeldingKobling,
 ) {
     when (forespoerselSykmeldingKobling.forespoerselStatus) {

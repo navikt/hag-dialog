@@ -10,7 +10,7 @@ import io.mockk.verify
 import io.mockk.verifySequence
 import no.nav.helsearbeidsgiver.database.DokumentkoblingRepository
 import no.nav.helsearbeidsgiver.database.ForespoerselStatus
-import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
+import no.nav.helsearbeidsgiver.dialogporten.SykepengerDialogportenService
 import no.nav.helsearbeidsgiver.dokumentkobling.ForespoerselJobb
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import java.time.LocalDateTime
@@ -18,14 +18,14 @@ import java.util.UUID
 
 class ForespoerselJobbTest :
     FunSpec({
-        val dialogportenService = mockk<DialogportenService>(relaxed = true)
+        val sykepengerDialogportenService = mockk<SykepengerDialogportenService>(relaxed = true)
         val dokumentKoblingService = mockk<DokumentkoblingService>(relaxed = true)
         val unleashFeatureToggles = UnleashFeatureToggles()
 
         val forespoerselJobb =
             ForespoerselJobb(
                 dokumentkoblingService = dokumentKoblingService,
-                dialogportenService = dialogportenService,
+                sykepengerDialogportenService = sykepengerDialogportenService,
                 unleashFeatureToggles = unleashFeatureToggles,
             )
 
@@ -39,7 +39,7 @@ class ForespoerselJobbTest :
         beforeTest {
             clearAllMocks()
             every { dokumentKoblingService.hentForespoerslerKlarForBehandling() } returns emptyList()
-            every { dialogportenService.oppdaterDialogMedInntektsmeldingsforespoersel(any(), any()) } just runs
+            every { sykepengerDialogportenService.oppdaterDialogMedInntektsmeldingsforespoersel(any(), any()) } just runs
             every { dokumentKoblingService.settForespoerselJobbTilBehandlet(any()) } just runs
         }
 
@@ -57,7 +57,7 @@ class ForespoerselJobbTest :
                 dokumentKoblingService.hentForespoerslerKlarForBehandling()
 
                 listOf(kobling, koblingMedSammeVedtaksperiodeId, koblingForEnHeltAnnenSak).forEach {
-                    dialogportenService.oppdaterDialogMedInntektsmeldingsforespoersel(
+                    sykepengerDialogportenService.oppdaterDialogMedInntektsmeldingsforespoersel(
                         it.forespoerselId,
                         it.sykmeldingId,
                     )
@@ -70,7 +70,7 @@ class ForespoerselJobbTest :
             forespoerselJobb.doJob()
 
             verify(exactly = 1) { dokumentKoblingService.hentForespoerslerKlarForBehandling() }
-            verify(exactly = 0) { dialogportenService.oppdaterDialogMedInntektsmeldingsforespoersel(any(), any()) }
+            verify(exactly = 0) { sykepengerDialogportenService.oppdaterDialogMedInntektsmeldingsforespoersel(any(), any()) }
             verify(exactly = 0) { dokumentKoblingService.settForespoerselJobbTilBehandlet(any()) }
         }
 
@@ -85,7 +85,7 @@ class ForespoerselJobbTest :
                 )
 
             every {
-                dialogportenService.oppdaterDialogMedInntektsmeldingsforespoersel(
+                sykepengerDialogportenService.oppdaterDialogMedInntektsmeldingsforespoersel(
                     kobling.forespoerselId,
                     kobling.sykmeldingId,
                 )
@@ -98,7 +98,7 @@ class ForespoerselJobbTest :
             // Verifiser at vi forsøkte å behandle den første forespørselen
             verify(exactly = 1) {
                 kobling.let {
-                    dialogportenService.oppdaterDialogMedInntektsmeldingsforespoersel(
+                    sykepengerDialogportenService.oppdaterDialogMedInntektsmeldingsforespoersel(
                         it.forespoerselId,
                         it.sykmeldingId,
                     )
@@ -108,7 +108,7 @@ class ForespoerselJobbTest :
             // Verifiser at vi ikke forsøkte å behandle den andre forespørselen med samme vedtaksperiodeId
             verify(exactly = 0) {
                 koblingMedSammeVedtaksperiodeId.let {
-                    dialogportenService.oppdaterDialogMedInntektsmeldingsforespoersel(
+                    sykepengerDialogportenService.oppdaterDialogMedInntektsmeldingsforespoersel(
                         it.forespoerselId,
                         it.sykmeldingId,
                     )
@@ -118,7 +118,7 @@ class ForespoerselJobbTest :
             // Verifiser at vi forsøkte å behandle den tredje forespørselen, som tilhører en annen sak
             verify(exactly = 1) {
                 koblingForEnHeltAnnenSak.let {
-                    dialogportenService.oppdaterDialogMedInntektsmeldingsforespoersel(
+                    sykepengerDialogportenService.oppdaterDialogMedInntektsmeldingsforespoersel(
                         it.forespoerselId,
                         it.sykmeldingId,
                     )

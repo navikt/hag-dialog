@@ -1,13 +1,13 @@
 package no.nav.helsearbeidsgiver.kafka.kafka
 
-import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
+import no.nav.helsearbeidsgiver.dialogporten.FritakDialogportenService
 import no.nav.helsearbeidsgiver.kafka.DialogMelding
 import no.nav.helsearbeidsgiver.utils.json.fromJson
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import org.slf4j.LoggerFactory
 
 class DialogMeldingTolker(
-    val dialogportenService: DialogportenService,
+    val fritakDialogportenService: FritakDialogportenService,
 ) {
     private val logger = LoggerFactory.getLogger(DialogMeldingTolker::class.java)
     private val sikkerLogger = sikkerLogger()
@@ -23,7 +23,7 @@ class DialogMeldingTolker(
                     return
                 }
 
-        runCatching { dialogportenService.opprettDialogForFritakAgp(dekodMelding) }
+        runCatching { fritakDialogportenService.opprettDialogForFritakAgp(dekodMelding) }
             .getOrElse { e ->
                 logger.error("Klarte ikke sende dialog-melding til Dialogporten. Melding blir ikke prosessert.")
                 sikkerLogger.error("Klarte ikke sende dialog-melding til Dialogporten. Melding blir ikke prosessert. Melding: $melding", e)

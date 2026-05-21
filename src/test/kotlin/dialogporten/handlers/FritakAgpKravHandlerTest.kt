@@ -254,7 +254,7 @@ class FritakAgpKravHandlerTest :
             coVerify(exactly = 0) { dialogportenClientMock.replaceAttachmentsAndActions(any(), any(), any(), any()) }
         }
 
-        test("skal ikke gjøre noe når KroniskKravSlettet ikke finner opprinnelig krav") {
+        test("skal opprette ny dialog når KroniskKravSlettet ikke finner opprinnelig krav") {
             val kravId = UUID.randomUUID()
             val kravmelding =
                 KroniskKravSlettet(id = kravId, orgnr = orgnr, navn = "Ola Nordmann", fnr = Fnr.genererGyldig().verdi)
@@ -263,12 +263,13 @@ class FritakAgpKravHandlerTest :
 
             handler.behandleKravDialog(kravmelding)
 
-            coVerify(exactly = 0) { dialogportenClientMock.addTransmission(any(), any<Transmission>()) }
-            coVerify(exactly = 0) { dialogportenClientMock.removeActionsAndStatus(any()) }
-            verify(exactly = 0) { fritakDialogRepositoryMock.lagreKravDialog(any(), any(), any(), any(), any(), any()) }
+            coVerify(exactly = 1) { dialogportenClientMock.createDialog(any<CreateDialogRequest>()) }
+            coVerify(exactly = 1) { dialogportenClientMock.addTransmission(dialogId, any<Transmission>()) }
+            coVerify(exactly = 0) { dialogportenClientMock.addGuiAction(dialogId, any<GuiAction>()) }
+            coVerify(exactly = 0) { dialogportenClientMock.replaceAttachmentsAndActions(any(), any(), any(), any()) }
         }
 
-        test("skal ikke gjøre noe når GravidKravSlettet ikke finner opprinnelig krav") {
+        test("skal opprette ny dialog når GravidKravSlettet ikke finner opprinnelig krav") {
             val kravId = UUID.randomUUID()
             val kravmelding =
                 GravidKravSlettet(id = kravId, orgnr = orgnr, navn = "Kari Nordmann", fnr = Fnr.genererGyldig().verdi)
@@ -276,9 +277,9 @@ class FritakAgpKravHandlerTest :
             every { fritakDialogRepositoryMock.finnDialogMedKravId(kravId) } returns null
 
             handler.behandleKravDialog(kravmelding)
-
-            coVerify(exactly = 0) { dialogportenClientMock.addTransmission(any(), any<Transmission>()) }
-            coVerify(exactly = 0) { dialogportenClientMock.removeActionsAndStatus(any()) }
-            verify(exactly = 0) { fritakDialogRepositoryMock.lagreKravDialog(any(), any(), any(), any(), any(), any()) }
+            coVerify(exactly = 1) { dialogportenClientMock.createDialog(any<CreateDialogRequest>()) }
+            coVerify(exactly = 1) { dialogportenClientMock.addTransmission(dialogId, any<Transmission>()) }
+            coVerify(exactly = 0) { dialogportenClientMock.addGuiAction(dialogId, any<GuiAction>()) }
+            coVerify(exactly = 0) { dialogportenClientMock.replaceAttachmentsAndActions(any(), any(), any(), any()) }
         }
     })

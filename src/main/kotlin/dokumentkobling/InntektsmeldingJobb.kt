@@ -7,7 +7,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import no.nav.hag.utils.bakgrunnsjobb.RecurringJob
 import no.nav.helsearbeidsgiver.database.InntektsmeldingStatus
-import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
+import no.nav.helsearbeidsgiver.dialogporten.SykepengerDialogportenService
 import no.nav.helsearbeidsgiver.kafka.Inntektsmelding
 import no.nav.helsearbeidsgiver.metrikk.oppdaterMetrikkForAntallInntektsmeldingerMedStatusMottatt
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
@@ -18,7 +18,7 @@ import java.util.UUID
 
 class InntektsmeldingJobb(
     private val dokumentkoblingService: DokumentkoblingService,
-    private val dialogportenService: DialogportenService,
+    private val sykepengerDialogportenService: SykepengerDialogportenService,
     private val unleashFeatureToggles: UnleashFeatureToggles,
 ) : RecurringJob(CoroutineScope(Dispatchers.IO), Duration.ofSeconds(30).toMillis()) {
     override fun doJob() {
@@ -36,7 +36,7 @@ class InntektsmeldingJobb(
                 val kobling = dokumentkoblingService.hentKoblingMedForespoerselId(inntektsmelding.forespoerselId)
                 val orgnr = kobling?.let { dokumentkoblingService.hentSykmeldingOrgnr(it.sykmeldingId) }
                 if (kobling?.forespoerselJobbStatus == Status.BEHANDLET && orgnr != null) {
-                    dialogportenService.opprettTransmissionForInntektsmelding(
+                    sykepengerDialogportenService.opprettTransmissionForInntektsmelding(
                         sykmeldingId = kobling.sykmeldingId,
                         forespoerselId = kobling.forespoerselId,
                         inntektsmeldingId = inntektsmelding.inntektsmeldingId,
@@ -57,7 +57,7 @@ class InntektsmeldingJobb(
     }
 }
 
-fun DialogportenService.opprettTransmissionForInntektsmelding(
+fun SykepengerDialogportenService.opprettTransmissionForInntektsmelding(
     sykmeldingId: UUID,
     forespoerselId: UUID,
     inntektsmeldingId: UUID,

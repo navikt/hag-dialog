@@ -12,7 +12,8 @@ import no.nav.helsearbeidsgiver.database.Database
 import no.nav.helsearbeidsgiver.database.DialogRepository
 import no.nav.helsearbeidsgiver.database.DokumentkoblingRepository
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenClient
-import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
+import no.nav.helsearbeidsgiver.dialogporten.FritakDialogportenService
+import no.nav.helsearbeidsgiver.dialogporten.SykepengerDialogportenService
 import no.nav.helsearbeidsgiver.dialogporten.domene.CreateDialogRequest
 import no.nav.helsearbeidsgiver.dialogporten.domene.Transmission
 import no.nav.helsearbeidsgiver.helsesjekker.HelsesjekkService
@@ -57,12 +58,16 @@ fun startServer() {
             .FritakDialogRepository(database.db)
     val dokumentkoblingRepository = DokumentkoblingRepository(db = database.db, maksAntallPerHenting = 1000)
 
-    val dialogportenService =
-        DialogportenService(
+    val sykepengerDialogportenService =
+        SykepengerDialogportenService(
             dialogRepository = dialogRepository,
             dialogportenClient = dialogportenClient,
             unleashFeatureToggles = unleashFeatureToggles,
+        )
+    val fritakDialogportenService =
+        FritakDialogportenService(
             fritakDialogRepository = fritakDialogRepository,
+            dialogportenClient = dialogportenClient,
         )
     val dokumentkoblingService =
         dokumentkobling.DokumentkoblingService(
@@ -72,7 +77,7 @@ fun startServer() {
         listOf(
             SykepengeSoeknadJobb(
                 dokumentkoblingRepository = dokumentkoblingRepository,
-                dialogportenService = dialogportenService,
+                sykepengerDialogportenService = sykepengerDialogportenService,
                 unleashFeatureToggles = unleashFeatureToggles,
             ),
         )
@@ -85,7 +90,7 @@ fun startServer() {
             routing {
                 naisRoutes(HelsesjekkService(database.db))
             }
-            configureKafkaConsumer(unleashFeatureToggles, dokumentkoblingService, dialogportenService)
+            configureKafkaConsumer(unleashFeatureToggles, dokumentkoblingService, fritakDialogportenService)
             startRecurringJobs(jobber)
             monitor.subscribe(ApplicationStopPreparing) {
                 logger.info("Applikasjonen stopper, avslutter eventuelle jobber...")

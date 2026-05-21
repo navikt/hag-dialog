@@ -1,5 +1,4 @@
 import dokumentkobling.SykmeldingJobb
-import io.getunleash.FakeUnleash
 import io.kotest.core.spec.style.FunSpec
 import io.ktor.server.plugins.NotFoundException
 import io.mockk.clearAllMocks
@@ -9,7 +8,7 @@ import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.verify
 import no.nav.helsearbeidsgiver.database.DokumentkoblingRepository
-import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
+import no.nav.helsearbeidsgiver.dialogporten.SykepengerDialogportenService
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import java.util.UUID
 
@@ -17,13 +16,13 @@ class SykmeldingJobbTest :
     FunSpec({
 
         val repository = mockk<DokumentkoblingRepository>()
-        val dialogportenService = mockk<DialogportenService>(relaxed = true)
+        val sykepengerDialogportenService = mockk<SykepengerDialogportenService>(relaxed = true)
         val unleashFeatureToggles = UnleashFeatureToggles()
 
         val sykmeldingJobb =
             SykmeldingJobb(
                 dokumentkoblingRepository = repository,
-                dialogportenService = dialogportenService,
+                sykepengerDialogportenService = sykepengerDialogportenService,
                 unleashFeatureToggles = unleashFeatureToggles,
             )
 
@@ -32,7 +31,7 @@ class SykmeldingJobbTest :
         beforeTest {
             clearAllMocks()
             every { repository.henteSykemeldingerMedStatusMottatt() } returns listOf(DokumentKoblingMockUtils.sykmelding)
-            every { dialogportenService.opprettOgLagreDialog(any()) } just runs
+            every { sykepengerDialogportenService.opprettOgLagreDialog(any()) } just runs
             every { repository.settSykmeldingJobbTilBehandlet(any()) } just runs
         }
 
@@ -41,7 +40,7 @@ class SykmeldingJobbTest :
             sykmeldingJobb.doJob()
 
             verify(exactly = 1) { repository.henteSykemeldingerMedStatusMottatt() }
-            verify(exactly = 1) { dialogportenService.opprettOgLagreDialog(match { it.sykmeldingId == sykmeldingId }) }
+            verify(exactly = 1) { sykepengerDialogportenService.opprettOgLagreDialog(match { it.sykmeldingId == sykmeldingId }) }
             verify(exactly = 1) { repository.settSykmeldingJobbTilBehandlet(sykmeldingId) }
         }
 
@@ -49,7 +48,7 @@ class SykmeldingJobbTest :
 
             val exceptionSykmeldingId = UUID.randomUUID()
             val exceptionSykmelding = DokumentKoblingMockUtils.sykmelding.copy(exceptionSykmeldingId)
-            every { dialogportenService.opprettOgLagreDialog(match { it.sykmeldingId == exceptionSykmeldingId }) } throws
+            every { sykepengerDialogportenService.opprettOgLagreDialog(match { it.sykmeldingId == exceptionSykmeldingId }) } throws
                 NotFoundException("Feil ved henting")
 
             every { repository.henteSykemeldingerMedStatusMottatt() } returns
@@ -60,7 +59,7 @@ class SykmeldingJobbTest :
 
             sykmeldingJobb.doJob()
             verify(exactly = 1) { repository.henteSykemeldingerMedStatusMottatt() }
-            verify(exactly = 2) { dialogportenService.opprettOgLagreDialog(any()) }
+            verify(exactly = 2) { sykepengerDialogportenService.opprettOgLagreDialog(any()) }
             verify(exactly = 1) { repository.settSykmeldingJobbTilBehandlet(sykmeldingId) }
         }
     })

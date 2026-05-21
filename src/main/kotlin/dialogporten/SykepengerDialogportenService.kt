@@ -1,17 +1,11 @@
 package no.nav.helsearbeidsgiver.dialogporten
 
-import dialogporten.handlers.FritakAgpKravHandler
 import no.nav.helsearbeidsgiver.database.DialogRepository
-import no.nav.helsearbeidsgiver.database.FritakDialogRepository
 import no.nav.helsearbeidsgiver.dialogporten.handlers.ForespoerselHandler
-import no.nav.helsearbeidsgiver.dialogporten.handlers.FritakAgpSoeknadHandler
 import no.nav.helsearbeidsgiver.dialogporten.handlers.InntektsmeldingHandler
 import no.nav.helsearbeidsgiver.dialogporten.handlers.SykepengesoeknadHandler
 import no.nav.helsearbeidsgiver.dialogporten.handlers.SykmeldingHandler
 import no.nav.helsearbeidsgiver.dialogporten.handlers.UtgaattForespoerselHandler
-import no.nav.helsearbeidsgiver.kafka.DialogMelding
-import no.nav.helsearbeidsgiver.kafka.FritakKravMelding
-import no.nav.helsearbeidsgiver.kafka.FritakSoeknadMelding
 import no.nav.helsearbeidsgiver.kafka.Inntektsmelding
 import no.nav.helsearbeidsgiver.kafka.Inntektsmeldingsforespoersel
 import no.nav.helsearbeidsgiver.kafka.Sykepengesoeknad
@@ -20,26 +14,16 @@ import no.nav.helsearbeidsgiver.kafka.UtgaattInntektsmeldingForespoersel
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import java.util.UUID
 
-class DialogportenService(
+class SykepengerDialogportenService(
     dialogRepository: DialogRepository,
     dialogportenClient: DialogportenClient,
     unleashFeatureToggles: UnleashFeatureToggles,
-    fritakDialogRepository: FritakDialogRepository,
 ) {
     private val sykmeldingHandler = SykmeldingHandler(dialogRepository, dialogportenClient, unleashFeatureToggles)
     private val sykepengesoeknadHandler = SykepengesoeknadHandler(dialogRepository, dialogportenClient)
     private val forespoerselHandler = ForespoerselHandler(dialogRepository, dialogportenClient)
     private val inntektsmeldingHandler = InntektsmeldingHandler(dialogRepository, dialogportenClient)
     private val utgaattForespoerselHandler = UtgaattForespoerselHandler(dialogRepository, dialogportenClient)
-    private val fritakAgpSoeknadHandler = FritakAgpSoeknadHandler(dialogportenClient, fritakDialogRepository)
-    private val fritakAgpKravHandler = FritakAgpKravHandler(dialogportenClient, fritakDialogRepository)
-
-    suspend fun opprettDialogForFritakAgp(dialogMelding: DialogMelding) {
-        when (dialogMelding) {
-            is FritakKravMelding -> fritakAgpKravHandler.behandleKravDialog(dialogMelding)
-            is FritakSoeknadMelding -> fritakAgpSoeknadHandler.behandleSoeknadDialog(dialogMelding)
-        }
-    }
 
     fun opprettOgLagreDialog(sykmelding: Sykmelding) {
         sykmeldingHandler.opprettOgLagreDialog(sykmelding)
