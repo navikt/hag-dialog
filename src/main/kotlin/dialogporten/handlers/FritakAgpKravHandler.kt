@@ -24,6 +24,8 @@ import no.nav.helsearbeidsgiver.kafka.KroniskKravSlettet
 import no.nav.helsearbeidsgiver.kafka.foedselsdatoFraFnr
 import no.nav.helsearbeidsgiver.utils.log.logger
 
+private const val ENDRE_KRAV_ACTION_KNAPP = "Endre / Annuller krav"
+
 class FritakAgpKravHandler(
     val dialogportenClient: DialogportenClient,
     val fritakDialogRepository: FritakDialogRepository,
@@ -78,17 +80,19 @@ class FritakAgpKravHandler(
                 ).toTransmission(),
             )
 
-        dialogportenClient.addGuiAction(
-            dialogId = dialogId,
-            guiAction =
-                GuiAction(
-                    name = "Endre krav",
-                    url = "${Env.Nav.arbeidsgiverGuiBaseUrl}/fritak-agp/nb/kronisk/krav/${kroniskKrav.id}",
-                    action = Action.READ.value,
-                    title = listOf(ContentValueItem("Endre krav")),
-                    priority = GuiAction.Priority.Primary,
-                ),
-        )
+        if (kroniskKrav !is KroniskKravSlettet) {
+            dialogportenClient.addGuiAction(
+                dialogId = dialogId,
+                guiAction =
+                    GuiAction(
+                        name = ENDRE_KRAV_ACTION_KNAPP,
+                        url = "${Env.Nav.arbeidsgiverGuiBaseUrl}/fritak-agp/nb/kronisk/krav/${kroniskKrav.id}",
+                        action = Action.READ.value,
+                        title = listOf(ContentValueItem(ENDRE_KRAV_ACTION_KNAPP)),
+                        priority = GuiAction.Priority.Primary,
+                    ),
+            )
+        }
 
         fritakDialogRepository.lagreKravDialog(
             dialogId = dialogId,
@@ -132,10 +136,10 @@ class FritakAgpKravHandler(
                 guiActions =
                     listOf(
                         GuiAction(
-                            name = "Endre krav",
+                            name = ENDRE_KRAV_ACTION_KNAPP,
                             url = "${Env.Nav.arbeidsgiverGuiBaseUrl}/fritak-agp/nb/kronisk/krav/${kroniskKravEndret.id}",
                             action = Action.READ.value,
-                            title = listOf(ContentValueItem("Endre krav")),
+                            title = listOf(ContentValueItem(ENDRE_KRAV_ACTION_KNAPP)),
                             priority = GuiAction.Priority.Primary,
                         ),
                     ),
@@ -196,17 +200,19 @@ class FritakAgpKravHandler(
                 ).toTransmission(),
             )
 
-        dialogportenClient.addGuiAction(
-            dialogId = dialogId,
-            guiAction =
-                GuiAction(
-                    name = "Endre krav",
-                    url = "${Env.Nav.arbeidsgiverGuiBaseUrl}/fritak-agp/nb/gravid/krav/${gravidKrav.id}",
-                    action = Action.READ.value,
-                    title = listOf(ContentValueItem("Endre krav")),
-                    priority = GuiAction.Priority.Primary,
-                ),
-        )
+        if (gravidKrav !is GravidKravSlettet) {
+            dialogportenClient.addGuiAction(
+                dialogId = dialogId,
+                guiAction =
+                    GuiAction(
+                        name = ENDRE_KRAV_ACTION_KNAPP,
+                        url = "${Env.Nav.arbeidsgiverGuiBaseUrl}/fritak-agp/nb/gravid/krav/${gravidKrav.id}",
+                        action = Action.READ.value,
+                        title = listOf(ContentValueItem(ENDRE_KRAV_ACTION_KNAPP)),
+                        priority = GuiAction.Priority.Primary,
+                    ),
+            )
+        }
 
         fritakDialogRepository.lagreKravDialog(
             dialogId = dialogId,
@@ -251,10 +257,10 @@ class FritakAgpKravHandler(
                 guiActions =
                     listOf(
                         GuiAction(
-                            name = "Endre krav",
+                            name = ENDRE_KRAV_ACTION_KNAPP,
                             url = "${Env.Nav.arbeidsgiverGuiBaseUrl}/fritak-agp/nb/gravid/krav/${gravidKravEndret.id}",
                             action = Action.READ.value,
-                            title = listOf(ContentValueItem("Endre krav")),
+                            title = listOf(ContentValueItem(ENDRE_KRAV_ACTION_KNAPP)),
                             priority = GuiAction.Priority.Primary,
                         ),
                     ),
@@ -302,9 +308,10 @@ class FritakAgpKravHandler(
                 orgnr = kravmelding.orgnr.verdi,
             )
         } else {
-            logger().warn(
-                "Klarte ikke å finne opprinnelig krav for kronisk krav slettet med id ${kravmelding.id}. Ingen dialog å oppdatere.",
+            logger().info(
+                "Klarte ikke å finne opprinnelig krav for kronisk krav slettet med id ${kravmelding.id}. Oppretter ny dialog.",
             )
+            opprettDialogForKroniskKrav(kravmelding)
         }
     }
 
@@ -334,9 +341,10 @@ class FritakAgpKravHandler(
                 orgnr = gravidKravSlettet.orgnr.verdi,
             )
         } else {
-            logger().warn(
-                "Klarte ikke å finne opprinnelig krav for gravid krav slettet med id ${gravidKravSlettet.id}. Ingen dialog å oppdatere.",
+            logger().info(
+                "Klarte ikke å finne opprinnelig krav for gravid krav slettet med id ${gravidKravSlettet.id}. oppretter ny dialog.",
             )
+            opprettDialogForGravidKrav(gravidKravSlettet)
         }
     }
 }

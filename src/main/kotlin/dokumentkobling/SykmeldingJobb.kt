@@ -4,7 +4,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import no.nav.hag.utils.bakgrunnsjobb.RecurringJob
 import no.nav.helsearbeidsgiver.database.DokumentkoblingRepository
-import no.nav.helsearbeidsgiver.dialogporten.DialogportenService
+import no.nav.helsearbeidsgiver.dialogporten.SykepengerDialogportenService
 import no.nav.helsearbeidsgiver.metrikk.oppdaterMetrikkForAntallSykmeldingerMedStatusMottatt
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
@@ -14,7 +14,7 @@ import no.nav.helsearbeidsgiver.kafka.Sykmeldingsperiode as SykmeldingSperiodeGa
 
 class SykmeldingJobb(
     private val dokumentkoblingRepository: DokumentkoblingRepository,
-    private val dialogportenService: DialogportenService,
+    private val sykepengerDialogportenService: SykepengerDialogportenService,
     private val unleashFeatureToggles: UnleashFeatureToggles,
 ) : RecurringJob(CoroutineScope(Dispatchers.IO), Duration.ofSeconds(30).toMillis()) {
     override fun doJob() {
@@ -29,7 +29,7 @@ class SykmeldingJobb(
 
         sykmeldinger.forEach { sykmelding ->
             try {
-                dialogportenService.opprettDialogForSykmelding(sykmelding)
+                sykepengerDialogportenService.opprettDialogForSykmelding(sykmelding)
                 dokumentkoblingRepository.settSykmeldingJobbTilBehandlet(sykmelding.sykmeldingId)
             } catch (e: Exception) {
                 "Feil ved behandling av sykmelding med id ${sykmelding.sykmeldingId}".also {
@@ -41,7 +41,7 @@ class SykmeldingJobb(
     }
 }
 
-fun DialogportenService.opprettDialogForSykmelding(sykmelding: Sykmelding) {
+fun SykepengerDialogportenService.opprettDialogForSykmelding(sykmelding: Sykmelding) {
     opprettOgLagreDialog(
         SykmeldingGammel(
             sykmeldingId = sykmelding.sykmeldingId,
