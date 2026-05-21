@@ -57,6 +57,7 @@ class InntektsmeldingHandler(
                     ).also {
                         dialogportenClient.setDialogStatus(dialog.dialogId, DialogStatus.NotApplicable)
                         if (inntektsmelding.status == Inntektsmelding.Status.GODKJENT) {
+                            val attachmentNavn = "Se og endre inntektsmelding"
                             dialogportenClient.replaceAttachmentsAndActions(
                                 dialogId = dialog.dialogId,
                                 attachments = emptyList(),
@@ -64,10 +65,10 @@ class InntektsmeldingHandler(
                                 guiActions =
                                     listOf(
                                         GuiAction(
-                                            name = "Se og endre inntektsmelding",
+                                            name = attachmentNavn,
                                             url = "${Env.Nav.arbeidsgiverGuiBaseUrl}/im-dialog/${inntektsmelding.forespoerselId}",
                                             action = Action.READ.value,
-                                            title = listOf(ContentValueItem("Se og endre inntektsmelding")),
+                                            title = listOf(ContentValueItem(attachmentNavn)),
                                             priority = GuiAction.Priority.Secondary,
                                         ),
                                     ),
@@ -103,7 +104,7 @@ fun inntektsmeldingTransmissionRequest(
         )
     val guiAttachment =
         createGuiAttachment(
-            displayName = "Se inntektsmelding i Arbeidsgiverportalen",
+            displayName = "Se og endre inntektsmelding",
             url = "${Env.Nav.arbeidsgiverGuiBaseUrl}/im-dialog/${inntektsmelding.forespoerselId}",
         )
     val attachments =
