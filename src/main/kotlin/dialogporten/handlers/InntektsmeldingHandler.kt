@@ -5,7 +5,10 @@ import no.nav.helsearbeidsgiver.Env
 import no.nav.helsearbeidsgiver.database.DialogRepository
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenClient
 import no.nav.helsearbeidsgiver.dialogporten.InntektsmeldingTransmissionRequest
+import no.nav.helsearbeidsgiver.dialogporten.domene.Action
+import no.nav.helsearbeidsgiver.dialogporten.domene.ContentValueItem
 import no.nav.helsearbeidsgiver.dialogporten.domene.DialogStatus
+import no.nav.helsearbeidsgiver.dialogporten.domene.GuiAction
 import no.nav.helsearbeidsgiver.dialogporten.domene.TransmissionRequest
 import no.nav.helsearbeidsgiver.dialogporten.domene.createApiAttachment
 import no.nav.helsearbeidsgiver.dialogporten.domene.createGuiAttachment
@@ -53,6 +56,24 @@ class InntektsmeldingHandler(
                         ),
                     ).also {
                         dialogportenClient.setDialogStatus(dialog.dialogId, DialogStatus.NotApplicable)
+                        if (inntektsmelding.status == Inntektsmelding.Status.GODKJENT) {
+                            val attachmentNavn = "Se og endre inntektsmelding"
+                            dialogportenClient.replaceAttachmentsAndActions(
+                                dialogId = dialog.dialogId,
+                                attachments = emptyList(),
+                                apiActions = emptyList(),
+                                guiActions =
+                                    listOf(
+                                        GuiAction(
+                                            name = attachmentNavn,
+                                            url = "${Env.Nav.arbeidsgiverGuiBaseUrl}/im-dialog/${inntektsmelding.forespoerselId}",
+                                            action = Action.READ.value,
+                                            title = listOf(ContentValueItem(attachmentNavn)),
+                                            priority = GuiAction.Priority.Secondary,
+                                        ),
+                                    ),
+                            )
+                        }
                     }
             }
 
@@ -75,19 +96,26 @@ class InntektsmeldingHandler(
 fun inntektsmeldingTransmissionRequest(
     inntektsmelding: Inntektsmelding,
     relatedTransmissionId: UUID?,
-): TransmissionRequest =
-    InntektsmeldingTransmissionRequest(
+): TransmissionRequest {
+    val apiAttachment =
+        createApiAttachment(
+            displayName = "inntektsmelding.json",
+            url = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/inntektsmelding/${inntektsmelding.innsendingId}",
+        )
+    val guiAttachment =
+        createGuiAttachment(
+            displayName = "Se og endre inntektsmelding",
+            url = "${Env.Nav.arbeidsgiverGuiBaseUrl}/im-dialog/${inntektsmelding.forespoerselId}",
+        )
+    val attachments =
+        if (inntektsmelding.status == Inntektsmelding.Status.FEILET) {
+            listOf(apiAttachment) // feilet så vises bare for API, ikke i GUI.
+        } else {
+            listOf(apiAttachment, guiAttachment)
+        }
+    return InntektsmeldingTransmissionRequest(
         inntektsmelding = inntektsmelding,
         relatedTransmissionId = relatedTransmissionId,
-        attachments =
-            listOf(
-                createApiAttachment(
-                    displayName = "inntektsmelding.json",
-                    url = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/inntektsmelding/${inntektsmelding.innsendingId}",
-                ),
-                createGuiAttachment(
-                    displayName = "Se inntektsmelding i Arbeidsgiverportalen",
-                    url = "${Env.Nav.arbeidsgiverGuiBaseUrl}/im-dialog/${inntektsmelding.forespoerselId}",
-                ),
-            ),
+        attachments = attachments,
     )
+}

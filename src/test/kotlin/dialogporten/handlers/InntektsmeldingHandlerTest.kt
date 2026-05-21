@@ -53,6 +53,7 @@ class InntektsmeldingHandlerTest :
             every { dialogRepositoryMock.finnDialogMedSykemeldingId(inntektsmelding_godkjent.sykmeldingId) } returns dialogEntity
             coEvery { dialogportenClientMock.addTransmission(any(), any<TransmissionRequest>()) } returns transmissionId
             coEvery { dialogportenClientMock.setDialogStatus(any(), any()) } just Runs
+            coEvery { dialogportenClientMock.replaceAttachmentsAndActions(any(), any(), any(), any()) } just Runs
             every { dialogRepositoryMock.oppdaterDialogMedTransmission(any(), any(), any(), any(), any()) } just Runs
 
             inntektsmeldingHandler.oppdaterDialog(inntektsmelding_godkjent)
