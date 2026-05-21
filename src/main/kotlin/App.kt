@@ -51,7 +51,7 @@ fun startServer() {
     val sykePengerdialogportenClient =
         DialogportenClient(
             baseUrl = Env.Altinn.baseUrl,
-            ressurs = Env.Altinn.dialogportenRessurs,
+            ressurs = Env.Altinn.sykepengerDialogportenRessurs,
             getToken = authClient.dialogportenTokenGetter(),
         )
     val fritakDialogportenClient =

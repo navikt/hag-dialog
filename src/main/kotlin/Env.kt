@@ -44,7 +44,7 @@ object Env {
 
     object Altinn {
         val baseUrl = "ALTINN_3_BASE_URL".fromEnv()
-        val dialogportenRessurs = "SYKEPENGER_DIALOGPORTEN_RESSURS".fromEnv()
+        val sykepengerDialogportenRessurs = "SYKEPENGER_DIALOGPORTEN_RESSURS".fromEnv()
         val fritakDialogportenRessurs = "FRITAK_AGP_DIALOGPORTEN_RESSURS".fromEnv()
         val tokenAltinn3ExchangeEndpoint =
             "${"ALTINN_3_BASE_URL".fromEnv()}/authentication/api/v1/exchange/maskinporten"

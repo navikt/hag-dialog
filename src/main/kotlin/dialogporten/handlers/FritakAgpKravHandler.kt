@@ -257,7 +257,7 @@ class FritakAgpKravHandler(
                 guiActions =
                     listOf(
                         GuiAction(
-                            name = "Endre / Annuller krav",
+                            name = ENDRE_KRAV_ACTION_KNAPP,
                             url = "${Env.Nav.arbeidsgiverGuiBaseUrl}/fritak-agp/nb/gravid/krav/${gravidKravEndret.id}",
                             action = Action.READ.value,
                             title = listOf(ContentValueItem(ENDRE_KRAV_ACTION_KNAPP)),
