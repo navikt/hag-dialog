@@ -20,7 +20,7 @@ class DialogMeldingTolker(
                 .getOrElse { e ->
                     logger.error("Klarte ikke deserialisere dialog-melding. Melding blir ikke prosessert.")
                     sikkerLogger.error("Klarte ikke deserialisere dialog-melding. Melding blir ikke prosessert. Melding: $melding", e)
-                    return
+                    throw e
                 }
 
         runCatching { fritakDialogportenService.opprettDialogForFritakAgp(dekodMelding) }
