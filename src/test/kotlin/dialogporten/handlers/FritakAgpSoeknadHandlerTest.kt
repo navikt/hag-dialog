@@ -34,11 +34,12 @@ class FritakAgpSoeknadHandlerTest :
             )
 
         val orgnr = Orgnr.genererGyldig()
-        val dialogId = UUID.randomUUID()
 
         beforeTest {
             clearAllMocks(answers = false)
-            coEvery { dialogportenClientMock.createDialog(any<CreateDialogRequest>()) } returns dialogId
+            coEvery { dialogportenClientMock.createDialog(any<CreateDialogRequest>()) } answers {
+                firstArg<CreateDialogRequest>().id
+            }
             every { fritakDialogRepositoryMock.lagreSoeknadDialog(any(), any(), any(), any(), any()) } just Runs
         }
 
@@ -55,10 +56,10 @@ class FritakAgpSoeknadHandlerTest :
             handler.behandleSoeknadDialog(soeknadMelding)
 
             coVerify(exactly = 1) { dialogportenClientMock.createDialog(any<CreateDialogRequest>()) }
-            coVerify(exactly = 1) { dialogportenClientMock.addGuiAction(dialogId, any<GuiAction>()) }
+            coVerify(exactly = 1) { dialogportenClientMock.addGuiAction(any(), any<GuiAction>()) }
             verify(exactly = 1) {
                 fritakDialogRepositoryMock.lagreSoeknadDialog(
-                    dialogId = dialogId,
+                    dialogId = any(),
                     soeknadId = soeknadId,
                     soeknadType = FritakAgpSoeknadType.KRONISK_SOEKNAD,
                     fnr = soeknadMelding.fnr,
@@ -80,10 +81,10 @@ class FritakAgpSoeknadHandlerTest :
             handler.behandleSoeknadDialog(soeknadMelding)
 
             coVerify(exactly = 1) { dialogportenClientMock.createDialog(any<CreateDialogRequest>()) }
-            coVerify(exactly = 1) { dialogportenClientMock.addGuiAction(dialogId, any<GuiAction>()) }
+            coVerify(exactly = 1) { dialogportenClientMock.addGuiAction(any(), any<GuiAction>()) }
             verify(exactly = 1) {
                 fritakDialogRepositoryMock.lagreSoeknadDialog(
-                    dialogId = dialogId,
+                    dialogId = any(),
                     soeknadId = soeknadId,
                     soeknadType = FritakAgpSoeknadType.GRAVID_SOEKNAD,
                     fnr = soeknadMelding.fnr,

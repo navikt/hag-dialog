@@ -14,6 +14,7 @@ import no.nav.helsearbeidsgiver.kafka.Sykmelding
 import no.nav.helsearbeidsgiver.kafka.getSykmeldingsPerioderString
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.log.logger
+import no.nav.helsearbeidsgiver.utils.nyUuidv7
 import no.nav.helsearbeidsgiver.utils.tilNorskFormat
 
 class SykmeldingHandler(
@@ -24,27 +25,28 @@ class SykmeldingHandler(
     private val logger = logger()
 
     fun opprettOgLagreDialog(sykmelding: Sykmelding) {
-        val dialogId =
-            runBlocking {
-                val request =
-                    CreateDialogRequest(
-                        orgnr = sykmelding.orgnr,
-                        externalReference = sykmelding.sykmeldingId.toString(),
-                        idempotentKey = sykmelding.sykmeldingId.toString(),
-                        title =
-                            "Sykepenger for ${sykmelding.fulltNavn} (f. ${sykmelding.foedselsdato.tilNorskFormat()})",
-                        summary =
-                            sykmelding.sykmeldingsperioder
-                                .getSykmeldingsPerioderString(),
-                        transmissions =
-                            listOf(
-                                sykmeldingTransmission(sykmelding).toTransmission(),
-                            ),
-                        isApiOnly = unleashFeatureToggles.skalOppretteDialogKunForApi(),
-                    )
+        val dialogId = nyUuidv7()
+        runBlocking {
+            val request =
+                CreateDialogRequest(
+                    id = dialogId,
+                    orgnr = sykmelding.orgnr,
+                    externalReference = sykmelding.sykmeldingId.toString(),
+                    idempotentKey = sykmelding.sykmeldingId.toString(),
+                    title =
+                        "Sykepenger for ${sykmelding.fulltNavn} (f. ${sykmelding.foedselsdato.tilNorskFormat()})",
+                    summary =
+                        sykmelding.sykmeldingsperioder
+                            .getSykmeldingsPerioderString(),
+                    transmissions =
+                        listOf(
+                            sykmeldingTransmission(sykmelding).toTransmission(),
+                        ),
+                    isApiOnly = unleashFeatureToggles.skalOppretteDialogKunForApi(),
+                )
 
-                dialogportenClient.createDialog(request)
-            }
+            dialogportenClient.createDialog(request)
+        }
         dialogRepository.lagreDialog(dialogId = dialogId, sykmeldingId = sykmelding.sykmeldingId)
         logger.info("Opprettet dialog $dialogId for sykmelding ${sykmelding.sykmeldingId}.")
     }

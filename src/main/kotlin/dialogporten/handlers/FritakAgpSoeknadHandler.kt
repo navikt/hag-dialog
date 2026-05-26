@@ -15,6 +15,7 @@ import no.nav.helsearbeidsgiver.kafka.FritakSoeknadMelding
 import no.nav.helsearbeidsgiver.kafka.GravidSoeknadOpprettet
 import no.nav.helsearbeidsgiver.kafka.KroniskSoeknadOpprettet
 import no.nav.helsearbeidsgiver.kafka.foedselsdatoFraFnr
+import no.nav.helsearbeidsgiver.utils.nyUuidv7
 
 class FritakAgpSoeknadHandler(
     private val dialogportenClient: DialogportenClient,
@@ -28,35 +29,36 @@ class FritakAgpSoeknadHandler(
     }
 
     private suspend fun opprettDialogForKroniskSoeknad(soeknadMelding: KroniskSoeknadOpprettet) {
-        val dialogId =
-            dialogportenClient.createDialog(
-                CreateDialogRequest(
-                    orgnr = soeknadMelding.orgnr,
-                    externalReference = soeknadMelding.id.toString(),
-                    idempotentKey = soeknadMelding.id.toString(),
-                    title =
-                        "Søknad om fritak fra arbeidsgiverperioden grunnet kronisk sykdom." +
-                            " ${soeknadMelding.navn} (f. ${foedselsdatoFraFnr(soeknadMelding.fnr)})",
-                    summary =
-                        "Kvittering for mottatt søknad om fritak fra" +
-                            " arbeidsgiverperioden grunnet kronisk sykdom.",
-                    transmissions = emptyList(),
-                    isApiOnly = false,
-                    attachments =
-                        listOf(
-                            createApiAttachment(
-                                displayName = "Søknad om fritak fra arbeidsgiverperioden",
-                                url = soeknadMelding.toPdfUrl(),
-                                mediaType = "application/pdf",
-                            ),
-                            createGuiAttachment(
-                                displayName = "Søknad om fritak fra arbeidsgiverperioden",
-                                url = soeknadMelding.toPdfUrl(),
-                                mediaType = "application/pdf",
-                            ),
+        val dialogId = nyUuidv7()
+        dialogportenClient.createDialog(
+            CreateDialogRequest(
+                id = dialogId,
+                orgnr = soeknadMelding.orgnr,
+                externalReference = soeknadMelding.id.toString(),
+                idempotentKey = soeknadMelding.id.toString(),
+                title =
+                    "Søknad om fritak fra arbeidsgiverperioden grunnet kronisk sykdom." +
+                        " ${soeknadMelding.navn} (f. ${foedselsdatoFraFnr(soeknadMelding.fnr)})",
+                summary =
+                    "Kvittering for mottatt søknad om fritak fra" +
+                        " arbeidsgiverperioden grunnet kronisk sykdom.",
+                transmissions = emptyList(),
+                isApiOnly = false,
+                attachments =
+                    listOf(
+                        createApiAttachment(
+                            displayName = "Søknad om fritak fra arbeidsgiverperioden",
+                            url = soeknadMelding.toPdfUrl(),
+                            mediaType = "application/pdf",
                         ),
-                ),
-            )
+                        createGuiAttachment(
+                            displayName = "Søknad om fritak fra arbeidsgiverperioden",
+                            url = soeknadMelding.toPdfUrl(),
+                            mediaType = "application/pdf",
+                        ),
+                    ),
+            ),
+        )
 
         dialogportenClient.addGuiAction(
             dialogId = dialogId,
@@ -80,35 +82,36 @@ class FritakAgpSoeknadHandler(
     }
 
     private suspend fun opprettDialogForGravidSoeknad(gravidSoeknadOpprettet: GravidSoeknadOpprettet) {
-        val dialogId =
-            dialogportenClient.createDialog(
-                CreateDialogRequest(
-                    orgnr = gravidSoeknadOpprettet.orgnr,
-                    externalReference = gravidSoeknadOpprettet.id.toString(),
-                    idempotentKey = gravidSoeknadOpprettet.id.toString(),
-                    title =
-                        "Søknad om fritak fra arbeidsgiverperioden grunnet graviditet." +
-                            " ${gravidSoeknadOpprettet.navn} (f. ${foedselsdatoFraFnr(gravidSoeknadOpprettet.fnr)})",
-                    summary =
-                        "Kvittering for mottatt søknad om fritak fra" +
-                            " arbeidsgiverperioden grunnet risiko for høyt sykefravær knyttet til graviditet.",
-                    transmissions = emptyList(),
-                    isApiOnly = false,
-                    attachments =
-                        listOf(
-                            createApiAttachment(
-                                displayName = "Søknad om fritak fra arbeidsgiverperioden",
-                                url = gravidSoeknadOpprettet.toPdfUrl(),
-                                mediaType = "application/pdf",
-                            ),
-                            createGuiAttachment(
-                                displayName = "Søknad om fritak fra arbeidsgiverperioden",
-                                url = gravidSoeknadOpprettet.toPdfUrl(),
-                                mediaType = "application/pdf",
-                            ),
+        val dialogId = nyUuidv7()
+        dialogportenClient.createDialog(
+            CreateDialogRequest(
+                id = dialogId,
+                orgnr = gravidSoeknadOpprettet.orgnr,
+                externalReference = gravidSoeknadOpprettet.id.toString(),
+                idempotentKey = gravidSoeknadOpprettet.id.toString(),
+                title =
+                    "Søknad om fritak fra arbeidsgiverperioden grunnet graviditet." +
+                        " ${gravidSoeknadOpprettet.navn} (f. ${foedselsdatoFraFnr(gravidSoeknadOpprettet.fnr)})",
+                summary =
+                    "Kvittering for mottatt søknad om fritak fra" +
+                        " arbeidsgiverperioden grunnet risiko for høyt sykefravær knyttet til graviditet.",
+                transmissions = emptyList(),
+                isApiOnly = false,
+                attachments =
+                    listOf(
+                        createApiAttachment(
+                            displayName = "Søknad om fritak fra arbeidsgiverperioden",
+                            url = gravidSoeknadOpprettet.toPdfUrl(),
+                            mediaType = "application/pdf",
                         ),
-                ),
-            )
+                        createGuiAttachment(
+                            displayName = "Søknad om fritak fra arbeidsgiverperioden",
+                            url = gravidSoeknadOpprettet.toPdfUrl(),
+                            mediaType = "application/pdf",
+                        ),
+                    ),
+            ),
+        )
 
         dialogportenClient.addGuiAction(
             dialogId = dialogId,
