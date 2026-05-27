@@ -38,8 +38,6 @@ class FritakDialogportenService(
         logger().info("Starter å erstatte vedlegg for alle søknader totalt ${alleSoeknader.size}")
         var antallErstatteVedlegg = 0
         alleSoeknader
-            // TODO Fjern denne når vi har testet at dette fungerer
-            .filter { it.dialogId == UUID.fromString("019e68c9-ae9d-725b-897f-73912226ba39") }
             .forEach {
                 if (it.soeknadType == FritakAgpSoeknadType.GRAVID_SOEKNAD) {
                     replaceAttachmentForDialog(
