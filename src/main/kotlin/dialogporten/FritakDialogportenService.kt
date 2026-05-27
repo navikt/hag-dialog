@@ -39,7 +39,7 @@ class FritakDialogportenService(
         var antallErstatteVedlegg = 0
         alleSoeknader
             // TODO Fjern denne når vi har testet at dette fungerer
-            .filter { it.dialogId == UUID.fromString("019e6885-27e7-737d-818f-6f2960df394c") }
+            .filter { it.dialogId == UUID.fromString("019e68c9-ae9d-725b-897f-73912226ba39") }
             .forEach {
                 if (it.soeknadType == FritakAgpSoeknadType.GRAVID_SOEKNAD) {
                     replaceAttachmentForDialog(
