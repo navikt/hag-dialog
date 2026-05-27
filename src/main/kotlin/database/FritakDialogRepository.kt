@@ -65,4 +65,9 @@ class FritakDialogRepository(
                     (FritakAgpKravTable.kravId eq kravId)
                 }.firstOrNull()
         }
+
+    fun hentAlleSoeknader(): List<FritakAgpSoeknadEntity> =
+        transaction(db) {
+            FritakAgpSoeknadEntity.all().toList()
+        }
 }
