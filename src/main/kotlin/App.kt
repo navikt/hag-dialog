@@ -8,6 +8,7 @@ import io.ktor.server.application.ApplicationStopPreparing
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import io.ktor.server.routing.routing
+import kotlinx.coroutines.runBlocking
 import no.nav.helsearbeidsgiver.auth.AuthClient
 import no.nav.helsearbeidsgiver.auth.dialogportenTokenGetter
 import no.nav.helsearbeidsgiver.database.Database
@@ -78,6 +79,9 @@ fun startServer() {
             fritakDialogRepository = fritakDialogRepository,
             dialogportenClient = fritakDialogportenClient,
         )
+    runBlocking {
+        fritakDialogportenService.replaceAttachmentsForSoekander()
+    }
     val jobber =
         listOf(
             SykmeldingJobb(
