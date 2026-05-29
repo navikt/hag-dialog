@@ -61,6 +61,13 @@ spec:
         diskAutoresize: true
         databases:
           - name: dialog
+        flags:
+          - name: "cloudsql.enable_pgaudit"
+            value: "on"
+          - name: "pgaudit.log"
+            value: "write,ddl,role"
+          - name: "pgaudit.log_parameter"
+            value: "on"
   envFrom:
     - secret: dialog-unleash-api-token
   env:
