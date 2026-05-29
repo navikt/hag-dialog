@@ -39,10 +39,10 @@ class FritakDialogportenService(
         // Henter alle krav fra dialogporten som er sendt inn før cutt-off tidspunkt
         val alleKrav =
             fritakDialogRepository
-                .hentAlleKravTilTidspunkt(LocalDateTime.of(2026, 4, 9, 13, 0))
+                .hentAlleKravTilTidspunkt(LocalDateTime.of(2026, 4, 16, 13, 0))
         logger().info(dialogFiksLogg("Starter å erstatte vedlegg for alle krav totalt ${alleKrav.size} krav"))
         alleKrav.forEach { krav ->
-            logger().info(dialogFiksLogg("Erstatter vedlegg for krav med id ${krav.kravId} og dialogId ${krav.dialogId}"))
+            logger().info(dialogFiksLogg("Behandler krav med id ${krav.kravId} og dialogId ${krav.dialogId}"))
             // Henter siste krav for dialogId i db
             val sisteKrav = hentSisteKravIdFraTransmissions(krav.dialogId)
             if (sisteKrav == null) {
