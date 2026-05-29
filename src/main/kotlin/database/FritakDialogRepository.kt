@@ -3,8 +3,10 @@ package no.nav.helsearbeidsgiver.database
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import org.jetbrains.exposed.exceptions.ExposedSQLException
 import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.sql.SortOrder
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.transactions.transaction
+import java.time.LocalDateTime
 import java.util.UUID
 
 class FritakDialogRepository(
@@ -69,5 +71,18 @@ class FritakDialogRepository(
     fun hentAlleSoeknader(): List<FritakAgpSoeknadEntity> =
         transaction(db) {
             FritakAgpSoeknadEntity.all().toList()
+        }
+
+    fun hentAlleKravTilTidspunkt(tidspunkt: LocalDateTime): List<FritakAgpKravEntity> =
+        transaction(db) {
+            FritakAgpKravEntity.find { FritakAgpKravTable.opprettet lessEq tidspunkt }.toList()
+        }
+
+    fun hentAlleKravForDialog(dialogId: UUID): List<FritakAgpKravEntity> =
+        transaction(db) {
+            FritakAgpKravEntity
+                .find { FritakAgpKravTable.dialogId eq dialogId }
+                .orderBy(FritakAgpKravTable.opprettet to SortOrder.DESC)
+                .toList()
         }
 }
