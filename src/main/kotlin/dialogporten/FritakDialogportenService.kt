@@ -57,12 +57,13 @@ class FritakDialogportenService(
                 .onFailure { e ->
                     logger().error(dialogFiksLogg("Feil ved henting av dialog ${krav.dialogId} for krav ${krav.kravId}"), e)
                 }.onSuccess { dialog ->
-                    if (dialog.attachments.isEmpty()) {
+                    val attachments = dialog.attachments
+                    if (attachments == null) {
                         logger().info(dialogFiksLogg("Dialog ${krav.dialogId} for krav ${krav.kravId} har ingen vedlegg"))
                         return@onSuccess
                     }
                     // Sjekker om attachment url er lik kravId
-                    dialog.attachments.forEach { attachment ->
+                    attachments.forEach { attachment ->
                         attachment.urls.forEach { url ->
                             logger().info(dialogFiksLogg("Dialog ${krav.dialogId} for krav ${krav.kravId} har vedlegg med url $url"))
                             url.url.hentUuidFraFritakKravPdfUrl()?.let { kravIdFraUrl ->
