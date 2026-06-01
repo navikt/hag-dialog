@@ -88,6 +88,7 @@ class FritakDialogportenService(
                     }
 
                     if (kravIdFraUrl == sisteKrav.kravId) {
+                        // TODO: Vi kjører en dry-run for å få oversikt over hva som kan bli endret.
                         //   replaceAttachmentForDialog(dialogId, sisteKrav.toFritakKravMelding())
                         antallBehandlet++
                         logger().info(
