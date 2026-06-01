@@ -6,29 +6,34 @@ import java.util.UUID
 
 class SykepengeTransmissionRequestTest :
     FunSpec({
-        test("hentUuidFraFritakKravPdfUrl henter UUID fra kronisk-krav URL") {
+        test("hentUuidFraFritakKravPdfUrl henter UUID fra kronisk/krav URL") {
             val expected = UUID.fromString("e92343a7-49f7-499a-862c-517ad5477462")
             val url = "https://arbeidsgiver.ekstern.dev.nav.no/dokument/kronisk/krav/e92343a7-49f7-499a-862c-517ad5477462.pdf"
 
             url.hentUuidFraFritakKravPdfUrl() shouldBe expected
         }
-
-        test("hentUuidFraFritakKravPdfUrl henter UUID fra gravid-krav URL") {
+        test("hentUuidFraFritakKravPdfUrl henter UUID fra kronisk-krav URL") {
             val expected = UUID.fromString("e92343a7-49f7-499a-862c-517ad5477462")
-            val url = "https://arbeidsgiver.ekstern.dev.nav.no/dokument/gravid-krav/e92343a7-49f7-499a-862c-517ad5477462.pdf"
+            val url = "https://arbeidsgiver.ekstern.dev.nav.no/dokument/kronisk-krav/e92343a7-49f7-499a-862c-517ad5477462.pdf"
+
+            url.hentUuidFraFritakKravPdfUrl() shouldBe expected
+        }
+        test("hentUuidFraFritakKravPdfUrl henter UUID fra hvilken som helst URL") {
+            val expected = UUID.fromString("e92343a7-49f7-499a-862c-517ad5477462")
+            val url = "https://example.com/noe/helt/annet/sti?kravId=e92343a7-49f7-499a-862c-517ad5477462"
 
             url.hentUuidFraFritakKravPdfUrl() shouldBe expected
         }
 
-        test("hentUuidFraFritakKravPdfUrl henter UUID kun fra slutten av URL") {
+        test("hentUuidFraFritakKravPdfUrl henter UUID uten .pdf-suffiks") {
             val expected = UUID.fromString("e92343a7-49f7-499a-862c-517ad5477462")
-            val url = "https://example.com/noe/helt/annet/e92343a7-49f7-499a-862c-517ad5477462.pdf"
+            val url = "prefix-e92343a7-49f7-499a-862c-517ad5477462-suffix"
 
             url.hentUuidFraFritakKravPdfUrl() shouldBe expected
         }
 
-        test("hentUuidFraFritakKravPdfUrl returnerer null for ugyldig URL-slutt") {
-            val url = "https://arbeidsgiver.ekstern.dev.nav.no/dokument/gravid-soeknad/e92343a7-49f7-499a-862c-517ad5477462.txt"
+        test("hentUuidFraFritakKravPdfUrl returnerer null når URL ikke inneholder UUID") {
+            val url = "https://arbeidsgiver.ekstern.dev.nav.no/dokument/gravid-soeknad/uten-id.txt"
 
             url.hentUuidFraFritakKravPdfUrl() shouldBe null
         }

@@ -124,14 +124,13 @@ class FritakKravTransmissionRequest(
         )
 }
 
-private val fritakKravPdfUrlRegex =
-    Regex("([0-9a-fA-F-]{36})\\.pdf$")
+private val uuidRegex =
+    Regex("(?i)\\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\\b")
 
 fun String.hentUuidFraFritakKravPdfUrl(): UUID? =
-    fritakKravPdfUrlRegex
+    uuidRegex
         .find(this)
-        ?.groupValues
-        ?.getOrNull(1)
+        ?.value
         ?.let { runCatching { UUID.fromString(it) }.getOrNull() }
 
 fun FritakKravMelding.toPdfUrl(): String {
