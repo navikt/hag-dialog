@@ -4,6 +4,7 @@ import dialogporten.handlers.FritakAgpKravHandler
 import no.nav.helsearbeidsgiver.database.FritakAgpKravEntity
 import no.nav.helsearbeidsgiver.database.FritakAgpType
 import no.nav.helsearbeidsgiver.database.FritakDialogRepository
+import no.nav.helsearbeidsgiver.dialogporten.domene.Attachment
 import no.nav.helsearbeidsgiver.dialogporten.domene.createApiAttachment
 import no.nav.helsearbeidsgiver.dialogporten.domene.createGuiAttachment
 import no.nav.helsearbeidsgiver.dialogporten.handlers.FritakAgpSoeknadHandler
@@ -40,51 +41,78 @@ class FritakDialogportenService(
         val alleKrav =
             fritakDialogRepository
                 .hentAlleKravTilTidspunkt(LocalDateTime.of(2026, 4, 16, 13, 0))
-        logger().info(dialogFiksLogg("Starter å erstatte vedlegg for alle krav totalt ${alleKrav.size} krav"))
-        alleKrav.forEach { krav ->
-            logger().info(dialogFiksLogg("Behandler krav med id ${krav.kravId} og dialogId ${krav.dialogId}"))
+        val unikeDialogIder = alleKrav.map { it.dialogId }.distinct()
+        var antallBehandlet = 0
+        val ikkeMatchDialogIder = mutableSetOf<UUID>()
+
+        logger().info(dialogFiksLogg("Starter å erstatte vedlegg for ${unikeDialogIder.size} unike dialoger"))
+
+        unikeDialogIder.forEach { dialogId ->
+            logger().info(dialogFiksLogg("Behandler dialogId $dialogId"))
             // Henter siste krav for dialogId i db
-            val sisteKrav = hentSisteKravIdFraTransmissions(krav.dialogId)
+            val sisteKrav = hentSisteKravIdFraTransmissions(dialogId)
             if (sisteKrav == null) {
-                logger().warn(
-                    dialogFiksLogg("Fant ingen krav for dialogId ${krav.dialogId}, kan ikke erstatte vedlegg for krav ${krav.kravId}"),
-                )
+                logger().warn(dialogFiksLogg("Fant ingen krav for dialogId $dialogId, kan ikke erstatte vedlegg"))
                 return@forEach
             }
+
             // Henter dialog fra dialogporten
             dialogportenClient
-                .getDialog(krav.dialogId)
+                .getDialog(dialogId)
                 .onFailure { e ->
-                    logger().error(dialogFiksLogg("Feil ved henting av dialog ${krav.dialogId} for krav ${krav.kravId}"), e)
+                    logger().error(dialogFiksLogg("Feil ved henting av dialog $dialogId for krav ${sisteKrav.kravId}"), e)
                 }.onSuccess { dialog ->
                     val attachments = dialog.attachments
-                    if (attachments == null) {
-                        logger().info(dialogFiksLogg("Dialog ${krav.dialogId} for krav ${krav.kravId} har ingen vedlegg"))
+                    if (attachments.isNullOrEmpty()) {
+                        logger().info(dialogFiksLogg("Dialog $dialogId for krav ${sisteKrav.kravId} har ingen vedlegg"))
                         return@onSuccess
                     }
-                    // Sjekker om attachment url er lik kravId
-                    attachments.forEach { attachment ->
-                        attachment.urls.forEach { url ->
-                            logger().info(dialogFiksLogg("Dialog ${krav.dialogId} for krav ${krav.kravId} har vedlegg med url $url"))
-                            url.url.hentUuidFraFritakKravPdfUrl()?.let { kravIdFraUrl ->
-                                if (kravIdFraUrl == sisteKrav.kravId) {
-                                    logger().info(
-                                        dialogFiksLogg(
-                                            "Dialog ${krav.dialogId} for krav ${krav.kravId} har vedlegg med url som matcher kravId, erstatter vedlegg",
-                                        ),
-                                    )
-                                    // replaceAttachmentForDialog(krav.dialogId, krav.toFritakKravMelding())
-                                } else {
-                                    logger().warn(
-                                        dialogFiksLogg(
-                                            "Dialog ${krav.dialogId} for krav ${krav.kravId} har vedlegg med url som ikke matcher kravId, url: $url",
-                                        ),
-                                    )
-                                }
-                            }
-                        }
+
+                    val guiUrl =
+                        attachments
+                            .flatMap { it.urls }
+                            .firstOrNull { it.consumerType == Attachment.Url.AttachmentUrlConsumerType.Gui }
+
+                    if (guiUrl == null) {
+                        logger().warn(dialogFiksLogg("Dialog $dialogId mangler GUI-url i vedlegg"))
+                        ikkeMatchDialogIder.add(dialogId)
+                        return@onSuccess
+                    }
+
+                    val kravIdFraUrl = guiUrl.url.hentUuidFraFritakKravPdfUrl()
+
+                    if (kravIdFraUrl == null) {
+                        logger().warn(dialogFiksLogg("Dialog $dialogId har GUI-url uten UUID: ${guiUrl.url}"))
+                        ikkeMatchDialogIder.add(dialogId)
+                        return@onSuccess
+                    }
+
+                    if (kravIdFraUrl == sisteKrav.kravId) {
+                        //   replaceAttachmentForDialog(dialogId, sisteKrav.toFritakKravMelding())
+                        antallBehandlet++
+                        logger().info(
+                            dialogFiksLogg(
+                                "Dialog $dialogId har match på UUID ($kravIdFraUrl). Erstatter URL i vedlegg.",
+                            ),
+                        )
+                    } else {
+                        ikkeMatchDialogIder.add(dialogId)
+                        logger().warn(
+                            dialogFiksLogg(
+                                "Dialog $dialogId har ikke match på UUID i GUI-url ($kravIdFraUrl != ${sisteKrav.kravId}). Hopper over.",
+                            ),
+                        )
                     }
                 }
+        }
+
+        logger().info(
+            dialogFiksLogg(
+                "Rapport: totalt ${unikeDialogIder.size} dialoger, behandlet $antallBehandlet, ikke behandlet pga ikke match ${ikkeMatchDialogIder.size}",
+            ),
+        )
+        if (ikkeMatchDialogIder.isNotEmpty()) {
+            logger().warn(dialogFiksLogg("Dialoger uten match (ikke behandlet): ${ikkeMatchDialogIder.joinToString()}"))
         }
     }
 
