@@ -15,6 +15,7 @@ import no.nav.helsearbeidsgiver.kafka.FritakSoeknadMelding
 import no.nav.helsearbeidsgiver.kafka.GravidSoeknadOpprettet
 import no.nav.helsearbeidsgiver.kafka.KroniskSoeknadOpprettet
 import no.nav.helsearbeidsgiver.kafka.foedselsdatoFraFnr
+import no.nav.helsearbeidsgiver.utils.log.logger
 
 class FritakAgpSoeknadHandler(
     private val dialogportenClient: DialogportenClient,
@@ -57,6 +58,10 @@ class FritakAgpSoeknadHandler(
                         ),
                 ),
             )
+        if (fritakDialogRepository.hentSoeknadMedIdogDialogId(soeknadMelding.id, dialogId) != null) {
+            logger().info("Dialog for kronisk søknad med id ${soeknadMelding.id} og dialogId $dialogId finnes allerede.")
+            return
+        }
 
         dialogportenClient.addGuiAction(
             dialogId = dialogId,
@@ -109,7 +114,10 @@ class FritakAgpSoeknadHandler(
                         ),
                 ),
             )
-
+        if (fritakDialogRepository.hentSoeknadMedIdogDialogId(gravidSoeknadOpprettet.id, dialogId) != null) {
+            logger().info("Dialog for gravid søknad med id ${gravidSoeknadOpprettet.id} og dialogId $dialogId finnes allerede. ")
+            return
+        }
         dialogportenClient.addGuiAction(
             dialogId = dialogId,
             guiAction =

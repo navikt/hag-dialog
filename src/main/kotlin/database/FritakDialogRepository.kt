@@ -4,6 +4,7 @@ import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import org.jetbrains.exposed.exceptions.ExposedSQLException
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SortOrder
+import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.time.LocalDateTime
@@ -84,5 +85,29 @@ class FritakDialogRepository(
                 .find { FritakAgpKravTable.dialogId eq dialogId }
                 .orderBy(FritakAgpKravTable.opprettet to SortOrder.DESC)
                 .toList()
+        }
+
+    fun hentKravMedIdOgDialogId(
+        kravId: UUID,
+        dialogId: UUID,
+    ): FritakAgpKravEntity? =
+        transaction(db) {
+            FritakAgpKravEntity
+                .find {
+                    (FritakAgpKravTable.kravId eq kravId) and
+                        (FritakAgpKravTable.dialogId eq dialogId)
+                }.firstOrNull()
+        }
+
+    fun hentSoeknadMedIdogDialogId(
+        soeknadId: UUID,
+        dialogId: UUID,
+    ): FritakAgpSoeknadEntity? =
+        transaction(db) {
+            FritakAgpSoeknadEntity
+                .find {
+                    (FritakAgpSoeknadTable.soeknadId eq soeknadId) and
+                        (FritakAgpSoeknadTable.id eq dialogId)
+                }.firstOrNull()
         }
 }
