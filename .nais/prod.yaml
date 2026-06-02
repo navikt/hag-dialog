@@ -7,6 +7,8 @@ metadata:
   name: dialog
   namespace: helsearbeidsgiver
 spec:
+  strategy:
+    type: Recreate
   replicas:
     max: 1
     min: 1
