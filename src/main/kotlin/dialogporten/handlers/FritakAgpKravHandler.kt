@@ -23,6 +23,7 @@ import no.nav.helsearbeidsgiver.kafka.KroniskKravOpprettet
 import no.nav.helsearbeidsgiver.kafka.KroniskKravSlettet
 import no.nav.helsearbeidsgiver.kafka.foedselsdatoFraFnr
 import no.nav.helsearbeidsgiver.utils.log.logger
+import no.nav.helsearbeidsgiver.utils.nyUuidv7
 
 private const val ENDRE_KRAV_ACTION_KNAPP = "Endre / Annuller krav"
 
@@ -42,35 +43,36 @@ class FritakAgpKravHandler(
     }
 
     private suspend fun opprettDialogForKroniskKrav(kroniskKrav: FritakKravMelding) {
-        val dialogId =
-            dialogportenClient.createDialog(
-                CreateDialogRequest(
-                    orgnr = kroniskKrav.orgnr,
-                    externalReference = "fritak-agp",
-                    idempotentKey = kroniskKrav.id.toString(),
-                    title =
-                        "Krav om fritak fra arbeidsgiverperioden grunnet kronisk sykdom." +
-                            " ${kroniskKrav.navn} (f. ${foedselsdatoFraFnr(kroniskKrav.fnr)})",
-                    summary =
-                        "Kvittering for mottatt krav om fritak fra" +
-                            " arbeidsgiverperioden grunnet kronisk sykdom.",
-                    transmissions = emptyList(),
-                    isApiOnly = false,
-                    attachments =
-                        listOf(
-                            createApiAttachment(
-                                displayName = "Krav på fritak fra arbeidsgiverperioden",
-                                url = kroniskKrav.toPdfUrl(),
-                                mediaType = "application/pdf",
-                            ),
-                            createGuiAttachment(
-                                displayName = "Krav på fritak fra arbeidsgiverperioden",
-                                url = kroniskKrav.toPdfUrl(),
-                                mediaType = "application/pdf",
-                            ),
+        val dialogId = nyUuidv7()
+        dialogportenClient.createDialog(
+            CreateDialogRequest(
+                id = dialogId,
+                orgnr = kroniskKrav.orgnr,
+                externalReference = "fritak-agp",
+                idempotentKey = kroniskKrav.id.toString(),
+                title =
+                    "Krav om fritak fra arbeidsgiverperioden grunnet kronisk sykdom." +
+                        " ${kroniskKrav.navn} (f. ${foedselsdatoFraFnr(kroniskKrav.fnr)})",
+                summary =
+                    "Kvittering for mottatt krav om fritak fra" +
+                        " arbeidsgiverperioden grunnet kronisk sykdom.",
+                transmissions = emptyList(),
+                isApiOnly = false,
+                attachments =
+                    listOf(
+                        createApiAttachment(
+                            displayName = "Krav på fritak fra arbeidsgiverperioden",
+                            url = kroniskKrav.toPdfUrl(),
+                            mediaType = "application/pdf",
                         ),
-                ),
-            )
+                        createGuiAttachment(
+                            displayName = "Krav på fritak fra arbeidsgiverperioden",
+                            url = kroniskKrav.toPdfUrl(),
+                            mediaType = "application/pdf",
+                        ),
+                    ),
+            ),
+        )
 
         val transmissionId =
             dialogportenClient.addTransmission(
@@ -162,35 +164,36 @@ class FritakAgpKravHandler(
     }
 
     private suspend fun opprettDialogForGravidKrav(gravidKrav: FritakKravMelding) {
-        val dialogId =
-            dialogportenClient.createDialog(
-                CreateDialogRequest(
-                    orgnr = gravidKrav.orgnr,
-                    externalReference = "fritak-agp",
-                    idempotentKey = gravidKrav.id.toString(),
-                    title =
-                        "Krav om fritak fra arbeidsgiverperioden grunnet graviditet." +
-                            " ${gravidKrav.navn} (f. ${foedselsdatoFraFnr(gravidKrav.fnr)})",
-                    summary =
-                        "Kvittering for mottatt krav om fritak fra" +
-                            " arbeidsgiverperioden grunnet risiko for høyt sykefravær knyttet til graviditet.",
-                    transmissions = emptyList(),
-                    isApiOnly = false,
-                    attachments =
-                        listOf(
-                            createApiAttachment(
-                                displayName = "Krav på fritak fra arbeidsgiverperioden",
-                                url = gravidKrav.toPdfUrl(),
-                                mediaType = "application/pdf",
-                            ),
-                            createGuiAttachment(
-                                displayName = "Krav på fritak fra arbeidsgiverperioden",
-                                url = gravidKrav.toPdfUrl(),
-                                mediaType = "application/pdf",
-                            ),
+        val dialogId = nyUuidv7()
+        dialogportenClient.createDialog(
+            CreateDialogRequest(
+                id = dialogId,
+                orgnr = gravidKrav.orgnr,
+                externalReference = "fritak-agp",
+                idempotentKey = gravidKrav.id.toString(),
+                title =
+                    "Krav om fritak fra arbeidsgiverperioden grunnet graviditet." +
+                        " ${gravidKrav.navn} (f. ${foedselsdatoFraFnr(gravidKrav.fnr)})",
+                summary =
+                    "Kvittering for mottatt krav om fritak fra" +
+                        " arbeidsgiverperioden grunnet risiko for høyt sykefravær knyttet til graviditet.",
+                transmissions = emptyList(),
+                isApiOnly = false,
+                attachments =
+                    listOf(
+                        createApiAttachment(
+                            displayName = "Krav på fritak fra arbeidsgiverperioden",
+                            url = gravidKrav.toPdfUrl(),
+                            mediaType = "application/pdf",
                         ),
-                ),
-            )
+                        createGuiAttachment(
+                            displayName = "Krav på fritak fra arbeidsgiverperioden",
+                            url = gravidKrav.toPdfUrl(),
+                            mediaType = "application/pdf",
+                        ),
+                    ),
+            ),
+        )
 
         val transmissionId =
             dialogportenClient.addTransmission(

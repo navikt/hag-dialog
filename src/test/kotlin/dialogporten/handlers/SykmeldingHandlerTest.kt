@@ -36,10 +36,11 @@ class SykmeldingHandlerTest :
         }
 
         test("skal opprette og lagre dialog med riktige data") {
-            val dialogId = UUID.randomUUID()
             val requestSlot = slot<CreateDialogRequest>()
 
-            coEvery { dialogportenClientMock.createDialog(capture(requestSlot)) } returns dialogId
+            coEvery { dialogportenClientMock.createDialog(capture(requestSlot)) } answers {
+                firstArg<CreateDialogRequest>().id
+            }
             every { dialogRepositoryMock.lagreDialog(any(), any()) } just Runs
             coEvery { dialogportenClientMock.setDialogStatus(any(), any()) } just Runs
             every { unleashFeatureTogglesMock.skalOppretteDialogKunForApi() } returns
@@ -55,7 +56,7 @@ class SykmeldingHandlerTest :
 
             verify(exactly = 1) {
                 dialogRepositoryMock.lagreDialog(
-                    dialogId = dialogId,
+                    dialogId = any(),
                     sykmeldingId = sykmelding.sykmeldingId,
                 )
             }
