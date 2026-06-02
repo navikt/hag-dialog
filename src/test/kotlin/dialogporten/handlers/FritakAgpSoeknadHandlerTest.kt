@@ -40,6 +40,7 @@ class FritakAgpSoeknadHandlerTest :
             clearAllMocks(answers = false)
             coEvery { dialogportenClientMock.createDialog(any<CreateDialogRequest>()) } returns dialogId
             every { fritakDialogRepositoryMock.lagreSoeknadDialog(any(), any(), any(), any(), any()) } just Runs
+            every { fritakDialogRepositoryMock.hentSoeknadMedIdogDialogId(any(), any()) } returns null
         }
 
         test("skal opprette dialog for KroniskSoeknadOpprettet") {
