@@ -40,7 +40,7 @@ class FritakDialogportenService(
         // Henter alle krav fra dialogporten som er sendt inn før cutt-off tidspunkt
         val alleKrav =
             fritakDialogRepository
-                .hentAlleKravTilTidspunkt(LocalDateTime.of(2026, 5, 27, 11, 0))
+                .hentKravEldreEnnTidspunkt(LocalDateTime.of(2026, 5, 27, 11, 0))
         val unikeDialogIder = alleKrav.map { it.dialogId }.distinct()
         var antallBehandlet = 0
         val ikkeMatchDialogIder = mutableSetOf<UUID>()

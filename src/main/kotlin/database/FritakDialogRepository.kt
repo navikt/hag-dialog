@@ -73,7 +73,7 @@ class FritakDialogRepository(
             FritakAgpSoeknadEntity.all().toList()
         }
 
-    fun hentAlleKravTilTidspunkt(tidspunkt: LocalDateTime): List<FritakAgpKravEntity> =
+    fun hentKravEldreEnnTidspunkt(tidspunkt: LocalDateTime): List<FritakAgpKravEntity> =
         transaction(db) {
             FritakAgpKravEntity.find { FritakAgpKravTable.opprettet lessEq tidspunkt }.toList()
         }
