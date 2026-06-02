@@ -79,6 +79,9 @@ fun startServer() {
             fritakDialogRepository = fritakDialogRepository,
             dialogportenClient = fritakDialogportenClient,
         )
+    runBlocking {
+        fritakDialogportenService.replaceAttachmentsForKrav()
+    }
     val jobber =
         listOf(
             SykmeldingJobb(

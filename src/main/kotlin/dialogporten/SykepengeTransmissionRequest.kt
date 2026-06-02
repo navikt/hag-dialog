@@ -124,6 +124,15 @@ class FritakKravTransmissionRequest(
         )
 }
 
+private val uuidRegex =
+    Regex("(?i)\\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\\b")
+
+fun String.hentUuidFraFritakKravPdfUrl(): UUID? =
+    uuidRegex
+        .find(this)
+        ?.value
+        ?.let { runCatching { UUID.fromString(it) }.getOrNull() }
+
 fun FritakKravMelding.toPdfUrl(): String {
     val type =
         when (this) {
