@@ -45,14 +45,14 @@ class FritakDialogportenService(
         var antallBehandlet = 0
         val ikkeMatchDialogIder = mutableSetOf<UUID>()
 
-        logger().info(dialogFiksLogg("Starter å erstatte vedlegg for ${unikeDialogIder.size} unike dialoger"))
+        logger().info(dialogPrefiksLogg("Starter å erstatte vedlegg for ${unikeDialogIder.size} unike dialoger"))
 
         unikeDialogIder.forEach { dialogId ->
-            logger().info(dialogFiksLogg("Behandler dialogId $dialogId"))
+            logger().info(dialogPrefiksLogg("Behandler dialogId $dialogId"))
             // Henter siste krav for dialogId i db
             val sisteKrav = hentSisteKravIdFraTransmissions(dialogId)
             if (sisteKrav == null) {
-                logger().warn(dialogFiksLogg("Fant ingen krav for dialogId $dialogId, kan ikke erstatte vedlegg"))
+                logger().warn(dialogPrefiksLogg("Fant ingen krav for dialogId $dialogId, kan ikke erstatte vedlegg"))
                 return@forEach
             }
 
@@ -60,11 +60,11 @@ class FritakDialogportenService(
             dialogportenClient
                 .getDialog(dialogId)
                 .onFailure { e ->
-                    logger().error(dialogFiksLogg("Feil ved henting av dialog $dialogId for krav ${sisteKrav.kravId}"), e)
+                    logger().error(dialogPrefiksLogg("Feil ved henting av dialog $dialogId for krav ${sisteKrav.kravId}"), e)
                 }.onSuccess { dialog ->
                     val attachments = dialog.attachments
                     if (attachments.isNullOrEmpty()) {
-                        logger().info(dialogFiksLogg("Dialog $dialogId for krav ${sisteKrav.kravId} har ingen vedlegg"))
+                        logger().info(dialogPrefiksLogg("Dialog $dialogId for krav ${sisteKrav.kravId} har ingen vedlegg"))
                         return@onSuccess
                     }
 
@@ -74,7 +74,7 @@ class FritakDialogportenService(
                             .firstOrNull { it.consumerType == Attachment.Url.AttachmentUrlConsumerType.Gui }
 
                     if (guiUrl == null) {
-                        logger().warn(dialogFiksLogg("Dialog $dialogId mangler GUI-url i vedlegg"))
+                        logger().warn(dialogPrefiksLogg("Dialog $dialogId mangler GUI-url i vedlegg"))
                         ikkeMatchDialogIder.add(dialogId)
                         return@onSuccess
                     }
@@ -82,7 +82,7 @@ class FritakDialogportenService(
                     val kravIdFraUrl = guiUrl.url.hentUuidFraFritakKravPdfUrl()
 
                     if (kravIdFraUrl == null) {
-                        logger().warn(dialogFiksLogg("Dialog $dialogId har GUI-url uten UUID: ${guiUrl.url}"))
+                        logger().warn(dialogPrefiksLogg("Dialog $dialogId har GUI-url uten UUID: ${guiUrl.url}"))
                         ikkeMatchDialogIder.add(dialogId)
                         return@onSuccess
                     }
@@ -92,14 +92,14 @@ class FritakDialogportenService(
                         //   replaceAttachmentForDialog(dialogId, sisteKrav.toFritakKravMelding())
                         antallBehandlet++
                         logger().info(
-                            dialogFiksLogg(
+                            dialogPrefiksLogg(
                                 "Dialog $dialogId har match på UUID ($kravIdFraUrl). Erstatter URL i vedlegg.",
                             ),
                         )
                     } else {
                         ikkeMatchDialogIder.add(dialogId)
                         logger().warn(
-                            dialogFiksLogg(
+                            dialogPrefiksLogg(
                                 "Dialog $dialogId har ikke match på UUID i GUI-url ($kravIdFraUrl != ${sisteKrav.kravId}). Hopper over.",
                             ),
                         )
@@ -108,12 +108,12 @@ class FritakDialogportenService(
         }
 
         logger().info(
-            dialogFiksLogg(
+            dialogPrefiksLogg(
                 "Rapport: totalt ${unikeDialogIder.size} dialoger, behandlet $antallBehandlet, ikke behandlet pga ikke match ${ikkeMatchDialogIder.size}",
             ),
         )
         if (ikkeMatchDialogIder.isNotEmpty()) {
-            logger().warn(dialogFiksLogg("Dialoger uten match (ikke behandlet): ${ikkeMatchDialogIder.joinToString()}"))
+            logger().warn(dialogPrefiksLogg("Dialoger uten match (ikke behandlet): ${ikkeMatchDialogIder.joinToString()}"))
         }
     }
 
@@ -202,4 +202,4 @@ class FritakDialogportenService(
         }
 }
 
-private fun dialogFiksLogg(melding: String) = "dialog-fiks: $melding"
+private fun dialogPrefiksLogg(melding: String) = "dialog-fiks: $melding"
