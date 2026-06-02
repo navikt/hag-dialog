@@ -44,6 +44,7 @@ class FritakAgpKravHandlerTest :
             coEvery { dialogportenClientMock.createDialog(any<CreateDialogRequest>()) } returns dialogId
             coEvery { dialogportenClientMock.addTransmission(any<UUID>(), any<Transmission>()) } returns transmissionId
             every { fritakDialogRepositoryMock.lagreKravDialog(any(), any(), any(), any(), any(), any()) } just Runs
+            every { fritakDialogRepositoryMock.hentKravMedIdOgDialogId(any(), any()) } returns null
         }
 
         test("skal opprette dialog for KroniskKrav") {

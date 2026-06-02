@@ -71,6 +71,10 @@ class FritakAgpKravHandler(
                         ),
                 ),
             )
+        if (fritakDialogRepository.hentKravMedIdOgDialogId(kravId = kroniskKrav.id, dialogId = dialogId) != null) {
+            logger().info("Dialogen $dialogId med kronisk kravId ${kroniskKrav.id} finnes allerede i databasen.")
+            return
+        }
 
         val transmissionId =
             dialogportenClient.addTransmission(
@@ -191,7 +195,10 @@ class FritakAgpKravHandler(
                         ),
                 ),
             )
-
+        if (fritakDialogRepository.hentKravMedIdOgDialogId(kravId = gravidKrav.id, dialogId = dialogId) != null) {
+            logger().info("Dialogen $dialogId med gravid kravId ${gravidKrav.id} finnes allerede i databasen.")
+            return
+        }
         val transmissionId =
             dialogportenClient.addTransmission(
                 dialogId,

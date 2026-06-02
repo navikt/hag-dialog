@@ -40,11 +40,11 @@ fun Application.configureKafkaConsumer(
         )
     }
 
-//    launch(Dispatchers.Default + kafkaConsumerExceptionHandler) {
-//        startDialogKafkaConsumer(
-//            dialogMeldingTolker = DialogMeldingTolker(fritakDialogportenService),
-//        )
-//    }
+    launch(Dispatchers.Default + kafkaConsumerExceptionHandler) {
+        startDialogKafkaConsumer(
+            dialogMeldingTolker = DialogMeldingTolker(fritakDialogportenService),
+        )
+    }
 }
 
 private fun startDokumentkoblingKafkaConsumer(dokumentkoblingTolker: DokumentkoblingTolker) {
