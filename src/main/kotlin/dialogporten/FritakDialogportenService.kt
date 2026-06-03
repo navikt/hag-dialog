@@ -89,7 +89,7 @@ class FritakDialogportenService(
 
                     if (kravIdFraUrl == sisteKrav.kravId) {
                         // TODO: Vi kjører en dry-run for å få oversikt over hva som kan bli endret.
-                        //   replaceAttachmentForDialog(dialogId, sisteKrav.toFritakKravMelding())
+                        replaceAttachmentForDialog(dialogId, sisteKrav.toFritakKravMelding())
                         antallBehandlet++
                         logger().info(
                             dialogPrefiksLogg(
@@ -129,12 +129,12 @@ class FritakDialogportenService(
             attachments =
                 listOf(
                     createApiAttachment(
-                        displayName = "Krav om fritak fra arbeidsgiverperioden",
+                        displayName = "Krav på fritak fra arbeidsgiverperioden",
                         url = kravMelding.toPdfUrl(),
                         mediaType = "application/pdf",
                     ),
                     createGuiAttachment(
-                        displayName = "Krav om fritak fra arbeidsgiverperioden",
+                        displayName = "Krav på fritak fra arbeidsgiverperioden",
                         url = kravMelding.toPdfUrl(),
                         mediaType = "application/pdf",
                     ),
