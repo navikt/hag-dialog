@@ -8,7 +8,13 @@ import io.ktor.server.application.ApplicationStopPreparing
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import io.ktor.server.routing.routing
-import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.asCoroutineDispatcher
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 import no.nav.helsearbeidsgiver.auth.AuthClient
 import no.nav.helsearbeidsgiver.auth.dialogportenTokenGetter
 import no.nav.helsearbeidsgiver.database.Database
@@ -29,6 +35,7 @@ import no.nav.helsearbeidsgiver.kafka.configureKafkaConsumer
 import no.nav.helsearbeidsgiver.metrikk.metrikkRoutes
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import org.slf4j.LoggerFactory
+import java.util.concurrent.Executors
 
 fun main() {
     startServer()
@@ -79,9 +86,6 @@ fun startServer() {
             fritakDialogRepository = fritakDialogRepository,
             dialogportenClient = fritakDialogportenClient,
         )
-//    runBlocking {
-//        fritakDialogportenService.replaceAttachmentsForKrav()
-//    }
     val jobber =
         listOf(
             SykmeldingJobb(
@@ -123,6 +127,15 @@ fun startServer() {
         factory = Netty,
         port = 8080,
         module = {
+            val startupExceptionHandler =
+                CoroutineExceptionHandler { _, exception ->
+                    logger.error("Feilet ved oppdatering av vedlegg for fritakskrav", exception)
+                }
+
+            launch(Dispatchers.Default + startupExceptionHandler) {
+                fritakDialogportenService.replaceAttachmentsForKrav()
+            }
+
             routing {
                 naisRoutes(HelsesjekkService(database.db))
                 metrikkRoutes()
