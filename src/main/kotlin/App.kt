@@ -140,6 +140,7 @@ fun startServer() {
                 naisRoutes(HelsesjekkService(database.db))
                 metrikkRoutes()
             }
+            // TODO: kommenterte ut kafka consumer for å kjøre jobben
             // configureKafkaConsumer(unleashFeatureToggles, dokumentKoblingService, fritakDialogportenService)
             startRecurringJobs(jobber)
             monitor.subscribe(ApplicationStopPreparing) {
