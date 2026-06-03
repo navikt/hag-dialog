@@ -127,21 +127,11 @@ fun startServer() {
         factory = Netty,
         port = 8080,
         module = {
-            val startupExceptionHandler =
-                CoroutineExceptionHandler { _, exception ->
-                    logger.error("Feilet ved oppdatering av vedlegg for fritakskrav", exception)
-                }
-
-            launch(Dispatchers.Default + startupExceptionHandler) {
-                fritakDialogportenService.replaceAttachmentsForKrav()
-            }
-
             routing {
                 naisRoutes(HelsesjekkService(database.db))
                 metrikkRoutes()
             }
-            // TODO: kommenterte ut kafka consumer for å kjøre jobben
-            // configureKafkaConsumer(unleashFeatureToggles, dokumentKoblingService, fritakDialogportenService)
+            configureKafkaConsumer(unleashFeatureToggles, dokumentKoblingService, fritakDialogportenService)
             startRecurringJobs(jobber)
             monitor.subscribe(ApplicationStopPreparing) {
                 logger.info("Applikasjonen stopper, avslutter eventuelle jobber...")
