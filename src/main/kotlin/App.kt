@@ -8,7 +8,9 @@ import io.ktor.server.application.ApplicationStopPreparing
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import io.ktor.server.routing.routing
+import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.cancel
@@ -84,16 +86,6 @@ fun startServer() {
             fritakDialogRepository = fritakDialogRepository,
             dialogportenClient = fritakDialogportenClient,
         )
-
-    val startupDispatcher = Executors.newSingleThreadExecutor().asCoroutineDispatcher()
-    val startupScope = CoroutineScope(SupervisorJob() + startupDispatcher)
-    startupScope.launch {
-        runCatching {
-            fritakDialogportenService.replaceAttachmentsForKrav()
-        }.onFailure {
-            logger.error("Feilet ved oppdatering av vedlegg for fritakskrav", it)
-        }
-    }
     val jobber =
         listOf(
             SykmeldingJobb(
@@ -135,6 +127,15 @@ fun startServer() {
         factory = Netty,
         port = 8080,
         module = {
+            val startupExceptionHandler =
+                CoroutineExceptionHandler { _, exception ->
+                    logger.error("Feilet ved oppdatering av vedlegg for fritakskrav", exception)
+                }
+
+            launch(Dispatchers.Default + startupExceptionHandler) {
+                fritakDialogportenService.replaceAttachmentsForKrav()
+            }
+
             routing {
                 naisRoutes(HelsesjekkService(database.db))
                 metrikkRoutes()
@@ -143,8 +144,6 @@ fun startServer() {
             startRecurringJobs(jobber)
             monitor.subscribe(ApplicationStopPreparing) {
                 logger.info("Applikasjonen stopper, avslutter eventuelle jobber...")
-                startupScope.cancel()
-                startupDispatcher.close()
                 jobber.forEach { it.stop() }
             }
         },
