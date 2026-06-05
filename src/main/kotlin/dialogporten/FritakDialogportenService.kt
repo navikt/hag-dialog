@@ -5,8 +5,10 @@ import no.nav.helsearbeidsgiver.database.FritakAgpKravEntity
 import no.nav.helsearbeidsgiver.database.FritakAgpType
 import no.nav.helsearbeidsgiver.database.FritakDialogRepository
 import no.nav.helsearbeidsgiver.dialogporten.domene.Attachment
+import no.nav.helsearbeidsgiver.dialogporten.domene.TransmissionRequest
 import no.nav.helsearbeidsgiver.dialogporten.domene.createApiAttachment
 import no.nav.helsearbeidsgiver.dialogporten.domene.createGuiAttachment
+import no.nav.helsearbeidsgiver.dialogporten.domene.toTransmission
 import no.nav.helsearbeidsgiver.dialogporten.handlers.FritakAgpSoeknadHandler
 import no.nav.helsearbeidsgiver.kafka.DialogMelding
 import no.nav.helsearbeidsgiver.kafka.FritakKravMelding
@@ -36,109 +38,25 @@ class FritakDialogportenService(
         }
     }
 
-    suspend fun replaceAttachmentsForKrav() {
-        // Henter alle krav fra dialogporten som er sendt inn før cutt-off tidspunkt
+    suspend fun oppdaterKravTransmission() {
         val alleKrav =
             fritakDialogRepository
                 .hentKravEldreEnnTidspunkt(LocalDateTime.of(2026, 5, 27, 11, 0))
-        val unikeDialogIder = alleKrav.map { it.dialogId }.distinct()
-        var antallBehandlet = 0
-        val ikkeMatchDialogIder = mutableSetOf<UUID>()
-
-        logger().info(dialogPrefiksLogg("Starter å erstatte vedlegg for ${unikeDialogIder.size} unike dialoger"))
-
-        unikeDialogIder.forEach { dialogId ->
-            logger().info(dialogPrefiksLogg("Behandler dialogId $dialogId"))
-            // Henter siste krav for dialogId i db
-            val sisteKrav = hentSisteKravIdFraTransmissions(dialogId)
-            if (sisteKrav == null) {
-                logger().warn(dialogPrefiksLogg("Fant ingen krav for dialogId $dialogId, kan ikke erstatte vedlegg"))
-                return@forEach
+        logger().info(dialogPrefiksLogg("Fant ${alleKrav.size} krav som skal oppdateres"))
+        alleKrav.forEach { krav ->
+            if (krav.dialogId == UUID.fromString("019e4f09-19c5-77de-9ad8-6e9c81b13c1c")) {
+                logger().info(
+                    dialogPrefiksLogg(
+                        "Oppdaterer krav med dialogId ${krav.dialogId} med kravId ${krav.kravId} og transmissionId ${krav.transmissionId}",
+                    ),
+                )
+                dialogportenClient.replaceTransmission(
+                    krav.dialogId,
+                    krav.transmissionId,
+                    FritakKravTransmissionRequest(krav.toFritakKravMelding()).toTransmission(),
+                )
             }
-
-            // Henter dialog fra dialogporten
-            dialogportenClient
-                .getDialog(dialogId)
-                .onFailure { e ->
-                    logger().error(dialogPrefiksLogg("Feil ved henting av dialog $dialogId for krav ${sisteKrav.kravId}"), e)
-                }.onSuccess { dialog ->
-                    val attachments = dialog.attachments
-                    if (attachments.isNullOrEmpty()) {
-                        logger().info(dialogPrefiksLogg("Dialog $dialogId for krav ${sisteKrav.kravId} har ingen vedlegg"))
-                        return@onSuccess
-                    }
-
-                    val guiUrl =
-                        attachments
-                            .flatMap { it.urls }
-                            .firstOrNull { it.consumerType == Attachment.Url.AttachmentUrlConsumerType.Gui }
-
-                    if (guiUrl == null) {
-                        logger().warn(dialogPrefiksLogg("Dialog $dialogId mangler GUI-url i vedlegg"))
-                        ikkeMatchDialogIder.add(dialogId)
-                        return@onSuccess
-                    }
-
-                    val kravIdFraUrl = guiUrl.url.hentUuidFraFritakKravPdfUrl()
-
-                    if (kravIdFraUrl == null) {
-                        logger().warn(dialogPrefiksLogg("Dialog $dialogId har GUI-url uten UUID: ${guiUrl.url}"))
-                        ikkeMatchDialogIder.add(dialogId)
-                        return@onSuccess
-                    }
-
-                    if (kravIdFraUrl == sisteKrav.kravId) {
-                        replaceAttachmentForDialog(dialogId, sisteKrav.toFritakKravMelding())
-                        antallBehandlet++
-                        logger().info(
-                            dialogPrefiksLogg(
-                                "Dialog $dialogId har match på UUID ($kravIdFraUrl). Erstatter URL i vedlegg.",
-                            ),
-                        )
-                    } else {
-                        ikkeMatchDialogIder.add(dialogId)
-                        logger().warn(
-                            dialogPrefiksLogg(
-                                "Dialog $dialogId har ikke match på UUID i GUI-url ($kravIdFraUrl != ${sisteKrav.kravId}). Hopper over.",
-                            ),
-                        )
-                    }
-                }
         }
-
-        logger().info(
-            dialogPrefiksLogg(
-                "Rapport: totalt ${unikeDialogIder.size} dialoger, behandlet $antallBehandlet, ikke behandlet pga ikke match ${ikkeMatchDialogIder.size}",
-            ),
-        )
-        if (ikkeMatchDialogIder.isNotEmpty()) {
-            logger().warn(dialogPrefiksLogg("Dialoger uten match (ikke behandlet): ${ikkeMatchDialogIder.joinToString()}"))
-        }
-    }
-
-    private fun hentSisteKravIdFraTransmissions(dialogId: UUID): FritakAgpKravEntity? =
-        fritakDialogRepository.hentAlleKravForDialog(dialogId).firstOrNull()
-
-    private suspend fun replaceAttachmentForDialog(
-        dialogId: UUID,
-        kravMelding: FritakKravMelding,
-    ) {
-        dialogportenClient.replaceAttachments(
-            dialogId,
-            attachments =
-                listOf(
-                    createApiAttachment(
-                        displayName = "Krav på fritak fra arbeidsgiverperioden",
-                        url = kravMelding.toPdfUrl(),
-                        mediaType = "application/pdf",
-                    ),
-                    createGuiAttachment(
-                        displayName = "Krav på fritak fra arbeidsgiverperioden",
-                        url = kravMelding.toPdfUrl(),
-                        mediaType = "application/pdf",
-                    ),
-                ),
-        )
     }
 
     private fun FritakAgpKravEntity.toFritakKravMelding(): FritakKravMelding =

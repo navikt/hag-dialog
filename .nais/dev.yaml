@@ -56,6 +56,7 @@ spec:
     scopes:
       consumes:
         - name: "digdir:dialogporten.serviceprovider"
+        - name: "digdir:dialogporten.serviceprovider.changetransmissions"
   gcp:
     sqlInstances:
       - type: POSTGRES_18
@@ -72,7 +73,7 @@ spec:
     - name: FRITAK_AGP_DIALOGPORTEN_RESSURS
       value: "nav_sykepenger_fritak-arbeidsgiverperiode"
     - name: DIALOGPORTEN_SCOPE
-      value: "digdir:dialogporten.serviceprovider"
+      value: "digdir:dialogporten.serviceprovider digdir:dialogporten.serviceprovider.changetransmissions"
     - name: NAV_ARBEIDSGIVER_API_BASEURL
       value: "https://sykepenger-api.ekstern.dev.nav.no"
     - name: NAV_ARBEIDSGIVER_GUI_BASEURL
