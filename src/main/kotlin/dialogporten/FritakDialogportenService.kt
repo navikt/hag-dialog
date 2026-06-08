@@ -4,10 +4,6 @@ import dialogporten.handlers.FritakAgpKravHandler
 import no.nav.helsearbeidsgiver.database.FritakAgpKravEntity
 import no.nav.helsearbeidsgiver.database.FritakAgpType
 import no.nav.helsearbeidsgiver.database.FritakDialogRepository
-import no.nav.helsearbeidsgiver.dialogporten.domene.Attachment
-import no.nav.helsearbeidsgiver.dialogporten.domene.TransmissionRequest
-import no.nav.helsearbeidsgiver.dialogporten.domene.createApiAttachment
-import no.nav.helsearbeidsgiver.dialogporten.domene.createGuiAttachment
 import no.nav.helsearbeidsgiver.dialogporten.domene.toTransmission
 import no.nav.helsearbeidsgiver.dialogporten.handlers.FritakAgpSoeknadHandler
 import no.nav.helsearbeidsgiver.kafka.DialogMelding
@@ -53,7 +49,7 @@ class FritakDialogportenService(
                 dialogportenClient.replaceTransmission(
                     krav.dialogId,
                     krav.transmissionId,
-                    FritakKravTransmissionRequest(krav.toFritakKravMelding()).toTransmission(),
+                    FritakKravReplaceTransmissionRequest(krav.toFritakKravMelding()).toTransmission(),
                 )
             }
         }
