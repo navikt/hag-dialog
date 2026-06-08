@@ -37,7 +37,7 @@ class FritakDialogportenService(
     suspend fun oppdaterKravTransmission() {
         val alleKrav =
             fritakDialogRepository
-                .hentKravEldreEnnTidspunkt(LocalDateTime.of(2026, 5, 27, 11, 0))
+                .hentKravEldreEnnTidspunkt(LocalDateTime.of(2026, 6, 9, 11, 0))
         logger().info(dialogPrefiksLogg("Fant ${alleKrav.size} krav som skal oppdateres"))
         alleKrav.forEach { krav ->
             if (krav.dialogId == UUID.fromString("019ea6ff-a961-7416-86ff-fedc9b16f37f")) {
