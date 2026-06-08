@@ -40,7 +40,7 @@ class FritakDialogportenService(
                 .hentKravEldreEnnTidspunkt(LocalDateTime.of(2026, 5, 27, 11, 0))
         logger().info(dialogPrefiksLogg("Fant ${alleKrav.size} krav som skal oppdateres"))
         alleKrav.forEach { krav ->
-            if (krav.dialogId == UUID.fromString("019e4f09-19c5-77de-9ad8-6e9c81b13c1c")) {
+            if (krav.dialogId == UUID.fromString("019ea6ff-a961-7416-86ff-fedc9b16f37f")) {
                 logger().info(
                     dialogPrefiksLogg(
                         "Oppdaterer krav med dialogId ${krav.dialogId} med kravId ${krav.kravId} og transmissionId ${krav.transmissionId}",
