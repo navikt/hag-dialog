@@ -146,6 +146,7 @@ class FritakKravReplaceTransmissionRequest(
                 mediaType = "application/pdf",
             ),
         )
+
     // Denne må være satt til true når man endrer transmission
     override val isSilentUpdate = true
 }
