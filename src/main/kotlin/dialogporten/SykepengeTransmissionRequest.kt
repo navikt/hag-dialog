@@ -124,14 +124,32 @@ class FritakKravTransmissionRequest(
         )
 }
 
-private val uuidRegex =
-    Regex("(?i)\\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\\b")
+class FritakKravReplaceTransmissionRequest(
+    kravMelding: FritakKravMelding,
+) : TransmissionRequest() {
+    override val relatedTransmissionId = null
+    override val dokumentId = kravMelding.id
+    override val extendedType = finnTypeForFritakKrav(kravMelding).toString()
+    override val tittel = kravMelding.toTittel()
+    override val sammendrag = null
+    override val type = Transmission.TransmissionType.Information
+    override val attachments =
+        listOf(
+            createApiAttachment(
+                displayName = "Krav på fritak fra arbeidsgiverperioden",
+                url = kravMelding.toPdfUrl(),
+                mediaType = "application/pdf",
+            ),
+            createGuiAttachment(
+                displayName = "Krav på fritak fra arbeidsgiverperioden",
+                url = kravMelding.toPdfUrl(),
+                mediaType = "application/pdf",
+            ),
+        )
 
-fun String.hentUuidFraFritakKravPdfUrl(): UUID? =
-    uuidRegex
-        .find(this)
-        ?.value
-        ?.let { runCatching { UUID.fromString(it) }.getOrNull() }
+    // Denne må være satt til true når man endrer transmission
+    override val isSilentUpdate = true
+}
 
 fun FritakKravMelding.toPdfUrl(): String {
     val type =
