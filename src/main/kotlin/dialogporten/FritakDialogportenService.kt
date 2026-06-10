@@ -40,6 +40,8 @@ class FritakDialogportenService(
                 .hentKravEldreEnnTidspunkt(LocalDateTime.of(2026, 5, 27, 11, 0))
         logger().info(dialogPrefiksLogg("Fant ${alleKrav.size} krav som skal oppdateres"))
         var antallOppdaterteKrav = 0
+        var antallFeiledKrav = 0
+        val feiledKrav = mutableListOf<Pair<UUID, UUID>>()
         alleKrav.forEach { krav ->
             logger().info(
                 dialogPrefiksLogg(
@@ -54,6 +56,8 @@ class FritakDialogportenService(
                 )
                 antallOppdaterteKrav++
             } catch (e: Exception) {
+                antallFeiledKrav++
+                feiledKrav.add(krav.dialogId to krav.transmissionId)
                 logger().error(
                     dialogPrefiksLogg(
                         "Klarte ikke å oppdatere krav med dialogId ${krav.dialogId} med kravId ${krav.kravId} og transmissionId ${krav.transmissionId}",
@@ -63,6 +67,15 @@ class FritakDialogportenService(
             }
         }
         logger().info(dialogPrefiksLogg("Oppdatert $antallOppdaterteKrav krav"))
+        if (antallFeiledKrav > 0) {
+            logger().warn(
+                dialogPrefiksLogg(
+                    "Feilet å oppdatere $antallFeiledKrav krav: ${feiledKrav.joinToString(
+                        ", ",
+                    ) { (dialogId, transmissionId) -> "dialogId=$dialogId, transmissionId=$transmissionId" }}",
+                ),
+            )
+        }
     }
 
     private fun FritakAgpKravEntity.toFritakKravMelding(): FritakKravMelding =
