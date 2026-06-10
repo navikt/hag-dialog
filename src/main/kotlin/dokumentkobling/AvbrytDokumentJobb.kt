@@ -7,8 +7,8 @@ import no.nav.helsearbeidsgiver.database.DokumentkoblingRepository
 import java.time.Duration
 import java.time.LocalDateTime
 
-private const val ANTALL_MINUTTER_MELLOM_KJOERINGER = 1L
-private const val ANTALL_MINUTTER_FOER_TIDSAVBRUDD = 60L
+private const val ANTALL_MINUTTER_MELLOM_KJOERINGER = 60L
+private const val ANTALL_MINUTTER_FOER_TIDSAVBRUDD = 2880L // 2 dager
 
 abstract class AvbrytDokumentJobb(
     private val dokumentNavn: String,
