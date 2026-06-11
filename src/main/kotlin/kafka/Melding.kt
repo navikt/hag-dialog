@@ -91,6 +91,8 @@ fun List<Sykmeldingsperiode>.getSykmeldingsPerioderString(): String =
 fun List<Sykmeldingsperiode>.lagDialogSummary(): String =
     """
     Gjelder ${getSykmeldingsPerioderString()}
+    
     NAV samler sykmelding, søknad og inntektsmelding i én felles melding i Altinn som oppdateres automatisk.
+    
     Fra 15. juni vises disse kun her, ikke som separate meldinger i innboksen.  
     """.trimIndent()
