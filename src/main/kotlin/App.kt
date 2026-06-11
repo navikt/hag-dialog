@@ -127,14 +127,6 @@ fun startServer() {
         factory = Netty,
         port = 8080,
         module = {
-            val startupExceptionHandler =
-                CoroutineExceptionHandler { _, exception ->
-                    logger.error("Feilet ved oppdatering av transmissions for fritakskrav", exception)
-                }
-
-            launch(Dispatchers.Default + startupExceptionHandler) {
-                fritakDialogportenService.oppdaterKravTransmission()
-            }
             routing {
                 naisRoutes(HelsesjekkService(database.db))
                 metrikkRoutes()
