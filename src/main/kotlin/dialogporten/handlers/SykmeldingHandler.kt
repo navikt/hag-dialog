@@ -11,7 +11,8 @@ import no.nav.helsearbeidsgiver.dialogporten.domene.createApiAttachment
 import no.nav.helsearbeidsgiver.dialogporten.domene.createGuiAttachment
 import no.nav.helsearbeidsgiver.dialogporten.domene.toTransmission
 import no.nav.helsearbeidsgiver.kafka.Sykmelding
-import no.nav.helsearbeidsgiver.kafka.lagDialogSummary
+import no.nav.helsearbeidsgiver.kafka.getSykmeldingsPerioderString
+import no.nav.helsearbeidsgiver.kafka.lagDialogAdditionalInfo
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.tilNorskFormat
@@ -34,7 +35,8 @@ class SykmeldingHandler(
                         title =
                             "Sykepenger for ${sykmelding.fulltNavn} (f. ${sykmelding.foedselsdato.tilNorskFormat()})",
                         summary =
-                            sykmelding.sykmeldingsperioder.lagDialogSummary(),
+                            sykmelding.sykmeldingsperioder.getSykmeldingsPerioderString(),
+                        additionalInfo = lagDialogAdditionalInfo(),
                         transmissions =
                             listOf(
                                 sykmeldingTransmission(sykmelding).toTransmission(),
