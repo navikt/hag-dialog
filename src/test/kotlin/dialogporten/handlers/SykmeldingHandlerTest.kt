@@ -14,7 +14,7 @@ import no.nav.helsearbeidsgiver.database.DialogRepository
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenClient
 import no.nav.helsearbeidsgiver.dialogporten.domene.CreateDialogRequest
 import no.nav.helsearbeidsgiver.dialogporten.handlers.SykmeldingHandler
-import no.nav.helsearbeidsgiver.kafka.getSykmeldingsPerioderString
+import no.nav.helsearbeidsgiver.kafka.lagDialogSummary
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.tilNorskFormat
 import sykmelding
@@ -50,7 +50,7 @@ class SykmeldingHandlerTest :
             capturedRequest.orgnr shouldBe sykmelding.orgnr
             capturedRequest.externalReference shouldBe sykmelding.sykmeldingId.toString()
             capturedRequest.title shouldBe "Sykepenger for ${sykmelding.fulltNavn} (f. ${sykmelding.foedselsdato.tilNorskFormat()})"
-            capturedRequest.summary shouldBe sykmelding.sykmeldingsperioder.getSykmeldingsPerioderString()
+            capturedRequest.summary shouldBe sykmelding.sykmeldingsperioder.lagDialogSummary()
             capturedRequest.isApiOnly shouldBe true
 
             verify(exactly = 1) {
