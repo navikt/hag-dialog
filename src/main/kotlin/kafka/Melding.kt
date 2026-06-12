@@ -79,7 +79,18 @@ data class Inntektsmelding(
 
 fun List<Sykmeldingsperiode>.getSykmeldingsPerioderString(): String =
     when (size) {
-        1 -> "Sykmeldingsperiode ${first().fom.tilNorskFormat()} – ${first().tom.tilNorskFormat()}"
-        else ->
-            "Sykmeldingsperioder ${first().fom.tilNorskFormat()} – (...) – ${last().tom.tilNorskFormat()}"
+        1 -> {
+            "Gjelder sykmeldingsperiode ${first().fom.tilNorskFormat()} – ${first().tom.tilNorskFormat()}"
+        }
+
+        else -> {
+            "Gjelder sykmeldingsperioder ${first().fom.tilNorskFormat()} – (...) – ${last().tom.tilNorskFormat()}"
+        }
     }
+
+fun lagDialogAdditionalInfo(): String =
+    """
+    *Nav samler nå sykmelding, søknad og inntektsmelding i én felles melding i Altinn-innboksen. Meldingen inneholder alltid sykmelding. Søknad om sykepenger blir tilgjengelig når den ansatte har søkt. Hvis Nav trenger inntektsmelding, vil meldingen også inkludere lenke til innsendingsskjema på nav.no*  
+         
+    *Fra og med 15. juni 2026 vises sykmelding og søknad kun her, og ikke lenger som separate meldinger i innboksen.*
+    """.trimIndent()
