@@ -90,7 +90,7 @@ fun List<Sykmeldingsperiode>.getSykmeldingsPerioderString(): String =
 
 fun lagDialogAdditionalInfo(): String =
     """
-    *NAV samler nå sykmelding, søknad og inntektsmelding i én felles melding i Altinn-innboksen. Meldingen inneholder alltid sykmelding. Søknad om sykepenger blir tilgjengelig når den ansatte har søkt, og du kan sende inntektsmelding herfra når Nav har behov for det. Meldingen blir oppdatert automatisk.*  
+    *Nav samler nå sykmelding, søknad og inntektsmelding i én felles melding i Altinn-innboksen. Meldingen inneholder alltid sykmelding. Søknad om sykepenger blir tilgjengelig når den ansatte har søkt. Hvis Nav trenger inntektsmelding, vil meldingen også inkludere lenke til innsendingsskjema på nav.no*  
          
     *Fra og med 15. juni 2026 vises sykmelding og søknad kun her, og ikke lenger som separate meldinger i innboksen.*
     """.trimIndent()
