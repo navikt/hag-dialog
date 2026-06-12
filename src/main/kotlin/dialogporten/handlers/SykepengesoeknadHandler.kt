@@ -19,6 +19,7 @@ class SykepengesoeknadHandler(
     private val logger = logger()
 
     fun oppdaterDialog(sykepengesoeknad: Sykepengesoeknad) {
+        // TODO: Hvis ikke finnes - lage???
         val dialog =
             dialogRepository.finnDialogMedSykemeldingId(sykmeldingId = sykepengesoeknad.sykmeldingId)
                 ?: run {
@@ -31,6 +32,7 @@ class SykepengesoeknadHandler(
 
         val transmissionId =
             runBlocking {
+                dialogportenClient.fjernApiOnly(dialog.dialogId)
                 dialogportenClient.addTransmission(
                     dialogId = dialog.dialogId,
                     transmissionRequest = sykepengesoknadTransmission(sykepengesoeknad = sykepengesoeknad),
