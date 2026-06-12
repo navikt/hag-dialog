@@ -42,7 +42,7 @@ class SykepengesoeknadHandlerTest :
 
             every { dialogRepositoryMock.finnDialogMedSykemeldingId(sykepengesoeknad.sykmeldingId) } returns dialogEntity
             coEvery { dialogportenClientMock.addTransmission(any(), any<TransmissionRequest>()) } returns transmissionId
-            coEvery { dialogportenClientMock.fjernApiOnly(any()) } just Runs
+            coEvery { dialogportenClientMock.removeApiOnly(any()) } just Runs
             every { dialogRepositoryMock.oppdaterDialogMedTransmission(any(), any(), any(), any(), any()) } just Runs
 
             sykepengeSoeknadhandler.oppdaterDialog(sykepengesoeknad)

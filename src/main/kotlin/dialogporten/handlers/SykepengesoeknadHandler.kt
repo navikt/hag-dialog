@@ -32,7 +32,7 @@ class SykepengesoeknadHandler(
 
         val transmissionId =
             runBlocking {
-                dialogportenClient.fjernApiOnly(dialog.dialogId)
+                dialogportenClient.removeApiOnly(dialog.dialogId)
                 dialogportenClient.addTransmission(
                     dialogId = dialog.dialogId,
                     transmissionRequest = sykepengesoknadTransmission(sykepengesoeknad = sykepengesoeknad),
