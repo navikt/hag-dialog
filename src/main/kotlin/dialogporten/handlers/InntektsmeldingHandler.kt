@@ -52,7 +52,7 @@ class InntektsmeldingHandler(
                         dialog.dialogId,
                         inntektsmeldingTransmissionRequest(
                             inntektsmelding = inntektsmelding,
-                            relatedTransmissionId = forespoerselTransmission.relatedTransmissionId,
+                            relatedTransmissionId = null,
                         ),
                     ).also {
                         dialogportenClient.setDialogStatus(dialog.dialogId, DialogStatus.NotApplicable)
