@@ -69,7 +69,7 @@ fun sykepengesoknadTransmission(sykepengesoeknad: Sykepengesoeknad): Transmissio
             ),
             createGuiAttachment(
                 displayName = "sykepengesoeknad",
-                url = "${Env.Nav.dokumentProxyBaseUrl}/dokument/sykepengesoeknad/${sykepengesoeknad.soeknadId}.pdf",
+                url = "${Env.Nav.arbeidsgiverGuiBaseUrl}/dokument/sykepengesoeknad/${sykepengesoeknad.soeknadId}.pdf",
                 mediaType = "application/pdf",
             ),
         ),
