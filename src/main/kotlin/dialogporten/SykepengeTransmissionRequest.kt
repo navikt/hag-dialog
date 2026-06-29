@@ -130,7 +130,7 @@ fun FritakKravMelding.toPdfUrl(): String {
             is GravidKravOpprettet, is GravidKravEndret, is GravidKravSlettet -> "gravid-krav"
             is KroniskKravOpprettet, is KroniskKravEndret, is KroniskKravSlettet -> "kronisk-krav"
         }
-    return "${Env.Nav.dokumentProxyBaseUrl}/dokument/$type/$id.pdf"
+    return "${Env.Nav.arbeidsgiverGuiBaseUrl}/dokument/$type/$id.pdf"
 }
 
 fun FritakSoeknadMelding.toPdfUrl(): String {
@@ -139,7 +139,7 @@ fun FritakSoeknadMelding.toPdfUrl(): String {
             is GravidSoeknadOpprettet -> "gravid-soeknad"
             is KroniskSoeknadOpprettet -> "kronisk-soeknad"
         }
-    return "${Env.Nav.dokumentProxyBaseUrl}/dokument/$type/$id.pdf"
+    return "${Env.Nav.arbeidsgiverGuiBaseUrl}/dokument/$type/$id.pdf"
 }
 
 fun FritakKravMelding.toTittel(): String =
