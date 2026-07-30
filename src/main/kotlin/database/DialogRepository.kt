@@ -7,6 +7,7 @@ import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -69,4 +70,11 @@ class DialogRepository(
             throw e
         }
     }
+
+    fun hentDialogerOpprettetPaaDag(dag: LocalDate): List<DialogEntity> =
+        transaction(db) {
+            DialogEntity
+                .find { DialogTable.opprettet.between(dag.atStartOfDay(), dag.plusDays(1).atStartOfDay()) }
+                .toList()
+        }
 }

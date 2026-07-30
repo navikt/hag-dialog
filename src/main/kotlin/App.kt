@@ -127,6 +127,14 @@ fun startServer() {
         factory = Netty,
         port = 8080,
         module = {
+            val engangsjobbExceptionHandler =
+                CoroutineExceptionHandler { _, exception ->
+                    logger.error("Feilet ved fiksing av transmission-urler for sykepenger-dialoger", exception)
+                }
+
+            launch(Dispatchers.Default + engangsjobbExceptionHandler) {
+                sykepengerDialogportenService.oppdaterTransmisjonerMedFeilUrl()
+            }
             routing {
                 naisRoutes(HelsesjekkService(database.db))
                 metrikkRoutes()
