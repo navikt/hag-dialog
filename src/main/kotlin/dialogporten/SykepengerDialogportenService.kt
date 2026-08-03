@@ -81,13 +81,18 @@ class SykepengerDialogportenService(
             .forEach { dag ->
                 val dialoger = dialogRepository.hentDialogerOpprettetPaaDag(dag)
                 logger.info("Fant ${dialoger.size} dialoger opprettet $dag")
-                val id =
-                    dialoger
-                        .first()
-                        .transmissions
-                        .first()
-                        .id
-                logger.info("Første transmission ID for dialog opprettet $dag: $id")
+                val firstDialog = dialogportenClient.getDialog(dialoger.first().dialogId)
+                if (firstDialog.isSuccess) {
+                    val id =
+                        firstDialog
+                            .getOrNull()
+                            ?.transmissions
+                            ?.first()
+                            ?.id
+                    logger.info("Første transmission ID for dialog opprettet $dag: ID: $id")
+                } else {
+                    logger.info("Klarte ikke å hente dialog for $dag")
+                }
             }
     }
 
