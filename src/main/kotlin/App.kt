@@ -133,7 +133,7 @@ fun startServer() {
                 }
 
             launch(Dispatchers.Default + engangsjobbExceptionHandler) {
-                // Tester ny dialogporten client
+                // Tester ny dialogporten client kode
                 sykepengerDialogportenService.testLesingAvTransmissionId()
 
                 // sykepengerDialogportenService.oppdaterTransmisjonerMedFeilUrl()
