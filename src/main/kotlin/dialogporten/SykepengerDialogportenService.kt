@@ -71,6 +71,24 @@ class SykepengerDialogportenService(
         inntektsmeldingHandler.oppdaterDialog(inntektsmelding)
     }
 
+    suspend fun testLesingAvTransmissionId() {
+        val foersteDag = LocalDate.of(2026, 4, 28)
+        val sisteDag = LocalDate.of(2026, 5, 28)
+
+        generateSequence(foersteDag) { it.plusDays(1) }
+            .takeWhile { it.isBefore(sisteDag) }
+            .forEach { dag ->
+                val dialoger = dialogRepository.hentDialogerOpprettetPaaDag(dag)
+                val id =
+                    dialoger
+                        .first()
+                        .transmissions
+                        .first()
+                        .id
+                logger.info("Første transmission ID for dialog opprettet $dag: $id")
+            }
+    }
+
     // Engangsjobb: fikser sykmelding- og sykepengesøknad-transmissions som fikk feil (dev-) url i prod.
     suspend fun oppdaterTransmisjonerMedFeilUrl() {
         val foersteDag = LocalDate.of(2026, 1, 5)
