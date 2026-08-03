@@ -75,10 +75,12 @@ class SykepengerDialogportenService(
         val foersteDag = LocalDate.of(2026, 4, 28)
         val sisteDag = LocalDate.of(2026, 5, 28)
 
+        logger.info("Starter testing av tranmsission id fra $foersteDag til $sisteDag")
         generateSequence(foersteDag) { it.plusDays(1) }
             .takeWhile { it.isBefore(sisteDag) }
             .forEach { dag ->
                 val dialoger = dialogRepository.hentDialogerOpprettetPaaDag(dag)
+                logger.info("Fant ${dialoger.size} dialoger opprettet $dag")
                 val id =
                     dialoger
                         .first()
