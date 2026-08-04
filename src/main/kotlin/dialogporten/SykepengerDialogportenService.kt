@@ -1,5 +1,6 @@
 package no.nav.helsearbeidsgiver.dialogporten
 
+import kotlinx.coroutines.delay
 import no.nav.helsearbeidsgiver.database.DialogRepository
 import no.nav.helsearbeidsgiver.dialogporten.domene.toTransmission
 import no.nav.helsearbeidsgiver.dialogporten.handlers.ForespoerselHandler
@@ -19,6 +20,7 @@ import no.nav.helsearbeidsgiver.utils.log.logger
 import org.jetbrains.exposed.exceptions.ExposedSQLException
 import java.time.LocalDate
 import java.util.UUID
+import kotlin.time.Duration.Companion.milliseconds
 
 class SykepengerDialogportenService(
     private val dialogRepository: DialogRepository,
@@ -105,6 +107,7 @@ class SykepengerDialogportenService(
         dialogId: UUID,
         sykmeldingId: UUID,
     ): Boolean {
+        delay(100.milliseconds)
         val dialog = dialogportenClient.getDialog(dialogId)
         if (dialog.isFailure) {
             logger.error("Henting av dialog $dialogId feilet", dialog.exceptionOrNull())
