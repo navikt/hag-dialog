@@ -74,7 +74,9 @@ class DialogRepository(
     fun hentDialogerOpprettetPaaDag(dag: LocalDate): List<DialogEntity> =
         transaction(db) {
             DialogEntity
-                .find { DialogTable.opprettet.between(dag.atStartOfDay(), dag.plusDays(1).atStartOfDay()) }
+                .find { DialogTable.opprettet.between(dag.atStartOfDay(), dag.endOfDay()) }
                 .toList()
         }
 }
+
+fun LocalDate.endOfDay(): LocalDateTime = this.plusDays(1).atStartOfDay().minusNanos(1)

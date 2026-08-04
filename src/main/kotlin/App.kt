@@ -34,8 +34,8 @@ import no.nav.helsearbeidsgiver.helsesjekker.naisRoutes
 import no.nav.helsearbeidsgiver.kafka.configureKafkaConsumer
 import no.nav.helsearbeidsgiver.metrikk.metrikkRoutes
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
+import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import org.slf4j.LoggerFactory
-import java.util.concurrent.Executors
 
 fun main() {
     startServer()
@@ -129,7 +129,7 @@ fun startServer() {
         module = {
             val engangsjobbExceptionHandler =
                 CoroutineExceptionHandler { _, exception ->
-                    logger.error("Feilet ved fiksing av transmission-urler for sykepenger-dialoger", exception)
+                    sikkerLogger().error("En fil oppsto ved fiksing av transmission ID for sykepenger-dialoger", exception)
                 }
 
             launch(Dispatchers.Default + engangsjobbExceptionHandler) {

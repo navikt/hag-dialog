@@ -54,7 +54,7 @@ class SykmeldingHandler(
 
 fun sykmeldingTransmission(
     sykmeldingId: UUID,
-    isSilentUpdate: Boolean = false,
+    isSilentUpdate: Boolean = false, // TODO kan fjernes etter engangsjobb patcher transmission
 ): TransmissionRequest =
     SykmeldingTransmissionRequest(
         sykmeldingId,

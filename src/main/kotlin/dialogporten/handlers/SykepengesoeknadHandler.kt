@@ -57,7 +57,7 @@ class SykepengesoeknadHandler(
 
 fun sykepengesoknadTransmission(
     soeknadId: UUID,
-    isSilentUpdate: Boolean = false,
+    isSilentUpdate: Boolean = false, // TODO kan fjernes etter engangsjobb patcher transmission
 ): TransmissionRequest =
     SykepengesoknadTransmissionRequest(
         soeknadId,

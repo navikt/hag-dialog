@@ -2,14 +2,12 @@ package no.nav.helsearbeidsgiver.dialogporten
 
 import kotlinx.coroutines.delay
 import no.nav.helsearbeidsgiver.database.DialogRepository
-import no.nav.helsearbeidsgiver.dialogporten.domene.toTransmission
+import no.nav.helsearbeidsgiver.dialogporten.domene.Transmission
 import no.nav.helsearbeidsgiver.dialogporten.handlers.ForespoerselHandler
 import no.nav.helsearbeidsgiver.dialogporten.handlers.InntektsmeldingHandler
 import no.nav.helsearbeidsgiver.dialogporten.handlers.SykepengesoeknadHandler
 import no.nav.helsearbeidsgiver.dialogporten.handlers.SykmeldingHandler
 import no.nav.helsearbeidsgiver.dialogporten.handlers.UtgaattForespoerselHandler
-import no.nav.helsearbeidsgiver.dialogporten.handlers.sykepengesoknadTransmission
-import no.nav.helsearbeidsgiver.dialogporten.handlers.sykmeldingTransmission
 import no.nav.helsearbeidsgiver.kafka.Inntektsmelding
 import no.nav.helsearbeidsgiver.kafka.Inntektsmeldingsforespoersel
 import no.nav.helsearbeidsgiver.kafka.Sykepengesoeknad
@@ -92,10 +90,10 @@ class SykepengerDialogportenService(
 
                 dialoger.forEach { dialog ->
                     try {
-                        val opprettet = opprettManglendeTranmissionSykmelding(dialog.dialogId, dialog.sykmeldingId)
+                        val opprettet = opprettManglendeTransmissionSykmelding(dialog.dialogId, dialog.sykmeldingId)
                         if (opprettet) antallOpprettet++ else antallFeilet++
                     } catch (e: Exception) {
-                        logger.error("sykmelding for ${dialog.dialogId} feilet", e)
+                        logger.error("sykmelding for ${dialog.dialogId} feilet")
                         antallFeilet++
                     }
                 }
@@ -103,15 +101,23 @@ class SykepengerDialogportenService(
             }
     }
 
-    suspend fun opprettManglendeTranmissionSykmelding(
+    suspend fun opprettManglendeTransmissionSykmelding(
         dialogId: UUID,
         sykmeldingId: UUID,
     ): Boolean {
         delay(100.milliseconds)
+
+        val sykmeldingTransmission = hentTransmissionId(dialogId) ?: return false
+
+        oppdaterDialogMedTransmission(dialogId, sykmeldingId, sykmeldingTransmission)
+        return true
+    }
+
+    private suspend fun hentTransmissionId(dialogId: UUID): Transmission? {
         val dialog = dialogportenClient.getDialog(dialogId)
         if (dialog.isFailure) {
             logger.error("Henting av dialog $dialogId feilet", dialog.exceptionOrNull())
-            return false
+            return null
         }
 
         val sykmeldingTransmission =
@@ -123,15 +129,23 @@ class SykepengerDialogportenService(
 
         if (sykmeldingTransmission == null) {
             logger.warn("Fant ingen sykmelding-transmission for dialog $dialogId")
-            return false
+            return null
         }
 
-        val transmissionId = sykmeldingTransmission.id
-        if (transmissionId == null) {
+        if (sykmeldingTransmission.id == null) {
             logger.warn("Sykmelding transmission uten id for dialog $dialogId")
-            return false
+            return null
         }
 
+        return sykmeldingTransmission
+    }
+
+    private fun oppdaterDialogMedTransmission(
+        dialogId: UUID,
+        sykmeldingId: UUID,
+        sykmeldingTransmission: Transmission,
+    ) {
+        val transmissionId = requireNotNull(sykmeldingTransmission.id)
         try {
             dialogRepository.oppdaterDialogMedTransmission(
                 sykmeldingId = sykmeldingId,
@@ -143,6 +157,5 @@ class SykepengerDialogportenService(
         } catch (e: ExposedSQLException) {
             logger.info("DB feil, transmission $transmissionId finnes sansynligvis allerede for dialog $dialogId")
         }
-        return true
     }
 }
