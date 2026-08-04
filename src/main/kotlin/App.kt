@@ -133,10 +133,7 @@ fun startServer() {
                 }
 
             launch(Dispatchers.Default + engangsjobbExceptionHandler) {
-                // Tester ny dialogporten client kode
-                sykepengerDialogportenService.testLesingAvTransmissionId()
-
-                // sykepengerDialogportenService.oppdaterTransmisjonerMedFeilUrl()
+                sykepengerDialogportenService.fixManglendeSykmeldinger()
             }
             routing {
                 naisRoutes(HelsesjekkService(database.db))

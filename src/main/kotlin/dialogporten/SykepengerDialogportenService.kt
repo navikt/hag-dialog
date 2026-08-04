@@ -16,6 +16,7 @@ import no.nav.helsearbeidsgiver.kafka.Sykmelding
 import no.nav.helsearbeidsgiver.kafka.UtgaattInntektsmeldingForespoersel
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.log.logger
+import org.jetbrains.exposed.exceptions.ExposedSQLException
 import java.time.LocalDate
 import java.util.UUID
 
@@ -71,91 +72,74 @@ class SykepengerDialogportenService(
         inntektsmeldingHandler.oppdaterDialog(inntektsmelding)
     }
 
-    suspend fun testLesingAvTransmissionId() {
-        val foersteDag = LocalDate.of(2026, 4, 28)
-        val sisteDag = LocalDate.of(2026, 5, 28)
+    suspend fun fixManglendeSykmeldinger() {
+        val foersteDag = LocalDate.of(2026, 1, 5)
+        val sisteDagInklusiv = LocalDate.of(2026, 5, 28)
+        var antallOpprettet = 0
+        var antallFeilet = 0
 
-        logger.info("Starter testing av tranmsission id fra $foersteDag til $sisteDag")
+        logger.info("Starter å fikse manglende sykmelding transmission fra og med $foersteDag til og med $sisteDagInklusiv")
+
         generateSequence(foersteDag) { it.plusDays(1) }
-            .takeWhile { it.isBefore(sisteDag) }
+            .takeWhile { !it.isAfter(sisteDagInklusiv) }
             .forEach { dag ->
                 val dialoger = dialogRepository.hentDialogerOpprettetPaaDag(dag)
                 logger.info("Fant ${dialoger.size} dialoger opprettet $dag")
-                val firstDialog = dialogportenClient.getDialog(dialoger.first().dialogId)
-                if (firstDialog.isSuccess) {
-                    val id =
-                        firstDialog
-                            .getOrNull()
-                            ?.transmissions
-                            ?.first()
-                            ?.id
-                    logger.info("Første transmission ID for dialog opprettet $dag: ID: $id")
-                } else {
-                    logger.info("Klarte ikke å hente dialog for $dag")
+                val oppretterStart = antallOpprettet
+                val feiletStart = antallFeilet
+
+                dialoger.forEach { dialog ->
+                    try {
+                        val opprettet = opprettManglendeTranmissionSykmelding(dialog.dialogId, dialog.sykmeldingId)
+                        if (opprettet) antallOpprettet++ else antallFeilet++
+                    } catch (e: Exception) {
+                        logger.error("sykmelding for ${dialog.dialogId} feilet", e)
+                        antallFeilet++
+                    }
                 }
+                logger.info("Ferdig med $dag. Opprettet: ${antallOpprettet - oppretterStart}, feilet: ${antallFeilet - feiletStart}.")
             }
     }
 
-    // Engangsjobb: fikser sykmelding- og sykepengesøknad-transmissions som fikk feil (dev-) url i prod.
-    suspend fun oppdaterTransmisjonerMedFeilUrl() {
-        val foersteDag = LocalDate.of(2026, 1, 5)
-        val sisteDag = LocalDate.of(2026, 5, 28)
-        var antallOppdatert = 0
-        var antallFeilet = 0
+    suspend fun opprettManglendeTranmissionSykmelding(
+        dialogId: UUID,
+        sykmeldingId: UUID,
+    ): Boolean {
+        val dialog = dialogportenClient.getDialog(dialogId)
+        if (dialog.isFailure) {
+            logger.error("Henting av dialog $dialogId feilet", dialog.exceptionOrNull())
+            return false
+        }
 
-        logger.info("Starter å fikse transmission-urler for dialoger opprettet fra og med $foersteDag til og med ${sisteDag.minusDays(1)}")
+        val sykmeldingTransmission =
+            dialog
+                .getOrNull()
+                ?.transmissions
+                .orEmpty()
+                .firstOrNull { it.extendedType == LpsApiExtendedType.SYKMELDING.toString() }
 
-        generateSequence(foersteDag) { it.plusDays(1) }
-            .takeWhile { it.isBefore(sisteDag) }
-            .forEach { dag ->
-                val dialoger = dialogRepository.hentDialogerOpprettetPaaDag(dag)
-                logger.info("Fant ${dialoger.size} dialoger opprettet $dag")
+        if (sykmeldingTransmission == null) {
+            logger.warn("Fant ingen sykmelding-transmission for dialog $dialogId")
+            return false
+        }
 
-                dialoger.forEach { dialog ->
-                    // Sykmelding: dialogen har alltid nøyaktig én
-                    dialog
-                        .transmissionsByDokumentType(LpsApiExtendedType.SYKMELDING.toString())
-                        .forEach { transmisjon ->
-                            try {
-                                dialogportenClient.replaceTransmission(
-                                    dialog.dialogId,
-                                    transmisjon.id.value,
-                                    sykmeldingTransmission(transmisjon.dokumentId, isSilentUpdate = true).toTransmission(),
-                                )
-                                antallOppdatert++
-                            } catch (e: Exception) {
-                                antallFeilet++
-                                logger.error(
-                                    "Klarte ikke å fikse sykmelding-transmission ${transmisjon.id.value} " +
-                                        "i dialog ${dialog.dialogId} for dokumentId ${transmisjon.dokumentId}",
-                                    e,
-                                )
-                            }
-                        }
+        val transmissionId = sykmeldingTransmission.id
+        if (transmissionId == null) {
+            logger.warn("Sykmelding transmission uten id for dialog $dialogId")
+            return false
+        }
 
-                    // Sykepengesøknad: dialogen kan mangle denne eller ha flere
-                    dialog
-                        .transmissionsByDokumentType(LpsApiExtendedType.SYKEPENGESOEKNAD.toString())
-                        .forEach { transmisjon ->
-                            try {
-                                dialogportenClient.replaceTransmission(
-                                    dialog.dialogId,
-                                    transmisjon.id.value,
-                                    sykepengesoknadTransmission(transmisjon.dokumentId, isSilentUpdate = true).toTransmission(),
-                                )
-                                antallOppdatert++
-                            } catch (e: Exception) {
-                                antallFeilet++
-                                logger.error(
-                                    "Klarte ikke å fikse søknad-transmission ${transmisjon.id.value} " +
-                                        "i dialog ${dialog.dialogId} for dokumentId ${transmisjon.dokumentId}",
-                                    e,
-                                )
-                            }
-                        }
-                }
-            }
-
-        logger.info("Ferdig med å fikse transmission-urler. Oppdatert $antallOppdatert, feilet $antallFeilet.")
+        try {
+            dialogRepository.oppdaterDialogMedTransmission(
+                sykmeldingId = sykmeldingId,
+                transmissionId = transmissionId,
+                dokumentId = sykmeldingId,
+                dokumentType = LpsApiExtendedType.SYKMELDING.toString(),
+                relatedTransmissionId = sykmeldingTransmission.relatedTransmissionId,
+            )
+        } catch (e: ExposedSQLException) {
+            logger.info("DB feil, transmission $transmissionId finnes sansynligvis allerede for dialog $dialogId")
+        }
+        return true
     }
 }
