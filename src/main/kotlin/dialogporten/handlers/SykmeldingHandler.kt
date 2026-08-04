@@ -2,6 +2,10 @@ package no.nav.helsearbeidsgiver.dialogporten.handlers
 
 import kotlinx.coroutines.runBlocking
 import no.nav.helsearbeidsgiver.Env
+import no.nav.helsearbeidsgiver.arbeidsgivernotifikasjon.Altinn3Ressurs
+import no.nav.helsearbeidsgiver.arbeidsgivernotifikasjon.ArbeidsgiverNotifikasjonKlient
+import no.nav.helsearbeidsgiver.arbeidsgivernotifikasjon.SakEllerOppgaveDuplikatException
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.enums.SaksStatus
 import no.nav.helsearbeidsgiver.database.DialogRepository
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenClient
 import no.nav.helsearbeidsgiver.dialogporten.SykmeldingTransmissionRequest
@@ -16,11 +20,13 @@ import no.nav.helsearbeidsgiver.kafka.lagDialogAdditionalInfo
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.tilNorskFormat
+import kotlin.time.Duration.Companion.days
 
 class SykmeldingHandler(
     private val dialogRepository: DialogRepository,
     private val dialogportenClient: DialogportenClient,
     private val unleashFeatureToggles: UnleashFeatureToggles,
+    private val agNotifikasjonKlient: ArbeidsgiverNotifikasjonKlient,
 ) {
     private val logger = logger()
 
@@ -48,6 +54,62 @@ class SykmeldingHandler(
             }
         dialogRepository.lagreDialog(dialogId = dialogId, sykmeldingId = sykmelding.sykmeldingId)
         logger.info("Opprettet dialog $dialogId for sykmelding ${sykmelding.sykmeldingId}.")
+
+        if (unleashFeatureToggles.skalOppretteNotifikasjoner()) {
+            opprettNotifikasjoner(sykmelding)
+        }
+    }
+
+    private fun opprettNotifikasjoner(sykmelding: Sykmelding) {
+        val sakTittel = "Sykmelding for ${sykmelding.fulltNavn} (f. ${sykmelding.foedselsdato.tilNorskFormat()})"
+        val lenke = "${Env.Nav.arbeidsgiverGuiBaseUrl}/dokument/sykmelding/${sykmelding.sykmeldingId}.pdf"
+        val merkelapp = "Sykmelding"
+        val grupperingsid = sykmelding.sykmeldingId.toString()
+
+        try {
+            val sakId =
+                runBlocking {
+                    agNotifikasjonKlient.opprettNySak(
+                        virksomhetsnummer = sykmelding.orgnr.verdi,
+                        grupperingsid = grupperingsid,
+                        merkelapp = merkelapp,
+                        lenke = lenke,
+                        tittel = sakTittel,
+                        statusTekst = "Mottatt sykmelding",
+                        tilleggsinfo = sykmelding.sykmeldingsperioder.getSykmeldingsPerioderString(),
+                        initiellStatus = SaksStatus.MOTTATT,
+                        hardDeleteOm = 730.days,
+                    )
+                }
+            logger.info("Opprettet notifikasjon-sak $sakId for sykmelding ${sykmelding.sykmeldingId}.")
+        } catch (e: SakEllerOppgaveDuplikatException) {
+            logger.warn("Duplikat sak for sykmelding ${sykmelding.sykmeldingId}: ${e.eksisterendeId}")
+        } catch (e: Exception) {
+            logger.error("Feil ved opprettelse av notifikasjon-sak for sykmelding ${sykmelding.sykmeldingId}: ${e.message}")
+        }
+
+        try {
+            val beskjedId =
+                runBlocking {
+                    agNotifikasjonKlient.opprettNyBeskjed(
+                        virksomhetsnummer = sykmelding.orgnr.verdi,
+                        eksternId = sykmelding.sykmeldingId.toString(),
+                        grupperingsid = grupperingsid,
+                        merkelapp = merkelapp,
+                        lenke = lenke,
+                        tekst = "Ny sykmelding for en av dine ansatte",
+                        tidspunkt = null,
+                        varslingTittel = "Sykmelding for en av dine ansatte",
+                        varslingInnhold = "Ny sykmelding for en av dine ansatte",
+                        hardDeleteOm = 730.days,
+                    )
+                }
+            logger.info("Opprettet notifikasjon-beskjed $beskjedId for sykmelding ${sykmelding.sykmeldingId}.")
+        } catch (e: SakEllerOppgaveDuplikatException) {
+            logger.warn("Duplikat beskjed for sykmelding ${sykmelding.sykmeldingId}: ${e.eksisterendeId}")
+        } catch (e: Exception) {
+            logger.error("Feil ved opprettelse av notifikasjon-beskjed for sykmelding ${sykmelding.sykmeldingId}: ${e.message}")
+        }
     }
 }
 

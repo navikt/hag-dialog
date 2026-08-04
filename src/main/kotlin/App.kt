@@ -15,6 +15,9 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import no.nav.helsearbeidsgiver.arbeidsgivernotifikasjon.Altinn3Ressurs
+import no.nav.helsearbeidsgiver.arbeidsgivernotifikasjon.ArbeidsgiverNotifikasjonKlient
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.enums.Sendevindu
 import no.nav.helsearbeidsgiver.auth.AuthClient
 import no.nav.helsearbeidsgiver.auth.dialogportenTokenGetter
 import no.nav.helsearbeidsgiver.database.Database
@@ -68,6 +71,15 @@ fun startServer() {
             ressurs = Env.Altinn.fritakDialogportenRessurs,
             getToken = authClient.dialogportenTokenGetter(),
         )
+    logger.info("Setter opp ArbeidsgiverNotifikasjonKlient...")
+    val agNotifikasjonKlient =
+        ArbeidsgiverNotifikasjonKlient(
+            url = Env.Notifikasjon.apiUrl,
+            altinn3Ressurs = Altinn3Ressurs.INNTEKTSMELDING,
+            getAccessToken = { "" },
+            sendevindu = Sendevindu.NKS_AAPNINGSTID,
+        )
+
     logger.info("Setter opp DialogRepository...")
     val dialogRepository = DialogRepository(database.db)
     val fritakDialogRepository =
@@ -80,6 +92,7 @@ fun startServer() {
             dialogRepository = dialogRepository,
             dialogportenClient = sykePengerdialogportenClient,
             unleashFeatureToggles = unleashFeatureToggles,
+            agNotifikasjonKlient = agNotifikasjonKlient,
         )
     val fritakDialogportenService =
         FritakDialogportenService(

@@ -10,6 +10,7 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
+import no.nav.helsearbeidsgiver.arbeidsgivernotifikasjon.ArbeidsgiverNotifikasjonKlient
 import no.nav.helsearbeidsgiver.database.DialogRepository
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenClient
 import no.nav.helsearbeidsgiver.dialogporten.domene.CreateDialogRequest
@@ -25,11 +26,13 @@ class SykmeldingHandlerTest :
         val dialogportenClientMock = mockk<DialogportenClient>()
         val dialogRepositoryMock = mockk<DialogRepository>()
         val unleashFeatureTogglesMock = mockk<UnleashFeatureToggles>()
+        val agNotifikasjonKlientMock = mockk<ArbeidsgiverNotifikasjonKlient>()
         val sykmeldingHandler =
             SykmeldingHandler(
                 dialogRepositoryMock,
                 dialogportenClientMock,
                 unleashFeatureTogglesMock,
+                agNotifikasjonKlientMock,
             )
         beforeTest {
             clearAllMocks()
@@ -44,6 +47,7 @@ class SykmeldingHandlerTest :
             coEvery { dialogportenClientMock.setDialogStatus(any(), any()) } just Runs
             every { unleashFeatureTogglesMock.skalOppretteDialogKunForApi() } returns
                 true
+            every { unleashFeatureTogglesMock.skalOppretteNotifikasjoner() } returns false
             sykmeldingHandler.opprettOgLagreDialog(sykmelding)
 
             val capturedRequest = requestSlot.captured

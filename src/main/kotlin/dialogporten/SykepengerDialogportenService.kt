@@ -1,5 +1,6 @@
 package no.nav.helsearbeidsgiver.dialogporten
 
+import no.nav.helsearbeidsgiver.arbeidsgivernotifikasjon.ArbeidsgiverNotifikasjonKlient
 import no.nav.helsearbeidsgiver.database.DialogRepository
 import no.nav.helsearbeidsgiver.dialogporten.handlers.ForespoerselHandler
 import no.nav.helsearbeidsgiver.dialogporten.handlers.InntektsmeldingHandler
@@ -18,8 +19,9 @@ class SykepengerDialogportenService(
     dialogRepository: DialogRepository,
     dialogportenClient: DialogportenClient,
     unleashFeatureToggles: UnleashFeatureToggles,
+    agNotifikasjonKlient: ArbeidsgiverNotifikasjonKlient,
 ) {
-    private val sykmeldingHandler = SykmeldingHandler(dialogRepository, dialogportenClient, unleashFeatureToggles)
+    private val sykmeldingHandler = SykmeldingHandler(dialogRepository, dialogportenClient, unleashFeatureToggles, agNotifikasjonKlient)
     private val sykepengesoeknadHandler = SykepengesoeknadHandler(dialogRepository, dialogportenClient)
     private val forespoerselHandler = ForespoerselHandler(dialogRepository, dialogportenClient)
     private val inntektsmeldingHandler = InntektsmeldingHandler(dialogRepository, dialogportenClient)

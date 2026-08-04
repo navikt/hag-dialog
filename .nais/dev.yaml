@@ -49,6 +49,8 @@ spec:
         - host: platform.tt02.altinn.no
         - host: helsearbeidsgiver-unleash-api.nav.cloud.nais.io
       rules:
+        - application: notifikasjon-produsent-api
+          namespace: fager
         - application: logging
           namespace: nais-system
   maskinporten:
@@ -82,5 +84,7 @@ spec:
       value: helsearbeidsgiver.dokument-kobling
     - name: DIALOG_KAFKA_TOPIC
       value: helsearbeidsgiver.dialog
+    - name: ARBEIDSGIVER_NOTIFIKASJON_API_URL
+      value: "http://notifikasjon-produsent-api.fager/api/graphql"
 
 

@@ -37,4 +37,10 @@ class UnleashFeatureToggles {
             "opprett-dialog-kun-for-api",
             true,
         )
+
+    fun skalOppretteNotifikasjoner(): Boolean =
+        defaultUnleash.isEnabled(
+            "opprett-notifikasjoner",
+            false,
+        )
 }
