@@ -105,7 +105,7 @@ class SykepengerDialogportenService(
         dialogId: UUID,
         sykmeldingId: UUID,
     ): Boolean {
-        delay(100.milliseconds)
+        delay(10.milliseconds)
 
         val sykmeldingTransmission = hentTransmissionId(dialogId) ?: return false
 
