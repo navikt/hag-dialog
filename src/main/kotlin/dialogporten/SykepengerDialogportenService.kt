@@ -21,6 +21,7 @@ import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import org.jetbrains.exposed.exceptions.ExposedSQLException
+import org.jetbrains.exposed.sql.transactions.transaction
 import java.time.LocalDate
 import java.util.UUID
 import kotlin.time.Duration.Companion.milliseconds
@@ -100,13 +101,13 @@ class SykepengerDialogportenService(
 
                 dialoger.forEach { dialog ->
 
-                    if (dialog.transmissions.empty()) {
-                        logger.warn("Fant ingen transmissions for dialog ${dialog.dialogId} opprettet $dag")
-                        return@forEach
-                    }
+                    val transmissions =
+                        transaction {
+                            dialog.transmissions
+                        }
 
-                    dialog
-                        .transmissionsByDokumentType(LpsApiExtendedType.SYKMELDING.toString())
+                    transmissions
+                        .filter { it.dokumentType == LpsApiExtendedType.SYKMELDING.toString() }
                         .also { if (it.isEmpty()) logger.warn("Ingen sykmelding transmission for dialog ${dialog.dialogId} på $dag") }
                         .forEach { transmission ->
                             patchTransmission(
@@ -118,8 +119,8 @@ class SykepengerDialogportenService(
                             }
                         }
 
-                    dialog
-                        .transmissionsByDokumentType(LpsApiExtendedType.SYKEPENGESOEKNAD.toString())
+                    transmissions
+                        .filter { it.dokumentType == LpsApiExtendedType.SYKEPENGESOEKNAD.toString() }
                         .forEach { transmission ->
                             patchTransmission(
                                 transmission = sykepengesoknadTransmission(transmission.dokumentId, isSilentUpdate = true),
