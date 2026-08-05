@@ -40,7 +40,7 @@ class UnleashFeatureToggles {
 
     fun skalOppretteNotifikasjoner(): Boolean =
         defaultUnleash.isEnabled(
-            "opprett-notifikasjoner",
+            "opprett-notifikasjoner-fager",
             false,
         )
 }
