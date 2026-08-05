@@ -70,7 +70,8 @@ fun sykmeldingTransmission(
             ),
             createGuiAttachment(
                 displayName = "sykmelding",
-                url = "${Env.Nav.arbeidsgiverGuiBaseUrl}/dokument/sykmelding/$sykmeldingId.pdf",
+                // TODO testing i dev SLETT før merging på slutten av url ?debug=patchet-med-engangsjobb
+                url = "${Env.Nav.arbeidsgiverGuiBaseUrl}/dokument/sykmelding/$sykmeldingId.pdf?debug=patchet-med-engangsjobb",
                 mediaType = "application/pdf",
             ),
         ),
