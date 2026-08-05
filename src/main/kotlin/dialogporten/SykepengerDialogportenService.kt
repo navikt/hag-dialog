@@ -1,6 +1,13 @@
 package no.nav.helsearbeidsgiver.dialogporten
 
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.sync.Semaphore
+import kotlinx.coroutines.sync.withPermit
+import no.nav.helsearbeidsgiver.database.DialogEntity
 import no.nav.helsearbeidsgiver.database.DialogRepository
 import no.nav.helsearbeidsgiver.dialogporten.domene.Transmission
 import no.nav.helsearbeidsgiver.dialogporten.handlers.ForespoerselHandler
@@ -76,8 +83,8 @@ class SykepengerDialogportenService(
     suspend fun fixManglendeSykmeldinger() {
         val foersteDag = LocalDate.of(2026, 1, 5)
         val sisteDagInklusiv = LocalDate.of(2026, 5, 28)
-        var antallOpprettet = 0
-        var antallFeilet = 0
+        var totalOpprettet = 0
+        var totalFeilet = 0
 
         logger.info("Starter å fikse manglende sykmelding transmission fra og med $foersteDag til og med $sisteDagInklusiv")
 
@@ -86,21 +93,35 @@ class SykepengerDialogportenService(
             .forEach { dag ->
                 val dialoger = dialogRepository.hentDialogerOpprettetPaaDag(dag)
                 logger.info("Fant ${dialoger.size} dialoger opprettet $dag")
-                val oppretterStart = antallOpprettet
-                val feiletStart = antallFeilet
-
-                dialoger.forEach { dialog ->
-                    try {
-                        val opprettet = opprettManglendeTransmissionSykmelding(dialog.dialogId, dialog.sykmeldingId)
-                        if (opprettet) antallOpprettet++ else antallFeilet++
-                    } catch (e: Exception) {
-                        logger.error("sykmelding for ${dialog.dialogId} feilet")
-                        antallFeilet++
-                    }
-                }
-                logger.info("Ferdig med $dag. Opprettet: ${antallOpprettet - oppretterStart}, feilet: ${antallFeilet - feiletStart}.")
+                val prosessertOK = prosesserDialoger(dialoger)
+                totalOpprettet += prosessertOK
+                val feilet = dialoger.size - prosessertOK
+                totalFeilet += feilet
+                logger.info("Ferdig med $dag. Opprettet: $prosessertOK, feilet: $feilet.")
             }
     }
+
+    suspend fun prosesserDialoger(dialoger: List<DialogEntity>) =
+        coroutineScope {
+            val maxConcurrency = 32 // hvor mange vil vi kjøre samtidig?
+            val semaphore = Semaphore(maxConcurrency)
+
+            dialoger
+                .map { dialog ->
+                    async(Dispatchers.IO) {
+                        semaphore.withPermit {
+                            try {
+                                val opprettet = opprettManglendeTransmissionSykmelding(dialog.dialogId, dialog.sykmeldingId)
+                                opprettet
+                            } catch (e: Exception) {
+                                logger.error("sykmelding for ${dialog.dialogId} feilet")
+                                false
+                            }
+                        }
+                    }
+                }.awaitAll()
+                .count { it }
+        }
 
     suspend fun opprettManglendeTransmissionSykmelding(
         dialogId: UUID,
