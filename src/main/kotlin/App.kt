@@ -132,7 +132,7 @@ fun startServer() {
                     sikkerLogger().error("Feil ved fiksing av transmission ID for sykepenger-dialoger", exception)
                 }
 
-            launch(Dispatchers.Default + engangsjobbExceptionHandler) {
+            launch(Dispatchers.IO + engangsjobbExceptionHandler) {
                 sykepengerDialogportenService.oppdaterTransmisjonerMedFeilUrl()
             }
             routing {

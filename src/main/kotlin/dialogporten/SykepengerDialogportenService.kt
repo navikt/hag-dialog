@@ -145,10 +145,7 @@ class SykepengerDialogportenService(
         dialogId: UUID,
         transmissionId: UUID,
     ): Boolean {
-        transmission.attachments.firstOrNull()?.urls?.firstOrNull()?.let { url ->
-            // TODO: Testing i dev slett, skal slettes
-            logger.info("Patching ${transmission.id} to $dialogId with url $url")
-        }
+        logger.info("Patcher transmission $transmissionId i dialog $dialogId")
         try {
             dialogportenClient.replaceTransmission(
                 dialogId,

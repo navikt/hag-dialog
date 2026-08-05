@@ -16,14 +16,7 @@ class AuthClient {
     private val sikkerLogger = sikkerLogger()
     private val httpClient = createHttpClient()
 
-    fun tokenGetter(target: String): () -> String =
-        {
-            runBlocking {
-                token(target).accessToken
-            }
-        }
-
-    private suspend fun token(target: String): TokenResponse =
+    internal suspend fun token(target: String): TokenResponse =
         try {
             httpClient
                 .submitForm(
@@ -54,14 +47,11 @@ class AuthClient {
     }
 }
 
-private fun AuthClient.hentAltinnToken(target: String): () -> String {
-    val maskinportenTokenGetter = tokenGetter(target = target)
-
-    return {
+private fun AuthClient.hentAltinnToken(target: String): () -> String =
+    {
         runBlocking {
-            altinnExchange(maskinportenTokenGetter())
+            altinnExchange(token(target).accessToken)
         }
     }
-}
 
 fun AuthClient.dialogportenTokenGetter() = hentAltinnToken(Env.Altinn.dialogportenScope)
