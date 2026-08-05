@@ -9,11 +9,7 @@ import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import io.ktor.server.routing.routing
 import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.asCoroutineDispatcher
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import no.nav.helsearbeidsgiver.arbeidsgivernotifikasjon.Altinn3Ressurs
 import no.nav.helsearbeidsgiver.arbeidsgivernotifikasjon.ArbeidsgiverNotifikasjonKlient
@@ -75,7 +71,7 @@ fun startServer() {
     val agNotifikasjonKlient =
         ArbeidsgiverNotifikasjonKlient(
             url = Env.Notifikasjon.apiUrl,
-            altinn3Ressurs = Altinn3Ressurs.INNTEKTSMELDING,
+            altinn3Ressurs = Altinn3Ressurs.SYKMELDING,
             getAccessToken = authClient.azureAdTokenGetter(Env.Notifikasjon.scope),
             sendevindu = Sendevindu.NKS_AAPNINGSTID,
         )
