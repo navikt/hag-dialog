@@ -16,6 +16,7 @@ import no.nav.helsearbeidsgiver.kafka.lagDialogAdditionalInfo
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.tilNorskFormat
+import java.util.UUID
 
 class SykmeldingHandler(
     private val dialogRepository: DialogRepository,
@@ -39,7 +40,7 @@ class SykmeldingHandler(
                         additionalInfo = lagDialogAdditionalInfo(),
                         transmissions =
                             listOf(
-                                sykmeldingTransmission(sykmelding).toTransmission(),
+                                sykmeldingTransmission(sykmelding.sykmeldingId).toTransmission(),
                             ),
                         isApiOnly = unleashFeatureToggles.skalOppretteDialogKunForApi(),
                     )
@@ -51,23 +52,27 @@ class SykmeldingHandler(
     }
 }
 
-fun sykmeldingTransmission(sykmelding: Sykmelding): TransmissionRequest =
+fun sykmeldingTransmission(
+    sykmeldingId: UUID,
+    isSilentUpdate: Boolean = false, // TODO kan fjernes etter engangsjobb patcher transmission
+): TransmissionRequest =
     SykmeldingTransmissionRequest(
-        sykmelding,
+        sykmeldingId,
         listOf(
             createApiAttachment(
                 displayName = "sykmelding.json",
-                url = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/sykmelding/${sykmelding.sykmeldingId}",
+                url = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/sykmelding/$sykmeldingId",
             ),
             createApiAttachment(
                 displayName = "sykmelding.pdf",
-                url = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/sykmelding/${sykmelding.sykmeldingId}/pdf",
+                url = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/sykmelding/$sykmeldingId/pdf",
                 mediaType = "application/pdf",
             ),
             createGuiAttachment(
                 displayName = "sykmelding",
-                url = "${Env.Nav.arbeidsgiverGuiBaseUrl}/dokument/sykmelding/${sykmelding.sykmeldingId}.pdf",
+                url = "${Env.Nav.arbeidsgiverGuiBaseUrl}/dokument/sykmelding/$sykmeldingId.pdf",
                 mediaType = "application/pdf",
             ),
         ),
+        isSilentUpdate,
     )
