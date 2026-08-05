@@ -7,6 +7,9 @@ metadata:
   name: dialog
   namespace: helsearbeidsgiver
 spec:
+  azure:
+    application:
+      enabled: true
   strategy:
     type: Recreate
   replicas:
@@ -86,5 +89,7 @@ spec:
       value: helsearbeidsgiver.dialog
     - name: ARBEIDSGIVER_NOTIFIKASJON_API_URL
       value: "http://notifikasjon-produsent-api.fager/api/graphql"
+    - name: ARBEIDSGIVER_NOTIFIKASJON_SCOPE
+      value: "api://dev-gcp.fager.notifikasjon-produsent-api/.default"
 
 

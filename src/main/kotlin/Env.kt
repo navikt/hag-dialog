@@ -43,6 +43,7 @@ object Env {
 
     object Notifikasjon {
         val apiUrl = "ARBEIDSGIVER_NOTIFIKASJON_API_URL".fromEnv()
+        val scope = "ARBEIDSGIVER_NOTIFIKASJON_SCOPE".fromEnv()
     }
 
     object Altinn {
