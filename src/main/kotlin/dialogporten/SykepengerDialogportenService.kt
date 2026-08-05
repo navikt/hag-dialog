@@ -103,7 +103,7 @@ class SykepengerDialogportenService(
 
                     val transmissions =
                         transaction {
-                            dialog.transmissions
+                            dialog.transmissions.toList()
                         }
 
                     transmissions
