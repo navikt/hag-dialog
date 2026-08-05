@@ -79,7 +79,10 @@ class SykepengerDialogportenService(
 
     // Engangsjobb: fikser sykmelding- og sykepengesøknad-transmissions som fikk feil (dev-) url i prod.
     suspend fun oppdaterTransmisjonerMedFeilUrl() {
-        val foersteDag = LocalDate.of(2026, 1, 5)
+//        val foersteDag = LocalDate.of(2026, 1, 5)
+//        val sisteDag = LocalDate.of(2026, 5, 28)
+        // TODO: Testing i dev noen dialoger
+        val foersteDag = LocalDate.of(2026, 5, 15)
         val sisteDag = LocalDate.of(2026, 5, 28)
         var antallOppdatert = 0
         var antallFeilet = 0
