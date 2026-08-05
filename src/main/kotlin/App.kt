@@ -129,7 +129,7 @@ fun startServer() {
         module = {
             val engangsjobbExceptionHandler =
                 CoroutineExceptionHandler { _, exception ->
-                    sikkerLogger().error("En fil oppsto ved fiksing av transmission ID for sykepenger-dialoger", exception)
+                    sikkerLogger().error("Feil ved fiksing av transmission ID for sykepenger-dialoger", exception)
                 }
 
             launch(Dispatchers.Default + engangsjobbExceptionHandler) {

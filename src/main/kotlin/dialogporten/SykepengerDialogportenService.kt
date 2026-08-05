@@ -109,8 +109,7 @@ class SykepengerDialogportenService(
 
         val sykmeldingTransmission = hentTransmissionId(dialogId) ?: return false
 
-        oppdaterDialogMedTransmission(dialogId, sykmeldingId, sykmeldingTransmission)
-        return true
+        return oppdaterDialogMedTransmission(dialogId, sykmeldingId, sykmeldingTransmission)
     }
 
     private suspend fun hentTransmissionId(dialogId: UUID): Transmission? {
@@ -144,7 +143,7 @@ class SykepengerDialogportenService(
         dialogId: UUID,
         sykmeldingId: UUID,
         sykmeldingTransmission: Transmission,
-    ) {
+    ): Boolean {
         val transmissionId = requireNotNull(sykmeldingTransmission.id)
         try {
             dialogRepository.oppdaterDialogMedTransmission(
@@ -156,6 +155,8 @@ class SykepengerDialogportenService(
             )
         } catch (e: ExposedSQLException) {
             logger.info("DB feil, transmission $transmissionId finnes sansynligvis allerede for dialog $dialogId")
+            return false
         }
+        return true
     }
 }
