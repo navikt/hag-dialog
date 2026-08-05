@@ -15,6 +15,7 @@ import no.nav.helsearbeidsgiver.kafka.Sykmelding
 import no.nav.helsearbeidsgiver.kafka.UtgaattInntektsmeldingForespoersel
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.log.logger
+import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import org.jetbrains.exposed.exceptions.ExposedSQLException
 import java.time.LocalDate
 import java.util.UUID
@@ -115,7 +116,7 @@ class SykepengerDialogportenService(
     private suspend fun hentTransmissionId(dialogId: UUID): Transmission? {
         val dialog = dialogportenClient.getDialog(dialogId)
         if (dialog.isFailure) {
-            logger.error("Henting av dialog $dialogId feilet", dialog.exceptionOrNull())
+            sikkerLogger().error("Henting av dialog $dialogId feilet", dialog.exceptionOrNull())
             return null
         }
 
