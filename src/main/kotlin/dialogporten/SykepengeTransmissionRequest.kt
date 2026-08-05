@@ -20,6 +20,7 @@ import no.nav.helsearbeidsgiver.kafka.KroniskKravSlettet
 import no.nav.helsearbeidsgiver.kafka.KroniskSoeknadOpprettet
 import no.nav.helsearbeidsgiver.kafka.Sykepengesoeknad
 import no.nav.helsearbeidsgiver.kafka.Sykmelding
+import no.nav.helsearbeidsgiver.utils.nyUuidv7
 import java.util.UUID
 
 class SykmeldingTransmissionRequest(
@@ -32,6 +33,7 @@ class SykmeldingTransmissionRequest(
     override val sammendrag = null
     override val type = Transmission.TransmissionType.Information
     override val relatedTransmissionId = null
+    override val id = nyUuidv7()
 }
 
 class SykepengesoknadTransmissionRequest(
@@ -98,6 +100,7 @@ class InntektsmeldingTransmissionRequest(
     override val tittel = inntektsmelding.status.toTittel()
     override val sammendrag = null
     override val type = inntektsmelding.status.toTransmissionType()
+    override val id = nyUuidv7()
 }
 
 class FritakKravTransmissionRequest(

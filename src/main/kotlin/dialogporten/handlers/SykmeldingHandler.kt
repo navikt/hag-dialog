@@ -4,6 +4,7 @@ import kotlinx.coroutines.runBlocking
 import no.nav.helsearbeidsgiver.Env
 import no.nav.helsearbeidsgiver.database.DialogRepository
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenClient
+import no.nav.helsearbeidsgiver.dialogporten.LpsApiExtendedType
 import no.nav.helsearbeidsgiver.dialogporten.SykmeldingTransmissionRequest
 import no.nav.helsearbeidsgiver.dialogporten.domene.CreateDialogRequest
 import no.nav.helsearbeidsgiver.dialogporten.domene.TransmissionRequest
@@ -25,6 +26,7 @@ class SykmeldingHandler(
     private val logger = logger()
 
     fun opprettOgLagreDialog(sykmelding: Sykmelding) {
+        val transmission = sykmeldingTransmission(sykmelding).toTransmission()
         val dialogId =
             runBlocking {
                 val request =
@@ -37,16 +39,22 @@ class SykmeldingHandler(
                         summary =
                             sykmelding.sykmeldingsperioder.getSykmeldingsPerioderString(),
                         additionalInfo = lagDialogAdditionalInfo(),
-                        transmissions =
-                            listOf(
-                                sykmeldingTransmission(sykmelding).toTransmission(),
-                            ),
+                        transmissions = listOf(transmission),
                         isApiOnly = unleashFeatureToggles.skalOppretteDialogKunForApi(),
                     )
 
                 dialogportenClient.createDialog(request)
             }
         dialogRepository.lagreDialog(dialogId = dialogId, sykmeldingId = sykmelding.sykmeldingId)
+        transmission.id?.let { transmissionId ->
+            dialogRepository.oppdaterDialogMedTransmission(
+                sykmeldingId = sykmelding.sykmeldingId,
+                transmissionId = transmissionId,
+                dokumentId = sykmelding.sykmeldingId,
+                dokumentType = LpsApiExtendedType.SYKMELDING.toString(),
+            )
+        }
+
         logger.info("Opprettet dialog $dialogId for sykmelding ${sykmelding.sykmeldingId}.")
     }
 }
