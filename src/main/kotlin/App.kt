@@ -133,7 +133,7 @@ fun startServer() {
                 }
 
             launch(Dispatchers.Default + engangsjobbExceptionHandler) {
-                sykepengerDialogportenService.fixManglendeSykmeldinger()
+                sykepengerDialogportenService.oppdaterTransmisjonerMedFeilUrl()
             }
             routing {
                 naisRoutes(HelsesjekkService(database.db))
