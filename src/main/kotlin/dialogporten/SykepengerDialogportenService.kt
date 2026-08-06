@@ -1,6 +1,7 @@
 package no.nav.helsearbeidsgiver.dialogporten
 
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
@@ -28,7 +29,6 @@ import java.time.LocalDate
 import java.util.UUID
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.time.Duration.Companion.milliseconds
-import kotlinx.coroutines.delay
 
 class SykepengerDialogportenService(
     private val dialogRepository: DialogRepository,
@@ -100,7 +100,7 @@ class SykepengerDialogportenService(
                 val opprettet = AtomicInteger(0)
                 val feilet = AtomicInteger(0)
 
-                val semaphore = Semaphore(permits = 50) //max 50 corutines samtidig
+                val semaphore = Semaphore(permits = 50) // max 50 corutines samtidig
                 coroutineScope {
                     dialoger.forEach { dialog ->
                         launch {
