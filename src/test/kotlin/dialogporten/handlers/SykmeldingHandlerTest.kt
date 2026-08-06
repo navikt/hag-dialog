@@ -47,7 +47,9 @@ class SykmeldingHandlerTest :
             coEvery { dialogportenClientMock.setDialogStatus(any(), any()) } just Runs
             every { unleashFeatureTogglesMock.skalOppretteDialogKunForApi() } returns
                 true
-            every { unleashFeatureTogglesMock.skalOppretteNotifikasjoner() } returns false
+            every { unleashFeatureTogglesMock.skalOppretteNotifikasjoner() } returns true
+            coEvery { agNotifikasjonKlientMock.opprettNySak(any(),any(),any(),any(),any(),any(),any(),any(),any()) } returns UUID.randomUUID().toString()
+            coEvery { agNotifikasjonKlientMock.opprettNyBeskjed(any(),any(),any(),any(),any(),any(),any(),any(),any(), any()) } returns UUID.randomUUID().toString()
             sykmeldingHandler.opprettOgLagreDialog(sykmelding)
 
             val capturedRequest = requestSlot.captured
