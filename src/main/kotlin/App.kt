@@ -142,7 +142,7 @@ fun startServer() {
                 }
 
             launch(Dispatchers.Default + engangsjobbExceptionHandler) {
-                sykepengerDialogportenService.fixManglendeSykmeldinger()
+                // sykepengerDialogportenService.fixManglendeSykmeldinger()
             }
             routing {
                 naisRoutes(HelsesjekkService(database.db))
