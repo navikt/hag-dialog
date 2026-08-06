@@ -5,6 +5,7 @@ import io.kotest.matchers.shouldBe
 import io.mockk.Runs
 import io.mockk.clearAllMocks
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.just
 import io.mockk.mockk
@@ -13,11 +14,13 @@ import io.mockk.verify
 import no.nav.helsearbeidsgiver.arbeidsgivernotifikasjon.ArbeidsgiverNotifikasjonKlient
 import no.nav.helsearbeidsgiver.database.DialogRepository
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenClient
+import no.nav.helsearbeidsgiver.dialogporten.DialogportenClientException
 import no.nav.helsearbeidsgiver.dialogporten.domene.CreateDialogRequest
 import no.nav.helsearbeidsgiver.dialogporten.handlers.SykmeldingHandler
 import no.nav.helsearbeidsgiver.kafka.getSykmeldingsPerioderString
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.tilNorskFormat
+import org.junit.jupiter.api.assertThrows
 import sykmelding
 import java.util.UUID
 
@@ -65,6 +68,7 @@ class SykmeldingHandlerTest :
                 )
             } returns
                 UUID.randomUUID().toString()
+
             sykmeldingHandler.opprettOgLagreDialog(sykmelding)
 
             val capturedRequest = requestSlot.captured
@@ -79,6 +83,22 @@ class SykmeldingHandlerTest :
                     dialogId = dialogId,
                     sykmeldingId = sykmelding.sykmeldingId,
                 )
+            }
+        }
+
+        test("skal ikke opprette sak eller beskjed hvis opprettelse av dialog feiler") {
+            coEvery { dialogportenClientMock.createDialog(any()) } throws DialogportenClientException("Dialogporten feil")
+            every { unleashFeatureTogglesMock.skalOppretteDialogKunForApi() } returns false
+            every { unleashFeatureTogglesMock.skalOppretteNotifikasjoner() } returns true
+
+            assertThrows<DialogportenClientException> {
+                sykmeldingHandler.opprettOgLagreDialog(sykmelding)
+            }
+
+            verify(exactly = 0) { dialogRepositoryMock.lagreDialog(any(), any()) }
+            coVerify(exactly = 0) { agNotifikasjonKlientMock.opprettNySak(any(), any(), any(), any(), any(), any(), any(), any(), any()) }
+            coVerify(exactly = 0) {
+                agNotifikasjonKlientMock.opprettNyBeskjed(any(), any(), any(), any(), any(), any(), any(), any(), any(), any())
             }
         }
     })
