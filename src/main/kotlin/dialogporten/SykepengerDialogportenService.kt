@@ -82,8 +82,8 @@ class SykepengerDialogportenService(
     }
 
     suspend fun fixManglendeSykmeldinger() {
-        val foersteDag = LocalDate.of(2026, 5, 13)
-        val sisteDagInklusiv = LocalDate.of(2026, 5, 28)
+        val foersteDag = LocalDate.of(2026, 5, 29)
+        val sisteDagInklusiv = LocalDate.of(2026, 6, 30)
         var totalOpprettet = 0
         var totalFeilet = 0
 
