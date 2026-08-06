@@ -27,6 +27,7 @@ import org.jetbrains.exposed.exceptions.ExposedSQLException
 import java.time.LocalDate
 import java.util.UUID
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 
 class SykepengerDialogportenService(
     private val dialogRepository: DialogRepository,
@@ -81,7 +82,7 @@ class SykepengerDialogportenService(
     }
 
     suspend fun fixManglendeSykmeldinger() {
-        val foersteDag = LocalDate.of(2026, 1, 5)
+        val foersteDag = LocalDate.of(2026, 5, 13)
         val sisteDagInklusiv = LocalDate.of(2026, 5, 28)
         var totalOpprettet = 0
         var totalFeilet = 0
@@ -111,10 +112,12 @@ class SykepengerDialogportenService(
                     async(Dispatchers.IO) {
                         semaphore.withPermit {
                             try {
+                                delay(1.seconds) // Begrens til maxConcurrency per sekund
                                 val opprettet = opprettManglendeTransmissionSykmelding(dialog.dialogId, dialog.sykmeldingId)
                                 opprettet
                             } catch (e: Exception) {
                                 logger.error("sykmelding for ${dialog.dialogId} feilet")
+                                sikkerLogger().error("sykmelding for ${dialog.dialogId} feilet", e)
                                 false
                             }
                         }

@@ -35,6 +35,7 @@ class DialogportenServiceTest :
         val unleashFeatureToggles = mockk<UnleashFeatureToggles>(relaxed = true)
 
         test("fix sykmelding") {
+            // TODO: Temp: Kan slettes når vi har patchet ok!
             // val id =
             val dialog1 = mockk<DialogEntity>()
             val dialog2 = mockk<DialogEntity>()
