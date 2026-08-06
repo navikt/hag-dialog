@@ -87,6 +87,7 @@ class SykmeldingHandler(
             logger.warn("Duplikat sak for sykmelding ${sykmelding.sykmeldingId}: ${e.eksisterendeId}")
         } catch (e: Exception) {
             logger.error("Feil ved opprettelse av notifikasjon-sak for sykmelding ${sykmelding.sykmeldingId}: ${e.message}")
+            throw e
         }
 
         try {
@@ -110,6 +111,7 @@ class SykmeldingHandler(
             logger.warn("Duplikat beskjed for sykmelding ${sykmelding.sykmeldingId}: ${e.eksisterendeId}")
         } catch (e: Exception) {
             logger.error("Feil ved opprettelse av notifikasjon-beskjed for sykmelding ${sykmelding.sykmeldingId}: ${e.message}")
+            throw e
         }
     }
 }
