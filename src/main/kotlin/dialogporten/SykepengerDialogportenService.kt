@@ -83,8 +83,8 @@ class SykepengerDialogportenService(
     }
 
     suspend fun oppdaterTransmisjonerMedFeilUrl() {
-        val foersteDag = LocalDate.of(2026, 5, 29)
-        val sisteDagInklusiv = LocalDate.of(2026, 6, 30)
+        val foersteDag = LocalDate.of(2026, 1, 5)
+        val sisteDagInklusiv = LocalDate.of(2026, 5, 28)
         var totalOpprettet = 0
         var totalFeilet = 0
 
@@ -120,6 +120,7 @@ class SykepengerDialogportenService(
                         "feilet ${feilet.get()} | Total oppdatert: $totalOpprettet, Total feilet $totalFeilet",
                 )
             }
+        logger.info("Ferdig med engangsjobb. Oppdatert $totalOpprettet, feilet $totalFeilet.")
     }
 
     private suspend fun patchEnkelDialogMedUrlFeil(
@@ -171,7 +172,6 @@ class SykepengerDialogportenService(
         dialogId: UUID,
         transmissionId: UUID,
     ): Boolean {
-        logger.info("Patcher transmission $transmissionId i dialog $dialogId")
         try {
             dialogportenClient.replaceTransmission(
                 dialogId,
@@ -180,6 +180,7 @@ class SykepengerDialogportenService(
             )
             return true
         } catch (e: Exception) {
+            logger.error("Klarte ikke å fikse søknad-transmission $transmissionId i dialog $dialogId")
             sikkerLogger().error("Klarte ikke å fikse søknad-transmission $transmissionId i dialog $dialogId", e)
             return false
         }

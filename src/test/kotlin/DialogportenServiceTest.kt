@@ -21,51 +21,6 @@ class DialogportenServiceTest :
         val dialogportenClient = mockk<DialogportenClient>(relaxed = true)
         val unleashFeatureToggles = mockk<UnleashFeatureToggles>(relaxed = true)
 
-//        test("patch urler") {
-//            // TODO: Temp: Denne testen kan slettes når vi har patchet ok!
-//            val dialog1 = mockk<DialogEntity>()
-//            val dialog2 = mockk<DialogEntity>()
-//            every { dialog1.dialogId } returns UUID.randomUUID()
-//            every { dialog2.dialogId } returns UUID.randomUUID()
-//            every { dialog1.sykmeldingId } returns UUID.randomUUID()
-//            every { dialog2.sykmeldingId } returns UUID.randomUUID()
-//            coEvery { dialogRepository.hentDialogerOpprettetPaaDag(any()) } returns listOf(dialog1, dialog2)
-//
-//            coEvery { dialogportenClient.getDialog(any()) } coAnswers {
-//                delay(10.milliseconds)
-//                Result.success(
-//                    DialogResponse(
-//                        id = "1",
-//                        serviceResource = "2",
-//                        party = "3",
-//                        externalReference = "4",
-//                        idempotentKey = "5",
-//                        status = DialogStatus.Completed,
-//                        content = mockk<Content>(),
-//                        transmissions =
-//                            listOf(
-//                                Transmission(
-//                                    id = UUID.fromString("019fd20f-34bd-776e-8fe9-f2e9c88f5e7c"),
-//                                    extendedType = LpsApiExtendedType.SYKMELDING.toString(),
-//                                    type = TransmissionType.Information,
-//                                    sender = Transmission.Sender("sfds"),
-//                                    content = mockk<Content>(),
-//                                    externalReference = "1",
-//                                ),
-//                            ),
-//                    ),
-//                )
-//            }
-//
-//            coEvery { dialogRepository.oppdaterDialogMedTransmission(any(), any(), any(), any(), any()) } just Runs
-//            coEvery { dialogportenClient.replaceTransmission(any(), any(), any()) } coAnswers { true}
-//            val service = SykepengerDialogportenService(dialogRepository, dialogportenClient, unleashFeatureToggles)
-//            val start = System.currentTimeMillis()
-//            service.oppdaterTransmisjonerMedFeilUrl()
-//            val end = System.currentTimeMillis()
-//            val duration = end - start
-//            println("fix manglende sykmeldinger took $duration ms")
-//        }
         test("opprettOgLagreDialog skal kalle sykmeldingHandler") {
             val service = SykepengerDialogportenService(dialogRepository, dialogportenClient, unleashFeatureToggles)
 
