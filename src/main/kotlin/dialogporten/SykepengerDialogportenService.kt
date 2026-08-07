@@ -179,8 +179,8 @@ class SykepengerDialogportenService(
             )
             return true
         } catch (e: Exception) {
-            logger.error("Klarte ikke å fikse søknad-transmission $transmissionId i dialog $dialogId")
-            sikkerLogger().error("Klarte ikke å fikse søknad-transmission $transmissionId i dialog $dialogId", e)
+            logger.error("Klarte ikke å fikse transmission $transmissionId i dialog $dialogId")
+            sikkerLogger().error("Klarte ikke å fikse transmission tittel: ${transmission.tittel}, $transmissionId i dialog $dialogId", e)
             return false
         }
     }
