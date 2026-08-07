@@ -111,8 +111,8 @@ class SykepengerDialogportenService(
                                         delay(1.seconds) // Begrens til maxConcurrency per sekund
                                         patchEnkelDialogMedUrlFeil(dialog, dag, opprettet, feilet)
                                     } catch (e: Exception) {
-                                        logger.error("Error patching dialog med feilet")
-                                        sikkerLogger().error("Error patching dialog med feilet", e)
+                                        logger.error("Error, patching av dialog ${dialog.dialogId} feilet")
+                                        sikkerLogger().error("Error, patching av dialog ${dialog.dialogId} feilet", e)
                                         feilet.incrementAndGet()
                                     }
                                 }
