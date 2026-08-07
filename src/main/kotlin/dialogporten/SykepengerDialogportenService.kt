@@ -99,12 +99,12 @@ class SykepengerDialogportenService(
                 val opprettet = AtomicInteger(0)
                 val feilet = AtomicInteger(0)
 
-                val semaphore = Semaphore(permits = 64) // max 64 corutines samtidig
+                val semaphore = Semaphore(permits = 32) // max 32 corutines samtidig
                 coroutineScope {
                     dialoger.forEach { dialog ->
                         launch {
                             semaphore.withPermit {
-                                // enkel måte å forsikre vi gjør max 64 dialogporten kall i sekundet
+                                // enkel måte å forsikre vi gjør max 32 dialogporten kall i sekundet
                                 delay(1000.milliseconds)
                                 patchEnkelDialogMedUrlFeil(dialog, dag, opprettet, feilet)
                             }
