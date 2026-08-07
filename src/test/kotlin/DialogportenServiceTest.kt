@@ -19,10 +19,9 @@ class DialogportenServiceTest :
         }
         val dialogRepository = mockk<DialogRepository>(relaxed = true)
         val dialogportenClient = mockk<DialogportenClient>(relaxed = true)
-        val unleashFeatureToggles = mockk<UnleashFeatureToggles>(relaxed = true)
 
         test("opprettOgLagreDialog skal kalle sykmeldingHandler") {
-            val service = SykepengerDialogportenService(dialogRepository, dialogportenClient, unleashFeatureToggles)
+            val service = SykepengerDialogportenService(dialogRepository, dialogportenClient)
 
             service.opprettOgLagreDialog(sykmelding)
 
@@ -30,7 +29,7 @@ class DialogportenServiceTest :
         }
 
         test("oppdaterDialogMedSykepengesoeknad skal kalle sykepengesoeknadHandler") {
-            val service = SykepengerDialogportenService(dialogRepository, dialogportenClient, unleashFeatureToggles)
+            val service = SykepengerDialogportenService(dialogRepository, dialogportenClient)
 
             service.oppdaterDialogMedSykepengesoeknad(sykepengesoeknad)
 
@@ -38,7 +37,7 @@ class DialogportenServiceTest :
         }
 
         test("oppdaterDialogMedInntektsmeldingsforespoersel skal kalle forespoerselHandler") {
-            val service = SykepengerDialogportenService(dialogRepository, dialogportenClient, unleashFeatureToggles)
+            val service = SykepengerDialogportenService(dialogRepository, dialogportenClient)
 
             service.oppdaterDialogMedInntektsmeldingsforespoersel(inntektsmeldingsforespoersel)
 
@@ -46,7 +45,7 @@ class DialogportenServiceTest :
         }
 
         test("oppdaterDialogMedInntektsmelding skal kalle inntektsmeldingHandler") {
-            val service = SykepengerDialogportenService(dialogRepository, dialogportenClient, unleashFeatureToggles)
+            val service = SykepengerDialogportenService(dialogRepository, dialogportenClient)
 
             service.oppdaterDialogMedInntektsmelding(inntektsmelding_godkjent)
 
@@ -54,7 +53,7 @@ class DialogportenServiceTest :
         }
 
         test("oppdaterDialogMedUtgaattForespoersel skal kalle utgaattForespoerselHandler") {
-            val service = SykepengerDialogportenService(dialogRepository, dialogportenClient, unleashFeatureToggles)
+            val service = SykepengerDialogportenService(dialogRepository, dialogportenClient)
 
             service.oppdaterDialogMedUtgaattForespoersel(forespoersel_utgaatt)
 

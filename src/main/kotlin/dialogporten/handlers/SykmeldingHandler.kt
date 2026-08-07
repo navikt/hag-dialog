@@ -13,7 +13,6 @@ import no.nav.helsearbeidsgiver.dialogporten.domene.toTransmission
 import no.nav.helsearbeidsgiver.kafka.Sykmelding
 import no.nav.helsearbeidsgiver.kafka.getSykmeldingsPerioderString
 import no.nav.helsearbeidsgiver.kafka.lagDialogAdditionalInfo
-import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.tilNorskFormat
 import java.util.UUID
@@ -21,7 +20,6 @@ import java.util.UUID
 class SykmeldingHandler(
     private val dialogRepository: DialogRepository,
     private val dialogportenClient: DialogportenClient,
-    private val unleashFeatureToggles: UnleashFeatureToggles,
 ) {
     private val logger = logger()
 
@@ -42,7 +40,7 @@ class SykmeldingHandler(
                             listOf(
                                 sykmeldingTransmission(sykmelding.sykmeldingId).toTransmission(),
                             ),
-                        isApiOnly = unleashFeatureToggles.skalOppretteDialogKunForApi(),
+                        isApiOnly = false,
                     )
 
                 dialogportenClient.createDialog(request)

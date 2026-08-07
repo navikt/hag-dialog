@@ -23,23 +23,20 @@ import no.nav.helsearbeidsgiver.kafka.Inntektsmeldingsforespoersel
 import no.nav.helsearbeidsgiver.kafka.Sykepengesoeknad
 import no.nav.helsearbeidsgiver.kafka.Sykmelding
 import no.nav.helsearbeidsgiver.kafka.UtgaattInntektsmeldingForespoersel
-import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import org.jetbrains.exposed.sql.transactions.transaction
 import java.time.LocalDate
 import java.util.UUID
 import java.util.concurrent.atomic.AtomicInteger
-import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
 class SykepengerDialogportenService(
     private val dialogRepository: DialogRepository,
     private val dialogportenClient: DialogportenClient,
-    unleashFeatureToggles: UnleashFeatureToggles,
 ) {
     private val logger = logger()
-    private val sykmeldingHandler = SykmeldingHandler(dialogRepository, dialogportenClient, unleashFeatureToggles)
+    private val sykmeldingHandler = SykmeldingHandler(dialogRepository, dialogportenClient)
     private val sykepengesoeknadHandler = SykepengesoeknadHandler(dialogRepository, dialogportenClient)
     private val forespoerselHandler = ForespoerselHandler(dialogRepository, dialogportenClient)
     private val inntektsmeldingHandler = InntektsmeldingHandler(dialogRepository, dialogportenClient)
@@ -163,7 +160,8 @@ class SykepengerDialogportenService(
         transmissions
             .filter { it.dokumentType == LpsApiExtendedType.SYKEPENGESOEKNAD.toString() }
             .forEach { transmission ->
-                val sykepengersoknadTransmission = sykepengesoknadTransmission(transmission.dokumentId, isSilentUpdate = true)
+                val sykepengersoknadTransmission =
+                    sykepengesoknadTransmission(transmission.dokumentId, isSilentUpdate = true)
                 patchTransmission(
                     transmission = sykepengersoknadTransmission,
                     dialogId = dialog.dialogId,
@@ -188,7 +186,10 @@ class SykepengerDialogportenService(
             return true
         } catch (e: Exception) {
             logger.error("Klarte ikke å fikse transmission $transmissionId i dialog $dialogId")
-            sikkerLogger().error("Klarte ikke å fikse transmission tittel: ${transmission.tittel}, $transmissionId i dialog $dialogId", e)
+            sikkerLogger().error(
+                "Klarte ikke å fikse transmission tittel: ${transmission.tittel}, $transmissionId i dialog $dialogId",
+                e,
+            )
             return false
         }
     }

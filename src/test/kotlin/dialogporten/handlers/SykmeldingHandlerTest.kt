@@ -15,7 +15,6 @@ import no.nav.helsearbeidsgiver.dialogporten.DialogportenClient
 import no.nav.helsearbeidsgiver.dialogporten.domene.CreateDialogRequest
 import no.nav.helsearbeidsgiver.dialogporten.handlers.SykmeldingHandler
 import no.nav.helsearbeidsgiver.kafka.getSykmeldingsPerioderString
-import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.tilNorskFormat
 import sykmelding
 import java.util.UUID
@@ -24,12 +23,10 @@ class SykmeldingHandlerTest :
     FunSpec({
         val dialogportenClientMock = mockk<DialogportenClient>()
         val dialogRepositoryMock = mockk<DialogRepository>()
-        val unleashFeatureTogglesMock = mockk<UnleashFeatureToggles>()
         val sykmeldingHandler =
             SykmeldingHandler(
                 dialogRepositoryMock,
                 dialogportenClientMock,
-                unleashFeatureTogglesMock,
             )
         beforeTest {
             clearAllMocks()
@@ -42,8 +39,6 @@ class SykmeldingHandlerTest :
             coEvery { dialogportenClientMock.createDialog(capture(requestSlot)) } returns dialogId
             every { dialogRepositoryMock.lagreDialog(any(), any()) } just Runs
             coEvery { dialogportenClientMock.setDialogStatus(any(), any()) } just Runs
-            every { unleashFeatureTogglesMock.skalOppretteDialogKunForApi() } returns
-                true
             sykmeldingHandler.opprettOgLagreDialog(sykmelding)
 
             val capturedRequest = requestSlot.captured
@@ -51,7 +46,7 @@ class SykmeldingHandlerTest :
             capturedRequest.externalReference shouldBe sykmelding.sykmeldingId.toString()
             capturedRequest.title shouldBe "Sykepenger for ${sykmelding.fulltNavn} (f. ${sykmelding.foedselsdato.tilNorskFormat()})"
             capturedRequest.summary shouldBe sykmelding.sykmeldingsperioder.getSykmeldingsPerioderString()
-            capturedRequest.isApiOnly shouldBe true
+            capturedRequest.isApiOnly shouldBe false
 
             verify(exactly = 1) {
                 dialogRepositoryMock.lagreDialog(
