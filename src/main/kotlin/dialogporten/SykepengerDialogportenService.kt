@@ -102,9 +102,9 @@ class SykepengerDialogportenService(
                 val opprettet = AtomicInteger(0)
                 val feilet = AtomicInteger(0)
                 val semaphore = Semaphore(permits = 32) // max 32 corutines samtidig
-                dialoger
-                    .map { dialog ->
-                        coroutineScope {
+                coroutineScope {
+                    dialoger
+                        .map { dialog ->
                             async(Dispatchers.IO) {
                                 semaphore.withPermit {
                                     try {
@@ -118,7 +118,7 @@ class SykepengerDialogportenService(
                                 }
                             }
                         }
-                    }.awaitAll()
+                }.awaitAll()
 
                 totalFeilet += feilet.get()
                 totalOpprettet += opprettet.get()
