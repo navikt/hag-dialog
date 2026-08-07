@@ -1,8 +1,10 @@
 package no.nav.helsearbeidsgiver.dialogporten
 
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
 import no.nav.helsearbeidsgiver.database.DialogEntity
@@ -29,6 +31,7 @@ import java.time.LocalDate
 import java.util.UUID
 import java.util.concurrent.atomic.AtomicInteger
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 
 class SykepengerDialogportenService(
     private val dialogRepository: DialogRepository,
@@ -98,19 +101,24 @@ class SykepengerDialogportenService(
                 logger.info("Fant ${dialoger.size} dialoger opprettet som skal fikses for $dag")
                 val opprettet = AtomicInteger(0)
                 val feilet = AtomicInteger(0)
-
                 val semaphore = Semaphore(permits = 32) // max 32 corutines samtidig
                 coroutineScope {
-                    dialoger.forEach { dialog ->
-                        launch {
-                            semaphore.withPermit {
-                                // enkel måte å forsikre vi gjør max 32 dialogporten kall i sekundet
-                                delay(1000.milliseconds)
-                                patchEnkelDialogMedUrlFeil(dialog, dag, opprettet, feilet)
+                    dialoger
+                        .map { dialog ->
+                            async(Dispatchers.IO) {
+                                semaphore.withPermit {
+                                    try {
+                                        delay(1.seconds) // Begrens til maxConcurrency per sekund
+                                        patchEnkelDialogMedUrlFeil(dialog, dag, opprettet, feilet)
+                                    } catch (e: Exception) {
+                                        logger.error("Error, patching av dialog ${dialog.dialogId} feilet")
+                                        sikkerLogger().error("Error, patching av dialog ${dialog.dialogId} feilet", e)
+                                        feilet.incrementAndGet()
+                                    }
+                                }
                             }
                         }
-                    }
-                }
+                }.awaitAll()
 
                 totalFeilet += feilet.get()
                 totalOpprettet += opprettet.get()
