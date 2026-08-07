@@ -27,6 +27,6 @@ class UnleashFeatureToggles {
     fun skalOppretteDialoger(): Boolean =
         defaultUnleash.isEnabled(
             "opprett-dialoger",
-            false,
+            true,
         )
 }
