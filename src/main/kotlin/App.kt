@@ -141,8 +141,8 @@ fun startServer() {
                     sikkerLogger().error("Feil ved fiksing av transmission ID for sykepenger-dialoger", exception)
                 }
 
-            launch(Dispatchers.Default + engangsjobbExceptionHandler) {
-                // sykepengerDialogportenService.fixManglendeSykmeldinger()
+            launch(Dispatchers.IO + engangsjobbExceptionHandler) {
+                sykepengerDialogportenService.oppdaterTransmisjonerMedFeilUrl()
             }
             routing {
                 naisRoutes(HelsesjekkService(database.db))
