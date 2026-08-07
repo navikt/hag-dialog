@@ -71,7 +71,6 @@ fun startServer() {
     val agNotifikasjonKlient =
         ArbeidsgiverNotifikasjonKlient(
             url = Env.Notifikasjon.apiUrl,
-            altinn3Ressurs = Altinn3Ressurs.SYKMELDING,
             getAccessToken = authClient.azureAdTokenGetter(Env.Notifikasjon.scope),
             sendevindu = Sendevindu.NKS_AAPNINGSTID,
         )

@@ -5,6 +5,7 @@ import no.nav.helsearbeidsgiver.Env
 import no.nav.helsearbeidsgiver.arbeidsgivernotifikasjon.Altinn3Ressurs
 import no.nav.helsearbeidsgiver.arbeidsgivernotifikasjon.ArbeidsgiverNotifikasjonKlient
 import no.nav.helsearbeidsgiver.arbeidsgivernotifikasjon.SakEllerOppgaveDuplikatException
+import no.nav.helsearbeidsgiver.arbeidsgivernotifikasjon.Tjeneste
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.enums.SaksStatus
 import no.nav.helsearbeidsgiver.database.DialogRepository
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenClient
@@ -65,7 +66,6 @@ class SykmeldingHandler(
     private fun opprettNotifikasjoner(sykmelding: Sykmelding) {
         val sakTittel = "Sykmelding for ${sykmelding.fulltNavn} (f. ${sykmelding.foedselsdato.tilNorskFormat()})"
         val lenke = "${Env.Nav.arbeidsgiverGuiBaseUrl}/dokument/sykmelding/${sykmelding.sykmeldingId}.pdf"
-        val merkelapp = "Sykmelding"
         val grupperingsid = sykmelding.sykmeldingId.toString()
 
         try {
@@ -74,7 +74,7 @@ class SykmeldingHandler(
                     agNotifikasjonKlient.opprettNySak(
                         virksomhetsnummer = sykmelding.orgnr.verdi,
                         grupperingsid = grupperingsid,
-                        merkelapp = merkelapp,
+                        tjeneste = Tjeneste.SYKMELDING,
                         lenke = lenke,
                         tittel = sakTittel,
                         statusTekst = "Mottatt sykmelding",
@@ -99,7 +99,7 @@ class SykmeldingHandler(
                         virksomhetsnummer = sykmelding.orgnr.verdi,
                         eksternId = sykmelding.sykmeldingId.toString(),
                         grupperingsid = grupperingsid,
-                        merkelapp = merkelapp,
+                        tjeneste = Tjeneste.SYKMELDING,
                         lenke = lenke,
                         tekst = "Ny sykmelding for en av dine ansatte",
                         tidspunkt = null,
