@@ -104,10 +104,9 @@ class SykepengerDialogportenService(
                     dialoger.forEach { dialog ->
                         launch {
                             semaphore.withPermit {
-                                patchEnkelDialogMedUrlFeil(dialog, dag, opprettet, feilet)
-
                                 // enkel måte å forsikre vi gjør max 64 dialogporten kall i sekundet
                                 delay(1000.milliseconds)
+                                patchEnkelDialogMedUrlFeil(dialog, dag, opprettet, feilet)
                             }
                         }
                     }
