@@ -19,6 +19,7 @@ import no.nav.helsearbeidsgiver.kafka.getSykmeldingsPerioderString
 import no.nav.helsearbeidsgiver.kafka.lagDialogAdditionalInfo
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.log.logger
+import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import no.nav.helsearbeidsgiver.utils.tilNorskFormat
 import java.util.UUID
 import kotlin.time.Duration.Companion.days
@@ -86,7 +87,8 @@ class SykmeldingHandler(
         } catch (e: SakEllerOppgaveDuplikatException) {
             logger.warn("Duplikat sak for sykmelding ${sykmelding.sykmeldingId}: ${e.eksisterendeId}")
         } catch (e: Exception) {
-            logger.error("Feil ved opprettelse av notifikasjon-sak for sykmelding ${sykmelding.sykmeldingId}: ${e.message}")
+            logger.error("Feil ved opprettelse av notifikasjon-sak for sykmelding ${sykmelding.sykmeldingId}")
+            sikkerLogger().error("Feil ved opprettelse av notifikasjon-sak for sykmelding ${sykmelding.sykmeldingId}", e)
             throw e
         }
 
@@ -110,7 +112,8 @@ class SykmeldingHandler(
         } catch (e: SakEllerOppgaveDuplikatException) {
             logger.warn("Duplikat beskjed for sykmelding ${sykmelding.sykmeldingId}: ${e.eksisterendeId}")
         } catch (e: Exception) {
-            logger.error("Feil ved opprettelse av notifikasjon-beskjed for sykmelding ${sykmelding.sykmeldingId}: ${e.message}")
+            logger.error("Feil ved opprettelse av notifikasjon-beskjed for sykmelding ${sykmelding.sykmeldingId}")
+            sikkerLogger().error("Feil ved opprettelse av notifikasjon-beskjed for sykmelding ${sykmelding.sykmeldingId}", e)
             throw e
         }
     }
