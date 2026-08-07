@@ -72,12 +72,24 @@ class DialogRepository(
         }
     }
 
-    fun hentDialogerOpprettetPaaDag(dag: LocalDate): List<DialogEntity> =
+    fun hentDialogerOpprettetPaaDag(dag: LocalDate): List<DialogForPatch> =
         transaction(db) {
             DialogEntity
                 .find { DialogTable.opprettet.between(dag.atStartOfDay(), dag.endOfDay()) }
                 .with(DialogEntity::transmissions)
-                .toList()
+                .map { dialog ->
+                    DialogForPatch(
+                        dialogId = dialog.dialogId,
+                        transmissions =
+                            dialog.transmissions.map { t ->
+                                TransmissionForPatch(
+                                    transmissionId = t.id.value,
+                                    dokumentId = t.dokumentId,
+                                    dokumentType = t.dokumentType,
+                                )
+                            },
+                    )
+                }
         }
 }
 

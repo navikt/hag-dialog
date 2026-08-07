@@ -38,3 +38,14 @@ class DialogEntity(
             transmissions.filter { it.dokumentType == dokumentType }
         }
 }
+
+data class DialogForPatch(
+    val dialogId: UUID,
+    val transmissions: List<TransmissionForPatch>,
+)
+
+data class TransmissionForPatch(
+    val transmissionId: UUID,
+    val dokumentId: UUID,
+    val dokumentType: String,
+)

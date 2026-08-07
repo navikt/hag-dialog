@@ -6,7 +6,7 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.supervisorScope
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
-import no.nav.helsearbeidsgiver.database.DialogEntity
+import no.nav.helsearbeidsgiver.database.DialogForPatch
 import no.nav.helsearbeidsgiver.database.DialogRepository
 import no.nav.helsearbeidsgiver.dialogporten.domene.TransmissionRequest
 import no.nav.helsearbeidsgiver.dialogporten.domene.toTransmission
@@ -127,7 +127,7 @@ class SykepengerDialogportenService(
         logger.info("Ferdig med engangsjobb - totalt OK: $totalOpprettet, totalt feilet: $totalFeilet")
     }
 
-    private suspend fun patchEnkelDialogMedUrlFeil(dialog: DialogEntity) {
+    private suspend fun patchEnkelDialogMedUrlFeil(dialog: DialogForPatch) {
         val transmissions = dialog.transmissions.toList()
         transmissions
             .filter { it.dokumentType == LpsApiExtendedType.SYKMELDING.toString() }
@@ -142,7 +142,7 @@ class SykepengerDialogportenService(
                 patchTransmission(
                     transmission = sykmeldingTransmission,
                     dialogId = dialog.dialogId,
-                    transmissionId = transmission.id.value,
+                    transmissionId = transmission.transmissionId,
                 )
             }
 
@@ -153,7 +153,7 @@ class SykepengerDialogportenService(
                 patchTransmission(
                     transmission = sykepengersoknadTransmission,
                     dialogId = dialog.dialogId,
-                    transmissionId = transmission.id.value,
+                    transmissionId = transmission.transmissionId,
                 )
             }
     }
