@@ -83,7 +83,7 @@ class SykepengerDialogportenService(
     }
 
     suspend fun oppdaterTransmisjonerMedFeilUrl() {
-        val foersteDag = LocalDate.of(2026, 1, 5)
+        val foersteDag = LocalDate.of(2026, 3, 27)
         val sisteDagInklusiv = LocalDate.of(2026, 5, 28)
         var totalOpprettet = 0
         var totalFeilet = 0
