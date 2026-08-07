@@ -116,7 +116,7 @@ class SykepengerDialogportenService(
                                     }
                                 }
                             }.awaitAll()
-                        logger.info("Batch ferdig")
+                        logger.info("Ferdig med batch")
                     }
                 }
                 totalOpprettet += opprettet.get()
