@@ -1,20 +1,21 @@
 package no.nav.helsearbeidsgiver.dialogporten
 
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.async
-import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
 import no.nav.helsearbeidsgiver.database.DialogEntity
 import no.nav.helsearbeidsgiver.database.DialogRepository
-import no.nav.helsearbeidsgiver.dialogporten.domene.Transmission
+import no.nav.helsearbeidsgiver.dialogporten.domene.TransmissionRequest
+import no.nav.helsearbeidsgiver.dialogporten.domene.toTransmission
 import no.nav.helsearbeidsgiver.dialogporten.handlers.ForespoerselHandler
 import no.nav.helsearbeidsgiver.dialogporten.handlers.InntektsmeldingHandler
 import no.nav.helsearbeidsgiver.dialogporten.handlers.SykepengesoeknadHandler
 import no.nav.helsearbeidsgiver.dialogporten.handlers.SykmeldingHandler
 import no.nav.helsearbeidsgiver.dialogporten.handlers.UtgaattForespoerselHandler
+import no.nav.helsearbeidsgiver.dialogporten.handlers.sykepengesoknadTransmission
+import no.nav.helsearbeidsgiver.dialogporten.handlers.sykmeldingTransmission
 import no.nav.helsearbeidsgiver.kafka.Inntektsmelding
 import no.nav.helsearbeidsgiver.kafka.Inntektsmeldingsforespoersel
 import no.nav.helsearbeidsgiver.kafka.Sykepengesoeknad
@@ -23,11 +24,11 @@ import no.nav.helsearbeidsgiver.kafka.UtgaattInntektsmeldingForespoersel
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
-import org.jetbrains.exposed.exceptions.ExposedSQLException
+import org.jetbrains.exposed.sql.transactions.transaction
 import java.time.LocalDate
 import java.util.UUID
+import java.util.concurrent.atomic.AtomicInteger
 import kotlin.time.Duration.Companion.milliseconds
-import kotlin.time.Duration.Companion.seconds
 
 class SykepengerDialogportenService(
     private val dialogRepository: DialogRepository,
@@ -81,107 +82,106 @@ class SykepengerDialogportenService(
         inntektsmeldingHandler.oppdaterDialog(inntektsmelding)
     }
 
-    suspend fun fixManglendeSykmeldinger() {
+    suspend fun oppdaterTransmisjonerMedFeilUrl() {
         val foersteDag = LocalDate.of(2026, 5, 13)
         val sisteDagInklusiv = LocalDate.of(2026, 5, 28)
         var totalOpprettet = 0
         var totalFeilet = 0
 
-        logger.info("Starter å fikse manglende sykmelding transmission fra og med $foersteDag til og med $sisteDagInklusiv")
+        logger.info("Starter å fikse transmission-URLer fra og med $foersteDag til og med $sisteDagInklusiv")
 
         generateSequence(foersteDag) { it.plusDays(1) }
             .takeWhile { !it.isAfter(sisteDagInklusiv) }
             .forEach { dag ->
+                logger.info("Starter prosessering av transmission url fix for $dag")
                 val dialoger = dialogRepository.hentDialogerOpprettetPaaDag(dag)
-                logger.info("Fant ${dialoger.size} dialoger opprettet $dag")
-                val prosessertOK = prosesserDialoger(dialoger)
-                totalOpprettet += prosessertOK
-                val feilet = dialoger.size - prosessertOK
-                totalFeilet += feilet
-                logger.info("Ferdig med $dag. Opprettet: $prosessertOK, feilet: $feilet.")
-            }
-    }
+                logger.info("Fant ${dialoger.size} dialoger opprettet som skal fikses for $dag")
+                val opprettet = AtomicInteger(0)
+                val feilet = AtomicInteger(0)
 
-    suspend fun prosesserDialoger(dialoger: List<DialogEntity>) =
-        coroutineScope {
-            val maxConcurrency = 32 // hvor mange vil vi kjøre samtidig?
-            val semaphore = Semaphore(maxConcurrency)
+                val semaphore = Semaphore(permits = 64) // max 64 corutines samtidig
+                coroutineScope {
+                    dialoger.forEach { dialog ->
+                        launch {
+                            semaphore.withPermit {
+                                patchEnkelDialogMedUrlFeil(dialog, dag, opprettet, feilet)
 
-            dialoger
-                .map { dialog ->
-                    async(Dispatchers.IO) {
-                        semaphore.withPermit {
-                            try {
-                                delay(1.seconds) // Begrens til maxConcurrency per sekund
-                                val opprettet = opprettManglendeTransmissionSykmelding(dialog.dialogId, dialog.sykmeldingId)
-                                opprettet
-                            } catch (e: Exception) {
-                                logger.error("sykmelding for ${dialog.dialogId} feilet")
-                                sikkerLogger().error("sykmelding for ${dialog.dialogId} feilet", e)
-                                false
+                                // enkel måte å forsikre vi gjør max 64 dialogporten kall i sekundet
+                                delay(1000.milliseconds)
                             }
                         }
                     }
-                }.awaitAll()
-                .count { it }
-        }
+                }
 
-    suspend fun opprettManglendeTransmissionSykmelding(
-        dialogId: UUID,
-        sykmeldingId: UUID,
-    ): Boolean {
-        delay(10.milliseconds)
-
-        val sykmeldingTransmission = hentTransmissionId(dialogId) ?: return false
-
-        return oppdaterDialogMedTransmission(dialogId, sykmeldingId, sykmeldingTransmission)
+                totalFeilet += feilet.get()
+                totalOpprettet += opprettet.get()
+                logger.info(
+                    "Ferdig med å fikse transmission-url for $dag. Oppdatert ${opprettet.get()}," +
+                        "feilet ${feilet.get()} | Total oppdatert: $totalOpprettet, Total feilet $totalFeilet",
+                )
+            }
     }
 
-    private suspend fun hentTransmissionId(dialogId: UUID): Transmission? {
-        val dialog = dialogportenClient.getDialog(dialogId)
-        if (dialog.isFailure) {
-            sikkerLogger().error("Henting av dialog $dialogId feilet", dialog.exceptionOrNull())
-            return null
-        }
+    private suspend fun patchEnkelDialogMedUrlFeil(
+        dialog: DialogEntity,
+        dag: LocalDate,
+        opprettet: AtomicInteger,
+        feilet: AtomicInteger,
+    ) {
+        val transmissions =
+            transaction {
+                dialog.transmissions.toList()
+            }
 
-        val sykmeldingTransmission =
-            dialog
-                .getOrNull()
-                ?.transmissions
-                .orEmpty()
-                .firstOrNull { it.extendedType == LpsApiExtendedType.SYKMELDING.toString() }
+        transmissions
+            .filter { it.dokumentType == LpsApiExtendedType.SYKMELDING.toString() }
+            .also {
+                if (it.isEmpty()) {
+                    logger.warn(
+                        "Ingen sykmelding transmission for dialog ${dialog.dialogId} på $dag",
+                    )
+                }
+            }.forEach { transmission ->
+                val sykmeldingTransmission = sykmeldingTransmission(transmission.dokumentId, isSilentUpdate = true)
+                patchTransmission(
+                    transmission = sykmeldingTransmission,
+                    dialogId = dialog.dialogId,
+                    transmissionId = transmission.id.value,
+                ).also { success ->
+                    if (success) opprettet.incrementAndGet() else feilet.incrementAndGet()
+                }
+            }
 
-        if (sykmeldingTransmission == null) {
-            logger.warn("Fant ingen sykmelding-transmission for dialog $dialogId")
-            return null
-        }
-
-        if (sykmeldingTransmission.id == null) {
-            logger.warn("Sykmelding transmission uten id for dialog $dialogId")
-            return null
-        }
-
-        return sykmeldingTransmission
+        transmissions
+            .filter { it.dokumentType == LpsApiExtendedType.SYKEPENGESOEKNAD.toString() }
+            .forEach { transmission ->
+                val sykepengersoknadTransmission = sykepengesoknadTransmission(transmission.dokumentId, isSilentUpdate = true)
+                patchTransmission(
+                    transmission = sykepengersoknadTransmission,
+                    dialogId = dialog.dialogId,
+                    transmissionId = transmission.id.value,
+                ).also { success ->
+                    if (success) opprettet.incrementAndGet() else feilet.incrementAndGet()
+                }
+            }
     }
 
-    private fun oppdaterDialogMedTransmission(
+    suspend fun patchTransmission(
+        transmission: TransmissionRequest,
         dialogId: UUID,
-        sykmeldingId: UUID,
-        sykmeldingTransmission: Transmission,
+        transmissionId: UUID,
     ): Boolean {
-        val transmissionId = requireNotNull(sykmeldingTransmission.id)
+        logger.info("Patcher transmission $transmissionId i dialog $dialogId")
         try {
-            dialogRepository.oppdaterDialogMedTransmission(
-                sykmeldingId = sykmeldingId,
-                transmissionId = transmissionId,
-                dokumentId = sykmeldingId,
-                dokumentType = LpsApiExtendedType.SYKMELDING.toString(),
-                relatedTransmissionId = sykmeldingTransmission.relatedTransmissionId,
+            dialogportenClient.replaceTransmission(
+                dialogId,
+                transmissionId,
+                transmission.toTransmission(),
             )
-        } catch (e: ExposedSQLException) {
-            logger.info("DB feil, transmission $transmissionId finnes sansynligvis allerede for dialog $dialogId")
+            return true
+        } catch (e: Exception) {
+            sikkerLogger().error("Klarte ikke å fikse søknad-transmission $transmissionId i dialog $dialogId", e)
             return false
         }
-        return true
     }
 }
