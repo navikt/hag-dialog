@@ -1,6 +1,7 @@
 package no.nav.helsearbeidsgiver.database
 
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
+import org.jetbrains.exposed.dao.with
 import org.jetbrains.exposed.exceptions.ExposedSQLException
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
@@ -75,6 +76,7 @@ class DialogRepository(
         transaction(db) {
             DialogEntity
                 .find { DialogTable.opprettet.between(dag.atStartOfDay(), dag.endOfDay()) }
+                .with(DialogEntity::transmissions)
                 .toList()
         }
 }
