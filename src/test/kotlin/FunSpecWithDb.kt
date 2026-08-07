@@ -40,7 +40,7 @@ private fun PostgreSQLContainer<Nothing>.setupAndStart(): PostgreSQLContainer<No
     }
 
 private fun dbConfig(): HikariConfig {
-    val postgres = PostgreSQLContainer<Nothing>("postgres:17").setupAndStart()
+    val postgres = PostgreSQLContainer<Nothing>("postgres:18").setupAndStart()
     return HikariConfig().apply {
         jdbcUrl = postgres.jdbcUrl
         username = postgres.username
