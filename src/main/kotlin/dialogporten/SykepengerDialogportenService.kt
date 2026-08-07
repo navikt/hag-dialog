@@ -128,7 +128,7 @@ class SykepengerDialogportenService(
     }
 
     private suspend fun patchEnkelDialogMedUrlFeil(dialog: DialogForPatch) {
-        val transmissions = dialog.transmissions.toList()
+        val transmissions = dialog.transmissions
         transmissions
             .filter { it.dokumentType == LpsApiExtendedType.SYKMELDING.toString() }
             .also {
