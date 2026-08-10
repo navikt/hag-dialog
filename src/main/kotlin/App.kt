@@ -11,7 +11,6 @@ import io.ktor.server.routing.routing
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import no.nav.helsearbeidsgiver.arbeidsgivernotifikasjon.Altinn3Ressurs
 import no.nav.helsearbeidsgiver.arbeidsgivernotifikasjon.ArbeidsgiverNotifikasjonKlient
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.enums.Sendevindu
 import no.nav.helsearbeidsgiver.auth.AuthClient

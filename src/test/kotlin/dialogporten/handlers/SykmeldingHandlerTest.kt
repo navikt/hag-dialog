@@ -65,6 +65,7 @@ class SykmeldingHandlerTest :
                     any(),
                     any(),
                     any(),
+                    any(),
                 )
             } returns
                 UUID.randomUUID().toString()
@@ -98,7 +99,7 @@ class SykmeldingHandlerTest :
             verify(exactly = 0) { dialogRepositoryMock.lagreDialog(any(), any()) }
             coVerify(exactly = 0) { agNotifikasjonKlientMock.opprettNySak(any(), any(), any(), any(), any(), any(), any(), any(), any()) }
             coVerify(exactly = 0) {
-                agNotifikasjonKlientMock.opprettNyBeskjed(any(), any(), any(), any(), any(), any(), any(), any(), any(), any())
+                agNotifikasjonKlientMock.opprettNyBeskjed(any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any())
             }
         }
     })
