@@ -8,7 +8,6 @@ import io.mockk.clearAllMocks
 import io.mockk.mockk
 import io.mockk.verify
 import no.nav.helsearbeidsgiver.database.DialogRepository
-import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import sykepengesoeknad
 import sykmelding
 
