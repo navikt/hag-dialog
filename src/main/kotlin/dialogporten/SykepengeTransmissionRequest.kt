@@ -18,17 +18,16 @@ import no.nav.helsearbeidsgiver.kafka.KroniskKravEndret
 import no.nav.helsearbeidsgiver.kafka.KroniskKravOpprettet
 import no.nav.helsearbeidsgiver.kafka.KroniskKravSlettet
 import no.nav.helsearbeidsgiver.kafka.KroniskSoeknadOpprettet
-import no.nav.helsearbeidsgiver.kafka.Sykepengesoeknad
-import no.nav.helsearbeidsgiver.kafka.Sykmelding
 import no.nav.helsearbeidsgiver.utils.nyUuidv7
 import java.util.UUID
 
 class SykmeldingTransmissionRequest(
-    sykmelding: Sykmelding,
+    sykmeldingId: UUID,
     override val attachments: List<Attachment>,
+    override val isSilentUpdate: Boolean = false,
 ) : TransmissionRequest() {
     override val extendedType = LpsApiExtendedType.SYKMELDING.toString()
-    override val dokumentId = sykmelding.sykmeldingId
+    override val dokumentId = sykmeldingId
     override val tittel = "Sykmelding"
     override val sammendrag = null
     override val type = Transmission.TransmissionType.Information
@@ -37,11 +36,12 @@ class SykmeldingTransmissionRequest(
 }
 
 class SykepengesoknadTransmissionRequest(
-    sykepengesoeknad: Sykepengesoeknad,
+    soeknadId: UUID,
     override val attachments: List<Attachment>,
+    override val isSilentUpdate: Boolean = false,
 ) : TransmissionRequest() {
     override val extendedType = LpsApiExtendedType.SYKEPENGESOEKNAD.toString()
-    override val dokumentId = sykepengesoeknad.soeknadId
+    override val dokumentId = soeknadId
     override val tittel = "Søknad om sykepenger"
     override val sammendrag = null
     override val type = Transmission.TransmissionType.Information

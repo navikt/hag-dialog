@@ -11,6 +11,7 @@ import no.nav.helsearbeidsgiver.dialogporten.domene.createApiAttachment
 import no.nav.helsearbeidsgiver.dialogporten.domene.createGuiAttachment
 import no.nav.helsearbeidsgiver.kafka.Sykepengesoeknad
 import no.nav.helsearbeidsgiver.utils.log.logger
+import java.util.UUID
 
 class SykepengesoeknadHandler(
     private val dialogRepository: DialogRepository,
@@ -35,7 +36,7 @@ class SykepengesoeknadHandler(
                 dialogportenClient.removeApiOnly(dialog.dialogId)
                 dialogportenClient.addTransmission(
                     dialogId = dialog.dialogId,
-                    transmissionRequest = sykepengesoknadTransmission(sykepengesoeknad = sykepengesoeknad),
+                    transmissionRequest = sykepengesoknadTransmission(sykepengesoeknad.soeknadId),
                 )
             }
 
@@ -54,23 +55,27 @@ class SykepengesoeknadHandler(
     }
 }
 
-fun sykepengesoknadTransmission(sykepengesoeknad: Sykepengesoeknad): TransmissionRequest =
+fun sykepengesoknadTransmission(
+    soeknadId: UUID,
+    isSilentUpdate: Boolean = false, // TODO kan fjernes etter engangsjobb patcher transmission
+): TransmissionRequest =
     SykepengesoknadTransmissionRequest(
-        sykepengesoeknad,
+        soeknadId,
         listOf(
             createApiAttachment(
                 "sykepengesoeknad.json",
-                "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/sykepengesoeknad/${sykepengesoeknad.soeknadId}",
+                "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/sykepengesoeknad/$soeknadId",
             ),
             createApiAttachment(
                 displayName = "sykepengesoeknad.pdf",
-                url = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/sykepengesoeknad/${sykepengesoeknad.soeknadId}/pdf",
+                url = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/sykepengesoeknad/$soeknadId/pdf",
                 mediaType = "application/pdf",
             ),
             createGuiAttachment(
                 displayName = "sykepengesoeknad",
-                url = "${Env.Nav.arbeidsgiverGuiBaseUrl}/dokument/sykepengesoeknad/${sykepengesoeknad.soeknadId}.pdf",
+                url = "${Env.Nav.arbeidsgiverGuiBaseUrl}/dokument/sykepengesoeknad/$soeknadId.pdf",
                 mediaType = "application/pdf",
             ),
         ),
+        isSilentUpdate,
     )

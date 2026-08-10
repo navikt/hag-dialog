@@ -9,11 +9,7 @@ import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import io.ktor.server.routing.routing
 import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.asCoroutineDispatcher
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import no.nav.helsearbeidsgiver.auth.AuthClient
 import no.nav.helsearbeidsgiver.auth.dialogportenTokenGetter
@@ -34,8 +30,8 @@ import no.nav.helsearbeidsgiver.helsesjekker.naisRoutes
 import no.nav.helsearbeidsgiver.kafka.configureKafkaConsumer
 import no.nav.helsearbeidsgiver.metrikk.metrikkRoutes
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
+import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import org.slf4j.LoggerFactory
-import java.util.concurrent.Executors
 
 fun main() {
     startServer()
@@ -127,6 +123,14 @@ fun startServer() {
         factory = Netty,
         port = 8080,
         module = {
+            val engangsjobbExceptionHandler =
+                CoroutineExceptionHandler { _, exception ->
+                    sikkerLogger().error("Feil ved fiksing av transmission ID for sykepenger-dialoger", exception)
+                }
+
+            launch(Dispatchers.IO + engangsjobbExceptionHandler) {
+                sykepengerDialogportenService.oppdaterTransmisjonerMedFeilUrl()
+            }
             routing {
                 naisRoutes(HelsesjekkService(database.db))
                 metrikkRoutes()

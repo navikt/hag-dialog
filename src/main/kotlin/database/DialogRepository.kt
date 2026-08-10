@@ -1,12 +1,14 @@
 package no.nav.helsearbeidsgiver.database
 
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
+import org.jetbrains.exposed.dao.with
 import org.jetbrains.exposed.exceptions.ExposedSQLException
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -69,4 +71,26 @@ class DialogRepository(
             throw e
         }
     }
+
+    fun hentDialogerOpprettetPaaDag(dag: LocalDate): List<DialogForPatch> =
+        transaction(db) {
+            DialogEntity
+                .find { DialogTable.opprettet.between(dag.atStartOfDay(), dag.endOfDay()) }
+                .with(DialogEntity::transmissions)
+                .map { dialog ->
+                    DialogForPatch(
+                        dialogId = dialog.dialogId,
+                        transmissions =
+                            dialog.transmissions.map { t ->
+                                TransmissionForPatch(
+                                    transmissionId = t.id.value,
+                                    dokumentId = t.dokumentId,
+                                    dokumentType = t.dokumentType,
+                                )
+                            },
+                    )
+                }
+        }
 }
+
+fun LocalDate.endOfDay(): LocalDateTime = this.plusDays(1).atStartOfDay().minusNanos(1)
