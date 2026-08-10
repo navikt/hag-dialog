@@ -42,6 +42,7 @@ class SykmeldingHandlerTest :
             coEvery { dialogportenClientMock.createDialog(capture(requestSlot)) } returns dialogId
             every { dialogRepositoryMock.lagreDialog(any(), any()) } just Runs
             coEvery { dialogportenClientMock.setDialogStatus(any(), any()) } just Runs
+            every { dialogRepositoryMock.oppdaterDialogMedTransmission(any(), any(), any(), any()) } just Runs
             every { unleashFeatureTogglesMock.skalOppretteDialogKunForApi() } returns
                 true
             sykmeldingHandler.opprettOgLagreDialog(sykmelding)

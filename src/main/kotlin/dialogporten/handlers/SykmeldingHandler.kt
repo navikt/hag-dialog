@@ -27,7 +27,7 @@ class SykmeldingHandler(
     private val logger = logger()
 
     fun opprettOgLagreDialog(sykmelding: Sykmelding) {
-        val transmission = sykmeldingTransmission(sykmelding.sykmeldingId).toTransmission(),
+        val transmission = sykmeldingTransmission(sykmelding.sykmeldingId).toTransmission()
         val dialogId =
             runBlocking {
                 val request =
