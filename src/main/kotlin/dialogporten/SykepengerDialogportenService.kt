@@ -109,7 +109,7 @@ class SykepengerDialogportenService(
                                         }.onFailure {
                                             sikkerLogger().error(
                                                 "Feil ved patching av dialog ${dialogDto.dialogId}",
-                                                it
+                                                it,
                                             )
                                             logger().error("Feil ved patching av dialog ${dialogDto.dialogId}")
                                             feilet.incrementAndGet()
