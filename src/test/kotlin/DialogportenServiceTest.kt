@@ -54,7 +54,7 @@ class DialogportenServiceTest :
 
             coEvery { dialogRepository.hentDialogerOpprettetPaaDag(any()) } returns listOf(dialog1, dialog2)
 
-            val service = SykepengerDialogportenService(dialogRepository, dialogportenClient, unleashFeatureToggles)
+            val service = SykepengerDialogportenService(dialogRepository, dialogportenClient, unleashFeatureToggles, agNotifikasjonKlient)
             val start = System.currentTimeMillis()
             service.oppdaterTransmisjonerMedFeilUrl()
             val end = System.currentTimeMillis()
