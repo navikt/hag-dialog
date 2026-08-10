@@ -3,12 +3,12 @@ package no.nav.helsearbeidsgiver.dialogporten
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.supervisorScope
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
 import no.nav.helsearbeidsgiver.arbeidsgivernotifikasjon.ArbeidsgiverNotifikasjonKlient
 import no.nav.helsearbeidsgiver.database.DialogEntity
+import no.nav.helsearbeidsgiver.database.DialogForPatch
 import no.nav.helsearbeidsgiver.database.DialogRepository
 import no.nav.helsearbeidsgiver.dialogporten.domene.TransmissionRequest
 import no.nav.helsearbeidsgiver.dialogporten.domene.toTransmission
@@ -27,12 +27,9 @@ import no.nav.helsearbeidsgiver.kafka.UtgaattInntektsmeldingForespoersel
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
-import org.jetbrains.exposed.sql.transactions.transaction
 import java.time.LocalDate
 import java.util.UUID
 import java.util.concurrent.atomic.AtomicInteger
-import kotlin.time.Duration.Companion.milliseconds
-import kotlin.time.Duration.Companion.seconds
 
 class SykepengerDialogportenService(
     private val dialogRepository: DialogRepository,
@@ -103,52 +100,44 @@ class SykepengerDialogportenService(
                 logger.info("Fant ${dialoger.size} dialoger opprettet som skal fikses for $dag")
                 val opprettet = AtomicInteger(0)
                 val feilet = AtomicInteger(0)
-                val semaphore = Semaphore(permits = 32) // max 32 corutines samtidig
-                coroutineScope {
-                    dialoger
-                        .map { dialog ->
-                            async(Dispatchers.IO) {
-                                semaphore.withPermit {
-                                    try {
-                                        delay(1.seconds) // Begrens til maxConcurrency per sekund
-                                        patchEnkelDialogMedUrlFeil(dialog, dag, opprettet, feilet)
-                                    } catch (e: Exception) {
-                                        logger.error("Error, patching av dialog ${dialog.dialogId} feilet")
-                                        sikkerLogger().error("Error, patching av dialog ${dialog.dialogId} feilet", e)
-                                        feilet.incrementAndGet()
+                supervisorScope {
+                    val semaphore = Semaphore(permits = 32) // max 32 corutines samtidig
+                    dialoger.chunked(250).forEach { chunk ->
+                        logger.info("Starter batch")
+                        chunk
+                            .map { dialogDto ->
+                                async(Dispatchers.IO) {
+                                    semaphore.withPermit {
+                                        runCatching {
+                                            patchEnkelDialogMedUrlFeil(dialogDto)
+                                            opprettet.incrementAndGet()
+                                        }.onFailure {
+                                            sikkerLogger().error("Feil ved patching av dialog ${dialogDto.dialogId}", it)
+                                            logger().error("Feil ved patching av dialog ${dialogDto.dialogId}")
+                                            feilet.incrementAndGet()
+                                        }
                                     }
                                 }
-                            }
-                        }
-                }.awaitAll()
-
-                totalFeilet += feilet.get()
+                            }.awaitAll()
+                        logger.info("Ferdig med batch")
+                    }
+                }
                 totalOpprettet += opprettet.get()
-                logger.info(
-                    "Ferdig med å fikse transmission-url for $dag. Oppdatert ${opprettet.get()}," +
-                        "feilet ${feilet.get()} | Total oppdatert: $totalOpprettet, Total feilet $totalFeilet",
-                )
+                totalFeilet += feilet.get()
+                logger.info("Ferdig med $dag - patchet OK: ${opprettet.get()}, feilet: ${feilet.get()}")
+                logger.info("Ferdig med $dag - totalt OK: $totalOpprettet, totalt feilet: $totalFeilet")
             }
-        logger.info("Ferdig med engangsjobb. Oppdatert $totalOpprettet, feilet $totalFeilet.")
+        logger.info("Ferdig med engangsjobb - totalt OK: $totalOpprettet, totalt feilet: $totalFeilet")
     }
 
-    private suspend fun patchEnkelDialogMedUrlFeil(
-        dialog: DialogEntity,
-        dag: LocalDate,
-        opprettet: AtomicInteger,
-        feilet: AtomicInteger,
-    ) {
-        val transmissions =
-            transaction {
-                dialog.transmissions.toList()
-            }
-
+    private suspend fun patchEnkelDialogMedUrlFeil(dialog: DialogForPatch) {
+        val transmissions = dialog.transmissions
         transmissions
             .filter { it.dokumentType == LpsApiExtendedType.SYKMELDING.toString() }
             .also {
                 if (it.isEmpty()) {
                     logger.warn(
-                        "Ingen sykmelding transmission for dialog ${dialog.dialogId} på $dag",
+                        "Ingen sykmelding transmission for dialog ${dialog.dialogId}",
                     )
                 }
             }.forEach { transmission ->
@@ -156,10 +145,8 @@ class SykepengerDialogportenService(
                 patchTransmission(
                     transmission = sykmeldingTransmission,
                     dialogId = dialog.dialogId,
-                    transmissionId = transmission.id.value,
-                ).also { success ->
-                    if (success) opprettet.incrementAndGet() else feilet.incrementAndGet()
-                }
+                    transmissionId = transmission.transmissionId,
+                )
             }
 
         transmissions
@@ -169,10 +156,8 @@ class SykepengerDialogportenService(
                 patchTransmission(
                     transmission = sykepengersoknadTransmission,
                     dialogId = dialog.dialogId,
-                    transmissionId = transmission.id.value,
-                ).also { success ->
-                    if (success) opprettet.incrementAndGet() else feilet.incrementAndGet()
-                }
+                    transmissionId = transmission.transmissionId,
+                )
             }
     }
 

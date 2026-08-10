@@ -5,13 +5,17 @@ import inntektsmelding_godkjent
 import inntektsmeldingsforespoersel
 import io.kotest.core.spec.style.FunSpec
 import io.mockk.clearAllMocks
+import io.mockk.coEvery
 import io.mockk.mockk
 import io.mockk.verify
 import no.nav.helsearbeidsgiver.arbeidsgivernotifikasjon.ArbeidsgiverNotifikasjonKlient
+import no.nav.helsearbeidsgiver.database.DialogForPatch
 import no.nav.helsearbeidsgiver.database.DialogRepository
+import no.nav.helsearbeidsgiver.database.TransmissionForPatch
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import sykepengesoeknad
 import sykmelding
+import java.util.UUID
 
 class DialogportenServiceTest :
     FunSpec({
@@ -23,6 +27,40 @@ class DialogportenServiceTest :
         val unleashFeatureToggles = mockk<UnleashFeatureToggles>(relaxed = true)
         val agNotifikasjonKlient = mockk<ArbeidsgiverNotifikasjonKlient>(relaxed = true)
 
+        test("patch") {
+            // TODO: Temp: Denne testen kan slettes når vi har patchet ok!
+            val dialog1 =
+                DialogForPatch(
+                    UUID.randomUUID(),
+                    listOf(
+                        TransmissionForPatch(
+                            UUID.fromString("019fd20f-34bd-776e-8fe9-f2e9c88f5e7c"),
+                            UUID.randomUUID(),
+                            LpsApiExtendedType.SYKMELDING.toString(),
+                        ),
+                    ),
+                )
+            val dialog2 =
+                DialogForPatch(
+                    UUID.randomUUID(),
+                    listOf(
+                        TransmissionForPatch(
+                            UUID.fromString("019fd20f-34bd-776e-8fe9-f2e9c88f5e7c"),
+                            UUID.randomUUID(),
+                            LpsApiExtendedType.SYKEPENGESOEKNAD.toString(),
+                        ),
+                    ),
+                )
+
+            coEvery { dialogRepository.hentDialogerOpprettetPaaDag(any()) } returns listOf(dialog1, dialog2)
+
+            val service = SykepengerDialogportenService(dialogRepository, dialogportenClient, unleashFeatureToggles)
+            val start = System.currentTimeMillis()
+            service.oppdaterTransmisjonerMedFeilUrl()
+            val end = System.currentTimeMillis()
+            val duration = end - start
+            println("fix manglende sykmeldinger took $duration ms")
+        }
         test("opprettOgLagreDialog skal kalle sykmeldingHandler") {
             val service = SykepengerDialogportenService(dialogRepository, dialogportenClient, unleashFeatureToggles, agNotifikasjonKlient)
 
