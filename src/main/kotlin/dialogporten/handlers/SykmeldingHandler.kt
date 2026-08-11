@@ -112,11 +112,11 @@ class SykmeldingHandler(
                         tidspunkt = null,
                         varslingTittel = "Ny sykmelding for en av dine ansatte",
                         varslingInnhold =
-                            "<p>En ansatt i underenhet ${sykmelding.orgnr.verdi} har sendt inn en ny sykmelding.</p>" +
+                            "<p>En ansatt i underenhet med orgnr ${sykmelding.orgnr.verdi} har sendt inn en ny sykmelding.</p>" +
                                 "<p>Logg inn på Altinn eller Nav for å se sykmeldingen.</p>" +
                                 "<p>Vennlig hilsen Nav.</p>",
                         smsVarslingInnhold =
-                            "En ansatt i underenhet ${sykmelding.orgnr.verdi} har sendt inn en ny sykmelding. " +
+                            "En ansatt i underenhet med orgnr ${sykmelding.orgnr.verdi} har sendt inn en ny sykmelding. " +
                                 "Logg inn på Altinn eller Nav for å se sykmeldingen. Vennlig hilsen Nav.",
                         hardDeleteOm = 730.days,
                     )
