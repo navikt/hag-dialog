@@ -75,7 +75,6 @@ fun startServer() {
         SykepengerDialogportenService(
             dialogRepository = dialogRepository,
             dialogportenClient = sykePengerdialogportenClient,
-            unleashFeatureToggles = unleashFeatureToggles,
         )
     val fritakDialogportenService =
         FritakDialogportenService(
