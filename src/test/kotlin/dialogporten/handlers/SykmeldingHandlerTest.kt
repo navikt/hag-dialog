@@ -79,7 +79,7 @@ class SykmeldingHandlerTest :
             capturedRequest.externalReference shouldBe sykmelding.sykmeldingId.toString()
             capturedRequest.title shouldBe "Sykepenger for ${sykmelding.fulltNavn} (f. ${sykmelding.foedselsdato.tilNorskFormat()})"
             capturedRequest.summary shouldBe sykmelding.sykmeldingsperioder.getSykmeldingsPerioderString()
-            capturedRequest.isApiOnly shouldBe true
+            capturedRequest.isApiOnly shouldBe false
 
             verify(exactly = 1) {
                 dialogRepositoryMock.lagreDialog(

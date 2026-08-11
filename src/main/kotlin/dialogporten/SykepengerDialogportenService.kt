@@ -112,7 +112,10 @@ class SykepengerDialogportenService(
                                             patchEnkelDialogMedUrlFeil(dialogDto)
                                             opprettet.incrementAndGet()
                                         }.onFailure {
-                                            sikkerLogger().error("Feil ved patching av dialog ${dialogDto.dialogId}", it)
+                                            sikkerLogger().error(
+                                                "Feil ved patching av dialog ${dialogDto.dialogId}",
+                                                it,
+                                            )
                                             logger().error("Feil ved patching av dialog ${dialogDto.dialogId}")
                                             feilet.incrementAndGet()
                                         }
@@ -152,7 +155,8 @@ class SykepengerDialogportenService(
         transmissions
             .filter { it.dokumentType == LpsApiExtendedType.SYKEPENGESOEKNAD.toString() }
             .forEach { transmission ->
-                val sykepengersoknadTransmission = sykepengesoknadTransmission(transmission.dokumentId, isSilentUpdate = true)
+                val sykepengersoknadTransmission =
+                    sykepengesoknadTransmission(transmission.dokumentId, isSilentUpdate = true)
                 patchTransmission(
                     transmission = sykepengersoknadTransmission,
                     dialogId = dialog.dialogId,
@@ -175,7 +179,10 @@ class SykepengerDialogportenService(
             return true
         } catch (e: Exception) {
             logger.error("Klarte ikke å fikse transmission $transmissionId i dialog $dialogId")
-            sikkerLogger().error("Klarte ikke å fikse transmission tittel: ${transmission.tittel}, $transmissionId i dialog $dialogId", e)
+            sikkerLogger().error(
+                "Klarte ikke å fikse transmission tittel: ${transmission.tittel}, $transmissionId i dialog $dialogId",
+                e,
+            )
             return false
         }
     }

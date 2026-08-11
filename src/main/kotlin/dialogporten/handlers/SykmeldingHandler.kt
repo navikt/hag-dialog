@@ -57,7 +57,7 @@ class SykmeldingHandler(
                                 listOf(
                                     sykmeldingTransmission(sykmelding.sykmeldingId).toTransmission(),
                                 ),
-                            isApiOnly = unleashFeatureToggles.skalOppretteDialogKunForApi(),
+                            isApiOnly = false,
                         )
 
                     dialogportenClient.createDialog(request)
