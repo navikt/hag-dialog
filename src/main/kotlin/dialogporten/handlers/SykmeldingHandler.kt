@@ -34,29 +34,37 @@ class SykmeldingHandler(
     private val logger = logger()
 
     fun opprettOgLagreDialog(sykmelding: Sykmelding) {
-        val dialogId =
-            runBlocking {
-                val request =
-                    CreateDialogRequest(
-                        orgnr = sykmelding.orgnr,
-                        externalReference = sykmelding.sykmeldingId.toString(),
-                        idempotentKey = sykmelding.sykmeldingId.toString(),
-                        title =
-                            "Sykepenger for ${sykmelding.fulltNavn} (f. ${sykmelding.foedselsdato.tilNorskFormat()})",
-                        summary =
-                            sykmelding.sykmeldingsperioder.getSykmeldingsPerioderString(),
-                        additionalInfo = lagDialogAdditionalInfo(),
-                        transmissions =
-                            listOf(
-                                sykmeldingTransmission(sykmelding.sykmeldingId).toTransmission(),
-                            ),
-                        isApiOnly = unleashFeatureToggles.skalOppretteDialogKunForApi(),
-                    )
+        val eksisterendeDialog = dialogRepository.finnDialogMedSykemeldingId(sykmelding.sykmeldingId)
 
-                dialogportenClient.createDialog(request)
-            }
-        dialogRepository.lagreDialog(dialogId = dialogId, sykmeldingId = sykmelding.sykmeldingId)
-        logger.info("Opprettet dialog $dialogId for sykmelding ${sykmelding.sykmeldingId}.")
+        if (eksisterendeDialog != null) {
+            logger.info(
+                "Dialog ${eksisterendeDialog.id} finnes allerede for sykmelding ${sykmelding.sykmeldingId}, hopper over opprettelse.",
+            )
+        } else {
+            val dialogId =
+                runBlocking {
+                    val request =
+                        CreateDialogRequest(
+                            orgnr = sykmelding.orgnr,
+                            externalReference = sykmelding.sykmeldingId.toString(),
+                            idempotentKey = sykmelding.sykmeldingId.toString(),
+                            title =
+                                "Sykepenger for ${sykmelding.fulltNavn} (f. ${sykmelding.foedselsdato.tilNorskFormat()})",
+                            summary =
+                                sykmelding.sykmeldingsperioder.getSykmeldingsPerioderString(),
+                            additionalInfo = lagDialogAdditionalInfo(),
+                            transmissions =
+                                listOf(
+                                    sykmeldingTransmission(sykmelding.sykmeldingId).toTransmission(),
+                                ),
+                            isApiOnly = unleashFeatureToggles.skalOppretteDialogKunForApi(),
+                        )
+
+                    dialogportenClient.createDialog(request)
+                }
+            dialogRepository.lagreDialog(dialogId = dialogId, sykmeldingId = sykmelding.sykmeldingId)
+            logger.info("Opprettet dialog $dialogId for sykmelding ${sykmelding.sykmeldingId}.")
+        }
 
         if (unleashFeatureToggles.skalOppretteNotifikasjoner()) {
             opprettNotifikasjoner(sykmelding)
