@@ -29,4 +29,10 @@ class UnleashFeatureToggles {
             "opprett-dialoger",
             true,
         )
+
+    fun skalOppretteNotifikasjoner(): Boolean =
+        defaultUnleash.isEnabled(
+            "opprett-notifikasjoner-fager",
+            false,
+        )
 }

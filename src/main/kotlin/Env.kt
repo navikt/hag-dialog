@@ -41,6 +41,11 @@ object Env {
         val tokenEndpoint = "NAIS_TOKEN_ENDPOINT".fromEnv()
     }
 
+    object Notifikasjon {
+        val apiUrl = "ARBEIDSGIVER_NOTIFIKASJON_API_URL".fromEnv()
+        val scope = "ARBEIDSGIVER_NOTIFIKASJON_SCOPE".fromEnv()
+    }
+
     object Altinn {
         val baseUrl = "ALTINN_3_BASE_URL".fromEnv()
         val sykepengerDialogportenRessurs = "SYKEPENGER_DIALOGPORTEN_RESSURS".fromEnv()

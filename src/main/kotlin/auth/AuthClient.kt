@@ -19,18 +19,28 @@ class AuthClient {
     fun tokenGetter(target: String): () -> String =
         {
             runBlocking {
-                token(target).accessToken
+                token("maskinporten", target).accessToken
             }
         }
 
-    private suspend fun token(target: String): TokenResponse =
+    fun azureAdTokenGetter(target: String): () -> String =
+        {
+            runBlocking {
+                token("azuread", target).accessToken
+            }
+        }
+
+    private suspend fun token(
+        identityProvider: String,
+        target: String,
+    ): TokenResponse =
         try {
             httpClient
                 .submitForm(
                     url = Env.Nais.tokenEndpoint,
                     formParameters =
                         parameters {
-                            append("identity_provider", "maskinporten")
+                            append("identity_provider", identityProvider)
                             append("target", target)
                         },
                 ).body()

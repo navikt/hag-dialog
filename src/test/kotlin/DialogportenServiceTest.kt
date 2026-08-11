@@ -8,9 +8,11 @@ import io.mockk.clearAllMocks
 import io.mockk.coEvery
 import io.mockk.mockk
 import io.mockk.verify
+import no.nav.helsearbeidsgiver.arbeidsgivernotifikasjon.ArbeidsgiverNotifikasjonKlient
 import no.nav.helsearbeidsgiver.database.DialogForPatch
 import no.nav.helsearbeidsgiver.database.DialogRepository
 import no.nav.helsearbeidsgiver.database.TransmissionForPatch
+import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import sykepengesoeknad
 import sykmelding
 import java.util.UUID
@@ -22,6 +24,8 @@ class DialogportenServiceTest :
         }
         val dialogRepository = mockk<DialogRepository>(relaxed = true)
         val dialogportenClient = mockk<DialogportenClient>(relaxed = true)
+        val unleashFeatureToggles = mockk<UnleashFeatureToggles>(relaxed = true)
+        val agNotifikasjonKlient = mockk<ArbeidsgiverNotifikasjonKlient>(relaxed = true)
 
         test("patch") {
             // TODO: Temp: Denne testen kan slettes når vi har patchet ok!
@@ -50,7 +54,7 @@ class DialogportenServiceTest :
 
             coEvery { dialogRepository.hentDialogerOpprettetPaaDag(any()) } returns listOf(dialog1, dialog2)
 
-            val service = SykepengerDialogportenService(dialogRepository, dialogportenClient)
+            val service = SykepengerDialogportenService(dialogRepository, dialogportenClient, unleashFeatureToggles, agNotifikasjonKlient)
             val start = System.currentTimeMillis()
             service.oppdaterTransmisjonerMedFeilUrl()
             val end = System.currentTimeMillis()
@@ -58,7 +62,7 @@ class DialogportenServiceTest :
             println("fix manglende sykmeldinger took $duration ms")
         }
         test("opprettOgLagreDialog skal kalle sykmeldingHandler") {
-            val service = SykepengerDialogportenService(dialogRepository, dialogportenClient)
+            val service = SykepengerDialogportenService(dialogRepository, dialogportenClient, unleashFeatureToggles, agNotifikasjonKlient)
 
             service.opprettOgLagreDialog(sykmelding)
 
@@ -66,7 +70,7 @@ class DialogportenServiceTest :
         }
 
         test("oppdaterDialogMedSykepengesoeknad skal kalle sykepengesoeknadHandler") {
-            val service = SykepengerDialogportenService(dialogRepository, dialogportenClient)
+            val service = SykepengerDialogportenService(dialogRepository, dialogportenClient, unleashFeatureToggles, agNotifikasjonKlient)
 
             service.oppdaterDialogMedSykepengesoeknad(sykepengesoeknad)
 
@@ -74,7 +78,7 @@ class DialogportenServiceTest :
         }
 
         test("oppdaterDialogMedInntektsmeldingsforespoersel skal kalle forespoerselHandler") {
-            val service = SykepengerDialogportenService(dialogRepository, dialogportenClient)
+            val service = SykepengerDialogportenService(dialogRepository, dialogportenClient, unleashFeatureToggles, agNotifikasjonKlient)
 
             service.oppdaterDialogMedInntektsmeldingsforespoersel(inntektsmeldingsforespoersel)
 
@@ -82,7 +86,7 @@ class DialogportenServiceTest :
         }
 
         test("oppdaterDialogMedInntektsmelding skal kalle inntektsmeldingHandler") {
-            val service = SykepengerDialogportenService(dialogRepository, dialogportenClient)
+            val service = SykepengerDialogportenService(dialogRepository, dialogportenClient, unleashFeatureToggles, agNotifikasjonKlient)
 
             service.oppdaterDialogMedInntektsmelding(inntektsmelding_godkjent)
 
@@ -90,7 +94,7 @@ class DialogportenServiceTest :
         }
 
         test("oppdaterDialogMedUtgaattForespoersel skal kalle utgaattForespoerselHandler") {
-            val service = SykepengerDialogportenService(dialogRepository, dialogportenClient)
+            val service = SykepengerDialogportenService(dialogRepository, dialogportenClient, unleashFeatureToggles, agNotifikasjonKlient)
 
             service.oppdaterDialogMedUtgaattForespoersel(forespoersel_utgaatt)
 
