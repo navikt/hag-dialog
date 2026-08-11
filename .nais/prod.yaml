@@ -53,7 +53,7 @@ spec:
         - host: helsearbeidsgiver-unleash-api.nav.cloud.nais.io
       rules:
         - application: notifikasjon-produsent-api
-        - namespace: fager
+          namespace: fager
         - application: logging
           namespace: nais-system
   maskinporten:
