@@ -50,8 +50,6 @@ class SykmeldingHandlerTest :
             coEvery { dialogportenClientMock.createDialog(capture(requestSlot)) } returns dialogId
             every { dialogRepositoryMock.lagreDialog(any(), any()) } just Runs
             coEvery { dialogportenClientMock.setDialogStatus(any(), any()) } just Runs
-            every { unleashFeatureTogglesMock.skalOppretteDialogKunForApi() } returns
-                true
             every { unleashFeatureTogglesMock.skalOppretteNotifikasjoner() } returns true
             coEvery { agNotifikasjonKlientMock.opprettNySak(any(), any(), any(), any(), any(), any(), any(), any(), any()) } returns
                 UUID.randomUUID().toString()
@@ -92,7 +90,6 @@ class SykmeldingHandlerTest :
         test("skal ikke opprette sak eller beskjed hvis opprettelse av dialog feiler") {
             every { dialogRepositoryMock.finnDialogMedSykemeldingId(sykmelding.sykmeldingId) } returns null
             coEvery { dialogportenClientMock.createDialog(any()) } throws DialogportenClientException("Dialogporten feil")
-            every { unleashFeatureTogglesMock.skalOppretteDialogKunForApi() } returns false
             every { unleashFeatureTogglesMock.skalOppretteNotifikasjoner() } returns true
 
             assertThrows<DialogportenClientException> {

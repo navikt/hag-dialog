@@ -2,7 +2,6 @@ package no.nav.helsearbeidsgiver.dialogporten.handlers
 
 import kotlinx.coroutines.runBlocking
 import no.nav.helsearbeidsgiver.Env
-import no.nav.helsearbeidsgiver.arbeidsgivernotifikasjon.Altinn3Ressurs
 import no.nav.helsearbeidsgiver.arbeidsgivernotifikasjon.ArbeidsgiverNotifikasjonKlient
 import no.nav.helsearbeidsgiver.arbeidsgivernotifikasjon.SakEllerOppgaveDuplikatException
 import no.nav.helsearbeidsgiver.arbeidsgivernotifikasjon.Tjeneste
