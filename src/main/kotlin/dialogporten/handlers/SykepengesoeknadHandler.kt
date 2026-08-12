@@ -90,7 +90,8 @@ class SykepengesoeknadHandler(
         sykepengesoeknad: Sykepengesoeknad,
         sykmelding: dokumentkobling.Sykmelding,
     ) {
-        val sakTittel = "Søknad om sykepenger for ${sykmelding.fulltNavn} (f. ${sykmelding.foedselsdato.tilNorskFormat()})"
+        val sakTittel =
+            "Søknad om sykepenger for ${sykmelding.fulltNavn} (f. ${sykmelding.foedselsdato.tilNorskFormat()})"
 
         val lenke = "${Env.Nav.arbeidsgiverGuiBaseUrl}/dokument/sykepengesoeknad/${sykepengesoeknad.soeknadId}.pdf"
         val grupperingsid = sykepengesoeknad.soeknadId.toString()
