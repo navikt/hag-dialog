@@ -65,6 +65,7 @@ fun startServer() {
             dialogportenClient = dialogportenClient,
             unleashFeatureToggles = unleashFeatureToggles,
             agNotifikasjonKlient = mockk<ArbeidsgiverNotifikasjonKlient>(relaxed = true),
+            dokumentkoblingRepository = dokumentkoblingRepository,
         )
     val fritakDialogportenService =
         FritakDialogportenService(

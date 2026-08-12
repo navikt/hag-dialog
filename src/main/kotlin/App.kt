@@ -87,6 +87,7 @@ fun startServer() {
             dialogportenClient = sykePengerdialogportenClient,
             unleashFeatureToggles = unleashFeatureToggles,
             agNotifikasjonKlient = agNotifikasjonKlient,
+            dokumentkoblingRepository = dokumentkoblingRepository,
         )
     val fritakDialogportenService =
         FritakDialogportenService(

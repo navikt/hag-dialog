@@ -10,6 +10,7 @@ import no.nav.helsearbeidsgiver.arbeidsgivernotifikasjon.ArbeidsgiverNotifikasjo
 import no.nav.helsearbeidsgiver.database.DialogEntity
 import no.nav.helsearbeidsgiver.database.DialogForPatch
 import no.nav.helsearbeidsgiver.database.DialogRepository
+import no.nav.helsearbeidsgiver.database.DokumentkoblingRepository
 import no.nav.helsearbeidsgiver.dialogporten.domene.TransmissionRequest
 import no.nav.helsearbeidsgiver.dialogporten.domene.toTransmission
 import no.nav.helsearbeidsgiver.dialogporten.handlers.ForespoerselHandler
@@ -36,10 +37,18 @@ class SykepengerDialogportenService(
     private val dialogportenClient: DialogportenClient,
     unleashFeatureToggles: UnleashFeatureToggles,
     agNotifikasjonKlient: ArbeidsgiverNotifikasjonKlient,
+    dokumentkoblingRepository: DokumentkoblingRepository,
 ) {
     private val logger = logger()
     private val sykmeldingHandler = SykmeldingHandler(dialogRepository, dialogportenClient, unleashFeatureToggles, agNotifikasjonKlient)
-    private val sykepengesoeknadHandler = SykepengesoeknadHandler(dialogRepository, dialogportenClient)
+    private val sykepengesoeknadHandler =
+        SykepengesoeknadHandler(
+            dialogRepository,
+            dialogportenClient,
+            unleashFeatureToggles,
+            agNotifikasjonKlient,
+            dokumentkoblingRepository,
+        )
     private val forespoerselHandler = ForespoerselHandler(dialogRepository, dialogportenClient)
     private val inntektsmeldingHandler = InntektsmeldingHandler(dialogRepository, dialogportenClient)
     private val utgaattForespoerselHandler = UtgaattForespoerselHandler(dialogRepository, dialogportenClient)
