@@ -46,7 +46,8 @@ class SykepengesoeknadHandler(
 
         if (eksisterendeTransmission != null) {
             logger.info(
-                "Transmission for sykepengesøknad ${sykepengesoeknad.soeknadId} finnes allerede i dialog ${dialog.dialogId}, hopper over opprettelse.",
+                "Transmission for sykepengesøknad ${sykepengesoeknad.soeknadId} " +
+                    "finnes allerede i dialog ${dialog.dialogId}, hopper over opprettelse.",
             )
         } else {
             val transmissionId =
