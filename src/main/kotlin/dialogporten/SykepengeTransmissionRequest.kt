@@ -83,7 +83,7 @@ class UtgaattForespoerselTransmissionRequest(
 fun lagLestTransmissionFceUrl(
     dialogId: UUID,
     transmissionId: UUID,
-): String = "${Env.Nav.arbeidsgiverGuiBaseUrl}/dokument/fce?dialogId=$dialogId&transmissionId=$transmissionId"
+): String = "${Env.Nav.arbeidsgiverGuiBaseUrl}/dokument/fce/sett-transmission-lest?dialogId=$dialogId&transmissionId=$transmissionId"
 
 fun Inntektsmelding.Status.toExtendedType(): String =
     when (this) {
