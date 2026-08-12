@@ -81,75 +81,87 @@ class SykepengesoeknadHandler(
                         "Kan ikke opprette notifikasjoner for sykepengesøknad ${sykepengesoeknad.soeknadId}.",
                 )
             } else {
-                opprettNotifikasjoner(sykepengesoeknad, sykmeldingEntitet.data)
+                agNotifikasjonKlient.opprettNotifikasjoner(sykepengesoeknad, sykmeldingEntitet.data)
             }
         }
     }
+}
 
-    private fun opprettNotifikasjoner(
-        sykepengesoeknad: Sykepengesoeknad,
-        sykmelding: dokumentkobling.Sykmelding,
-    ) {
-        val sakTittel =
-            "Søknad om sykepenger for ${sykmelding.fulltNavn} (f. ${sykmelding.foedselsdato.tilNorskFormat()})"
+private fun ArbeidsgiverNotifikasjonKlient.opprettNotifikasjoner(
+    sykepengesoeknad: Sykepengesoeknad,
+    sykmelding: dokumentkobling.Sykmelding,
+) {
+    val logger = logger()
 
-        val lenke = "${Env.Nav.arbeidsgiverGuiBaseUrl}/dokument/sykepengesoeknad/${sykepengesoeknad.soeknadId}.pdf"
-        val grupperingsid = sykepengesoeknad.soeknadId.toString()
+    val sakTittel =
+        "Søknad om sykepenger for ${sykmelding.fulltNavn} (f. ${sykmelding.foedselsdato.tilNorskFormat()})"
 
-        try {
-            val sakId =
-                runBlocking {
-                    agNotifikasjonKlient.opprettNySak(
-                        virksomhetsnummer = sykepengesoeknad.orgnr.verdi,
-                        grupperingsid = grupperingsid,
-                        tjeneste = Tjeneste.SOEKNAD,
-                        lenke = lenke,
-                        tittel = sakTittel,
-                        statusTekst = "Mottatt søknad om sykepenger",
-                        tilleggsinfo = null,
-                        initiellStatus = SaksStatus.MOTTATT,
-                        hardDeleteOm = 730.days,
-                    )
-                }
-            logger.info("Opprettet notifikasjon-sak $sakId for sykepengesøknad ${sykepengesoeknad.soeknadId}.")
-        } catch (e: SakEllerOppgaveDuplikatException) {
-            logger.warn("Duplikat sak for sykepengesøknad ${sykepengesoeknad.soeknadId}: ${e.eksisterendeId}")
-        } catch (e: Exception) {
-            logger.error("Feil ved opprettelse av notifikasjon-sak for sykepengesøknad ${sykepengesoeknad.soeknadId}")
-            sikkerLogger().error("Feil ved opprettelse av notifikasjon-sak for sykepengesøknad ${sykepengesoeknad.soeknadId}", e)
-            throw e
-        }
+    val lenke = "${Env.Nav.arbeidsgiverGuiBaseUrl}/dokument/sykepengesoeknad/${sykepengesoeknad.soeknadId}.pdf"
+    val grupperingsid = sykepengesoeknad.soeknadId.toString()
 
-        try {
-            val beskjedId =
-                runBlocking {
-                    agNotifikasjonKlient.opprettNyBeskjed(
-                        virksomhetsnummer = sykepengesoeknad.orgnr.verdi,
-                        eksternId = sykepengesoeknad.soeknadId.toString(),
-                        grupperingsid = grupperingsid,
-                        tjeneste = Tjeneste.SOEKNAD,
-                        lenke = lenke,
-                        tekst = "Ny søknad om sykepenger for en av dine ansatte",
-                        tidspunkt = null,
-                        varslingTittel = "Ny søknad om sykepenger",
-                        varslingInnhold =
-                            "<p>En ansatt i underenhet med orgnr ${sykepengesoeknad.orgnr.verdi} har sendt inn en søknad om sykepenger.</p>" +
-                                "<p>Logg inn på Altinn eller Nav for å se søknaden.</p>" +
-                                "<p>Vennlig hilsen Nav.</p>",
-                        smsVarslingInnhold =
-                            "En ansatt i underenhet med orgnr ${sykepengesoeknad.orgnr.verdi} har sendt inn en søknad om sykepenger. " +
-                                "Logg inn på Altinn eller Nav for å se søknaden. Vennlig hilsen Nav.",
-                        hardDeleteOm = 730.days,
-                    )
-                }
-            logger.info("Opprettet notifikasjon-beskjed $beskjedId for sykepengesøknad ${sykepengesoeknad.soeknadId}.")
-        } catch (e: SakEllerOppgaveDuplikatException) {
-            logger.warn("Duplikat beskjed for sykepengesøknad ${sykepengesoeknad.soeknadId}: ${e.eksisterendeId}")
-        } catch (e: Exception) {
-            logger.error("Feil ved opprettelse av notifikasjon-beskjed for sykepengesøknad ${sykepengesoeknad.soeknadId}")
-            sikkerLogger().error("Feil ved opprettelse av notifikasjon-beskjed for sykepengesøknad ${sykepengesoeknad.soeknadId}", e)
-            throw e
-        }
+    try {
+        val sakId =
+            runBlocking {
+                this@opprettNotifikasjoner.opprettNySak(
+                    virksomhetsnummer = sykepengesoeknad.orgnr.verdi,
+                    grupperingsid = grupperingsid,
+                    tjeneste = Tjeneste.SOEKNAD,
+                    lenke = lenke,
+                    tittel = sakTittel,
+                    statusTekst = "Mottatt søknad om sykepenger",
+                    tilleggsinfo = null,
+                    initiellStatus = SaksStatus.MOTTATT,
+                    hardDeleteOm = 730.days,
+                )
+            }
+        logger.info("Opprettet notifikasjon-sak $sakId for sykepengesøknad ${sykepengesoeknad.soeknadId}.")
+    } catch (e: SakEllerOppgaveDuplikatException) {
+        logger.warn("Duplikat sak for sykepengesøknad ${sykepengesoeknad.soeknadId}: ${e.eksisterendeId}")
+    } catch (e: Exception) {
+        logger.error("Feil ved opprettelse av notifikasjon-sak for sykepengesøknad ${sykepengesoeknad.soeknadId}")
+        sikkerLogger().error(
+            "Feil ved opprettelse av notifikasjon-sak for sykepengesøknad " +
+                "${sykepengesoeknad.soeknadId}",
+            e,
+        )
+        throw e
+    }
+
+    try {
+        val beskjedId =
+            runBlocking {
+                this@opprettNotifikasjoner.opprettNyBeskjed(
+                    virksomhetsnummer = sykepengesoeknad.orgnr.verdi,
+                    eksternId = sykepengesoeknad.soeknadId.toString(),
+                    grupperingsid = grupperingsid,
+                    tjeneste = Tjeneste.SOEKNAD,
+                    lenke = lenke,
+                    tekst = "Ny søknad om sykepenger for en av dine ansatte",
+                    tidspunkt = null,
+                    varslingTittel = "Ny søknad om sykepenger",
+                    varslingInnhold =
+                        "<p>En ansatt i underenhet med orgnr ${sykepengesoeknad.orgnr.verdi} " +
+                            "har sendt inn en søknad om sykepenger.</p>" +
+                            "<p>Logg inn på Altinn eller Nav for å se søknaden.</p>" +
+                            "<p>Vennlig hilsen Nav.</p>",
+                    smsVarslingInnhold =
+                        "En ansatt i underenhet med orgnr ${sykepengesoeknad.orgnr.verdi} " +
+                            "har sendt inn en søknad om sykepenger. " +
+                            "Logg inn på Altinn eller Nav for å se søknaden. Vennlig hilsen Nav.",
+                    hardDeleteOm = 730.days,
+                )
+            }
+        logger.info("Opprettet notifikasjon-beskjed $beskjedId for sykepengesøknad ${sykepengesoeknad.soeknadId}.")
+    } catch (e: SakEllerOppgaveDuplikatException) {
+        logger.warn("Duplikat beskjed for sykepengesøknad ${sykepengesoeknad.soeknadId}: ${e.eksisterendeId}")
+    } catch (e: Exception) {
+        logger.error("Feil ved opprettelse av notifikasjon-beskjed for sykepengesøknad ${sykepengesoeknad.soeknadId}")
+        sikkerLogger().error(
+            "Feil ved opprettelse av notifikasjon-beskjed for sykepengesøknad " +
+                "${sykepengesoeknad.soeknadId}",
+            e,
+        )
+        throw e
     }
 }
 
