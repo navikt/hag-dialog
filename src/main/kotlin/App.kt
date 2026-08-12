@@ -71,7 +71,7 @@ fun startServer() {
         ArbeidsgiverNotifikasjonKlient(
             url = Env.Notifikasjon.apiUrl,
             getAccessToken = authClient.azureAdTokenGetter(Env.Notifikasjon.scope),
-            sendevindu = Sendevindu.NKS_AAPNINGSTID,
+            sendevindu = Sendevindu.LOEPENDE, // TODO bytt tilbake til nks_aapningstid
         )
 
     logger.info("Setter opp DialogRepository...")
