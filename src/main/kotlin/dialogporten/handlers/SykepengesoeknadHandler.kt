@@ -136,9 +136,9 @@ private fun ArbeidsgiverNotifikasjonKlient.opprettNotifikasjoner(
                     grupperingsid = grupperingsid,
                     tjeneste = Tjeneste.SOEKNAD,
                     lenke = lenke,
-                    tekst = "Ny søknad om sykepenger for en av dine ansatte",
+                    tekst = "Ny søknad om sykepenger",
                     tidspunkt = null,
-                    varslingTittel = "Ny søknad om sykepenger",
+                    varslingTittel = "Ny søknad om sykepenger for en av dine ansatte",
                     varslingInnhold =
                         "<p>En ansatt i underenhet med orgnr ${sykepengesoeknad.orgnr.verdi} " +
                             "har sendt inn en søknad om sykepenger.</p>" +
