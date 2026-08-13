@@ -108,7 +108,7 @@ class SykmeldingHandler(
                         grupperingsid = grupperingsid,
                         tjeneste = Tjeneste.SYKMELDING,
                         lenke = lenke,
-                        tekst = "Ny sykmelding for en av dine ansatte",
+                        tekst = "Ny sykmelding",
                         tidspunkt = null,
                         varslingTittel = "Ny sykmelding for en av dine ansatte",
                         varslingInnhold =
