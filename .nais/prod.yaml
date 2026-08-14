@@ -7,6 +7,9 @@ metadata:
   name: dialog
   namespace: helsearbeidsgiver
 spec:
+  azure:
+    application:
+      enabled: true
   strategy:
     type: Recreate
   replicas:
@@ -49,6 +52,8 @@ spec:
         - host: platform.altinn.no
         - host: helsearbeidsgiver-unleash-api.nav.cloud.nais.io
       rules:
+        - application: notifikasjon-produsent-api
+          namespace: fager
         - application: logging
           namespace: nais-system
   maskinporten:
@@ -90,3 +95,7 @@ spec:
       value: helsearbeidsgiver.dokument-kobling
     - name: DIALOG_KAFKA_TOPIC
       value: helsearbeidsgiver.dialog
+    - name: ARBEIDSGIVER_NOTIFIKASJON_API_URL
+      value: "http://notifikasjon-produsent-api.fager/api/graphql"
+    - name: ARBEIDSGIVER_NOTIFIKASJON_SCOPE
+      value: "api://prod-gcp.fager.notifikasjon-produsent-api/.default"

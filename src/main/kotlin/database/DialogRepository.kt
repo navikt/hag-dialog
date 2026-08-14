@@ -1,6 +1,7 @@
 package no.nav.helsearbeidsgiver.database
 
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
+import org.jetbrains.exposed.dao.with
 import org.jetbrains.exposed.exceptions.ExposedSQLException
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
@@ -71,11 +72,24 @@ class DialogRepository(
         }
     }
 
-    fun hentDialogerOpprettetPaaDag(dag: LocalDate): List<DialogEntity> =
+    fun hentDialogerOpprettetPaaDag(dag: LocalDate): List<DialogForPatch> =
         transaction(db) {
             DialogEntity
                 .find { DialogTable.opprettet.between(dag.atStartOfDay(), dag.endOfDay()) }
-                .toList()
+                .with(DialogEntity::transmissions)
+                .map { dialog ->
+                    DialogForPatch(
+                        dialogId = dialog.dialogId,
+                        transmissions =
+                            dialog.transmissions.map { t ->
+                                TransmissionForPatch(
+                                    transmissionId = t.id.value,
+                                    dokumentId = t.dokumentId,
+                                    dokumentType = t.dokumentType,
+                                )
+                            },
+                    )
+                }
         }
 }
 

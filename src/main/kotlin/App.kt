@@ -9,12 +9,10 @@ import io.ktor.server.engine.embeddedServer
 import io.ktor.server.netty.Netty
 import io.ktor.server.routing.routing
 import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.asCoroutineDispatcher
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import no.nav.helsearbeidsgiver.arbeidsgivernotifikasjon.ArbeidsgiverNotifikasjonKlient
+import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.enums.Sendevindu
 import no.nav.helsearbeidsgiver.auth.AuthClient
 import no.nav.helsearbeidsgiver.auth.dialogportenTokenGetter
 import no.nav.helsearbeidsgiver.database.Database
@@ -68,6 +66,14 @@ fun startServer() {
             ressurs = Env.Altinn.fritakDialogportenRessurs,
             getToken = authClient.dialogportenTokenGetter(),
         )
+    logger.info("Setter opp ArbeidsgiverNotifikasjonKlient...")
+    val agNotifikasjonKlient =
+        ArbeidsgiverNotifikasjonKlient(
+            url = Env.Notifikasjon.apiUrl,
+            getAccessToken = authClient.azureAdTokenGetter(Env.Notifikasjon.scope),
+            sendevindu = Sendevindu.NKS_AAPNINGSTID,
+        )
+
     logger.info("Setter opp DialogRepository...")
     val dialogRepository = DialogRepository(database.db)
     val fritakDialogRepository =
@@ -80,6 +86,8 @@ fun startServer() {
             dialogRepository = dialogRepository,
             dialogportenClient = sykePengerdialogportenClient,
             unleashFeatureToggles = unleashFeatureToggles,
+            agNotifikasjonKlient = agNotifikasjonKlient,
+            dokumentkoblingRepository = dokumentkoblingRepository,
         )
     val fritakDialogportenService =
         FritakDialogportenService(
@@ -132,8 +140,8 @@ fun startServer() {
                     sikkerLogger().error("Feil ved fiksing av transmission ID for sykepenger-dialoger", exception)
                 }
 
-            launch(Dispatchers.Default + engangsjobbExceptionHandler) {
-                // sykepengerDialogportenService.fixManglendeSykmeldinger()
+            launch(Dispatchers.IO + engangsjobbExceptionHandler) {
+                // sykepengerDialogportenService.oppdaterTransmisjonerMedFeilUrl()
             }
             routing {
                 naisRoutes(HelsesjekkService(database.db))

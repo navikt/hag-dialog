@@ -33,8 +33,10 @@ repositories {
 
 dependencies {
     // Interne avhengigheter
+    val arbeidsgiverNotifikasjonKlientVersion: String by project
     val dialogportenClientVersion: String by project
     val utilsVersion: String by project
+    implementation("no.nav.helsearbeidsgiver:arbeidsgiver-notifikasjon-klient:$arbeidsgiverNotifikasjonKlientVersion")
     implementation("no.nav.helsearbeidsgiver:dialogporten-client:$dialogportenClientVersion")
     implementation("no.nav.helsearbeidsgiver:utils:$utilsVersion")
 

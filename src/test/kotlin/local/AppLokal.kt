@@ -8,6 +8,7 @@ import io.ktor.server.netty.Netty
 import io.ktor.server.routing.routing
 import io.mockk.coEvery
 import io.mockk.mockk
+import no.nav.helsearbeidsgiver.arbeidsgivernotifikasjon.ArbeidsgiverNotifikasjonKlient
 import no.nav.helsearbeidsgiver.database.Database
 import no.nav.helsearbeidsgiver.database.DialogRepository
 import no.nav.helsearbeidsgiver.database.DokumentkoblingRepository
@@ -63,6 +64,8 @@ fun startServer() {
             dialogRepository = dialogRepository,
             dialogportenClient = dialogportenClient,
             unleashFeatureToggles = unleashFeatureToggles,
+            agNotifikasjonKlient = mockk<ArbeidsgiverNotifikasjonKlient>(relaxed = true),
+            dokumentkoblingRepository = dokumentkoblingRepository,
         )
     val fritakDialogportenService =
         FritakDialogportenService(
