@@ -9,6 +9,7 @@ import java.util.UUID
 
 fun Route.activityRoutes(dialogportenClient: DialogportenClient) {
     get("sett-transmission-lest") {
+        println("Motokk HTTP kall sett transmission til lest")
         val dialogId = call.request.queryParameters["dialogId"].toUuidorNull()
         val transmissionId = call.request.queryParameters["transmissionId"].toUuidorNull()
 
@@ -16,6 +17,7 @@ fun Route.activityRoutes(dialogportenClient: DialogportenClient) {
             return@get call.respond(HttpStatusCode.BadRequest)
         }
 
+        println("Setter transmission til lest dialog:$dialogId  Transmission:$transmissionId")
         dialogportenClient.markTransmissionOpened(dialogId, transmissionId)
         call.respond(HttpStatusCode.OK)
     }
