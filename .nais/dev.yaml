@@ -51,6 +51,8 @@ spec:
       rules:
         - application: logging
           namespace: nais-system
+    inbound:
+      rules:
         - application: hag-dokument-proxy
           namespace: helsearbeidsgiver
   maskinporten:
