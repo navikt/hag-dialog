@@ -50,6 +50,7 @@ class SykmeldingHandlerTest :
             coEvery { dialogportenClientMock.createDialog(capture(requestSlot)) } returns dialogId
             every { dialogRepositoryMock.lagreDialog(any(), any()) } just Runs
             coEvery { dialogportenClientMock.setDialogStatus(any(), any()) } just Runs
+            every { dialogRepositoryMock.oppdaterDialogMedTransmission(any(), any(), any(), any()) } just Runs
             every { unleashFeatureTogglesMock.skalOppretteNotifikasjoner() } returns true
             coEvery { agNotifikasjonKlientMock.opprettNySak(any(), any(), any(), any(), any(), any(), any(), any(), any()) } returns
                 UUID.randomUUID().toString()

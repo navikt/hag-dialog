@@ -165,7 +165,11 @@ class SykepengerDialogportenService(
             .filter { it.dokumentType == LpsApiExtendedType.SYKEPENGESOEKNAD.toString() }
             .forEach { transmission ->
                 val sykepengersoknadTransmission =
-                    sykepengesoknadTransmission(transmission.dokumentId, isSilentUpdate = true)
+                    sykepengesoknadTransmission(
+                        soeknadId = transmission.dokumentId,
+                        dialogId = dialog.dialogId,
+                        isSilentUpdate = true,
+                    )
                 patchTransmission(
                     transmission = sykepengersoknadTransmission,
                     dialogId = dialog.dialogId,

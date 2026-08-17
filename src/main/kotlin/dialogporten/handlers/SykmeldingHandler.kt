@@ -8,6 +8,7 @@ import no.nav.helsearbeidsgiver.arbeidsgivernotifikasjon.Tjeneste
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.enums.SaksStatus
 import no.nav.helsearbeidsgiver.database.DialogRepository
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenClient
+import no.nav.helsearbeidsgiver.dialogporten.LpsApiExtendedType
 import no.nav.helsearbeidsgiver.dialogporten.SykmeldingTransmissionRequest
 import no.nav.helsearbeidsgiver.dialogporten.domene.CreateDialogRequest
 import no.nav.helsearbeidsgiver.dialogporten.domene.TransmissionRequest
@@ -40,6 +41,7 @@ class SykmeldingHandler(
                 "Dialog ${eksisterendeDialog.id} finnes allerede for sykmelding ${sykmelding.sykmeldingId}, hopper over opprettelse.",
             )
         } else {
+            val transmission = sykmeldingTransmission(sykmelding.sykmeldingId).toTransmission()
             val dialogId =
                 runBlocking {
                     val request =
@@ -52,16 +54,22 @@ class SykmeldingHandler(
                             summary =
                                 sykmelding.sykmeldingsperioder.getSykmeldingsPerioderString(),
                             additionalInfo = lagDialogAdditionalInfo(),
-                            transmissions =
-                                listOf(
-                                    sykmeldingTransmission(sykmelding.sykmeldingId).toTransmission(),
-                                ),
+                            transmissions = listOf(transmission),
                             isApiOnly = false,
                         )
 
                     dialogportenClient.createDialog(request)
                 }
             dialogRepository.lagreDialog(dialogId = dialogId, sykmeldingId = sykmelding.sykmeldingId)
+            transmission.id?.let { transmissionId ->
+                dialogRepository.oppdaterDialogMedTransmission(
+                    sykmeldingId = sykmelding.sykmeldingId,
+                    transmissionId = transmissionId,
+                    dokumentId = sykmelding.sykmeldingId,
+                    dokumentType = LpsApiExtendedType.SYKMELDING.toString(),
+                )
+            }
+
             logger.info("Opprettet dialog $dialogId for sykmelding ${sykmelding.sykmeldingId}.")
         }
 
