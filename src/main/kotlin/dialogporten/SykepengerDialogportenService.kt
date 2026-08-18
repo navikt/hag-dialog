@@ -167,7 +167,6 @@ class SykepengerDialogportenService(
                 val sykepengersoknadTransmission =
                     sykepengesoknadTransmission(
                         soeknadId = transmission.dokumentId,
-                        dialogId = dialog.dialogId,
                         isSilentUpdate = true,
                     )
                 patchTransmission(

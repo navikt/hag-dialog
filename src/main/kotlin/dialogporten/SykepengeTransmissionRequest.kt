@@ -25,45 +25,37 @@ class SykmeldingTransmissionRequest(
     sykmeldingId: UUID,
     override val attachments: List<Attachment>,
     override val isSilentUpdate: Boolean = false,
-) : TransmissionRequest() {
+) : TransmissionRequestMedLestFce() {
     override val extendedType = LpsApiExtendedType.SYKMELDING.toString()
     override val dokumentId = sykmeldingId
     override val tittel = "Sykmelding"
     override val sammendrag = null
-    override val contentReferenceFceUrl = null
     override val type = Transmission.TransmissionType.Information
     override val relatedTransmissionId = null
-    override val id = nyUuidv7()
 }
 
 class SykepengesoknadTransmissionRequest(
     soeknadId: UUID,
-    dialogId: UUID,
     override val attachments: List<Attachment>,
     override val isSilentUpdate: Boolean = false,
-) : TransmissionRequest() {
-    val transmissionId = nyUuidv7()
-
+) : TransmissionRequestMedLestFce() {
     override val extendedType = LpsApiExtendedType.SYKEPENGESOEKNAD.toString()
     override val dokumentId = soeknadId
     override val tittel = "Søknad om sykepenger"
     override val sammendrag = null
-    override val contentReferenceFceUrl = lagLestTransmissionFceUrl(dialogId = dialogId, transmissionId = transmissionId)
     override val type = Transmission.TransmissionType.Information
     override val relatedTransmissionId = null
-    override val id = transmissionId
 }
 
 class ForespoerselTransmissionRequest(
     forespoerselId: UUID,
     override val relatedTransmissionId: UUID? = null,
     override val attachments: List<Attachment>,
-) : TransmissionRequest() {
+) : TransmissionRequestMedLestFce() {
     override val extendedType = LpsApiExtendedType.FORESPOERSEL_AKTIV.toString()
     override val dokumentId = forespoerselId
     override val tittel = "Forespørsel om inntektsmelding"
     override val sammendrag = null
-    override val contentReferenceFceUrl = null
     override val type = Transmission.TransmissionType.Request
 }
 
@@ -71,19 +63,13 @@ class UtgaattForespoerselTransmissionRequest(
     forespoerselId: UUID,
     override val relatedTransmissionId: UUID? = null,
     override val attachments: List<Attachment>,
-) : TransmissionRequest() {
+) : TransmissionRequestMedLestFce() {
     override val extendedType = LpsApiExtendedType.FORESPOERSEL_UTGAATT.toString()
     override val dokumentId = forespoerselId
     override val tittel = "Forespørsel er utgått"
     override val sammendrag = null
-    override val contentReferenceFceUrl = null
     override val type = Transmission.TransmissionType.Information
 }
-
-fun lagLestTransmissionFceUrl(
-    dialogId: UUID,
-    transmissionId: UUID,
-): String = "${Env.Nav.arbeidsgiverGuiBaseUrl}/dokument/fce/sett-transmission-lest?dialogId=$dialogId&transmissionId=$transmissionId"
 
 fun Inntektsmelding.Status.toExtendedType(): String =
     when (this) {
@@ -107,25 +93,23 @@ class InntektsmeldingTransmissionRequest(
     inntektsmelding: Inntektsmelding,
     override val relatedTransmissionId: UUID?,
     override val attachments: List<Attachment>,
-) : TransmissionRequest() {
+) : TransmissionRequestMedLestFce() {
     override val extendedType = inntektsmelding.status.toExtendedType()
     override val dokumentId = inntektsmelding.innsendingId
     override val tittel = inntektsmelding.status.toTittel()
     override val sammendrag = null
-    override val contentReferenceFceUrl = null
     override val type = inntektsmelding.status.toTransmissionType()
-    override val id = nyUuidv7()
+    override val id = transmissionId
 }
 
 class FritakKravTransmissionRequest(
     kravMelding: FritakKravMelding,
-) : TransmissionRequest() {
+) : TransmissionRequestMedLestFce() {
     override val relatedTransmissionId = null
     override val dokumentId = kravMelding.id
     override val extendedType = finnTypeForFritakKrav(kravMelding).toString()
     override val tittel = kravMelding.toTittel()
     override val sammendrag = null
-    override val contentReferenceFceUrl = null
     override val type = Transmission.TransmissionType.Information
     override val attachments =
         listOf(
@@ -169,3 +153,14 @@ fun FritakKravMelding.toTittel(): String =
         is KroniskKravEndret -> "Krav om fritak for arbeidsgiverperiode ved kronisk sykdom er endret"
         is KroniskKravSlettet -> "Krav om fritak for arbeidsgiverperiode ved kronisk sykdom er annullert"
     }
+
+fun lagLestTransmissionFceUrl(
+    dialogId: UUID = nyUuidv7(),
+    transmissionId: UUID,
+): String = "${Env.Nav.arbeidsgiverGuiBaseUrl}/dokument/fce/sett-transmission-lest?dialogId=$dialogId&transmissionId=$transmissionId"
+
+abstract class TransmissionRequestMedLestFce : TransmissionRequest() {
+    val transmissionId = nyUuidv7()
+    override val contentReferenceFceUrl = lagLestTransmissionFceUrl(transmissionId = transmissionId)
+    override val id = transmissionId
+}

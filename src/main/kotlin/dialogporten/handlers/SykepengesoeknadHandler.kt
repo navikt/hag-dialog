@@ -58,7 +58,6 @@ class SykepengesoeknadHandler(
                         transmissionRequest =
                             sykepengesoknadTransmission(
                                 soeknadId = sykepengesoeknad.soeknadId,
-                                dialogId = dialog.dialogId,
                             ),
                     )
                 }
@@ -171,12 +170,10 @@ private fun ArbeidsgiverNotifikasjonKlient.opprettNotifikasjoner(
 
 fun sykepengesoknadTransmission(
     soeknadId: UUID,
-    dialogId: UUID,
     isSilentUpdate: Boolean = false, // TODO kan fjernes etter engangsjobb patcher transmission
 ): TransmissionRequest =
     SykepengesoknadTransmissionRequest(
         soeknadId = soeknadId,
-        dialogId = dialogId,
         attachments =
             listOf(
                 createApiAttachment(
