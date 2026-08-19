@@ -3,6 +3,7 @@ package no.nav.helsearbeidsgiver.dialogporten.activity
 import io.kotest.core.spec.style.FunSpec
 import io.kotest.matchers.shouldBe
 import io.ktor.client.request.get
+import io.ktor.client.request.put
 import io.ktor.http.HttpStatusCode
 import io.ktor.server.routing.routing
 import io.ktor.server.testing.TestApplication
@@ -12,7 +13,7 @@ import io.mockk.mockk
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenClient
 import java.util.UUID
 
-const val LEST_PATH = "/sett-transmission-lest"
+const val LEST_PATH = "/transmission-lest"
 val dialogId: UUID = UUID.randomUUID()
 val transmissionId: UUID = UUID.randomUUID()
 
@@ -21,7 +22,7 @@ class ActivityRoutingTest :
 
         test("skal kalle dialogportenClient.markTransmissionOpened med gitte dialogId og transmissionId") {
             val response =
-                testApplication.client.get(
+                testApplication.client.put(
                     "$LEST_PATH?dialogId=$dialogId&transmissionId=$transmissionId",
                 )
 
@@ -31,7 +32,7 @@ class ActivityRoutingTest :
 
         test("skal returnere BadRequest når dialogId ikke er en gyldig UUID") {
             val response =
-                testApplication.client.get(
+                testApplication.client.put(
                     "$LEST_PATH?dialogId=ikke-en-uuid&transmissionId=$transmissionId",
                 )
 
@@ -41,7 +42,7 @@ class ActivityRoutingTest :
 
         test("skal returnere BadRequest når transmissionId ikke er en gyldig UUID") {
             val response =
-                testApplication.client.get(
+                testApplication.client.put(
                     "$LEST_PATH?dialogId=$dialogId&transmissionId=ikke-en-uuid",
                 )
 
