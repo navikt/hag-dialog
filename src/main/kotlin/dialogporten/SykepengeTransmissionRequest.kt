@@ -35,6 +35,7 @@ class SykmeldingTransmissionRequest(
     override val dokumentId = sykmeldingId
     override val tittel = "Sykmelding"
     override val sammendrag = null
+    override val contentReferenceFceUrl = null
     override val type = Transmission.TransmissionType.Information
     override val relatedTransmissionId = null
 }
@@ -47,6 +48,7 @@ class SykepengesoknadTransmissionRequest(
     override val dokumentId = soeknadId
     override val tittel = "Søknad om sykepenger"
     override val sammendrag = null
+    override val contentReferenceFceUrl = null
     override val type = Transmission.TransmissionType.Information
     override val relatedTransmissionId = null
 }
@@ -59,6 +61,7 @@ class ForespoerselTransmissionRequest(
     override val dokumentId = forespoerselId
     override val tittel = "Forespørsel om inntektsmelding"
     override val sammendrag = null
+    override val contentReferenceFceUrl = null
     override val type = Transmission.TransmissionType.Request
 }
 
@@ -70,6 +73,7 @@ class UtgaattForespoerselTransmissionRequest(
     override val dokumentId = forespoerselId
     override val tittel = "Forespørsel er utgått"
     override val sammendrag = null
+    override val contentReferenceFceUrl = null
     override val type = Transmission.TransmissionType.Information
 }
 
@@ -99,6 +103,7 @@ class InntektsmeldingTransmissionRequest(
     override val dokumentId = inntektsmelding.innsendingId
     override val tittel = inntektsmelding.status.toTittel()
     override val sammendrag = null
+    override val contentReferenceFceUrl = null
     override val type = inntektsmelding.status.toTransmissionType()
 }
 
@@ -109,6 +114,7 @@ class FritakKravTransmissionRequest(
     override val dokumentId = kravMelding.id
     override val tittel = kravMelding.toTittel()
     override val sammendrag = null
+    override val contentReferenceFceUrl = null
     override val type = Transmission.TransmissionType.Information
     override val attachments =
         listOf(

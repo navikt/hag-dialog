@@ -21,6 +21,7 @@ import no.nav.helsearbeidsgiver.database.DokumentkoblingRepository
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenClient
 import no.nav.helsearbeidsgiver.dialogporten.FritakDialogportenService
 import no.nav.helsearbeidsgiver.dialogporten.SykepengerDialogportenService
+import no.nav.helsearbeidsgiver.dialogporten.activity.activityRoutes
 import no.nav.helsearbeidsgiver.dokumentkobling.AvbrytForespoerselJobb
 import no.nav.helsearbeidsgiver.dokumentkobling.AvbrytInntektsmeldingJobb
 import no.nav.helsearbeidsgiver.dokumentkobling.AvbrytSykepengeSoeknadJobb
@@ -146,6 +147,7 @@ fun startServer() {
             routing {
                 naisRoutes(HelsesjekkService(database.db))
                 metrikkRoutes()
+                activityRoutes(sykePengerdialogportenClient)
             }
             configureKafkaConsumer(unleashFeatureToggles, dokumentKoblingService, fritakDialogportenService)
             startRecurringJobs(jobber)
