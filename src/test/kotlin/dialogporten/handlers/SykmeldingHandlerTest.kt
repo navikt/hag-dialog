@@ -16,6 +16,7 @@ import no.nav.helsearbeidsgiver.database.DialogEntity
 import no.nav.helsearbeidsgiver.database.DialogRepository
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenClient
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenClientException
+import no.nav.helsearbeidsgiver.dialogporten.LpsApiExtendedType
 import no.nav.helsearbeidsgiver.dialogporten.domene.CreateDialogRequest
 import no.nav.helsearbeidsgiver.dialogporten.handlers.SykmeldingHandler
 import no.nav.helsearbeidsgiver.kafka.getSykmeldingsPerioderString
@@ -48,7 +49,9 @@ class SykmeldingHandlerTest :
 
             every { dialogRepositoryMock.finnDialogMedSykemeldingId(sykmelding.sykmeldingId) } returns null
             coEvery { dialogportenClientMock.createDialog(capture(requestSlot)) } returns dialogId
-            every { dialogRepositoryMock.lagreDialog(any(), any()) } just Runs
+            every {
+                dialogRepositoryMock.lagreDialogMedTransmission(any(), any(), any(), any(), any(), any())
+            } just Runs
             coEvery { dialogportenClientMock.setDialogStatus(any(), any()) } just Runs
             every { dialogRepositoryMock.oppdaterDialogMedTransmission(any(), any(), any(), any()) } just Runs
             every { unleashFeatureTogglesMock.skalOppretteNotifikasjoner() } returns true
@@ -80,10 +83,15 @@ class SykmeldingHandlerTest :
             capturedRequest.summary shouldBe sykmelding.sykmeldingsperioder.getSykmeldingsPerioderString()
             capturedRequest.isApiOnly shouldBe false
 
+            val transmissionId = capturedRequest.transmissions.single().id
+
             verify(exactly = 1) {
-                dialogRepositoryMock.lagreDialog(
+                dialogRepositoryMock.lagreDialogMedTransmission(
                     dialogId = dialogId,
                     sykmeldingId = sykmelding.sykmeldingId,
+                    transmissionId = transmissionId,
+                    dokumentId = sykmelding.sykmeldingId,
+                    dokumentType = LpsApiExtendedType.SYKMELDING.toString(),
                 )
             }
         }
@@ -97,7 +105,7 @@ class SykmeldingHandlerTest :
                 sykmeldingHandler.opprettOgLagreDialog(sykmelding)
             }
 
-            verify(exactly = 0) { dialogRepositoryMock.lagreDialog(any(), any()) }
+            verify(exactly = 0) { dialogRepositoryMock.lagreDialogMedTransmission(any(), any(), any(), any(), any(), any()) }
             coVerify(exactly = 0) { agNotifikasjonKlientMock.opprettNySak(any(), any(), any(), any(), any(), any(), any(), any(), any()) }
             coVerify(exactly = 0) {
                 agNotifikasjonKlientMock.opprettNyBeskjed(any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any())
@@ -130,7 +138,7 @@ class SykmeldingHandlerTest :
             sykmeldingHandler.opprettOgLagreDialog(sykmelding)
 
             coVerify(exactly = 0) { dialogportenClientMock.createDialog(any()) }
-            verify(exactly = 0) { dialogRepositoryMock.lagreDialog(any(), any()) }
+            verify(exactly = 0) { dialogRepositoryMock.lagreDialogMedTransmission(any(), any(), any(), any(), any(), any()) }
             coVerify(exactly = 1) { agNotifikasjonKlientMock.opprettNySak(any(), any(), any(), any(), any(), any(), any(), any(), any()) }
             coVerify(exactly = 1) {
                 agNotifikasjonKlientMock.opprettNyBeskjed(any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any())
