@@ -35,7 +35,6 @@ class SykmeldingTransmissionRequest(
     override val dokumentId = sykmeldingId
     override val tittel = "Sykmelding"
     override val sammendrag = null
-    override val contentReferenceFceUrl = null
     override val type = Transmission.TransmissionType.Information
     override val relatedTransmissionId = null
 }
@@ -48,7 +47,6 @@ class SykepengesoknadTransmissionRequest(
     override val dokumentId = soeknadId
     override val tittel = "Søknad om sykepenger"
     override val sammendrag = null
-    override val contentReferenceFceUrl = null
     override val type = Transmission.TransmissionType.Information
     override val relatedTransmissionId = null
 }
@@ -61,7 +59,6 @@ class ForespoerselTransmissionRequest(
     override val dokumentId = forespoerselId
     override val tittel = "Forespørsel om inntektsmelding"
     override val sammendrag = null
-    override val contentReferenceFceUrl = null
     override val type = Transmission.TransmissionType.Request
 }
 
@@ -73,7 +70,6 @@ class UtgaattForespoerselTransmissionRequest(
     override val dokumentId = forespoerselId
     override val tittel = "Forespørsel er utgått"
     override val sammendrag = null
-    override val contentReferenceFceUrl = null
     override val type = Transmission.TransmissionType.Information
 }
 
@@ -103,7 +99,6 @@ class InntektsmeldingTransmissionRequest(
     override val dokumentId = inntektsmelding.innsendingId
     override val tittel = inntektsmelding.status.toTittel()
     override val sammendrag = null
-    override val contentReferenceFceUrl = null
     override val type = inntektsmelding.status.toTransmissionType()
 }
 
@@ -114,7 +109,6 @@ class FritakKravTransmissionRequest(
     override val dokumentId = kravMelding.id
     override val tittel = kravMelding.toTittel()
     override val sammendrag = null
-    override val contentReferenceFceUrl = null
     override val type = Transmission.TransmissionType.Information
     override val attachments =
         listOf(
@@ -159,7 +153,7 @@ fun FritakKravMelding.toTittel(): String =
         is KroniskKravSlettet -> "Krav om fritak for arbeidsgiverperiode ved kronisk sykdom er annullert"
     }
 
-fun lagLestTransmissionFceUrl(
+fun lagMarkerSomLestUrl(
     transmissionId: UUID,
     extendedType: String,
 ): String {
@@ -172,6 +166,6 @@ abstract class TransmissionRequestMedLestFce(
 ) : TransmissionRequest() {
     val transmissionId = nyUuidv7()
     final override val extendedType = extendedType.toString()
-    final override val contentReferenceFceUrl = lagLestTransmissionFceUrl(transmissionId = transmissionId, extendedType = this.extendedType)
+    final override val contentReferenceFceUrl = lagMarkerSomLestUrl(transmissionId = transmissionId, extendedType = this.extendedType)
     final override val id = transmissionId
 }
