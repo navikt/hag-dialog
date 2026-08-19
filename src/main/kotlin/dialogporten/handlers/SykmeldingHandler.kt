@@ -60,15 +60,14 @@ class SykmeldingHandler(
 
                     dialogportenClient.createDialog(request)
                 }
-            dialogRepository.lagreDialog(dialogId = dialogId, sykmeldingId = sykmelding.sykmeldingId)
-            transmission.id?.let { transmissionId ->
-                dialogRepository.oppdaterDialogMedTransmission(
-                    sykmeldingId = sykmelding.sykmeldingId,
-                    transmissionId = transmissionId,
-                    dokumentId = sykmelding.sykmeldingId,
-                    dokumentType = LpsApiExtendedType.SYKMELDING.toString(),
-                )
-            }
+
+            dialogRepository.lagreDialogMedTransmission(
+                dialogId = dialogId,
+                sykmeldingId = sykmelding.sykmeldingId,
+                transmissionId = transmission.id,
+                dokumentId = sykmelding.sykmeldingId,
+                dokumentType = LpsApiExtendedType.SYKMELDING.toString(),
+            )
 
             logger.info("Opprettet dialog $dialogId for sykmelding ${sykmelding.sykmeldingId}.")
         }

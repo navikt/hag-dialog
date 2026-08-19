@@ -15,9 +15,13 @@ import java.util.UUID
 class DialogRepository(
     private val db: Database,
 ) {
-    fun lagreDialog(
+    fun lagreDialogMedTransmission(
         dialogId: UUID,
         sykmeldingId: UUID,
+        transmissionId: UUID,
+        dokumentId: UUID,
+        dokumentType: String,
+        relatedTransmissionId: UUID? = null,
     ) {
         try {
             transaction(db) {
@@ -25,9 +29,11 @@ class DialogRepository(
                     it[id] = dialogId
                     it[this.sykmeldingId] = sykmeldingId
                 }
+
+                insertTransmission(dialogId, transmissionId, dokumentId, dokumentType, relatedTransmissionId)
             }
         } catch (e: ExposedSQLException) {
-            sikkerLogger().error("Klarte ikke å lagre dialog med id $dialogId i databasen", e)
+            sikkerLogger().error("Klarte ikke å lagre dialog med transmission for sykmeldingId $sykmeldingId i databasen", e)
             throw e
         }
     }
@@ -57,18 +63,28 @@ class DialogRepository(
                         ?.value
                         ?: throw IllegalArgumentException("Dialog med sykmeldingId $sykmeldingId finnes ikke")
 
-                TransmissionTable.insert {
-                    it[id] = transmissionId
-                    it[this.dialogId] = dialogId
-                    it[this.dokumentId] = dokumentId
-                    it[this.dokumentType] = dokumentType
-                    it[this.relatedTransmissionId] = relatedTransmissionId
-                    it[opprettet] = LocalDateTime.now()
-                }
+                insertTransmission(dialogId, transmissionId, dokumentId, dokumentType, relatedTransmissionId)
             }
         } catch (e: ExposedSQLException) {
             sikkerLogger().error("Klarte ikke å oppdatere dialog med sykmeldingId $sykmeldingId i databasen", e)
             throw e
+        }
+    }
+
+    private fun insertTransmission(
+        dialogId: UUID,
+        transmissionId: UUID,
+        dokumentId: UUID,
+        dokumentType: String,
+        relatedTransmissionId: UUID?,
+    ) {
+        TransmissionTable.insert {
+            it[id] = transmissionId
+            it[this.dialogId] = dialogId
+            it[this.dokumentId] = dokumentId
+            it[this.dokumentType] = dokumentType
+            it[this.relatedTransmissionId] = relatedTransmissionId
+            it[opprettet] = LocalDateTime.now()
         }
     }
 
