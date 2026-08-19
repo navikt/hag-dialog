@@ -154,12 +154,11 @@ fun FritakKravMelding.toTittel(): String =
     }
 
 fun lagLestTransmissionFceUrl(
-    dialogId: UUID = nyUuidv7(),
     transmissionId: UUID,
     extendedType: String,
 ): String {
     val baseUrl = Env.Nav.arbeidsgiverGuiBaseUrl
-    return "$baseUrl/dokument/fce/sett-transmission-lest?dialogId=$dialogId&transmissionId=$transmissionId&extendedType=$extendedType"
+    return "$baseUrl/dokument/fce/sett-transmission-lest?transmissionId=$transmissionId&extendedType=$extendedType"
 }
 
 abstract class TransmissionRequestMedLestFce(
