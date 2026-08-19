@@ -1,5 +1,6 @@
 package no.nav.helsearbeidsgiver.database
 
+import no.nav.helsearbeidsgiver.dialogporten.FritakAgpType
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import org.jetbrains.exposed.exceptions.ExposedSQLException
 import org.jetbrains.exposed.sql.Database

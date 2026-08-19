@@ -1,5 +1,6 @@
 package no.nav.helsearbeidsgiver.database
 
+import no.nav.helsearbeidsgiver.dialogporten.FritakAgpType
 import no.nav.helsearbeidsgiver.kafka.FritakKravMelding
 import no.nav.helsearbeidsgiver.kafka.GravidKravEndret
 import no.nav.helsearbeidsgiver.kafka.GravidKravOpprettet
@@ -36,16 +37,6 @@ class FritakAgpKravEntity(
     val fnr by FritakAgpKravTable.fnr
     val orgnr by FritakAgpKravTable.orgnr
     val opprettet by FritakAgpKravTable.opprettet
-}
-
-enum class FritakAgpType {
-    GRAVID_KRAV_OPPRETTET,
-    GRAVID_KRAV_ENDRET,
-    GRAVID_KRAV_SLETTET,
-
-    KRONISK_KRAV_OPPRETTET,
-    KRONISK_KRAV_ENDRET,
-    KRONISK_KRAV_SLETTET,
 }
 
 fun finnTypeForFritakKrav(kravMelding: FritakKravMelding): FritakAgpType =

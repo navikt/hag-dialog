@@ -10,9 +10,9 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.verify
 import no.nav.helsearbeidsgiver.database.FritakAgpKravEntity
-import no.nav.helsearbeidsgiver.database.FritakAgpType
 import no.nav.helsearbeidsgiver.database.FritakDialogRepository
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenClient
+import no.nav.helsearbeidsgiver.dialogporten.FritakAgpType
 import no.nav.helsearbeidsgiver.dialogporten.domene.CreateDialogRequest
 import no.nav.helsearbeidsgiver.dialogporten.domene.GuiAction
 import no.nav.helsearbeidsgiver.dialogporten.domene.Transmission

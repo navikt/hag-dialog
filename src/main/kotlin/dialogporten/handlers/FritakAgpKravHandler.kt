@@ -1,10 +1,10 @@
 package dialogporten.handlers
 
 import no.nav.helsearbeidsgiver.Env
-import no.nav.helsearbeidsgiver.database.FritakAgpType
 import no.nav.helsearbeidsgiver.database.FritakDialogRepository
 import no.nav.helsearbeidsgiver.database.finnTypeForFritakKrav
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenClient
+import no.nav.helsearbeidsgiver.dialogporten.FritakAgpType
 import no.nav.helsearbeidsgiver.dialogporten.FritakKravTransmissionRequest
 import no.nav.helsearbeidsgiver.dialogporten.domene.Action
 import no.nav.helsearbeidsgiver.dialogporten.domene.ContentValueItem
