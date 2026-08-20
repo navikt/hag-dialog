@@ -161,7 +161,7 @@ fun lagMarkerSomLestUrl(
     return "$baseUrl/dokument/fce/sett-transmission-lest?transmissionId=$transmissionId&extendedType=$extendedType"
 }
 
-abstract class TransmissionRequestMedLestFce(
+abstract class TransmissionRequestMedMarkerSomLestFce(
     extendedType: ExtendedType,
 ) : TransmissionRequest() {
     val transmissionId = nyUuidv7()
