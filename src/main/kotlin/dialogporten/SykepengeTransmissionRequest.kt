@@ -31,7 +31,7 @@ class SykmeldingTransmissionRequest(
     sykmeldingId: UUID,
     override val attachments: List<Attachment>,
     override val isSilentUpdate: Boolean = false,
-) : TransmissionRequestMedLestFce(SYKMELDING) {
+) : TransmissionRequestMedMarkerSomLestFce(SYKMELDING) {
     override val dokumentId = sykmeldingId
     override val tittel = "Sykmelding"
     override val sammendrag = null
@@ -43,7 +43,7 @@ class SykepengesoknadTransmissionRequest(
     soeknadId: UUID,
     override val attachments: List<Attachment>,
     override val isSilentUpdate: Boolean = false,
-) : TransmissionRequestMedLestFce(SYKEPENGESOEKNAD) {
+) : TransmissionRequestMedMarkerSomLestFce(SYKEPENGESOEKNAD) {
     override val dokumentId = soeknadId
     override val tittel = "Søknad om sykepenger"
     override val sammendrag = null
@@ -55,7 +55,7 @@ class ForespoerselTransmissionRequest(
     forespoerselId: UUID,
     override val relatedTransmissionId: UUID? = null,
     override val attachments: List<Attachment>,
-) : TransmissionRequestMedLestFce(FORESPOERSEL_AKTIV) {
+) : TransmissionRequestMedMarkerSomLestFce(FORESPOERSEL_AKTIV) {
     override val dokumentId = forespoerselId
     override val tittel = "Forespørsel om inntektsmelding"
     override val sammendrag = null
@@ -66,7 +66,7 @@ class UtgaattForespoerselTransmissionRequest(
     forespoerselId: UUID,
     override val relatedTransmissionId: UUID? = null,
     override val attachments: List<Attachment>,
-) : TransmissionRequestMedLestFce(FORESPOERSEL_UTGAATT) {
+) : TransmissionRequestMedMarkerSomLestFce(FORESPOERSEL_UTGAATT) {
     override val dokumentId = forespoerselId
     override val tittel = "Forespørsel er utgått"
     override val sammendrag = null
@@ -95,7 +95,7 @@ class InntektsmeldingTransmissionRequest(
     inntektsmelding: Inntektsmelding,
     override val relatedTransmissionId: UUID?,
     override val attachments: List<Attachment>,
-) : TransmissionRequestMedLestFce(inntektsmelding.status.toExtendedType()) {
+) : TransmissionRequestMedMarkerSomLestFce(inntektsmelding.status.toExtendedType()) {
     override val dokumentId = inntektsmelding.innsendingId
     override val tittel = inntektsmelding.status.toTittel()
     override val sammendrag = null
@@ -104,7 +104,7 @@ class InntektsmeldingTransmissionRequest(
 
 class FritakKravTransmissionRequest(
     kravMelding: FritakKravMelding,
-) : TransmissionRequestMedLestFce(finnTypeForFritakKrav(kravMelding)) {
+) : TransmissionRequestMedMarkerSomLestFce(finnTypeForFritakKrav(kravMelding)) {
     override val relatedTransmissionId = null
     override val dokumentId = kravMelding.id
     override val tittel = kravMelding.toTittel()
