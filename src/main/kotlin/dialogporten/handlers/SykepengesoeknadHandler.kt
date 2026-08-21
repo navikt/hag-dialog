@@ -55,7 +55,10 @@ class SykepengesoeknadHandler(
                     dialogportenClient.removeApiOnly(dialog.dialogId)
                     dialogportenClient.addTransmission(
                         dialogId = dialog.dialogId,
-                        transmissionRequest = sykepengesoknadTransmission(sykepengesoeknad.soeknadId),
+                        transmissionRequest =
+                            sykepengesoknadTransmission(
+                                soeknadId = sykepengesoeknad.soeknadId,
+                            ),
                     )
                 }
 
@@ -170,22 +173,23 @@ fun sykepengesoknadTransmission(
     isSilentUpdate: Boolean = false, // TODO kan fjernes etter engangsjobb patcher transmission
 ): TransmissionRequest =
     SykepengesoknadTransmissionRequest(
-        soeknadId,
-        listOf(
-            createApiAttachment(
-                "sykepengesoeknad.json",
-                "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/sykepengesoeknad/$soeknadId",
+        soeknadId = soeknadId,
+        attachments =
+            listOf(
+                createApiAttachment(
+                    "sykepengesoeknad.json",
+                    "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/sykepengesoeknad/$soeknadId",
+                ),
+                createApiAttachment(
+                    displayName = "sykepengesoeknad.pdf",
+                    url = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/sykepengesoeknad/$soeknadId/pdf",
+                    mediaType = "application/pdf",
+                ),
+                createGuiAttachment(
+                    displayName = "sykepengesoeknad",
+                    url = "${Env.Nav.arbeidsgiverGuiBaseUrl}/dokument/sykepengesoeknad/$soeknadId.pdf",
+                    mediaType = "application/pdf",
+                ),
             ),
-            createApiAttachment(
-                displayName = "sykepengesoeknad.pdf",
-                url = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/sykepengesoeknad/$soeknadId/pdf",
-                mediaType = "application/pdf",
-            ),
-            createGuiAttachment(
-                displayName = "sykepengesoeknad",
-                url = "${Env.Nav.arbeidsgiverGuiBaseUrl}/dokument/sykepengesoeknad/$soeknadId.pdf",
-                mediaType = "application/pdf",
-            ),
-        ),
-        isSilentUpdate,
+        isSilentUpdate = isSilentUpdate,
     )

@@ -81,7 +81,7 @@ class InntektsmeldingHandler(
             sykmeldingId = inntektsmelding.sykmeldingId,
             transmissionId = transmissionId,
             dokumentId = inntektsmelding.innsendingId,
-            dokumentType = inntektsmelding.status.toExtendedType(),
+            dokumentType = inntektsmelding.status.toExtendedType().toString(),
             relatedTransmissionId = forespoerselTransmission.relatedTransmissionId,
         )
 

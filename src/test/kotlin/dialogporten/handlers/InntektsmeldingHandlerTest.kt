@@ -65,7 +65,7 @@ class InntektsmeldingHandlerTest :
                     sykmeldingId = inntektsmelding_godkjent.sykmeldingId,
                     transmissionId = transmissionId,
                     dokumentId = inntektsmelding_godkjent.innsendingId,
-                    dokumentType = inntektsmelding_godkjent.status.toExtendedType(),
+                    dokumentType = inntektsmelding_godkjent.status.toExtendedType().toString(),
                     relatedTransmissionId = forespoerselTransmissionId,
                 )
             }

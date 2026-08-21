@@ -2,6 +2,12 @@ package no.nav.helsearbeidsgiver.dialogporten
 
 import no.nav.helsearbeidsgiver.Env
 import no.nav.helsearbeidsgiver.database.finnTypeForFritakKrav
+import no.nav.helsearbeidsgiver.dialogporten.LpsApiExtendedType.FORESPOERSEL_AKTIV
+import no.nav.helsearbeidsgiver.dialogporten.LpsApiExtendedType.FORESPOERSEL_UTGAATT
+import no.nav.helsearbeidsgiver.dialogporten.LpsApiExtendedType.INNTEKTSMELDING_AVVIST
+import no.nav.helsearbeidsgiver.dialogporten.LpsApiExtendedType.INNTEKTSMELDING_GODKJENT
+import no.nav.helsearbeidsgiver.dialogporten.LpsApiExtendedType.SYKEPENGESOEKNAD
+import no.nav.helsearbeidsgiver.dialogporten.LpsApiExtendedType.SYKMELDING
 import no.nav.helsearbeidsgiver.dialogporten.domene.Attachment
 import no.nav.helsearbeidsgiver.dialogporten.domene.Transmission
 import no.nav.helsearbeidsgiver.dialogporten.domene.TransmissionRequest
@@ -18,18 +24,17 @@ import no.nav.helsearbeidsgiver.kafka.KroniskKravEndret
 import no.nav.helsearbeidsgiver.kafka.KroniskKravOpprettet
 import no.nav.helsearbeidsgiver.kafka.KroniskKravSlettet
 import no.nav.helsearbeidsgiver.kafka.KroniskSoeknadOpprettet
+import no.nav.helsearbeidsgiver.utils.nyUuidv7
 import java.util.UUID
 
 class SykmeldingTransmissionRequest(
     sykmeldingId: UUID,
     override val attachments: List<Attachment>,
     override val isSilentUpdate: Boolean = false,
-) : TransmissionRequest() {
-    override val extendedType = LpsApiExtendedType.SYKMELDING.toString()
+) : TransmissionRequestMedMarkerSomLestFce(SYKMELDING) {
     override val dokumentId = sykmeldingId
     override val tittel = "Sykmelding"
     override val sammendrag = null
-    override val contentReferenceFceUrl = null
     override val type = Transmission.TransmissionType.Information
     override val relatedTransmissionId = null
 }
@@ -38,12 +43,10 @@ class SykepengesoknadTransmissionRequest(
     soeknadId: UUID,
     override val attachments: List<Attachment>,
     override val isSilentUpdate: Boolean = false,
-) : TransmissionRequest() {
-    override val extendedType = LpsApiExtendedType.SYKEPENGESOEKNAD.toString()
+) : TransmissionRequestMedMarkerSomLestFce(SYKEPENGESOEKNAD) {
     override val dokumentId = soeknadId
     override val tittel = "Søknad om sykepenger"
     override val sammendrag = null
-    override val contentReferenceFceUrl = null
     override val type = Transmission.TransmissionType.Information
     override val relatedTransmissionId = null
 }
@@ -52,12 +55,10 @@ class ForespoerselTransmissionRequest(
     forespoerselId: UUID,
     override val relatedTransmissionId: UUID? = null,
     override val attachments: List<Attachment>,
-) : TransmissionRequest() {
-    override val extendedType = LpsApiExtendedType.FORESPOERSEL_AKTIV.toString()
+) : TransmissionRequestMedMarkerSomLestFce(FORESPOERSEL_AKTIV) {
     override val dokumentId = forespoerselId
     override val tittel = "Forespørsel om inntektsmelding"
     override val sammendrag = null
-    override val contentReferenceFceUrl = null
     override val type = Transmission.TransmissionType.Request
 }
 
@@ -65,19 +66,17 @@ class UtgaattForespoerselTransmissionRequest(
     forespoerselId: UUID,
     override val relatedTransmissionId: UUID? = null,
     override val attachments: List<Attachment>,
-) : TransmissionRequest() {
-    override val extendedType = LpsApiExtendedType.FORESPOERSEL_UTGAATT.toString()
+) : TransmissionRequestMedMarkerSomLestFce(FORESPOERSEL_UTGAATT) {
     override val dokumentId = forespoerselId
     override val tittel = "Forespørsel er utgått"
     override val sammendrag = null
-    override val contentReferenceFceUrl = null
     override val type = Transmission.TransmissionType.Information
 }
 
-fun Inntektsmelding.Status.toExtendedType(): String =
+fun Inntektsmelding.Status.toExtendedType(): LpsApiExtendedType =
     when (this) {
-        Inntektsmelding.Status.FEILET -> LpsApiExtendedType.INNTEKTSMELDING_AVVIST.toString()
-        Inntektsmelding.Status.GODKJENT -> LpsApiExtendedType.INNTEKTSMELDING_GODKJENT.toString()
+        Inntektsmelding.Status.FEILET -> INNTEKTSMELDING_AVVIST
+        Inntektsmelding.Status.GODKJENT -> INNTEKTSMELDING_GODKJENT
     }
 
 fun Inntektsmelding.Status.toTittel(): String =
@@ -96,24 +95,20 @@ class InntektsmeldingTransmissionRequest(
     inntektsmelding: Inntektsmelding,
     override val relatedTransmissionId: UUID?,
     override val attachments: List<Attachment>,
-) : TransmissionRequest() {
-    override val extendedType = inntektsmelding.status.toExtendedType()
+) : TransmissionRequestMedMarkerSomLestFce(inntektsmelding.status.toExtendedType()) {
     override val dokumentId = inntektsmelding.innsendingId
     override val tittel = inntektsmelding.status.toTittel()
     override val sammendrag = null
-    override val contentReferenceFceUrl = null
     override val type = inntektsmelding.status.toTransmissionType()
 }
 
 class FritakKravTransmissionRequest(
     kravMelding: FritakKravMelding,
-) : TransmissionRequest() {
+) : TransmissionRequestMedMarkerSomLestFce(finnTypeForFritakKrav(kravMelding)) {
     override val relatedTransmissionId = null
     override val dokumentId = kravMelding.id
-    override val extendedType = finnTypeForFritakKrav(kravMelding).toString()
     override val tittel = kravMelding.toTittel()
     override val sammendrag = null
-    override val contentReferenceFceUrl = null
     override val type = Transmission.TransmissionType.Information
     override val attachments =
         listOf(
@@ -157,3 +152,20 @@ fun FritakKravMelding.toTittel(): String =
         is KroniskKravEndret -> "Krav om fritak for arbeidsgiverperiode ved kronisk sykdom er endret"
         is KroniskKravSlettet -> "Krav om fritak for arbeidsgiverperiode ved kronisk sykdom er annullert"
     }
+
+fun lagMarkerSomLestUrl(
+    transmissionId: UUID,
+    extendedType: String,
+): String {
+    val baseUrl = Env.Nav.arbeidsgiverGuiBaseUrl
+    return "$baseUrl/dokument/fce/sett-transmission-lest?transmissionId=$transmissionId&extendedType=$extendedType"
+}
+
+abstract class TransmissionRequestMedMarkerSomLestFce(
+    extendedType: ExtendedType,
+) : TransmissionRequest() {
+    val transmissionId = nyUuidv7()
+    final override val extendedType = extendedType.toString()
+    final override val contentReferenceFceUrl = lagMarkerSomLestUrl(transmissionId = transmissionId, extendedType = this.extendedType)
+    final override val id = transmissionId
+}
