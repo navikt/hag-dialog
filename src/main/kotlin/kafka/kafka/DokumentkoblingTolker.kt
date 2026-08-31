@@ -8,6 +8,7 @@ import dokumentkobling.InntektsmeldingAvvist
 import dokumentkobling.InntektsmeldingGodkjent
 import dokumentkobling.Sykepengesoeknad
 import dokumentkobling.Sykmelding
+import dokumentkobling.Vedtak
 import dokumentkobling.VedtaksperiodeSoeknadKobling
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.json.fromJson
@@ -64,6 +65,10 @@ class DokumentkoblingTolker(
 
                 is InntektsmeldingAvvist -> {
                     dokumentkoblingService.lagreInntektsmeldingAvvist(dekodetMelding)
+                }
+
+                is Vedtak -> {
+                    sikkerLogger.info("Mottok Vedtak-melding: $dekodetMelding")
                 }
             }
         }.getOrElse { e ->

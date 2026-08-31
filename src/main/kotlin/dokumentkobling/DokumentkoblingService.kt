@@ -114,6 +114,11 @@ class DokumentkoblingService(
                 is InntektsmeldingAvvist -> {
                     dokumentkoblingRepository.hentInntektsmelding(dokumentkobling.inntektsmeldingId)
                 }
+
+                is Vedtak -> {
+                    // Foreløpig kun logging av Vedtak-meldinger, ingen lagring - derfor aldri duplikat.
+                    null
+                }
             }
         return dokument != null
     }

@@ -338,4 +338,12 @@ class DokumentkoblingServiceTest :
 
             erDuplikat shouldBe true
         }
+
+        test("erDuplikat returnerer alltid false for vedtak, siden meldingen kun logges foreløpig") {
+            val vedtak = DokumentKoblingMockUtils.vedtak
+
+            val erDuplikat = dokumentkoblingService.erDuplikat(vedtak)
+
+            erDuplikat shouldBe false
+        }
     })
