@@ -15,6 +15,7 @@ import no.nav.helsearbeidsgiver.database.InntektsmeldingStatus
 import no.nav.helsearbeidsgiver.database.InntektsmeldingTable
 import no.nav.helsearbeidsgiver.database.SykepengesoeknadTable
 import no.nav.helsearbeidsgiver.database.SykmeldingTable
+import no.nav.helsearbeidsgiver.database.VedtakTable
 import no.nav.helsearbeidsgiver.database.VedtaksperiodeSoeknadTable
 import java.time.LocalDateTime
 import java.util.UUID
@@ -27,6 +28,7 @@ class DokumentkoblingTest :
             VedtaksperiodeSoeknadTable,
             ForespoerselTable,
             InntektsmeldingTable,
+            VedtakTable,
         ),
         { db ->
             val maksAntallPerHenting = 10
@@ -534,6 +536,58 @@ class DokumentkoblingTest :
                     inntektsmeldingStatus shouldBe InntektsmeldingStatus.AVVIST
                     innsendingType shouldBe InnsendingType.FORESPURT_EKSTERN
                 }
+            }
+
+            test("opprette og hente vedtak") {
+                val vedtak = DokumentKoblingMockUtils.vedtak
+                repository.opprettVedtak(vedtak)
+
+                val hentet = hentVedtak(db = db, vedtakId = vedtak.vedtakId)
+
+                hentet.shouldNotBeNull()
+                hentet.vedtakId shouldBe vedtak.vedtakId
+                hentet.sykmeldingId shouldBe vedtak.sykmeldingId
+                hentet.inntektsmeldingId shouldBe vedtak.inntektsmeldingId
+                hentet.status shouldBe Status.MOTTATT
+            }
+
+            test("hentVedtakKlareForBehandling returnerer kun vedtak der tilhørende inntektsmelding er behandlet") {
+                val inntektsmeldingGodkjent = DokumentKoblingMockUtils.inntektsmeldingGodkjent
+                repository.opprettInntektmeldingGodkjent(inntektsmeldingGodkjent)
+
+                val vedtak = DokumentKoblingMockUtils.vedtak.copy(inntektsmeldingId = inntektsmeldingGodkjent.inntektsmeldingId)
+                repository.opprettVedtak(vedtak)
+
+                // Inntektsmeldingen er ikke behandlet enda, så vedtaket skal ikke være klart
+                repository.hentVedtakKlareForBehandling() shouldBe emptyList()
+
+                repository.settInntektsmeldingJobbTilBehandlet(inntektsmeldingGodkjent.inntektsmeldingId)
+
+                val klareForBehandling = repository.hentVedtakKlareForBehandling()
+                klareForBehandling.shouldNotBeEmpty()
+                assertSoftly(klareForBehandling[0]) {
+                    vedtakId shouldBe vedtak.vedtakId
+                    sykmeldingId shouldBe vedtak.sykmeldingId
+                    inntektsmeldingId shouldBe vedtak.inntektsmeldingId
+                    vedtakStatus shouldBe Status.MOTTATT
+                    inntektsmeldingJobbStatus shouldBe Status.BEHANDLET
+                }
+            }
+
+            test("bare mottatte vedtak før tidsavbruddgrense blir satt til tidsavbrutt") {
+                val gammeltVedtak = DokumentKoblingMockUtils.vedtak
+                val nyttVedtak = DokumentKoblingMockUtils.vedtak.copy(vedtakId = UUID.randomUUID())
+                repository.opprettVedtak(gammeltVedtak)
+                val tidsavbruddgrense = LocalDateTime.now()
+                repository.opprettVedtak(nyttVedtak)
+
+                val antallOppdatert = repository.settVedtakMedStatusMottattTilTidsavbrutt(tidsavbruddgrense = tidsavbruddgrense)
+
+                antallOppdatert shouldBe 1
+                val tidsavbruttVedtak = hentVedtak(db = db, vedtakId = gammeltVedtak.vedtakId)
+                tidsavbruttVedtak.shouldNotBeNull().status shouldBe Status.TIDSAVBRUTT
+                val nyttVedtakEtter = hentVedtak(db = db, vedtakId = nyttVedtak.vedtakId)
+                nyttVedtakEtter.shouldNotBeNull().status shouldBe Status.MOTTATT
             }
         },
     )

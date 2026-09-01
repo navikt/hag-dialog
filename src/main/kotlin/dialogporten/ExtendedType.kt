@@ -10,6 +10,7 @@ enum class LpsApiExtendedType : ExtendedType {
     FORESPOERSEL_UTGAATT,
     INNTEKTSMELDING_AVVIST,
     INNTEKTSMELDING_GODKJENT,
+    VEDTAK,
 }
 
 enum class FritakAgpType : ExtendedType {

@@ -17,6 +17,7 @@ import no.nav.helsearbeidsgiver.database.ForespoerselStatus
 import no.nav.helsearbeidsgiver.database.InntektsmeldingEntity
 import no.nav.helsearbeidsgiver.database.SykepengesoeknadEntity
 import no.nav.helsearbeidsgiver.database.SykmeldingEntity
+import no.nav.helsearbeidsgiver.database.VedtakEntity
 import no.nav.helsearbeidsgiver.database.VedtaksperiodeSoeknadEntity
 import java.time.LocalDateTime
 import java.util.UUID
@@ -339,11 +340,30 @@ class DokumentkoblingServiceTest :
             erDuplikat shouldBe true
         }
 
-        test("erDuplikat returnerer alltid false for vedtak, siden meldingen kun logges foreløpig") {
+        test("erDuplikat returnerer false når vedtak ikke eksisterer") {
             val vedtak = DokumentKoblingMockUtils.vedtak
+            every { dokumentkoblingRepository.hentVedtak(vedtak.vedtakId) } returns null
 
             val erDuplikat = dokumentkoblingService.erDuplikat(vedtak)
 
             erDuplikat shouldBe false
+        }
+
+        test("erDuplikat returnerer true når vedtak allerede eksisterer") {
+            val vedtak = DokumentKoblingMockUtils.vedtak
+            val vedtakEntity = mockk<VedtakEntity>()
+            every { dokumentkoblingRepository.hentVedtak(vedtak.vedtakId) } returns vedtakEntity
+
+            val erDuplikat = dokumentkoblingService.erDuplikat(vedtak)
+
+            erDuplikat shouldBe true
+        }
+
+        test("lagreVedtak lagrer vedtaket via repository") {
+            val vedtak = DokumentKoblingMockUtils.vedtak
+
+            dokumentkoblingService.lagreVedtak(vedtak)
+
+            verify { dokumentkoblingRepository.opprettVedtak(vedtak) }
         }
     })

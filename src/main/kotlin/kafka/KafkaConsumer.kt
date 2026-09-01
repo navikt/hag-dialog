@@ -10,14 +10,12 @@ import no.nav.helsearbeidsgiver.dialogporten.FritakDialogportenService
 import no.nav.helsearbeidsgiver.helsesjekker.ShutDownAppState
 import no.nav.helsearbeidsgiver.kafka.kafka.DialogMeldingTolker
 import no.nav.helsearbeidsgiver.kafka.kafka.DokumentkoblingTolker
-import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import org.apache.kafka.clients.consumer.KafkaConsumer
 import java.time.Duration
 
 fun Application.configureKafkaConsumer(
-    unleashFeatureToggles: UnleashFeatureToggles,
     dokumentkoblingService: DokumentkoblingService,
     fritakDialogportenService: FritakDialogportenService,
 ) {
@@ -31,13 +29,7 @@ fun Application.configureKafkaConsumer(
         }
 
     launch(Dispatchers.Default + kafkaConsumerExceptionHandler) {
-        startDokumentkoblingKafkaConsumer(
-            dokumentkoblingTolker =
-                DokumentkoblingTolker(
-                    unleashFeatureToggles = unleashFeatureToggles,
-                    dokumentkoblingService = dokumentkoblingService,
-                ),
-        )
+        startDokumentkoblingKafkaConsumer(dokumentkoblingTolker = DokumentkoblingTolker(dokumentkoblingService))
     }
 
     launch(Dispatchers.Default + kafkaConsumerExceptionHandler) {

@@ -10,13 +10,11 @@ import dokumentkobling.Sykepengesoeknad
 import dokumentkobling.Sykmelding
 import dokumentkobling.Vedtak
 import dokumentkobling.VedtaksperiodeSoeknadKobling
-import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.json.fromJson
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import org.slf4j.LoggerFactory
 
 class DokumentkoblingTolker(
-    private val unleashFeatureToggles: UnleashFeatureToggles,
     private val dokumentkoblingService: DokumentkoblingService,
 ) {
     private val logger = LoggerFactory.getLogger(DokumentkoblingTolker::class.java)
@@ -68,7 +66,7 @@ class DokumentkoblingTolker(
                 }
 
                 is Vedtak -> {
-                    sikkerLogger.info("Mottok Vedtak-melding: $dekodetMelding")
+                    dokumentkoblingService.lagreVedtak(dekodetMelding)
                 }
             }
         }.getOrElse { e ->

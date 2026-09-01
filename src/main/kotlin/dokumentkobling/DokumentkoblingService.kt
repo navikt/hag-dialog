@@ -3,11 +3,8 @@ package dokumentkobling
 import no.nav.helsearbeidsgiver.database.DokumentkoblingRepository
 import no.nav.helsearbeidsgiver.database.DokumentkoblingRepository.ForespoerselSykmeldingKobling
 import no.nav.helsearbeidsgiver.database.ForespoerselStatus
-import no.nav.helsearbeidsgiver.kafka.Inntektsmelding
-import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import java.util.UUID
-import kotlin.collections.filter
 
 class DokumentkoblingService(
     private val dokumentkoblingRepository: DokumentkoblingRepository,
@@ -60,6 +57,10 @@ class DokumentkoblingService(
         dokumentkoblingRepository.opprettInntektmeldingAvvist(inntektsmeldingAvvist)
     }
 
+    fun lagreVedtak(vedtak: Vedtak) {
+        dokumentkoblingRepository.opprettVedtak(vedtak)
+    }
+
     fun hentInntektsmeldingerMedStatusMottatt(): List<DokumentkoblingRepository.InntektsmeldingResultat> =
         dokumentkoblingRepository.hentInntektsmeldingerMedStatusMottatt()
 
@@ -83,7 +84,10 @@ class DokumentkoblingService(
                 }
 
                 is Sykepengesoeknad -> {
-                    dokumentkoblingRepository.hentSykepengesoeknad(dokumentkobling.soeknadId, dokumentkobling.sykmeldingId)
+                    dokumentkoblingRepository.hentSykepengesoeknad(
+                        dokumentkobling.soeknadId,
+                        dokumentkobling.sykmeldingId,
+                    )
                 }
 
                 is VedtaksperiodeSoeknadKobling -> {
@@ -116,8 +120,7 @@ class DokumentkoblingService(
                 }
 
                 is Vedtak -> {
-                    // Foreløpig kun logging av Vedtak-meldinger, ingen lagring - derfor aldri duplikat.
-                    null
+                    dokumentkoblingRepository.hentVedtak(dokumentkobling.vedtakId)
                 }
             }
         return dokument != null

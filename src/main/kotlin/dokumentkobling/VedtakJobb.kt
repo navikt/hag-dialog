@@ -1,0 +1,71 @@
+package dokumentkobling
+
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import no.nav.hag.utils.bakgrunnsjobb.RecurringJob
+import no.nav.helsearbeidsgiver.database.DokumentkoblingRepository
+import no.nav.helsearbeidsgiver.dialogporten.SykepengerDialogportenService
+import no.nav.helsearbeidsgiver.metrikk.oppdaterMetrikkForAntallVedtakMedStatusMottatt
+import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
+import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
+import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
+import java.time.Duration
+import java.util.UUID
+
+class VedtakJobb(
+    private val dokumentkoblingRepository: DokumentkoblingRepository,
+    private val sykepengerDialogportenService: SykepengerDialogportenService,
+    private val unleashFeatureToggles: UnleashFeatureToggles,
+) : RecurringJob(CoroutineScope(Dispatchers.IO), Duration.ofSeconds(30).toMillis()) {
+    override fun doJob() {
+        if (!unleashFeatureToggles.skalOppretteDialoger()) {
+            logger.warn("Oppretter ikke dialoger for vedtak da det er deaktivert i Unleash.")
+            return
+        }
+
+        val vedtakKlareForBehandling = dokumentkoblingRepository.hentVedtakKlareForBehandling()
+
+        oppdaterMetrikkForAntallVedtakMedStatusMottatt(nyVerdi = vedtakKlareForBehandling.size)
+            .also { logger.info("Fant ${vedtakKlareForBehandling.size} vedtak med status MOTTATT klar til behandling.") }
+
+        vedtakKlareForBehandling.forEach { kobling ->
+            try {
+                if (kobling.inntektsmeldingJobbStatus == Status.BEHANDLET) {
+                    sykepengerDialogportenService.opprettTransmissionForVedtak(
+                        vedtakId = kobling.vedtakId,
+                        sykmeldingId = kobling.sykmeldingId,
+                        inntektsmeldingId = kobling.inntektsmeldingId,
+                        orgnr = kobling.orgnr,
+                    )
+                    dokumentkoblingRepository.settVedtakJobbTilBehandlet(kobling.vedtakId)
+                } else {
+                    logger.info(
+                        "Inntektsmelding med id ${kobling.inntektsmeldingId} er ikke behandlet enda, " +
+                            "kan ikke sende vedtak med id ${kobling.vedtakId} til Dialogporten.",
+                    )
+                }
+            } catch (e: Exception) {
+                "Feil ved behandling av vedtak med id ${kobling.vedtakId}".also {
+                    logger.error(it)
+                    sikkerLogger().error(it, e)
+                }
+            }
+        }
+    }
+}
+
+fun SykepengerDialogportenService.opprettTransmissionForVedtak(
+    vedtakId: UUID,
+    sykmeldingId: UUID,
+    inntektsmeldingId: UUID,
+    orgnr: Orgnr,
+) {
+    oppdaterDialogMedVedtak(
+        no.nav.helsearbeidsgiver.kafka.Vedtak(
+            vedtakId = vedtakId,
+            sykmeldingId = sykmeldingId,
+            inntektsmeldingId = inntektsmeldingId,
+            orgnr = orgnr,
+        ),
+    )
+}
