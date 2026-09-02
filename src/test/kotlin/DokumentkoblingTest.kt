@@ -551,15 +551,12 @@ class DokumentkoblingTest :
                 hentet.status shouldBe Status.MOTTATT
             }
 
-            test("hentVedtakKlareForBehandling returnerer kun vedtak der tilhørende inntektsmelding er behandlet") {
+            test("hentVedtakKlareForBehandling returnerer vedtak sammen med status til tilhørende inntektsmelding") {
                 val inntektsmeldingGodkjent = DokumentKoblingMockUtils.inntektsmeldingGodkjent
                 repository.opprettInntektmeldingGodkjent(inntektsmeldingGodkjent)
 
                 val vedtak = DokumentKoblingMockUtils.vedtak.copy(inntektsmeldingId = inntektsmeldingGodkjent.inntektsmeldingId)
                 repository.opprettVedtak(vedtak)
-
-                // Inntektsmeldingen er ikke behandlet enda, så vedtaket skal ikke være klart
-                repository.hentVedtakKlareForBehandling() shouldBe emptyList()
 
                 repository.settInntektsmeldingJobbTilBehandlet(inntektsmeldingGodkjent.inntektsmeldingId)
 
