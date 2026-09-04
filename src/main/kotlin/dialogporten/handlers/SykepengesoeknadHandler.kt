@@ -25,7 +25,6 @@ import kotlin.time.Duration.Companion.days
 class SykepengesoeknadHandler(
     private val dialogRepository: DialogRepository,
     private val dialogportenClient: DialogportenClient,
-    private val unleashFeatureToggles: UnleashFeatureToggles,
     private val agNotifikasjonKlient: ArbeidsgiverNotifikasjonKlient,
     private val dokumentkoblingRepository: DokumentkoblingRepository,
 ) {
@@ -76,16 +75,14 @@ class SykepengesoeknadHandler(
             )
         }
 
-        if (unleashFeatureToggles.skalOppretteNotifikasjoner()) {
-            val sykmeldingEntitet = dokumentkoblingRepository.hentSykmeldingEntitet(sykepengesoeknad.sykmeldingId)
-            if (sykmeldingEntitet == null) {
-                logger.warn(
-                    "Fant ikke sykmelding ${sykepengesoeknad.sykmeldingId} i databasen. " +
-                        "Kan ikke opprette notifikasjoner for sykepengesøknad ${sykepengesoeknad.soeknadId}.",
-                )
-            } else {
-                agNotifikasjonKlient.opprettNotifikasjoner(sykepengesoeknad, sykmeldingEntitet.data)
-            }
+        val sykmeldingEntitet = dokumentkoblingRepository.hentSykmeldingEntitet(sykepengesoeknad.sykmeldingId)
+        if (sykmeldingEntitet == null) {
+            logger.warn(
+                "Fant ikke sykmelding ${sykepengesoeknad.sykmeldingId} i databasen. " +
+                    "Kan ikke opprette notifikasjoner for sykepengesøknad ${sykepengesoeknad.soeknadId}.",
+            )
+        } else {
+            agNotifikasjonKlient.opprettNotifikasjoner(sykepengesoeknad, sykmeldingEntitet.data)
         }
     }
 }
