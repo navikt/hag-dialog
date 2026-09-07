@@ -94,7 +94,7 @@ class VedtakHandlerTest :
             verify(exactly = 0) { dialogRepositoryMock.oppdaterDialogMedTransmission(any(), any(), any(), any(), any()) }
         }
 
-        test("skal opprette transmission uten relatedTransmissionId når inntektsmelding-transmission ikke finnes enda") {
+        test("skal opprette transmission uten relatedTransmissionId når inntektsmelding-transmission ikke finnes") {
             val dialogId = UUID.randomUUID()
             val transmissionId = UUID.randomUUID()
             val dialogEntity =

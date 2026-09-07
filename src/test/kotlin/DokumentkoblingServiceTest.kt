@@ -340,7 +340,7 @@ class DokumentkoblingServiceTest :
             erDuplikat shouldBe true
         }
 
-        test("erDuplikat returnerer false når vedtak ikke eksisterer") {
+        test("erDuplikat returnerer false når vedtaket ikke eksisterer") {
             val vedtak = DokumentKoblingMockUtils.vedtak
             every { dokumentkoblingRepository.hentVedtak(vedtak.vedtakId) } returns null
 
@@ -349,7 +349,7 @@ class DokumentkoblingServiceTest :
             erDuplikat shouldBe false
         }
 
-        test("erDuplikat returnerer true når vedtak allerede eksisterer") {
+        test("erDuplikat returnerer true når vedtaket allerede eksisterer") {
             val vedtak = DokumentKoblingMockUtils.vedtak
             val vedtakEntity = mockk<VedtakEntity>()
             every { dokumentkoblingRepository.hentVedtak(vedtak.vedtakId) } returns vedtakEntity

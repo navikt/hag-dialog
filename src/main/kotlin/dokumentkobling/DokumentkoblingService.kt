@@ -84,10 +84,7 @@ class DokumentkoblingService(
                 }
 
                 is Sykepengesoeknad -> {
-                    dokumentkoblingRepository.hentSykepengesoeknad(
-                        dokumentkobling.soeknadId,
-                        dokumentkobling.sykmeldingId,
-                    )
+                    dokumentkoblingRepository.hentSykepengesoeknad(dokumentkobling.soeknadId, dokumentkobling.sykmeldingId)
                 }
 
                 is VedtaksperiodeSoeknadKobling -> {
