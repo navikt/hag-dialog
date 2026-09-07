@@ -38,16 +38,15 @@ class VedtakHandler(
             return
         }
 
-        val inntektsmeldingTransmission =
-            dialog.transmissionByDokumentId(vedtak.inntektsmeldingId)
-                ?: run {
-                    logger.warn(
-                        "Fant ikke transmission for inntektsmeldingId ${vedtak.inntektsmeldingId} " +
-                            "i dialog ${dialog.dialogId} for sykmeldingId ${vedtak.sykmeldingId}. " +
-                            "Klarer derfor ikke opprette transmission for vedtak ${vedtak.vedtakId} enda.",
-                    )
-                    return
-                }
+        val inntektsmeldingTransmission = dialog.transmissionByDokumentId(vedtak.inntektsmeldingId)
+        if (inntektsmeldingTransmission == null) {
+            logger.warn(
+                "Fant ikke transmission for inntektsmeldingId ${vedtak.inntektsmeldingId} " +
+                    "i dialog ${dialog.dialogId} for sykmeldingId ${vedtak.sykmeldingId}. " +
+                    "Oppretter transmission for vedtak ${vedtak.vedtakId} uten relatedTransmissionId.",
+            )
+        }
+        val relatedTransmissionId = inntektsmeldingTransmission?.relatedTransmissionId
 
         val transmissionId =
             runBlocking {
@@ -56,7 +55,7 @@ class VedtakHandler(
                     transmissionRequest =
                         vedtakTransmissionRequest(
                             vedtakId = vedtak.vedtakId,
-                            relatedTransmissionId = inntektsmeldingTransmission.relatedTransmissionId,
+                            relatedTransmissionId = relatedTransmissionId,
                         ),
                 )
             }
@@ -66,7 +65,7 @@ class VedtakHandler(
             transmissionId = transmissionId,
             dokumentId = vedtak.vedtakId,
             dokumentType = LpsApiExtendedType.VEDTAK.toString(),
-            relatedTransmissionId = inntektsmeldingTransmission.relatedTransmissionId,
+            relatedTransmissionId = relatedTransmissionId,
         )
 
         logger.info(

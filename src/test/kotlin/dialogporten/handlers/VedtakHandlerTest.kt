@@ -94,8 +94,9 @@ class VedtakHandlerTest :
             verify(exactly = 0) { dialogRepositoryMock.oppdaterDialogMedTransmission(any(), any(), any(), any(), any()) }
         }
 
-        test("skal ikke opprette transmission når inntektsmelding-transmission ikke finnes enda") {
+        test("skal opprette transmission uten relatedTransmissionId når inntektsmelding-transmission ikke finnes enda") {
             val dialogId = UUID.randomUUID()
+            val transmissionId = UUID.randomUUID()
             val dialogEntity =
                 mockk<DialogEntity> {
                     every { this@mockk.dialogId } returns dialogId
@@ -104,11 +105,21 @@ class VedtakHandlerTest :
                 }
 
             every { dialogRepositoryMock.finnDialogMedSykemeldingId(vedtak.sykmeldingId) } returns dialogEntity
+            coEvery { dialogportenClientMock.addTransmission(any(), any<TransmissionRequest>()) } returns transmissionId
+            every { dialogRepositoryMock.oppdaterDialogMedTransmission(any(), any(), any(), any(), any()) } just Runs
 
             vedtakHandler.oppdaterDialog(vedtak)
 
             verify(exactly = 1) { dialogRepositoryMock.finnDialogMedSykemeldingId(vedtak.sykmeldingId) }
-            coVerify(exactly = 0) { dialogportenClientMock.addTransmission(any(), any<TransmissionRequest>()) }
-            verify(exactly = 0) { dialogRepositoryMock.oppdaterDialogMedTransmission(any(), any(), any(), any(), any()) }
+            coVerify(exactly = 1) { dialogportenClientMock.addTransmission(dialogId, any<TransmissionRequest>()) }
+            verify(exactly = 1) {
+                dialogRepositoryMock.oppdaterDialogMedTransmission(
+                    sykmeldingId = vedtak.sykmeldingId,
+                    transmissionId = transmissionId,
+                    dokumentId = vedtak.vedtakId,
+                    dokumentType = LpsApiExtendedType.VEDTAK.toString(),
+                    relatedTransmissionId = null,
+                )
+            }
         }
     })

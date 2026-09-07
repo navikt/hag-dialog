@@ -28,24 +28,24 @@ class VedtakJobb(
         oppdaterMetrikkForAntallVedtakMedStatusMottatt(nyVerdi = vedtakKlareForBehandling.size)
             .also { logger.info("Fant ${vedtakKlareForBehandling.size} vedtak med status MOTTATT klar til behandling.") }
 
-        vedtakKlareForBehandling.forEach { kobling ->
+        vedtakKlareForBehandling.forEach { vedtak ->
             try {
-                if (kobling.inntektsmeldingJobbStatus == Status.BEHANDLET) {
+                if (vedtak.inntektsmeldingJobbStatus == Status.BEHANDLET) {
                     sykepengerDialogportenService.opprettTransmissionForVedtak(
-                        vedtakId = kobling.vedtakId,
-                        sykmeldingId = kobling.sykmeldingId,
-                        inntektsmeldingId = kobling.inntektsmeldingId,
-                        orgnr = kobling.orgnr,
+                        vedtakId = vedtak.vedtakId,
+                        sykmeldingId = vedtak.sykmeldingId,
+                        inntektsmeldingId = vedtak.inntektsmeldingId,
+                        orgnr = vedtak.orgnr,
                     )
-                    dokumentkoblingRepository.settVedtakJobbTilBehandlet(kobling.vedtakId)
+                    dokumentkoblingRepository.settVedtakJobbTilBehandlet(vedtak.vedtakId)
                 } else {
                     logger.info(
-                        "Inntektsmelding med id ${kobling.inntektsmeldingId} er ikke behandlet enda, " +
-                            "kan ikke sende vedtak med id ${kobling.vedtakId} til Dialogporten.",
+                        "Inntektsmelding med id ${vedtak.inntektsmeldingId} er ikke behandlet enda, " +
+                            "kan ikke sende vedtak med id ${vedtak.vedtakId} til Dialogporten.",
                     )
                 }
             } catch (e: Exception) {
-                "Feil ved behandling av vedtak med id ${kobling.vedtakId}".also {
+                "Feil ved behandling av vedtak med id ${vedtak.vedtakId}".also {
                     logger.error(it)
                     sikkerLogger().error(it, e)
                 }
