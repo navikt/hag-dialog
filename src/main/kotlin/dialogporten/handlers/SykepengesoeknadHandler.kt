@@ -10,6 +10,7 @@ import no.nav.helsearbeidsgiver.database.DialogRepository
 import no.nav.helsearbeidsgiver.database.DokumentkoblingRepository
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenClient
 import no.nav.helsearbeidsgiver.dialogporten.LpsApiExtendedType
+import no.nav.helsearbeidsgiver.dialogporten.SykepengesoknadKorrigertTransmissionRequest
 import no.nav.helsearbeidsgiver.dialogporten.SykepengesoknadTransmissionRequest
 import no.nav.helsearbeidsgiver.dialogporten.domene.TransmissionRequest
 import no.nav.helsearbeidsgiver.dialogporten.domene.createApiAttachment
@@ -50,6 +51,20 @@ class SykepengesoeknadHandler(
                     "finnes allerede i dialog ${dialog.dialogId}, hopper over opprettelse.",
             )
         } else {
+            if (sykepengesoeknad.korrigerer != null) {
+                dialogRepository.hentTransmissionMedDokumentId(sykepengesoeknad.korrigerer)?.let { korrigertTransmission ->
+                    runBlocking {
+                        dialogportenClient.addTransmission(
+                            dialogId = dialog.dialogId,
+                            transmissionRequest =
+                                sykepengesoknadTransmission(
+                                    soeknadId = sykepengesoeknad.soeknadId,
+                                    korrigertTransmisionId = korrigertTransmission.id.value,
+                                ),
+                        )
+                    }
+                }
+            }
             val transmissionId =
                 runBlocking {
                     dialogportenClient.removeApiOnly(dialog.dialogId)
@@ -170,26 +185,39 @@ private fun ArbeidsgiverNotifikasjonKlient.opprettNotifikasjoner(
 
 fun sykepengesoknadTransmission(
     soeknadId: UUID,
+    korrigertTransmisionId: UUID? = null,
     isSilentUpdate: Boolean = false, // TODO kan fjernes etter engangsjobb patcher transmission
-): TransmissionRequest =
-    SykepengesoknadTransmissionRequest(
-        soeknadId = soeknadId,
-        attachments =
-            listOf(
-                createApiAttachment(
-                    "sykepengesoeknad.json",
-                    "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/sykepengesoeknad/$soeknadId",
-                ),
-                createApiAttachment(
-                    displayName = "sykepengesoeknad.pdf",
-                    url = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/sykepengesoeknad/$soeknadId/pdf",
-                    mediaType = "application/pdf",
-                ),
-                createGuiAttachment(
-                    displayName = "sykepengesoeknad",
-                    url = "${Env.Nav.arbeidsgiverGuiBaseUrl}/dokument/sykepengesoeknad/$soeknadId.pdf",
-                    mediaType = "application/pdf",
-                ),
+): TransmissionRequest {
+    val attachments =
+        listOf(
+            createApiAttachment(
+                "sykepengesoeknad.json",
+                "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/sykepengesoeknad/$soeknadId",
             ),
-        isSilentUpdate = isSilentUpdate,
-    )
+            createApiAttachment(
+                displayName = "sykepengesoeknad.pdf",
+                url = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/sykepengesoeknad/$soeknadId/pdf",
+                mediaType = "application/pdf",
+            ),
+            createGuiAttachment(
+                displayName = "sykepengesoeknad",
+                url = "${Env.Nav.arbeidsgiverGuiBaseUrl}/dokument/sykepengesoeknad/$soeknadId.pdf",
+                mediaType = "application/pdf",
+            ),
+        )
+
+    return if (korrigertTransmisionId != null) {
+        SykepengesoknadKorrigertTransmissionRequest(
+            soeknadId = soeknadId,
+            korrigeretTransmissionId = korrigertTransmisionId,
+            attachments = attachments,
+            isSilentUpdate = isSilentUpdate,
+        )
+    } else {
+        SykepengesoknadTransmissionRequest(
+            soeknadId = soeknadId,
+            attachments = attachments,
+            isSilentUpdate = isSilentUpdate,
+        )
+    }
+}
