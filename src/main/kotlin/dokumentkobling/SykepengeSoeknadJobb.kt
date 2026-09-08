@@ -54,6 +54,7 @@ fun SykepengerDialogportenService.opprettTransmissionForSoeknad(soeknad: Sykepen
             soeknadId = soeknad.soeknadId,
             sykmeldingId = soeknad.sykmeldingId,
             orgnr = soeknad.orgnr,
+            korrigerer = soeknad.korrigerer,
         ),
     )
 }
