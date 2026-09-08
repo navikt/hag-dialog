@@ -54,7 +54,9 @@ class SykepengesoeknadHandler(
             if (sykepengesoeknad.korrigerer != null) {
                 logger.info("soknaden ${sykepengesoeknad.soeknadId} er korrigerer  ${sykepengesoeknad.korrigerer}")
                 dialogRepository.hentTransmissionMedDokumentId(sykepengesoeknad.korrigerer)?.let { korrigertTransmission ->
-                    logger.info("Oppdaterer transmission for korrigert sykepengesøknad ${sykepengesoeknad.soeknadId} med id ${korrigertTransmission.id}")
+                    logger.info(
+                        "Oppdaterer transmission for korrigert sykepengesøknad ${sykepengesoeknad.soeknadId} med id ${korrigertTransmission.id}",
+                    )
                     runBlocking {
                         dialogportenClient.addTransmission(
                             dialogId = dialog.dialogId,

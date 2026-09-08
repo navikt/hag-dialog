@@ -115,5 +115,5 @@ class DialogRepository(
                 .firstOrNull()
         }
 }
- 
+
 fun LocalDate.endOfDay(): LocalDateTime = this.plusDays(1).atStartOfDay().minusNanos(1)
