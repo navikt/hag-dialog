@@ -13,7 +13,7 @@ object VedtakTable : UUIDTable(name = "vedtak", columnName = "vedtak_id") {
     val vedtakId get() = id
     val sykmeldingId = uuid("sykmelding_id")
     val inntektsmeldingId = uuid("inntektsmelding_id")
-    val orgnr = varchar("orgnr", 9)
+    val orgnr = text("orgnr")
     val status = enumerationByName(name = "status", length = 50, klass = Status::class)
     val opprettet = datetime("opprettet").clientDefault { LocalDateTime.now() }
 }

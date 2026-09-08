@@ -5,6 +5,7 @@ import kotlinx.coroutines.Dispatchers
 import no.nav.hag.utils.bakgrunnsjobb.RecurringJob
 import no.nav.helsearbeidsgiver.database.DokumentkoblingRepository
 import no.nav.helsearbeidsgiver.dialogporten.SykepengerDialogportenService
+import no.nav.helsearbeidsgiver.kafka.Vedtak
 import no.nav.helsearbeidsgiver.metrikk.oppdaterMetrikkForAntallVedtakMedStatusMottatt
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
@@ -61,7 +62,7 @@ fun SykepengerDialogportenService.opprettTransmissionForVedtak(
     orgnr: Orgnr,
 ) {
     oppdaterDialogMedVedtak(
-        no.nav.helsearbeidsgiver.kafka.Vedtak(
+        Vedtak(
             vedtakId = vedtakId,
             sykmeldingId = sykmeldingId,
             inntektsmeldingId = inntektsmeldingId,

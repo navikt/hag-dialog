@@ -10,6 +10,7 @@ import io.mockk.clearAllMocks
 import io.mockk.every
 import io.mockk.mockk
 import io.mockk.verify
+import io.mockk.verifySequence
 import no.nav.helsearbeidsgiver.database.DokumentkoblingRepository
 import no.nav.helsearbeidsgiver.database.DokumentkoblingRepository.ForespoerselSykmeldingKobling
 import no.nav.helsearbeidsgiver.database.ForespoerselEntity
@@ -364,6 +365,6 @@ class DokumentkoblingServiceTest :
 
             dokumentkoblingService.lagreVedtak(vedtak)
 
-            verify { dokumentkoblingRepository.opprettVedtak(vedtak) }
+            verifySequence { dokumentkoblingRepository.opprettVedtak(vedtak) }
         }
     })

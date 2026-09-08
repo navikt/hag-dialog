@@ -446,12 +446,13 @@ class DokumentkoblingRepository(
                 }
         }
 
-    fun settVedtakJobbTilBehandlet(vedtakId: UUID): Unit =
+    fun settVedtakJobbTilBehandlet(vedtakId: UUID) {
         transaction(db) {
             VedtakTable.update({ VedtakTable.id eq vedtakId }) {
                 it[status] = Status.BEHANDLET
             }
         }
+    }
 
     fun settVedtakMedStatusMottattTilTidsavbrutt(tidsavbruddgrense: LocalDateTime): Int =
         transaction(db) {

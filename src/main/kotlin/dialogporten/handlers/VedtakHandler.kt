@@ -22,13 +22,13 @@ class VedtakHandler(
     fun oppdaterDialog(vedtak: Vedtak) {
         val dialog =
             dialogRepository.finnDialogMedSykemeldingId(sykmeldingId = vedtak.sykmeldingId)
-                ?: run {
-                    logger.warn(
-                        "Fant ikke dialog for sykmeldingId ${vedtak.sykmeldingId}. " +
-                            "Klarer derfor ikke oppdatere dialogen med vedtak ${vedtak.vedtakId}.",
-                    )
-                    return
-                }
+        if (dialog == null) {
+            logger.warn(
+                "Fant ikke dialog for sykmeldingId ${vedtak.sykmeldingId}. " +
+                    "Klarer derfor ikke oppdatere dialogen med vedtak ${vedtak.vedtakId}.",
+            )
+            return
+        }
 
         val eksisterendeTransmission = dialog.transmissionByDokumentId(vedtak.vedtakId)
         if (eksisterendeTransmission != null) {
@@ -38,15 +38,14 @@ class VedtakHandler(
             return
         }
 
-        val inntektsmeldingTransmission = dialog.transmissionByDokumentId(vedtak.inntektsmeldingId)
-        if (inntektsmeldingTransmission == null) {
+        val inntektsmeldingTransmissionId = dialog.transmissionByDokumentId(vedtak.inntektsmeldingId)?.transmissionId
+        if (inntektsmeldingTransmissionId == null) {
             logger.warn(
                 "Fant ikke transmission for inntektsmeldingId ${vedtak.inntektsmeldingId} " +
                     "i dialog ${dialog.dialogId} for sykmeldingId ${vedtak.sykmeldingId}. " +
                     "Oppretter transmission for vedtak ${vedtak.vedtakId} uten relatedTransmissionId.",
             )
         }
-        val relatedTransmissionId = inntektsmeldingTransmission?.relatedTransmissionId
 
         val transmissionId =
             runBlocking {
@@ -55,7 +54,7 @@ class VedtakHandler(
                     transmissionRequest =
                         vedtakTransmissionRequest(
                             vedtakId = vedtak.vedtakId,
-                            relatedTransmissionId = relatedTransmissionId,
+                            relatedTransmissionId = inntektsmeldingTransmissionId,
                         ),
                 )
             }
@@ -65,7 +64,7 @@ class VedtakHandler(
             transmissionId = transmissionId,
             dokumentId = vedtak.vedtakId,
             dokumentType = LpsApiExtendedType.VEDTAK.toString(),
-            relatedTransmissionId = relatedTransmissionId,
+            relatedTransmissionId = inntektsmeldingTransmissionId,
         )
 
         logger.info(
