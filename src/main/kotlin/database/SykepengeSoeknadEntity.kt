@@ -13,6 +13,7 @@ object SykepengesoeknadTable : UUIDTable(name = "sykepengesoeknad", columnName =
     val soeknadId get() = id
     val sykmeldingId = uuid("sykmelding_id")
     val orgnr = varchar("orgnr", 9)
+    val korrigerer = uuid("korrigerer").nullable()
     val status = enumerationByName(name = "status", length = 50, klass = Status::class)
     val opprettet = datetime("opprettet").clientDefault { LocalDateTime.now() }
 }
@@ -25,6 +26,7 @@ class SykepengesoeknadEntity(
     val soeknadId: UUID get() = soeknadId
     val sykmeldingId by SykepengesoeknadTable.sykmeldingId
     val orgnr by SykepengesoeknadTable.orgnr
+    val korrigerer by SykepengesoeknadTable.korrigerer
     val status by SykepengesoeknadTable.status
     val opprettet by SykepengesoeknadTable.opprettet
 }
