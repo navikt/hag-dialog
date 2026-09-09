@@ -38,10 +38,10 @@ class VedtakHandlerTest :
         test("skal oppdatere dialog med vedtak når inntektsmelding-transmission finnes") {
             val dialogId = UUID.randomUUID()
             val inntektsmeldingTransmissionId = UUID.randomUUID()
-            val transmissionId = UUID.randomUUID()
+            val vedtakTransmissionId = UUID.randomUUID()
             val inntektsmeldingTransmission =
                 mockk<TransmissionEntity> {
-                    every { relatedTransmissionId } returns inntektsmeldingTransmissionId
+                    every { transmissionId } returns inntektsmeldingTransmissionId
                 }
             val dialogEntity =
                 mockk<DialogEntity> {
@@ -51,7 +51,7 @@ class VedtakHandlerTest :
                 }
 
             every { dialogRepositoryMock.finnDialogMedSykemeldingId(vedtak.sykmeldingId) } returns dialogEntity
-            coEvery { dialogportenClientMock.addTransmission(any(), any<TransmissionRequest>()) } returns transmissionId
+            coEvery { dialogportenClientMock.addTransmission(any(), any<TransmissionRequest>()) } returns vedtakTransmissionId
             every { dialogRepositoryMock.oppdaterDialogMedTransmission(any(), any(), any(), any(), any()) } just Runs
 
             vedtakHandler.oppdaterDialog(vedtak)
@@ -60,7 +60,7 @@ class VedtakHandlerTest :
             verify(exactly = 1) {
                 dialogRepositoryMock.oppdaterDialogMedTransmission(
                     sykmeldingId = vedtak.sykmeldingId,
-                    transmissionId = transmissionId,
+                    transmissionId = vedtakTransmissionId,
                     dokumentId = vedtak.vedtakId,
                     dokumentType = LpsApiExtendedType.VEDTAK.toString(),
                     relatedTransmissionId = inntektsmeldingTransmissionId,
