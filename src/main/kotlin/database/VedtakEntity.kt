@@ -6,7 +6,6 @@ import org.jetbrains.exposed.dao.UUIDEntityClass
 import org.jetbrains.exposed.dao.id.EntityID
 import org.jetbrains.exposed.dao.id.UUIDTable
 import org.jetbrains.exposed.sql.javatime.datetime
-import java.time.LocalDateTime
 import java.util.UUID
 
 object VedtakTable : UUIDTable(name = "vedtak", columnName = "vedtak_id") {
