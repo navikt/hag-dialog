@@ -7,6 +7,7 @@ import dokumentkobling.Status
 import dokumentkobling.Sykepengesoeknad
 import dokumentkobling.Sykmelding
 import dokumentkobling.Sykmeldingsperiode
+import dokumentkobling.Vedtak
 import dokumentkobling.VedtaksperiodeSoeknadKobling
 import no.nav.helsearbeidsgiver.database.DokumentkoblingRepository
 import no.nav.helsearbeidsgiver.database.ForespoerselStatus
@@ -72,6 +73,14 @@ object DokumentKoblingMockUtils {
             inntektsmeldingId = inntektsmeldingId,
             forespoerselId = forespoerselId,
             vedtaksperiodeId = vedtaksperiodeId,
+            orgnr = orgnr,
+        )
+
+    val vedtak =
+        Vedtak(
+            vedtakId = UUID.randomUUID(),
+            sykmeldingId = sykmeldingId,
+            inntektsmeldingId = inntektsmeldingId,
             orgnr = orgnr,
         )
 

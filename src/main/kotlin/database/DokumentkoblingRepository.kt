@@ -8,6 +8,7 @@ import dokumentkobling.InntektsmeldingGodkjent
 import dokumentkobling.Status
 import dokumentkobling.Sykepengesoeknad
 import dokumentkobling.Sykmelding
+import dokumentkobling.Vedtak
 import dokumentkobling.VedtaksperiodeSoeknadKobling
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
@@ -390,5 +391,78 @@ class DokumentkoblingRepository(
         transaction {
             InntektsmeldingEntity
                 .findById(inntektsmeldingId)
+        }
+
+    fun opprettVedtak(vedtak: Vedtak) =
+        try {
+            transaction(db) {
+                VedtakTable.insert {
+                    it[id] = vedtak.vedtakId
+                    it[VedtakTable.sykmeldingId] = vedtak.sykmeldingId
+                    it[VedtakTable.inntektsmeldingId] = vedtak.inntektsmeldingId
+                    it[VedtakTable.orgnr] = vedtak.orgnr.verdi
+                    it[VedtakTable.status] = Status.MOTTATT
+                }
+            }
+        } catch (e: ExposedSQLException) {
+            sikkerLogger().error("Klarte ikke å opprette vedtak med id ${vedtak.vedtakId} i databasen", e)
+            throw e
+        }
+
+    fun hentVedtak(vedtakId: UUID): VedtakEntity? =
+        transaction(db) {
+            VedtakEntity.findById(vedtakId)
+        }
+
+    data class VedtakInntektsmeldingKobling(
+        val vedtakId: UUID,
+        val sykmeldingId: UUID,
+        val inntektsmeldingId: UUID,
+        val orgnr: Orgnr,
+        val vedtakStatus: Status,
+        val inntektsmeldingJobbStatus: Status,
+    )
+
+    fun hentVedtakKlareForBehandling(): List<VedtakInntektsmeldingKobling> =
+        transaction(db) {
+            VedtakTable
+                .innerJoin(
+                    InntektsmeldingTable,
+                    { VedtakTable.inntektsmeldingId },
+                    { InntektsmeldingTable.id },
+                ).selectAll()
+                .where { VedtakTable.status eq Status.MOTTATT }
+                .orderBy(VedtakTable.opprettet to SortOrder.ASC)
+                .limit(maksAntallPerHenting)
+                .map {
+                    VedtakInntektsmeldingKobling(
+                        vedtakId = it[VedtakTable.id].value,
+                        sykmeldingId = it[VedtakTable.sykmeldingId],
+                        inntektsmeldingId = it[VedtakTable.inntektsmeldingId],
+                        orgnr = Orgnr(it[VedtakTable.orgnr]),
+                        vedtakStatus = it[VedtakTable.status],
+                        inntektsmeldingJobbStatus = it[InntektsmeldingTable.status],
+                    )
+                }
+        }
+
+    fun settVedtakJobbTilBehandlet(vedtakId: UUID) {
+        transaction(db) {
+            VedtakTable.update({ VedtakTable.id eq vedtakId }) {
+                it[status] = Status.BEHANDLET
+            }
+        }
+    }
+
+    fun settVedtakMedStatusMottattTilTidsavbrutt(tidsavbruddgrense: LocalDateTime): Int =
+        transaction(db) {
+            VedtakTable.update(
+                where = {
+                    (VedtakTable.status eq Status.MOTTATT) and
+                        (VedtakTable.opprettet less tidsavbruddgrense)
+                },
+            ) {
+                it[status] = Status.TIDSAVBRUTT
+            }
         }
 }

@@ -35,4 +35,10 @@ class UnleashFeatureToggles {
             "opprett-notifikasjoner-fager",
             false,
         )
+
+    fun skalOppretteVedtakTransmissions(): Boolean =
+        defaultUnleash.isEnabled(
+            "opprett-vedtak-transmissions",
+            false,
+        )
 }
