@@ -49,7 +49,19 @@ class SykepengesoknadTransmissionRequest(
     override val tittel = "Søknad om sykepenger"
     override val sammendrag = null
     override val type = Transmission.TransmissionType.Information
-    override val relatedTransmissionId = null
+    override val relatedTransmissionId: UUID? = null
+}
+
+class SykepengesoknadKorrigertTransmissionRequest(
+    soeknadId: UUID,
+    override val relatedTransmissionId: UUID,
+    override val attachments: List<Attachment>,
+    override val isSilentUpdate: Boolean = false,
+) : TransmissionRequestMedMarkerSomLestFce(SYKEPENGESOEKNAD) {
+    override val dokumentId = soeknadId
+    override val tittel = "Søknad om sykepenger er korrigert"
+    override val sammendrag = null
+    override val type = Transmission.TransmissionType.Information
 }
 
 class VedtakTransmissionRequest(
@@ -62,19 +74,6 @@ class VedtakTransmissionRequest(
     override val tittel = "Refusjonsvedtak"
     override val sammendrag = null
     override val type = Transmission.TransmissionType.Information
-}
-
-class SykepengesoknadKorrigertTransmissionRequest(
-    soeknadId: UUID,
-    korrigeretTransmissionId: UUID,
-    override val attachments: List<Attachment>,
-    override val isSilentUpdate: Boolean = false,
-) : TransmissionRequestMedMarkerSomLestFce(SYKEPENGESOEKNAD) {
-    override val dokumentId = soeknadId
-    override val tittel = "Søknad om sykepenger er korrigert"
-    override val sammendrag = null
-    override val type = Transmission.TransmissionType.Information
-    override val relatedTransmissionId = korrigeretTransmissionId
 }
 
 class ForespoerselTransmissionRequest(

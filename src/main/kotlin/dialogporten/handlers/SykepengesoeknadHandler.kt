@@ -60,7 +60,7 @@ class SykepengesoeknadHandler(
                         transmissionRequest =
                             sykepengesoknadTransmission(
                                 soeknadId = sykepengesoeknad.soeknadId,
-                                korrigertTransmisionId = korrigertSoknadTransmissionId,
+                                korrigertTransmissionId = korrigertSoknadTransmissionId,
                             ),
                     )
                 }
@@ -183,7 +183,7 @@ private fun ArbeidsgiverNotifikasjonKlient.opprettNotifikasjoner(
 
 fun sykepengesoknadTransmission(
     soeknadId: UUID,
-    korrigertTransmisionId: UUID? = null,
+    korrigertTransmissionId: UUID? = null,
     isSilentUpdate: Boolean = false, // TODO kan fjernes etter engangsjobb patcher transmission
 ): TransmissionRequest {
     val attachments =
@@ -204,10 +204,10 @@ fun sykepengesoknadTransmission(
             ),
         )
 
-    return if (korrigertTransmisionId != null) {
+    return if (korrigertTransmissionId != null) {
         SykepengesoknadKorrigertTransmissionRequest(
             soeknadId = soeknadId,
-            korrigeretTransmissionId = korrigertTransmisionId,
+            relatedTransmissionId = korrigertTransmissionId,
             attachments = attachments,
             isSilentUpdate = isSilentUpdate,
         )
