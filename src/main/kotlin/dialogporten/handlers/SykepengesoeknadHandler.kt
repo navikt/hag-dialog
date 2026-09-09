@@ -51,24 +51,7 @@ class SykepengesoeknadHandler(
                     "finnes allerede i dialog ${dialog.dialogId}, hopper over opprettelse.",
             )
         } else {
-            if (sykepengesoeknad.korrigerer != null) {
-                logger.info("soknaden ${sykepengesoeknad.soeknadId} er korrigerer  ${sykepengesoeknad.korrigerer}")
-                dialogRepository.hentTransmissionMedDokumentId(sykepengesoeknad.korrigerer)?.let { korrigertTransmission ->
-                    logger.info(
-                        "Oppdaterer transmission for korrigert sykepengesøknad ${sykepengesoeknad.soeknadId} med id ${korrigertTransmission.id}",
-                    )
-                    runBlocking {
-                        dialogportenClient.addTransmission(
-                            dialogId = dialog.dialogId,
-                            transmissionRequest =
-                                sykepengesoknadTransmission(
-                                    soeknadId = sykepengesoeknad.soeknadId,
-                                    korrigertTransmisionId = korrigertTransmission.id.value,
-                                ),
-                        )
-                    }
-                }
-            }
+            val korrigertSoknadTransmissionId = hentKorrigertSoknadTransmissionId(sykepengesoeknad)
             val transmissionId =
                 runBlocking {
                     dialogportenClient.removeApiOnly(dialog.dialogId)
@@ -77,6 +60,7 @@ class SykepengesoeknadHandler(
                         transmissionRequest =
                             sykepengesoknadTransmission(
                                 soeknadId = sykepengesoeknad.soeknadId,
+                                korrigertTransmisionId = korrigertSoknadTransmissionId,
                             ),
                     )
                 }
@@ -86,6 +70,7 @@ class SykepengesoeknadHandler(
                 transmissionId = transmissionId,
                 dokumentId = sykepengesoeknad.soeknadId,
                 dokumentType = LpsApiExtendedType.SYKEPENGESOEKNAD.toString(),
+                relatedTransmissionId = korrigertSoknadTransmissionId,
             )
 
             logger.info(
@@ -105,6 +90,15 @@ class SykepengesoeknadHandler(
             } else {
                 agNotifikasjonKlient.opprettNotifikasjoner(sykepengesoeknad, sykmeldingEntitet.data)
             }
+        }
+    }
+
+    private fun hentKorrigertSoknadTransmissionId(sykepengesoeknad: Sykepengesoeknad): UUID? {
+        val korrigerer = sykepengesoeknad.korrigerer ?: return null
+
+        return dialogRepository.hentTransmissionMedDokumentId(korrigerer)?.let { korrigertTransmission ->
+            logger.info("soknaden ${sykepengesoeknad.soeknadId} har korrigert søknad $korrigerer")
+            korrigertTransmission.id.value
         }
     }
 }
