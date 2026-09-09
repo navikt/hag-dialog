@@ -20,7 +20,7 @@ class VedtakJobb(
 ) : RecurringJob(CoroutineScope(Dispatchers.IO), Duration.ofSeconds(30).toMillis()) {
     override fun doJob() {
         if (!unleashFeatureToggles.skalOppretteVedtakTransmissions()) {
-            logger.warn("Oppretter ikke dialoger for vedtak siden det er deaktivert i Unleash.")
+            logger.warn("Oppretter ikke transmissions for vedtak siden det er deaktivert i Unleash.")
             return
         }
 
