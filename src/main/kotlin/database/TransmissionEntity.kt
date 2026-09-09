@@ -21,6 +21,7 @@ class TransmissionEntity(
 ) : Entity<UUID>(id) {
     companion object : EntityClass<UUID, TransmissionEntity>(TransmissionTable)
 
+    val transmissionId: UUID get() = id.value
     val dialog by DialogEntity referencedOn TransmissionTable.dialogId
     val dokumentId by TransmissionTable.dokumentId
     val dokumentType by TransmissionTable.dokumentType

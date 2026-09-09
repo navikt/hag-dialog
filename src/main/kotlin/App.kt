@@ -3,6 +3,7 @@ package no.nav.helsearbeidsgiver
 import dokumentkobling.DokumentkoblingService
 import dokumentkobling.SykepengeSoeknadJobb
 import dokumentkobling.SykmeldingJobb
+import dokumentkobling.VedtakJobb
 import dokumentkobling.startRecurringJobs
 import io.ktor.server.application.ApplicationStopPreparing
 import io.ktor.server.engine.embeddedServer
@@ -26,6 +27,7 @@ import no.nav.helsearbeidsgiver.dokumentkobling.AvbrytForespoerselJobb
 import no.nav.helsearbeidsgiver.dokumentkobling.AvbrytInntektsmeldingJobb
 import no.nav.helsearbeidsgiver.dokumentkobling.AvbrytSykepengeSoeknadJobb
 import no.nav.helsearbeidsgiver.dokumentkobling.AvbrytSykmeldingJobb
+import no.nav.helsearbeidsgiver.dokumentkobling.AvbrytVedtakJobb
 import no.nav.helsearbeidsgiver.dokumentkobling.ForespoerselJobb
 import no.nav.helsearbeidsgiver.dokumentkobling.InntektsmeldingJobb
 import no.nav.helsearbeidsgiver.helsesjekker.HelsesjekkService
@@ -129,6 +131,14 @@ fun startServer() {
             AvbrytInntektsmeldingJobb(
                 dokumentkoblingRepository = dokumentkoblingRepository,
             ),
+            VedtakJobb(
+                dokumentkoblingRepository = dokumentkoblingRepository,
+                sykepengerDialogportenService = sykepengerDialogportenService,
+                unleashFeatureToggles = unleashFeatureToggles,
+            ),
+            AvbrytVedtakJobb(
+                dokumentkoblingRepository = dokumentkoblingRepository,
+            ),
         )
 
     logger.info("Starter server...")
@@ -149,7 +159,7 @@ fun startServer() {
                 metrikkRoutes()
                 activityRoutes(sykePengerdialogportenClient)
             }
-            configureKafkaConsumer(unleashFeatureToggles, dokumentKoblingService, fritakDialogportenService)
+            configureKafkaConsumer(dokumentKoblingService, fritakDialogportenService)
             startRecurringJobs(jobber)
             monitor.subscribe(ApplicationStopPreparing) {
                 logger.info("Applikasjonen stopper, avslutter eventuelle jobber...")

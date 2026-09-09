@@ -81,6 +81,15 @@ data class InntektsmeldingAvvist(
     val orgnr: Orgnr,
 ) : Dokumentkobling()
 
+@Serializable
+@SerialName("Vedtak")
+data class Vedtak(
+    val vedtakId: UUID,
+    val sykmeldingId: UUID,
+    val inntektsmeldingId: UUID,
+    val orgnr: Orgnr,
+) : Dokumentkobling()
+
 enum class InnsendingType {
     FORESPURT,
     ARBEIDSGIVER_INITIERT,

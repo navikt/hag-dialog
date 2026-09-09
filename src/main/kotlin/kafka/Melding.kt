@@ -51,6 +51,15 @@ data class UtgaattInntektsmeldingForespoersel(
 ) : Melding()
 
 @Serializable
+@SerialName("Vedtak")
+data class Vedtak(
+    val vedtakId: UUID,
+    val sykmeldingId: UUID,
+    val inntektsmeldingId: UUID,
+    val orgnr: Orgnr,
+) : Melding()
+
+@Serializable
 data class Sykmeldingsperiode(
     val fom: LocalDate,
     val tom: LocalDate,

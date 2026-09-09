@@ -8,6 +8,7 @@ import no.nav.helsearbeidsgiver.dialogporten.LpsApiExtendedType.INNTEKTSMELDING_
 import no.nav.helsearbeidsgiver.dialogporten.LpsApiExtendedType.INNTEKTSMELDING_GODKJENT
 import no.nav.helsearbeidsgiver.dialogporten.LpsApiExtendedType.SYKEPENGESOEKNAD
 import no.nav.helsearbeidsgiver.dialogporten.LpsApiExtendedType.SYKMELDING
+import no.nav.helsearbeidsgiver.dialogporten.LpsApiExtendedType.VEDTAK
 import no.nav.helsearbeidsgiver.dialogporten.domene.Attachment
 import no.nav.helsearbeidsgiver.dialogporten.domene.Transmission
 import no.nav.helsearbeidsgiver.dialogporten.domene.TransmissionRequest
@@ -49,6 +50,18 @@ class SykepengesoknadTransmissionRequest(
     override val sammendrag = null
     override val type = Transmission.TransmissionType.Information
     override val relatedTransmissionId = null
+}
+
+class VedtakTransmissionRequest(
+    vedtakId: UUID,
+    override val relatedTransmissionId: UUID?,
+    override val attachments: List<Attachment>,
+    override val isSilentUpdate: Boolean = false,
+) : TransmissionRequestMedMarkerSomLestFce(VEDTAK) {
+    override val dokumentId = vedtakId
+    override val tittel = "Refusjonsvedtak"
+    override val sammendrag = null
+    override val type = Transmission.TransmissionType.Information
 }
 
 class SykepengesoknadKorrigertTransmissionRequest(
