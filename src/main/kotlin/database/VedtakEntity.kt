@@ -15,7 +15,7 @@ object VedtakTable : UUIDTable(name = "vedtak", columnName = "vedtak_id") {
     val inntektsmeldingId = uuid("inntektsmelding_id")
     val orgnr = text("orgnr")
     val status = enumerationByName(name = "status", length = 50, klass = Status::class)
-    val opprettet = datetime("opprettet").clientDefault { LocalDateTime.now() }
+    val opprettet = datetime("opprettet")
 }
 
 class VedtakEntity(
