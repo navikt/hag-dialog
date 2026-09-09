@@ -31,6 +31,7 @@ class SykepengeSoeknadJobb(
                 val sykmelding = dokumentkoblingRepository.hentSykmeldingEntitet(soeknad.sykmeldingId)
 
                 if (sykmelding?.status == Status.BEHANDLET) {
+                    logger.info("Starter behandling søknad med id ${soeknad.soeknadId} til Dialogporten.")
                     sykepengerDialogportenService.opprettTransmissionForSoeknad(soeknad)
                     dokumentkoblingRepository.settSykepengeSoeknadJobbTilBehandlet(soeknad.soeknadId)
                 } else {
