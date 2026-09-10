@@ -36,17 +36,15 @@ import java.util.concurrent.atomic.AtomicInteger
 class SykepengerDialogportenService(
     private val dialogRepository: DialogRepository,
     private val dialogportenClient: DialogportenClient,
-    unleashFeatureToggles: UnleashFeatureToggles,
     agNotifikasjonKlient: ArbeidsgiverNotifikasjonKlient,
     dokumentkoblingRepository: DokumentkoblingRepository,
 ) {
     private val logger = logger()
-    private val sykmeldingHandler = SykmeldingHandler(dialogRepository, dialogportenClient, unleashFeatureToggles, agNotifikasjonKlient)
+    private val sykmeldingHandler = SykmeldingHandler(dialogRepository, dialogportenClient, agNotifikasjonKlient)
     private val sykepengesoeknadHandler =
         SykepengesoeknadHandler(
             dialogRepository,
             dialogportenClient,
-            unleashFeatureToggles,
             agNotifikasjonKlient,
             dokumentkoblingRepository,
         )

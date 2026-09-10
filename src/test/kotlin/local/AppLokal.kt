@@ -63,7 +63,6 @@ fun startServer() {
         SykepengerDialogportenService(
             dialogRepository = dialogRepository,
             dialogportenClient = dialogportenClient,
-            unleashFeatureToggles = unleashFeatureToggles,
             agNotifikasjonKlient = mockk<ArbeidsgiverNotifikasjonKlient>(relaxed = true),
             dokumentkoblingRepository = dokumentkoblingRepository,
         )
