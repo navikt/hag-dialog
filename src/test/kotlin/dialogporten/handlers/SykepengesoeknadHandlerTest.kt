@@ -15,11 +15,13 @@ import no.nav.helsearbeidsgiver.database.DialogRepository
 import no.nav.helsearbeidsgiver.database.DokumentkoblingRepository
 import no.nav.helsearbeidsgiver.database.SykmeldingEntity
 import no.nav.helsearbeidsgiver.database.TransmissionEntity
+import no.nav.helsearbeidsgiver.database.TransmissionTable
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenClient
 import no.nav.helsearbeidsgiver.dialogporten.LpsApiExtendedType
 import no.nav.helsearbeidsgiver.dialogporten.domene.TransmissionRequest
 import no.nav.helsearbeidsgiver.dialogporten.handlers.SykepengesoeknadHandler
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
+import org.jetbrains.exposed.dao.id.EntityID
 import sykepengesoeknad
 import java.time.LocalDate
 import java.util.UUID
@@ -185,6 +187,43 @@ class SykepengesoeknadHandlerTest :
             coVerify(exactly = 1) { agNotifikasjonKlientMock.opprettNySak(any(), any(), any(), any(), any(), any(), any(), any(), any()) }
             coVerify(exactly = 1) {
                 agNotifikasjonKlientMock.opprettNyBeskjed(any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any())
+            }
+        }
+
+        test("skal opprette korrigert transmission med relatedTransmissionId soeknad er korrigert") {
+            val dialogId = UUID.randomUUID()
+            val transmissionId = UUID.randomUUID()
+            val korrigererSoeknadId = UUID.randomUUID()
+            val korrigertTransmissionId = UUID.randomUUID()
+            val dialogEntity =
+                mockk<DialogEntity> {
+                    every { this@mockk.dialogId } returns dialogId
+                    every { transmissionByDokumentId(any()) } returns null
+                }
+            val korrigertTransmission =
+                mockk<TransmissionEntity> {
+                    every { id } returns EntityID(korrigertTransmissionId, TransmissionTable)
+                }
+
+            every { dialogRepositoryMock.finnDialogMedSykemeldingId(sykepengesoeknad.sykmeldingId) } returns dialogEntity
+            every { dialogRepositoryMock.hentTransmissionMedDokumentId(korrigererSoeknadId) } returns korrigertTransmission
+            coEvery { dialogportenClientMock.removeApiOnly(any()) } just Runs
+            coEvery { dialogportenClientMock.addTransmission(any(), any<TransmissionRequest>()) } returns transmissionId
+            every { dialogRepositoryMock.oppdaterDialogMedTransmission(any(), any(), any(), any(), any()) } just Runs
+            every { unleashFeatureTogglesMock.skalOppretteNotifikasjoner() } returns false
+
+            sykepengeSoeknadhandler.oppdaterDialog(sykepengesoeknad.copy(korrigerer = korrigererSoeknadId))
+
+            verify(exactly = 1) { dialogRepositoryMock.hentTransmissionMedDokumentId(korrigererSoeknadId) }
+            coVerify(exactly = 1) { dialogportenClientMock.addTransmission(dialogId, any<TransmissionRequest>()) }
+            verify(exactly = 1) {
+                dialogRepositoryMock.oppdaterDialogMedTransmission(
+                    sykmeldingId = sykepengesoeknad.sykmeldingId,
+                    transmissionId = transmissionId,
+                    dokumentId = sykepengesoeknad.soeknadId,
+                    dokumentType = LpsApiExtendedType.SYKEPENGESOEKNAD.toString(),
+                    relatedTransmissionId = korrigertTransmissionId,
+                )
             }
         }
     })
