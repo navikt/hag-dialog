@@ -10,7 +10,6 @@ import no.nav.helsearbeidsgiver.database.DialogRepository
 import no.nav.helsearbeidsgiver.database.DokumentkoblingRepository
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenClient
 import no.nav.helsearbeidsgiver.dialogporten.LpsApiExtendedType
-import no.nav.helsearbeidsgiver.dialogporten.SykepengesoknadKorrigertTransmissionRequest
 import no.nav.helsearbeidsgiver.dialogporten.SykepengesoknadTransmissionRequest
 import no.nav.helsearbeidsgiver.dialogporten.domene.TransmissionRequest
 import no.nav.helsearbeidsgiver.dialogporten.domene.createApiAttachment
