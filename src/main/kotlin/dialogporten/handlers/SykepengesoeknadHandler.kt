@@ -204,10 +204,9 @@ fun sykepengesoknadTransmission(
             ),
         )
 
-    return if (korrigertTransmissionId != null) {
-        SykepengesoknadKorrigertTransmissionRequest(
+    return if (korrigertTransmissionId == null) {
+        SykepengesoknadTransmissionRequest(
             soeknadId = soeknadId,
-            relatedTransmissionId = korrigertTransmissionId,
             attachments = attachments,
             isSilentUpdate = isSilentUpdate,
         )
@@ -216,6 +215,8 @@ fun sykepengesoknadTransmission(
             soeknadId = soeknadId,
             attachments = attachments,
             isSilentUpdate = isSilentUpdate,
+            tittel = "Søknad om sykepenger er korrigert",
+            relatedTransmissionId = korrigertTransmissionId,
         )
     }
 }
