@@ -179,4 +179,19 @@ class DialogRepositoryTest :
                 dialog.transmissions shouldHaveSize 2
             }
         }
+
+        test("hentTransmissionMedDokumentId returnerer riktig transmission") {
+            val dialogId = UUID.randomUUID()
+            val sykmeldingId = UUID.randomUUID()
+            val transmissionId = UUID.randomUUID()
+            val dokumentId = UUID.randomUUID()
+
+            repository.lagreDialogMedTransmission(dialogId, sykmeldingId, transmissionId, dokumentId, "TYPE")
+
+            val resultat = repository.hentTransmissionMedDokumentId(dokumentId)
+
+            resultat.shouldNotBeNull()
+            resultat.id.value shouldBe transmissionId
+            resultat.dokumentId shouldBe dokumentId
+        }
     })

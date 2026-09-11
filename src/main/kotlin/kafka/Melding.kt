@@ -31,6 +31,7 @@ data class Sykepengesoeknad(
     val soeknadId: UUID,
     val sykmeldingId: UUID,
     val orgnr: Orgnr,
+    val korrigerer: UUID? = null,
 ) : Melding()
 
 @Serializable

@@ -50,6 +50,7 @@ class SykepengesoeknadHandler(
                     "finnes allerede i dialog ${dialog.dialogId}, hopper over opprettelse.",
             )
         } else {
+            val korrigertSoknadTransmissionId = hentKorrigertSoknadTransmissionId(sykepengesoeknad)
             val transmissionId =
                 runBlocking {
                     dialogportenClient.removeApiOnly(dialog.dialogId)
@@ -58,6 +59,7 @@ class SykepengesoeknadHandler(
                         transmissionRequest =
                             sykepengesoknadTransmission(
                                 soeknadId = sykepengesoeknad.soeknadId,
+                                korrigertTransmissionId = korrigertSoknadTransmissionId,
                             ),
                     )
                 }
@@ -67,6 +69,7 @@ class SykepengesoeknadHandler(
                 transmissionId = transmissionId,
                 dokumentId = sykepengesoeknad.soeknadId,
                 dokumentType = LpsApiExtendedType.SYKEPENGESOEKNAD.toString(),
+                relatedTransmissionId = korrigertSoknadTransmissionId,
             )
 
             logger.info(
@@ -86,6 +89,15 @@ class SykepengesoeknadHandler(
             } else {
                 agNotifikasjonKlient.opprettNotifikasjoner(sykepengesoeknad, sykmeldingEntitet.data)
             }
+        }
+    }
+
+    private fun hentKorrigertSoknadTransmissionId(sykepengesoeknad: Sykepengesoeknad): UUID? {
+        val korrigerer = sykepengesoeknad.korrigerer ?: return null
+
+        return dialogRepository.hentTransmissionMedDokumentId(korrigerer)?.let { korrigertTransmission ->
+            logger.info("soknaden ${sykepengesoeknad.soeknadId} har korrigert søknad $korrigerer")
+            korrigertTransmission.id.value
         }
     }
 }
@@ -170,26 +182,40 @@ private fun ArbeidsgiverNotifikasjonKlient.opprettNotifikasjoner(
 
 fun sykepengesoknadTransmission(
     soeknadId: UUID,
+    korrigertTransmissionId: UUID? = null,
     isSilentUpdate: Boolean = false, // TODO kan fjernes etter engangsjobb patcher transmission
-): TransmissionRequest =
-    SykepengesoknadTransmissionRequest(
-        soeknadId = soeknadId,
-        attachments =
-            listOf(
-                createApiAttachment(
-                    "sykepengesoeknad.json",
-                    "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/sykepengesoeknad/$soeknadId",
-                ),
-                createApiAttachment(
-                    displayName = "sykepengesoeknad.pdf",
-                    url = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/sykepengesoeknad/$soeknadId/pdf",
-                    mediaType = "application/pdf",
-                ),
-                createGuiAttachment(
-                    displayName = "sykepengesoeknad",
-                    url = "${Env.Nav.arbeidsgiverGuiBaseUrl}/dokument/sykepengesoeknad/$soeknadId.pdf",
-                    mediaType = "application/pdf",
-                ),
+): TransmissionRequest {
+    val attachments =
+        listOf(
+            createApiAttachment(
+                "sykepengesoeknad.json",
+                "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/sykepengesoeknad/$soeknadId",
             ),
-        isSilentUpdate = isSilentUpdate,
-    )
+            createApiAttachment(
+                displayName = "sykepengesoeknad.pdf",
+                url = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/sykepengesoeknad/$soeknadId/pdf",
+                mediaType = "application/pdf",
+            ),
+            createGuiAttachment(
+                displayName = "sykepengesoeknad",
+                url = "${Env.Nav.arbeidsgiverGuiBaseUrl}/dokument/sykepengesoeknad/$soeknadId.pdf",
+                mediaType = "application/pdf",
+            ),
+        )
+
+    return if (korrigertTransmissionId == null) {
+        SykepengesoknadTransmissionRequest(
+            soeknadId = soeknadId,
+            attachments = attachments,
+            isSilentUpdate = isSilentUpdate,
+        )
+    } else {
+        SykepengesoknadTransmissionRequest(
+            soeknadId = soeknadId,
+            attachments = attachments,
+            isSilentUpdate = isSilentUpdate,
+            tittel = "Søknad om sykepenger er korrigert",
+            relatedTransmissionId = korrigertTransmissionId,
+        )
+    }
+}
