@@ -49,7 +49,7 @@ class SykepengesoknadTransmissionRequest(
     override val tittel = "Søknad om sykepenger"
     override val sammendrag = null
     override val type = Transmission.TransmissionType.Information
-    override val relatedTransmissionId: UUID? = null
+    override val relatedTransmissionId = null
 }
 
 class SykepengesoknadKorrigertTransmissionRequest(
