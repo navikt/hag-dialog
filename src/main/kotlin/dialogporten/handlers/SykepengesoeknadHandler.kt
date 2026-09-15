@@ -214,7 +214,7 @@ fun sykepengesoknadTransmission(
             soeknadId = soeknadId,
             attachments = attachments,
             isSilentUpdate = isSilentUpdate,
-            tittel = "Søknad om sykepenger er korrigert",
+            tittel = "Søknad om sykepenger er endret",
             relatedTransmissionId = korrigertTransmissionId,
         )
     }
