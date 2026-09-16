@@ -107,6 +107,13 @@ class DialogRepository(
                     )
                 }
         }
+
+    fun hentTransmissionMedDokumentId(dokumentId: UUID): TransmissionEntity? =
+        transaction(db) {
+            TransmissionEntity
+                .find { TransmissionTable.dokumentId eq dokumentId }
+                .firstOrNull()
+        }
 }
 
 fun LocalDate.endOfDay(): LocalDateTime = this.plusDays(1).atStartOfDay().minusNanos(1)

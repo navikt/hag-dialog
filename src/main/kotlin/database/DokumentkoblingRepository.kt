@@ -56,6 +56,7 @@ class DokumentkoblingRepository(
                     it[id] = soeknad.soeknadId
                     it[SykepengesoeknadTable.sykmeldingId] = soeknad.sykmeldingId
                     it[SykepengesoeknadTable.orgnr] = soeknad.orgnr.verdi
+                    it[SykepengesoeknadTable.korrigerer] = soeknad.korrigerer
                     it[SykepengesoeknadTable.status] = Status.MOTTATT
                 }
             }
@@ -101,6 +102,7 @@ class DokumentkoblingRepository(
                         soeknadId = it.id.value,
                         sykmeldingId = it.sykmeldingId,
                         orgnr = Orgnr(it.orgnr),
+                        korrigerer = it.korrigerer,
                     )
                 }
         }
