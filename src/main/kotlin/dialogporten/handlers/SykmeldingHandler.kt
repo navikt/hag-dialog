@@ -18,7 +18,6 @@ import no.nav.helsearbeidsgiver.dialogporten.domene.toTransmission
 import no.nav.helsearbeidsgiver.kafka.Sykmelding
 import no.nav.helsearbeidsgiver.kafka.getSykmeldingsPerioderString
 import no.nav.helsearbeidsgiver.kafka.lagDialogAdditionalInfo
-import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import no.nav.helsearbeidsgiver.utils.tilNorskFormat
@@ -28,7 +27,6 @@ import kotlin.time.Duration.Companion.days
 class SykmeldingHandler(
     private val dialogRepository: DialogRepository,
     private val dialogportenClient: DialogportenClient,
-    private val unleashFeatureToggles: UnleashFeatureToggles,
     private val agNotifikasjonKlient: ArbeidsgiverNotifikasjonKlient,
 ) {
     private val logger = logger()
@@ -72,9 +70,7 @@ class SykmeldingHandler(
             logger.info("Opprettet dialog $dialogId for sykmelding ${sykmelding.sykmeldingId}.")
         }
 
-        if (unleashFeatureToggles.skalOppretteNotifikasjoner()) {
-            opprettNotifikasjoner(sykmelding)
-        }
+        opprettNotifikasjoner(sykmelding)
     }
 
     private fun opprettNotifikasjoner(sykmelding: Sykmelding) {
@@ -102,7 +98,10 @@ class SykmeldingHandler(
             logger.warn("Duplikat sak for sykmelding ${sykmelding.sykmeldingId}: ${e.eksisterendeId}")
         } catch (e: Exception) {
             logger.error("Feil ved opprettelse av notifikasjon-sak for sykmelding ${sykmelding.sykmeldingId}")
-            sikkerLogger().error("Feil ved opprettelse av notifikasjon-sak for sykmelding ${sykmelding.sykmeldingId}", e)
+            sikkerLogger().error(
+                "Feil ved opprettelse av notifikasjon-sak for sykmelding ${sykmelding.sykmeldingId}",
+                e,
+            )
             throw e
         }
 
@@ -133,7 +132,10 @@ class SykmeldingHandler(
             logger.warn("Duplikat beskjed for sykmelding ${sykmelding.sykmeldingId}: ${e.eksisterendeId}")
         } catch (e: Exception) {
             logger.error("Feil ved opprettelse av notifikasjon-beskjed for sykmelding ${sykmelding.sykmeldingId}")
-            sikkerLogger().error("Feil ved opprettelse av notifikasjon-beskjed for sykmelding ${sykmelding.sykmeldingId}", e)
+            sikkerLogger().error(
+                "Feil ved opprettelse av notifikasjon-beskjed for sykmelding ${sykmelding.sykmeldingId}",
+                e,
+            )
             throw e
         }
     }
