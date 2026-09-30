@@ -19,6 +19,7 @@ import no.nav.helsearbeidsgiver.auth.dialogportenTokenGetter
 import no.nav.helsearbeidsgiver.database.Database
 import no.nav.helsearbeidsgiver.database.DialogRepository
 import no.nav.helsearbeidsgiver.database.DokumentkoblingRepository
+import no.nav.helsearbeidsgiver.database.NotifikasjonRepository
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenClient
 import no.nav.helsearbeidsgiver.dialogporten.FritakDialogportenService
 import no.nav.helsearbeidsgiver.dialogporten.SykepengerDialogportenService
@@ -34,6 +35,7 @@ import no.nav.helsearbeidsgiver.helsesjekker.HelsesjekkService
 import no.nav.helsearbeidsgiver.helsesjekker.naisRoutes
 import no.nav.helsearbeidsgiver.kafka.configureKafkaConsumer
 import no.nav.helsearbeidsgiver.metrikk.metrikkRoutes
+import no.nav.helsearbeidsgiver.notifikasjon.AgNotifikasjonsJobb
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import org.slf4j.LoggerFactory
@@ -83,14 +85,14 @@ fun startServer() {
         no.nav.helsearbeidsgiver.database
             .FritakDialogRepository(database.db)
     val dokumentkoblingRepository = DokumentkoblingRepository(db = database.db, maksAntallPerHenting = 5000)
+    val notifikasjonRepository = NotifikasjonRepository(db = database.db, maksAntallPerHenting = 5000)
     val dokumentKoblingService = DokumentkoblingService(dokumentkoblingRepository)
     val sykepengerDialogportenService =
         SykepengerDialogportenService(
             dialogRepository = dialogRepository,
             dialogportenClient = sykePengerdialogportenClient,
+            notifikasjonRepository = notifikasjonRepository,
             unleashFeatureToggles = unleashFeatureToggles,
-            agNotifikasjonKlient = agNotifikasjonKlient,
-            dokumentkoblingRepository = dokumentkoblingRepository,
         )
     val fritakDialogportenService =
         FritakDialogportenService(
@@ -138,6 +140,12 @@ fun startServer() {
             ),
             AvbrytVedtakJobb(
                 dokumentkoblingRepository = dokumentkoblingRepository,
+            ),
+            AgNotifikasjonsJobb(
+                notifikasjonRepository = notifikasjonRepository,
+                dokumentkoblingRepository = dokumentkoblingRepository,
+                agNotifikasjonKlient = agNotifikasjonKlient,
+                unleashFeatureToggles = unleashFeatureToggles,
             ),
         )
 

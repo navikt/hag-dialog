@@ -8,10 +8,9 @@ import io.mockk.clearAllMocks
 import io.mockk.coEvery
 import io.mockk.mockk
 import io.mockk.verify
-import no.nav.helsearbeidsgiver.arbeidsgivernotifikasjon.ArbeidsgiverNotifikasjonKlient
 import no.nav.helsearbeidsgiver.database.DialogForPatch
 import no.nav.helsearbeidsgiver.database.DialogRepository
-import no.nav.helsearbeidsgiver.database.DokumentkoblingRepository
+import no.nav.helsearbeidsgiver.database.NotifikasjonRepository
 import no.nav.helsearbeidsgiver.database.TransmissionForPatch
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import sykepengesoeknad
@@ -25,9 +24,8 @@ class DialogportenServiceTest :
         }
         val dialogRepository = mockk<DialogRepository>(relaxed = true)
         val dialogportenClient = mockk<DialogportenClient>(relaxed = true)
+        val notifikasjonRepository = mockk<NotifikasjonRepository>(relaxed = true)
         val unleashFeatureToggles = mockk<UnleashFeatureToggles>(relaxed = true)
-        val agNotifikasjonKlient = mockk<ArbeidsgiverNotifikasjonKlient>(relaxed = true)
-        val dokumentkoblingRepository = mockk<DokumentkoblingRepository>(relaxed = true)
 
         test("patch") {
             // TODO: Temp: Denne testen kan slettes når vi har patchet ok!
@@ -60,9 +58,8 @@ class DialogportenServiceTest :
                 SykepengerDialogportenService(
                     dialogRepository,
                     dialogportenClient,
+                    notifikasjonRepository,
                     unleashFeatureToggles,
-                    agNotifikasjonKlient,
-                    dokumentkoblingRepository,
                 )
             val start = System.currentTimeMillis()
             service.oppdaterTransmisjonerMedFeilUrl()
@@ -75,9 +72,8 @@ class DialogportenServiceTest :
                 SykepengerDialogportenService(
                     dialogRepository,
                     dialogportenClient,
+                    notifikasjonRepository,
                     unleashFeatureToggles,
-                    agNotifikasjonKlient,
-                    dokumentkoblingRepository,
                 )
 
             service.opprettOgLagreDialog(sykmelding)
@@ -90,9 +86,8 @@ class DialogportenServiceTest :
                 SykepengerDialogportenService(
                     dialogRepository,
                     dialogportenClient,
+                    notifikasjonRepository,
                     unleashFeatureToggles,
-                    agNotifikasjonKlient,
-                    dokumentkoblingRepository,
                 )
 
             service.oppdaterDialogMedSykepengesoeknad(sykepengesoeknad)
@@ -105,9 +100,8 @@ class DialogportenServiceTest :
                 SykepengerDialogportenService(
                     dialogRepository,
                     dialogportenClient,
+                    notifikasjonRepository,
                     unleashFeatureToggles,
-                    agNotifikasjonKlient,
-                    dokumentkoblingRepository,
                 )
 
             service.oppdaterDialogMedInntektsmeldingsforespoersel(inntektsmeldingsforespoersel)
@@ -120,9 +114,8 @@ class DialogportenServiceTest :
                 SykepengerDialogportenService(
                     dialogRepository,
                     dialogportenClient,
+                    notifikasjonRepository,
                     unleashFeatureToggles,
-                    agNotifikasjonKlient,
-                    dokumentkoblingRepository,
                 )
 
             service.oppdaterDialogMedInntektsmelding(inntektsmelding_godkjent)
@@ -135,9 +128,8 @@ class DialogportenServiceTest :
                 SykepengerDialogportenService(
                     dialogRepository,
                     dialogportenClient,
+                    notifikasjonRepository,
                     unleashFeatureToggles,
-                    agNotifikasjonKlient,
-                    dokumentkoblingRepository,
                 )
 
             service.oppdaterDialogMedUtgaattForespoersel(forespoersel_utgaatt)

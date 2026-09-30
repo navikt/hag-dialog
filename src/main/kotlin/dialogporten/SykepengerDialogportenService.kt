@@ -6,10 +6,9 @@ import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.supervisorScope
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
-import no.nav.helsearbeidsgiver.arbeidsgivernotifikasjon.ArbeidsgiverNotifikasjonKlient
 import no.nav.helsearbeidsgiver.database.DialogForPatch
 import no.nav.helsearbeidsgiver.database.DialogRepository
-import no.nav.helsearbeidsgiver.database.DokumentkoblingRepository
+import no.nav.helsearbeidsgiver.database.NotifikasjonRepository
 import no.nav.helsearbeidsgiver.dialogporten.domene.TransmissionRequest
 import no.nav.helsearbeidsgiver.dialogporten.domene.toTransmission
 import no.nav.helsearbeidsgiver.dialogporten.handlers.ForespoerselHandler
@@ -36,19 +35,18 @@ import java.util.concurrent.atomic.AtomicInteger
 class SykepengerDialogportenService(
     private val dialogRepository: DialogRepository,
     private val dialogportenClient: DialogportenClient,
+    notifikasjonRepository: NotifikasjonRepository,
     unleashFeatureToggles: UnleashFeatureToggles,
-    agNotifikasjonKlient: ArbeidsgiverNotifikasjonKlient,
-    dokumentkoblingRepository: DokumentkoblingRepository,
 ) {
     private val logger = logger()
-    private val sykmeldingHandler = SykmeldingHandler(dialogRepository, dialogportenClient, unleashFeatureToggles, agNotifikasjonKlient)
+    private val sykmeldingHandler =
+        SykmeldingHandler(dialogRepository, dialogportenClient, notifikasjonRepository, unleashFeatureToggles)
     private val sykepengesoeknadHandler =
         SykepengesoeknadHandler(
             dialogRepository,
             dialogportenClient,
+            notifikasjonRepository,
             unleashFeatureToggles,
-            agNotifikasjonKlient,
-            dokumentkoblingRepository,
         )
     private val forespoerselHandler = ForespoerselHandler(dialogRepository, dialogportenClient)
     private val inntektsmeldingHandler = InntektsmeldingHandler(dialogRepository, dialogportenClient)
