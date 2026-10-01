@@ -1,5 +1,6 @@
 package no.nav.helsearbeidsgiver.notifikasjon
 
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
@@ -9,6 +10,7 @@ import no.nav.helsearbeidsgiver.arbeidsgivernotifikasjon.ArbeidsgiverNotifikasjo
 import no.nav.helsearbeidsgiver.arbeidsgivernotifikasjon.SakEllerOppgaveDuplikatException
 import no.nav.helsearbeidsgiver.arbeidsgivernotifikasjon.Tjeneste
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.enums.SaksStatus
+import no.nav.helsearbeidsgiver.brreg.BrregClient
 import no.nav.helsearbeidsgiver.database.DokumentkoblingRepository
 import no.nav.helsearbeidsgiver.database.NotifikasjonRepository
 import no.nav.helsearbeidsgiver.kafka.getSykmeldingsPerioderString
@@ -27,8 +29,15 @@ class AgNotifikasjonsJobb(
     private val dokumentkoblingRepository: DokumentkoblingRepository,
     private val agNotifikasjonKlient: ArbeidsgiverNotifikasjonKlient,
     private val unleashFeatureToggles: UnleashFeatureToggles,
+    private val brregClient: BrregClient,
 ) : RecurringJob(CoroutineScope(Dispatchers.IO), Duration.ofSeconds(30).toMillis()) {
     override fun doJob() {
+        runBlocking {
+            behandleNotifikasjoner()
+        }
+    }
+
+    private suspend fun behandleNotifikasjoner() {
         if (!unleashFeatureToggles.skalOppretteNotifikasjoner()) {
             logger.warn("Oppretter ikke notifikasjoner da det er deaktivert i Unleash.")
             return
@@ -61,6 +70,8 @@ class AgNotifikasjonsJobb(
                 if (erOpprettet) {
                     notifikasjonRepository.settNotifikasjonSendt(notifikasjon.notifikasjonId)
                 }
+            } catch (e: CancellationException) {
+                throw e
             } catch (e: Exception) {
                 "Feil ved behandling av notifikasjon for tjeneste ${notifikasjon.tjeneste} og dokument ${notifikasjon.dokumentId}".also {
                     logger.error(it)
@@ -70,7 +81,7 @@ class AgNotifikasjonsJobb(
         }
     }
 
-    private fun opprettNotifikasjonerForSykmelding(sykmeldingId: UUID): Boolean {
+    private suspend fun opprettNotifikasjonerForSykmelding(sykmeldingId: UUID): Boolean {
         val sykmelding =
             dokumentkoblingRepository.hentSykmeldingEntitet(sykmeldingId)?.data
                 ?: run {
@@ -82,14 +93,15 @@ class AgNotifikasjonsJobb(
         val lenke = "${Env.Nav.arbeidsgiverGuiBaseUrl}/dokument/sykmelding/$sykmeldingId.pdf"
         val grupperingsid = sykmeldingId.toString()
         val orgnr = sykmelding.orgnr.verdi
-
+        val virksomhetsnavn = hentVirksomhetsnavn(orgnr)
+        val htmlSikkertVirksomhetsnavn = virksomhetsnavn.escapetHtml()
         opprettSak(
             beskrivelse = beskrivelse,
             virksomhetsnummer = orgnr,
             grupperingsid = grupperingsid,
             tjeneste = Tjeneste.SYKMELDING,
             lenke = lenke,
-            tittel = "Sykmelding for ${sykmelding.fulltNavn} (f. ${sykmelding.foedselsdato.tilNorskFormat()})",
+            tittel = "Sykmelding for ${sykmelding.fulltNavn} (f. ${sykmelding.foedselsdato.tilNorskFormat()}) hos $virksomhetsnavn",
             statusTekst = "Mottatt sykmelding",
             tilleggsinfo =
                 sykmelding.sykmeldingsperioder
@@ -104,21 +116,21 @@ class AgNotifikasjonsJobb(
             grupperingsid = grupperingsid,
             tjeneste = Tjeneste.SYKMELDING,
             lenke = lenke,
-            tekst = "Ny sykmelding",
-            varslingTittel = "Ny sykmelding for en av dine ansatte",
+            tekst = "Ny sykmelding hos $virksomhetsnavn",
+            varslingTittel = "Ny sykmelding for en av dine ansatte hos $virksomhetsnavn",
             varslingInnhold =
-                "<p>En ansatt i underenhet med orgnr $orgnr har sendt inn en ny sykmelding.</p>" +
+                "<p>En ansatt hos $htmlSikkertVirksomhetsnavn (orgnr $orgnr) har sendt inn en ny sykmelding.</p>" +
                     "<p>Logg inn på Altinn eller Nav for å se sykmeldingen.</p>" +
                     "<p>Vennlig hilsen Nav.</p>",
             smsVarslingInnhold =
-                "En ansatt i underenhet med orgnr $orgnr har sendt inn en ny sykmelding. " +
+                "En ansatt hos $virksomhetsnavn (orgnr $orgnr) har sendt inn en ny sykmelding. " +
                     "Logg inn på Altinn eller Nav for å se sykmeldingen. Vennlig hilsen Nav.",
         )
 
         return true
     }
 
-    private fun opprettNotifikasjonerForSoeknad(soeknadId: UUID): Boolean {
+    private suspend fun opprettNotifikasjonerForSoeknad(soeknadId: UUID): Boolean {
         val soeknad =
             dokumentkoblingRepository.hentSykepengesoeknadMedId(soeknadId)
                 ?: run {
@@ -140,6 +152,8 @@ class AgNotifikasjonsJobb(
         val lenke = "${Env.Nav.arbeidsgiverGuiBaseUrl}/dokument/sykepengesoeknad/$soeknadId.pdf"
         val grupperingsid = soeknadId.toString()
         val orgnr = soeknad.orgnr
+        val virksomhetsnavn = hentVirksomhetsnavn(orgnr)
+        val htmlSikkertVirksomhetsnavn = virksomhetsnavn.escapetHtml()
 
         opprettSak(
             beskrivelse = beskrivelse,
@@ -147,7 +161,9 @@ class AgNotifikasjonsJobb(
             grupperingsid = grupperingsid,
             tjeneste = Tjeneste.SOEKNAD,
             lenke = lenke,
-            tittel = "Søknad om sykepenger for ${sykmelding.fulltNavn} (f. ${sykmelding.foedselsdato.tilNorskFormat()})",
+            tittel =
+                "Søknad om sykepenger for ${sykmelding.fulltNavn} (f. ${sykmelding.foedselsdato.tilNorskFormat()}) " +
+                    "hos $virksomhetsnavn",
             statusTekst = "Mottatt søknad om sykepenger",
             tilleggsinfo = null,
         )
@@ -159,21 +175,31 @@ class AgNotifikasjonsJobb(
             grupperingsid = grupperingsid,
             tjeneste = Tjeneste.SOEKNAD,
             lenke = lenke,
-            tekst = "Ny søknad om sykepenger",
-            varslingTittel = "Ny søknad om sykepenger for en av dine ansatte",
+            tekst = "Ny søknad om sykepenger hos $virksomhetsnavn",
+            varslingTittel = "Ny søknad om sykepenger for en av dine ansatte hos $virksomhetsnavn",
             varslingInnhold =
-                "<p>En ansatt i underenhet med orgnr $orgnr har sendt inn en søknad om sykepenger.</p>" +
+                "<p>En ansatt hos $htmlSikkertVirksomhetsnavn (orgnr $orgnr) har sendt inn en søknad om sykepenger.</p>" +
                     "<p>Logg inn på Altinn eller Nav for å se søknaden.</p>" +
                     "<p>Vennlig hilsen Nav.</p>",
             smsVarslingInnhold =
-                "En ansatt i underenhet med orgnr $orgnr har sendt inn en søknad om sykepenger. " +
+                "En ansatt hos $virksomhetsnavn (orgnr $orgnr) har sendt inn en søknad om sykepenger. " +
                     "Logg inn på Altinn eller Nav for å se søknaden. Vennlig hilsen Nav.",
         )
 
         return true
     }
 
-    private fun opprettSak(
+    private suspend fun hentVirksomhetsnavn(orgnr: String): String =
+        brregClient.hentOrganisasjonNavn(setOf(orgnr)).values.firstOrNull() ?: orgnr
+
+    private fun String.escapetHtml(): String =
+        replace("&", "&amp;")
+            .replace("<", "&lt;")
+            .replace(">", "&gt;")
+            .replace("\"", "&quot;")
+            .replace("'", "&#39;")
+
+    private suspend fun opprettSak(
         beskrivelse: String,
         virksomhetsnummer: String,
         grupperingsid: String,
@@ -185,19 +211,17 @@ class AgNotifikasjonsJobb(
     ) {
         try {
             val sakId =
-                runBlocking {
-                    agNotifikasjonKlient.opprettNySak(
-                        virksomhetsnummer = virksomhetsnummer,
-                        grupperingsid = grupperingsid,
-                        tjeneste = tjeneste,
-                        lenke = lenke,
-                        tittel = tittel,
-                        statusTekst = statusTekst,
-                        tilleggsinfo = tilleggsinfo,
-                        initiellStatus = SaksStatus.MOTTATT,
-                        hardDeleteOm = HARD_DELETE_OM,
-                    )
-                }
+                agNotifikasjonKlient.opprettNySak(
+                    virksomhetsnummer = virksomhetsnummer,
+                    grupperingsid = grupperingsid,
+                    tjeneste = tjeneste,
+                    lenke = lenke,
+                    tittel = tittel,
+                    statusTekst = statusTekst,
+                    tilleggsinfo = tilleggsinfo,
+                    initiellStatus = SaksStatus.MOTTATT,
+                    hardDeleteOm = HARD_DELETE_OM,
+                )
             logger.info("Opprettet notifikasjon-sak $sakId for $beskrivelse.")
         } catch (e: SakEllerOppgaveDuplikatException) {
             logger.warn("Duplikat sak for $beskrivelse: ${e.eksisterendeId}")
@@ -210,7 +234,7 @@ class AgNotifikasjonsJobb(
         }
     }
 
-    private fun opprettBeskjed(
+    private suspend fun opprettBeskjed(
         beskrivelse: String,
         virksomhetsnummer: String,
         eksternId: String,
@@ -224,21 +248,19 @@ class AgNotifikasjonsJobb(
     ) {
         try {
             val beskjedId =
-                runBlocking {
-                    agNotifikasjonKlient.opprettNyBeskjed(
-                        virksomhetsnummer = virksomhetsnummer,
-                        eksternId = eksternId,
-                        grupperingsid = grupperingsid,
-                        tjeneste = tjeneste,
-                        lenke = lenke,
-                        tekst = tekst,
-                        tidspunkt = null,
-                        varslingTittel = varslingTittel,
-                        varslingInnhold = varslingInnhold,
-                        smsVarslingInnhold = smsVarslingInnhold,
-                        hardDeleteOm = HARD_DELETE_OM,
-                    )
-                }
+                agNotifikasjonKlient.opprettNyBeskjed(
+                    virksomhetsnummer = virksomhetsnummer,
+                    eksternId = eksternId,
+                    grupperingsid = grupperingsid,
+                    tjeneste = tjeneste,
+                    lenke = lenke,
+                    tekst = tekst,
+                    tidspunkt = null,
+                    varslingTittel = varslingTittel,
+                    varslingInnhold = varslingInnhold,
+                    smsVarslingInnhold = smsVarslingInnhold,
+                    hardDeleteOm = HARD_DELETE_OM,
+                )
             logger.info("Opprettet notifikasjon-beskjed $beskjedId for $beskrivelse.")
         } catch (e: SakEllerOppgaveDuplikatException) {
             logger.warn("Duplikat beskjed for $beskrivelse: ${e.eksisterendeId}")
