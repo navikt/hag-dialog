@@ -48,6 +48,9 @@ class AgNotifikasjonsJobb(
         logger.info("Fant ${notifikasjoner.size} nye notifikasjoner klar til behandling.")
 
         notifikasjoner.forEach { notifikasjon ->
+            logger.info(
+                "Behandler notifikasjon ${notifikasjon.notifikasjonId} for tjeneste ${notifikasjon.tjeneste} og dokument ${notifikasjon.dokumentId}.",
+            )
             try {
                 val erOpprettet =
                     when (notifikasjon.tjeneste) {
@@ -154,7 +157,7 @@ class AgNotifikasjonsJobb(
         val orgnr = soeknad.orgnr
         val virksomhetsnavn = hentVirksomhetsnavn(orgnr)
         val htmlSikkertVirksomhetsnavn = virksomhetsnavn.escapetHtml()
-
+        logger.info("Oppretter notifikasjoner for sykepengesøknad $soeknadId hos virksomhet $virksomhetsnavn (orgnr $orgnr).")
         opprettSak(
             beskrivelse = beskrivelse,
             virksomhetsnummer = orgnr,
