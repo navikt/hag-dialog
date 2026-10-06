@@ -13,7 +13,7 @@ fun Route.activityRoutes(dialogportenClient: DialogportenClient) {
     put("transmission-lest") {
         val dialogId = call.request.queryParameters["dialogId"].toUuidorNull()
         val transmissionId = call.request.queryParameters["transmissionId"].toUuidorNull()
-        val actorId = call.request.queryParameters["actorId"]
+        val actorId = call.request.queryParameters["claim"]
 
         if (dialogId == null || transmissionId == null || actorId == null) {
             return@put call.respond(HttpStatusCode.BadRequest)
