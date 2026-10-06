@@ -16,6 +16,7 @@ import java.util.UUID
 const val LEST_PATH = "/transmission-lest"
 val dialogId: UUID = UUID.randomUUID()
 val transmissionId: UUID = UUID.randomUUID()
+val actorId = "mock-actorId"
 
 class ActivityRoutingTest :
     FunSpecWithActivityRoutesTestApplication({ testApplication, dialogportenClient ->
@@ -23,31 +24,31 @@ class ActivityRoutingTest :
         test("skal kalle dialogportenClient.markTransmissionOpened med gitte dialogId og transmissionId") {
             val response =
                 testApplication.client.put(
-                    "$LEST_PATH?dialogId=$dialogId&transmissionId=$transmissionId",
+                    "$LEST_PATH?dialogId=$dialogId&transmissionId=$transmissionId&actorId=$actorId",
                 )
 
             response.status shouldBe HttpStatusCode.OK
-            coVerify(exactly = 1) { dialogportenClient.markTransmissionOpened(dialogId, transmissionId) }
+            coVerify(exactly = 1) { dialogportenClient.markTransmissionOpened(dialogId, transmissionId, actorId) }
         }
 
         test("skal returnere BadRequest når dialogId ikke er en gyldig UUID") {
             val response =
                 testApplication.client.put(
-                    "$LEST_PATH?dialogId=ikke-en-uuid&transmissionId=$transmissionId",
+                    "$LEST_PATH?dialogId=ikke-en-uuid&transmissionId=$transmissionId&actorId=$actorId",
                 )
 
             response.status shouldBe HttpStatusCode.BadRequest
-            coVerify(exactly = 0) { dialogportenClient.markTransmissionOpened(any(), any()) }
+            coVerify(exactly = 0) { dialogportenClient.markTransmissionOpened(any(), any(), any()) }
         }
 
         test("skal returnere BadRequest når transmissionId ikke er en gyldig UUID") {
             val response =
                 testApplication.client.put(
-                    "$LEST_PATH?dialogId=$dialogId&transmissionId=ikke-en-uuid",
+                    "$LEST_PATH?dialogId=$dialogId&transmissionId=ikke-en-uuid&actorId=$actorId",
                 )
 
             response.status shouldBe HttpStatusCode.BadRequest
-            coVerify(exactly = 0) { dialogportenClient.markTransmissionOpened(any(), any()) }
+            coVerify(exactly = 0) { dialogportenClient.markTransmissionOpened(any(), any(), any()) }
         }
     })
 
