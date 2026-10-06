@@ -13,15 +13,16 @@ fun Route.activityRoutes(dialogportenClient: DialogportenClient) {
     put("transmission-lest") {
         val dialogId = call.request.queryParameters["dialogId"].toUuidorNull()
         val transmissionId = call.request.queryParameters["transmissionId"].toUuidorNull()
+        val actorId = call.request.queryParameters["actorId"]
 
-        if (dialogId == null || transmissionId == null) {
+        if (dialogId == null || transmissionId == null || actorId == null) {
             return@put call.respond(HttpStatusCode.BadRequest)
         }
 
         logger().info("Setter transmission $transmissionId til lest for dialog $dialogId")
 
         // dialogporten validerer at transmissionId er i dialogId
-        dialogportenClient.markTransmissionOpened(dialogId, transmissionId)
+        dialogportenClient.markTransmissionOpened(dialogId, transmissionId, actorId)
         call.respond(HttpStatusCode.OK)
     }
 }
