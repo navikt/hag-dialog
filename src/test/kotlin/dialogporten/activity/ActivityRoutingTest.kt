@@ -24,7 +24,7 @@ class ActivityRoutingTest :
         test("skal kalle dialogportenClient.markTransmissionOpened med gitte dialogId og transmissionId") {
             val response =
                 testApplication.client.put(
-                    "$LEST_PATH?dialogId=$dialogId&transmissionId=$transmissionId&actorId=$actorId",
+                    "$LEST_PATH?dialogId=$dialogId&transmissionId=$transmissionId&claim=$actorId",
                 )
 
             response.status shouldBe HttpStatusCode.OK
@@ -34,7 +34,7 @@ class ActivityRoutingTest :
         test("skal returnere BadRequest når dialogId ikke er en gyldig UUID") {
             val response =
                 testApplication.client.put(
-                    "$LEST_PATH?dialogId=ikke-en-uuid&transmissionId=$transmissionId&actorId=$actorId",
+                    "$LEST_PATH?dialogId=ikke-en-uuid&transmissionId=$transmissionId&claim=$actorId",
                 )
 
             response.status shouldBe HttpStatusCode.BadRequest
@@ -44,7 +44,7 @@ class ActivityRoutingTest :
         test("skal returnere BadRequest når transmissionId ikke er en gyldig UUID") {
             val response =
                 testApplication.client.put(
-                    "$LEST_PATH?dialogId=$dialogId&transmissionId=ikke-en-uuid&actorId=$actorId",
+                    "$LEST_PATH?dialogId=$dialogId&transmissionId=ikke-en-uuid&claim=$actorId",
                 )
 
             response.status shouldBe HttpStatusCode.BadRequest
