@@ -7,21 +7,25 @@ import io.ktor.server.routing.get
 import io.ktor.server.routing.put
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenClient
 import no.nav.helsearbeidsgiver.utils.log.logger
+import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import java.util.UUID
 
 fun Route.activityRoutes(dialogportenClient: DialogportenClient) {
     put("transmission-lest") {
         val dialogId = call.request.queryParameters["dialogId"].toUuidorNull()
         val transmissionId = call.request.queryParameters["transmissionId"].toUuidorNull()
+        val actorId = call.request.queryParameters["claim"]
 
-        if (dialogId == null || transmissionId == null) {
+        if (dialogId == null || transmissionId == null || actorId == null) {
             return@put call.respond(HttpStatusCode.BadRequest)
         }
 
         logger().info("Setter transmission $transmissionId til lest for dialog $dialogId")
+        // TODO: Denne kan slettes, brukes bare for å få en forståelse på hvordan actor id ser ut
+        sikkerLogger().info("Actor ID: $actorId Setter transmission $transmissionId til lest for dialog $dialogId")
 
         // dialogporten validerer at transmissionId er i dialogId
-        dialogportenClient.markTransmissionOpened(dialogId, transmissionId)
+        dialogportenClient.markTransmissionOpened(dialogId, transmissionId, actorId)
         call.respond(HttpStatusCode.OK)
     }
 }
