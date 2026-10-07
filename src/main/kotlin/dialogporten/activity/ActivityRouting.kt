@@ -7,6 +7,7 @@ import io.ktor.server.routing.get
 import io.ktor.server.routing.put
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenClient
 import no.nav.helsearbeidsgiver.utils.log.logger
+import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import java.util.UUID
 
 fun Route.activityRoutes(dialogportenClient: DialogportenClient) {
@@ -20,6 +21,8 @@ fun Route.activityRoutes(dialogportenClient: DialogportenClient) {
         }
 
         logger().info("Setter transmission $transmissionId til lest for dialog $dialogId")
+        // TODO: Denne kan slettes, brukes bare for å få en forståelse på hvordan actor id ser ut
+        sikkerLogger().info("Actor ID: $actorId Setter transmission $transmissionId til lest for dialog $dialogId")
 
         // dialogporten validerer at transmissionId er i dialogId
         dialogportenClient.markTransmissionOpened(dialogId, transmissionId, actorId)
