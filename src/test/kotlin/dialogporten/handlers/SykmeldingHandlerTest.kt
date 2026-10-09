@@ -36,7 +36,6 @@ class SykmeldingHandlerTest :
             SykmeldingHandler(
                 dialogRepositoryMock,
                 dialogportenClientMock,
-                unleashFeatureTogglesMock,
                 agNotifikasjonKlientMock,
             )
         beforeTest {
