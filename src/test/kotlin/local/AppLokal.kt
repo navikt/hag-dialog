@@ -8,10 +8,11 @@ import io.ktor.server.netty.Netty
 import io.ktor.server.routing.routing
 import io.mockk.coEvery
 import io.mockk.mockk
+import no.nav.hag.utils.bakgrunnsjobb.BakgrunnsjobbService
+import no.nav.hag.utils.bakgrunnsjobb.exposed.ExposedBakgrunnsjobRepository
 import no.nav.helsearbeidsgiver.database.Database
 import no.nav.helsearbeidsgiver.database.DialogRepository
 import no.nav.helsearbeidsgiver.database.DokumentkoblingRepository
-import no.nav.helsearbeidsgiver.database.NotifikasjonRepository
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenClient
 import no.nav.helsearbeidsgiver.dialogporten.FritakDialogportenService
 import no.nav.helsearbeidsgiver.dialogporten.SykepengerDialogportenService
@@ -20,6 +21,8 @@ import no.nav.helsearbeidsgiver.dialogporten.domene.Transmission
 import no.nav.helsearbeidsgiver.helsesjekker.HelsesjekkService
 import no.nav.helsearbeidsgiver.helsesjekker.naisRoutes
 import no.nav.helsearbeidsgiver.kafka.configureKafkaConsumer
+import no.nav.helsearbeidsgiver.notifikasjon.AgNotifikasjonService
+import no.nav.helsearbeidsgiver.notifikasjon.AgNotifikasjonsJobb
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import org.slf4j.LoggerFactory
 import java.util.UUID
@@ -58,13 +61,25 @@ fun startServer() {
         no.nav.helsearbeidsgiver.database
             .FritakDialogRepository(database.db)
     val dokumentkoblingRepository = DokumentkoblingRepository(db = database.db, maksAntallPerHenting = 1000)
-    val notifikasjonRepository = NotifikasjonRepository(db = database.db, maksAntallPerHenting = 1000)
-
+    val exposedBakgrunnsjobRepository = ExposedBakgrunnsjobRepository(database.db)
+    val bakgrunnsjobbService = BakgrunnsjobbService(exposedBakgrunnsjobRepository)
+    val agNotifikasjonService = AgNotifikasjonService(bakgrunnsjobbService)
+    val agNotifikasjonsJobb =
+        AgNotifikasjonsJobb(
+            dokumentkoblingRepository = dokumentkoblingRepository,
+            agNotifikasjonKlient = mockk(relaxed = true),
+            unleashFeatureToggles = unleashFeatureToggles,
+            brregClient = mockk(relaxed = true),
+        )
+    bakgrunnsjobbService.apply {
+        registrer(agNotifikasjonsJobb)
+        startAsync(true)
+    }
     val sykepengerDialogportenService =
         SykepengerDialogportenService(
             dialogRepository = dialogRepository,
             dialogportenClient = dialogportenClient,
-            notifikasjonRepository = notifikasjonRepository,
+            agNotifikasjonService = agNotifikasjonService,
             unleashFeatureToggles = unleashFeatureToggles,
         )
     val fritakDialogportenService =

@@ -4,7 +4,6 @@ import kotlinx.coroutines.runBlocking
 import no.nav.helsearbeidsgiver.Env
 import no.nav.helsearbeidsgiver.arbeidsgivernotifikasjon.Tjeneste
 import no.nav.helsearbeidsgiver.database.DialogRepository
-import no.nav.helsearbeidsgiver.database.NotifikasjonRepository
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenClient
 import no.nav.helsearbeidsgiver.dialogporten.LpsApiExtendedType
 import no.nav.helsearbeidsgiver.dialogporten.SykepengesoknadTransmissionRequest
@@ -12,6 +11,7 @@ import no.nav.helsearbeidsgiver.dialogporten.domene.TransmissionRequest
 import no.nav.helsearbeidsgiver.dialogporten.domene.createApiAttachment
 import no.nav.helsearbeidsgiver.dialogporten.domene.createGuiAttachment
 import no.nav.helsearbeidsgiver.kafka.Sykepengesoeknad
+import no.nav.helsearbeidsgiver.notifikasjon.AgNotifikasjonService
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.log.logger
 import java.util.UUID
@@ -19,7 +19,7 @@ import java.util.UUID
 class SykepengesoeknadHandler(
     private val dialogRepository: DialogRepository,
     private val dialogportenClient: DialogportenClient,
-    private val notifikasjonRepository: NotifikasjonRepository,
+    private val agNotifikasjonService: AgNotifikasjonService,
     private val unleashFeatureToggles: UnleashFeatureToggles,
 ) {
     private val logger = logger()
@@ -73,7 +73,7 @@ class SykepengesoeknadHandler(
         }
 
         if (unleashFeatureToggles.skalOppretteNotifikasjoner()) {
-            notifikasjonRepository.opprettNotifikasjon(
+            agNotifikasjonService.opprettAgNotifikasjonsJobb(
                 dokumentId = sykepengesoeknad.soeknadId,
                 tjeneste = Tjeneste.SOEKNAD,
             )

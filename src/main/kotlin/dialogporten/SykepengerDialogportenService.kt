@@ -8,7 +8,6 @@ import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
 import no.nav.helsearbeidsgiver.database.DialogForPatch
 import no.nav.helsearbeidsgiver.database.DialogRepository
-import no.nav.helsearbeidsgiver.database.NotifikasjonRepository
 import no.nav.helsearbeidsgiver.dialogporten.domene.TransmissionRequest
 import no.nav.helsearbeidsgiver.dialogporten.domene.toTransmission
 import no.nav.helsearbeidsgiver.dialogporten.handlers.ForespoerselHandler
@@ -25,6 +24,7 @@ import no.nav.helsearbeidsgiver.kafka.Sykepengesoeknad
 import no.nav.helsearbeidsgiver.kafka.Sykmelding
 import no.nav.helsearbeidsgiver.kafka.UtgaattInntektsmeldingForespoersel
 import no.nav.helsearbeidsgiver.kafka.Vedtak
+import no.nav.helsearbeidsgiver.notifikasjon.AgNotifikasjonService
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
@@ -35,18 +35,23 @@ import java.util.concurrent.atomic.AtomicInteger
 class SykepengerDialogportenService(
     private val dialogRepository: DialogRepository,
     private val dialogportenClient: DialogportenClient,
-    notifikasjonRepository: NotifikasjonRepository,
-    unleashFeatureToggles: UnleashFeatureToggles,
+    private val agNotifikasjonService: AgNotifikasjonService,
+    private val unleashFeatureToggles: UnleashFeatureToggles,
 ) {
     private val logger = logger()
     private val sykmeldingHandler =
-        SykmeldingHandler(dialogRepository, dialogportenClient, notifikasjonRepository, unleashFeatureToggles)
+        SykmeldingHandler(
+            dialogRepository = dialogRepository,
+            dialogportenClient = dialogportenClient,
+            agNotifikasjonService = agNotifikasjonService,
+            unleashFeatureToggles = unleashFeatureToggles,
+        )
     private val sykepengesoeknadHandler =
         SykepengesoeknadHandler(
-            dialogRepository,
-            dialogportenClient,
-            notifikasjonRepository,
-            unleashFeatureToggles,
+            dialogRepository = dialogRepository,
+            dialogportenClient = dialogportenClient,
+            agNotifikasjonService = agNotifikasjonService,
+            unleashFeatureToggles = unleashFeatureToggles,
         )
     private val forespoerselHandler = ForespoerselHandler(dialogRepository, dialogportenClient)
     private val inntektsmeldingHandler = InntektsmeldingHandler(dialogRepository, dialogportenClient)

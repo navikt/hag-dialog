@@ -1,10 +1,10 @@
 package no.nav.helsearbeidsgiver.notifikasjon
 
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
-import no.nav.hag.utils.bakgrunnsjobb.RecurringJob
+import kotlinx.serialization.SerializationException
+import no.nav.hag.utils.bakgrunnsjobb.Bakgrunnsjobb
+import no.nav.hag.utils.bakgrunnsjobb.BakgrunnsjobbProsesserer
+import no.nav.hag.utils.bakgrunnsjobb.BakgrunnsjobbStatus
 import no.nav.helsearbeidsgiver.Env
 import no.nav.helsearbeidsgiver.arbeidsgivernotifikasjon.ArbeidsgiverNotifikasjonKlient
 import no.nav.helsearbeidsgiver.arbeidsgivernotifikasjon.SakEllerOppgaveDuplikatException
@@ -12,92 +12,106 @@ import no.nav.helsearbeidsgiver.arbeidsgivernotifikasjon.Tjeneste
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.enums.SaksStatus
 import no.nav.helsearbeidsgiver.brreg.BrregClient
 import no.nav.helsearbeidsgiver.database.DokumentkoblingRepository
-import no.nav.helsearbeidsgiver.database.NotifikasjonRepository
 import no.nav.helsearbeidsgiver.kafka.getSykmeldingsPerioderString
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
+import no.nav.helsearbeidsgiver.utils.json.fromJson
+import no.nav.helsearbeidsgiver.utils.log.logger
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import no.nav.helsearbeidsgiver.utils.tilNorskFormat
-import java.time.Duration
 import java.util.UUID
+import kotlin.coroutines.cancellation.CancellationException
 import kotlin.time.Duration.Companion.days
 import no.nav.helsearbeidsgiver.kafka.Sykmeldingsperiode as SykmeldingsperiodeKafka
 
 private val HARD_DELETE_OM = 730.days
 
+class DokumentIkkeFunnetException(
+    melding: String,
+) : RuntimeException(melding)
+
 class AgNotifikasjonsJobb(
-    private val notifikasjonRepository: NotifikasjonRepository,
     private val dokumentkoblingRepository: DokumentkoblingRepository,
     private val agNotifikasjonKlient: ArbeidsgiverNotifikasjonKlient,
     private val unleashFeatureToggles: UnleashFeatureToggles,
     private val brregClient: BrregClient,
-) : RecurringJob(CoroutineScope(Dispatchers.IO), Duration.ofSeconds(30).toMillis()) {
-    override fun doJob() {
+) : BakgrunnsjobbProsesserer {
+    companion object {
+        const val JOB_TYPE = "AgNotifikasjonsJobb"
+    }
+
+    private val logger = logger()
+    private val sikkerLogger = sikkerLogger()
+
+    override val type: String get() = JOB_TYPE
+
+    override fun prosesser(jobb: Bakgrunnsjobb) {
         runBlocking {
-            behandleNotifikasjoner()
+            behandleNotifikasjoner(jobb)
         }
     }
 
-    private suspend fun behandleNotifikasjoner() {
-        if (!unleashFeatureToggles.skalOppretteNotifikasjoner()) {
-            logger.warn("Oppretter ikke notifikasjoner da det er deaktivert i Unleash.")
-            return
-        }
-
-        val notifikasjoner = notifikasjonRepository.hentNyeNotifikasjoner()
-
-        logger.info("Fant ${notifikasjoner.size} nye notifikasjoner klar til behandling.")
-
-        notifikasjoner.forEach { notifikasjon ->
-            logger.info(
-                "Behandler notifikasjon ${notifikasjon.notifikasjonId} for tjeneste ${notifikasjon.tjeneste} og dokument ${notifikasjon.dokumentId}.",
-            )
+    private suspend fun behandleNotifikasjoner(jobb: Bakgrunnsjobb) {
+        val data =
+            jobb.dataJson ?: run {
+                logger.error("Bakgrunnsjobb ${jobb.uuid} mangler data.")
+                jobb.status = BakgrunnsjobbStatus.AVBRUTT
+                return
+            }
+        val agNotifikasjon =
             try {
-                val erOpprettet =
-                    when (notifikasjon.tjeneste) {
-                        Tjeneste.SYKMELDING -> {
-                            opprettNotifikasjonerForSykmelding(notifikasjon.dokumentId)
-                        }
-
-                        Tjeneste.SOEKNAD -> {
-                            opprettNotifikasjonerForSoeknad(notifikasjon.dokumentId)
-                        }
-
-                        else -> {
-                            logger.warn(
-                                "Ukjent tjeneste ${notifikasjon.tjeneste} for notifikasjon ${notifikasjon.notifikasjonId}, hopper over.",
-                            )
-                            false
-                        }
-                    }
-
-                if (erOpprettet) {
-                    notifikasjonRepository.settNotifikasjonSendt(notifikasjon.notifikasjonId)
-                }
-            } catch (e: CancellationException) {
-                throw e
+                data.fromJson(AgNotifikasjon.serializer())
             } catch (e: Exception) {
-                "Feil ved behandling av notifikasjon for tjeneste ${notifikasjon.tjeneste} og dokument ${notifikasjon.dokumentId}".also {
-                    logger.error(it)
-                    sikkerLogger().error(it, e)
+                logger.error("Bakgrunnsjobb ${jobb.uuid} har ugyldig data.", e)
+                jobb.status = BakgrunnsjobbStatus.AVBRUTT
+                return
+            }
+
+        logger.info(
+            "Behandler notifikasjon med dokumentId ${agNotifikasjon.dokumentId} og tjeneste ${agNotifikasjon.tjeneste}.",
+        )
+        try {
+            when (agNotifikasjon.tjeneste) {
+                Tjeneste.SYKMELDING -> {
+                    opprettNotifikasjonerForSykmelding(agNotifikasjon.dokumentId)
+                }
+
+                Tjeneste.SOEKNAD -> {
+                    opprettNotifikasjonerForSoeknad(agNotifikasjon.dokumentId)
+                }
+
+                else -> {
+                    logger.error(
+                        "Bakgrunnsjobb ${jobb.uuid} av type ${jobb.type} har ukjent tjeneste ${agNotifikasjon.tjeneste}.",
+                    )
+                    jobb.status = BakgrunnsjobbStatus.AVBRUTT
+                    return
                 }
             }
+        } catch (e: DokumentIkkeFunnetException) {
+            logger.warn("${e.message} Prøver igjen senere.")
+            throw e
+        } catch (e: Exception) {
+            "Feil ved behandling av notifikasjon for tjeneste ${agNotifikasjon.tjeneste} og dokument ${agNotifikasjon.dokumentId}".also {
+                logger.error(it)
+                sikkerLogger.error(it, e)
+            }
+            throw e
         }
     }
 
-    private suspend fun opprettNotifikasjonerForSykmelding(sykmeldingId: UUID): Boolean {
+    private suspend fun opprettNotifikasjonerForSykmelding(sykmeldingId: UUID) {
         val sykmelding =
             dokumentkoblingRepository.hentSykmeldingEntitet(sykmeldingId)?.data
-                ?: run {
-                    logger.warn("Fant ikke sykmelding $sykmeldingId i databasen. Kan ikke opprette notifikasjoner enda.")
-                    return false
-                }
+                ?: throw DokumentIkkeFunnetException(
+                    "Fant ikke sykmelding $sykmeldingId i databasen. Kan ikke opprette notifikasjoner enda.",
+                )
 
         val beskrivelse = "sykmelding $sykmeldingId"
         val lenke = "${Env.Nav.arbeidsgiverGuiBaseUrl}/dokument/sykmelding/$sykmeldingId.pdf"
         val grupperingsid = sykmeldingId.toString()
         val orgnr = sykmelding.orgnr.verdi
         val virksomhetsnavn = hentVirksomhetsnavn(orgnr)
-        val htmlSikkertVirksomhetsnavn = virksomhetsnavn.escapetHtml()
+        val htmlSikkertVirksomhetsnavn = virksomhetsnavn.escapeHtml()
         opprettSak(
             beskrivelse = beskrivelse,
             virksomhetsnummer = orgnr,
@@ -129,34 +143,28 @@ class AgNotifikasjonsJobb(
                 "En ansatt hos $virksomhetsnavn (orgnr $orgnr) har sendt inn en ny sykmelding. " +
                     "Logg inn på Altinn eller Nav for å se sykmeldingen. Vennlig hilsen Nav.",
         )
-
-        return true
     }
 
-    private suspend fun opprettNotifikasjonerForSoeknad(soeknadId: UUID): Boolean {
+    private suspend fun opprettNotifikasjonerForSoeknad(soeknadId: UUID) {
         val soeknad =
             dokumentkoblingRepository.hentSykepengesoeknadMedId(soeknadId)
-                ?: run {
-                    logger.warn("Fant ikke sykepengesøknad $soeknadId i databasen. Kan ikke opprette notifikasjoner enda.")
-                    return false
-                }
+                ?: throw DokumentIkkeFunnetException(
+                    "Fant ikke sykepengesøknad $soeknadId i databasen. Kan ikke opprette notifikasjoner enda.",
+                )
 
         val sykmelding =
             dokumentkoblingRepository.hentSykmeldingEntitet(soeknad.sykmeldingId)?.data
-                ?: run {
-                    logger.warn(
-                        "Fant ikke sykmelding ${soeknad.sykmeldingId} i databasen. " +
-                            "Kan ikke opprette notifikasjoner for sykepengesøknad $soeknadId enda.",
-                    )
-                    return false
-                }
+                ?: throw DokumentIkkeFunnetException(
+                    "Fant ikke sykmelding ${soeknad.sykmeldingId} i databasen. " +
+                        "Kan ikke opprette notifikasjoner for sykepengesøknad $soeknadId enda.",
+                )
 
         val beskrivelse = "sykepengesøknad $soeknadId"
         val lenke = "${Env.Nav.arbeidsgiverGuiBaseUrl}/dokument/sykepengesoeknad/$soeknadId.pdf"
         val grupperingsid = soeknadId.toString()
         val orgnr = soeknad.orgnr
         val virksomhetsnavn = hentVirksomhetsnavn(orgnr)
-        val htmlSikkertVirksomhetsnavn = virksomhetsnavn.escapetHtml()
+        val htmlSikkertVirksomhetsnavn = virksomhetsnavn.escapeHtml()
         logger.info("Oppretter notifikasjoner for sykepengesøknad $soeknadId hos virksomhet $virksomhetsnavn (orgnr $orgnr).")
         opprettSak(
             beskrivelse = beskrivelse,
@@ -188,14 +196,12 @@ class AgNotifikasjonsJobb(
                 "En ansatt hos $virksomhetsnavn (orgnr $orgnr) har sendt inn en søknad om sykepenger. " +
                     "Logg inn på Altinn eller Nav for å se søknaden. Vennlig hilsen Nav.",
         )
-
-        return true
     }
 
     private suspend fun hentVirksomhetsnavn(orgnr: String): String =
         brregClient.hentOrganisasjonNavn(setOf(orgnr)).values.firstOrNull() ?: orgnr
 
-    private fun String.escapetHtml(): String =
+    private fun String.escapeHtml(): String =
         replace("&", "&amp;")
             .replace("<", "&lt;")
             .replace(">", "&gt;")
@@ -228,10 +234,12 @@ class AgNotifikasjonsJobb(
             logger.info("Opprettet notifikasjon-sak $sakId for $beskrivelse.")
         } catch (e: SakEllerOppgaveDuplikatException) {
             logger.warn("Duplikat sak for $beskrivelse: ${e.eksisterendeId}")
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             "Feil ved opprettelse av notifikasjon-sak for $beskrivelse".also {
                 logger.error(it)
-                sikkerLogger().error(it, e)
+                sikkerLogger.error(it, e)
             }
             throw e
         }
@@ -267,10 +275,12 @@ class AgNotifikasjonsJobb(
             logger.info("Opprettet notifikasjon-beskjed $beskjedId for $beskrivelse.")
         } catch (e: SakEllerOppgaveDuplikatException) {
             logger.warn("Duplikat beskjed for $beskrivelse: ${e.eksisterendeId}")
+        } catch (e: CancellationException) {
+            throw e
         } catch (e: Exception) {
             "Feil ved opprettelse av notifikasjon-beskjed for $beskrivelse".also {
                 logger.error(it)
-                sikkerLogger().error(it, e)
+                sikkerLogger.error(it, e)
             }
             throw e
         }

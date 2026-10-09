@@ -10,7 +10,6 @@ import io.mockk.mockk
 import io.mockk.verify
 import no.nav.helsearbeidsgiver.database.DialogForPatch
 import no.nav.helsearbeidsgiver.database.DialogRepository
-import no.nav.helsearbeidsgiver.database.NotifikasjonRepository
 import no.nav.helsearbeidsgiver.database.TransmissionForPatch
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import sykepengesoeknad
@@ -24,7 +23,6 @@ class DialogportenServiceTest :
         }
         val dialogRepository = mockk<DialogRepository>(relaxed = true)
         val dialogportenClient = mockk<DialogportenClient>(relaxed = true)
-        val notifikasjonRepository = mockk<NotifikasjonRepository>(relaxed = true)
         val unleashFeatureToggles = mockk<UnleashFeatureToggles>(relaxed = true)
 
         test("patch") {
@@ -58,7 +56,7 @@ class DialogportenServiceTest :
                 SykepengerDialogportenService(
                     dialogRepository,
                     dialogportenClient,
-                    notifikasjonRepository,
+                    agNotifikasjonService = mockk(relaxed = true),
                     unleashFeatureToggles,
                 )
             val start = System.currentTimeMillis()
@@ -72,7 +70,7 @@ class DialogportenServiceTest :
                 SykepengerDialogportenService(
                     dialogRepository,
                     dialogportenClient,
-                    notifikasjonRepository,
+                    agNotifikasjonService = mockk(relaxed = true),
                     unleashFeatureToggles,
                 )
 
@@ -86,7 +84,7 @@ class DialogportenServiceTest :
                 SykepengerDialogportenService(
                     dialogRepository,
                     dialogportenClient,
-                    notifikasjonRepository,
+                    agNotifikasjonService = mockk(relaxed = true),
                     unleashFeatureToggles,
                 )
 
@@ -100,7 +98,7 @@ class DialogportenServiceTest :
                 SykepengerDialogportenService(
                     dialogRepository,
                     dialogportenClient,
-                    notifikasjonRepository,
+                    agNotifikasjonService = mockk(relaxed = true),
                     unleashFeatureToggles,
                 )
 
@@ -114,7 +112,7 @@ class DialogportenServiceTest :
                 SykepengerDialogportenService(
                     dialogRepository,
                     dialogportenClient,
-                    notifikasjonRepository,
+                    agNotifikasjonService = mockk(relaxed = true),
                     unleashFeatureToggles,
                 )
 
@@ -128,7 +126,7 @@ class DialogportenServiceTest :
                 SykepengerDialogportenService(
                     dialogRepository,
                     dialogportenClient,
-                    notifikasjonRepository,
+                    agNotifikasjonService = mockk(relaxed = true),
                     unleashFeatureToggles,
                 )
 

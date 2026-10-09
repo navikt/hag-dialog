@@ -12,13 +12,13 @@ import io.mockk.verify
 import no.nav.helsearbeidsgiver.arbeidsgivernotifikasjon.Tjeneste
 import no.nav.helsearbeidsgiver.database.DialogEntity
 import no.nav.helsearbeidsgiver.database.DialogRepository
-import no.nav.helsearbeidsgiver.database.NotifikasjonRepository
 import no.nav.helsearbeidsgiver.database.TransmissionEntity
 import no.nav.helsearbeidsgiver.database.TransmissionTable
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenClient
 import no.nav.helsearbeidsgiver.dialogporten.LpsApiExtendedType
 import no.nav.helsearbeidsgiver.dialogporten.domene.TransmissionRequest
 import no.nav.helsearbeidsgiver.dialogporten.handlers.SykepengesoeknadHandler
+import no.nav.helsearbeidsgiver.notifikasjon.AgNotifikasjonService
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import org.jetbrains.exposed.dao.id.EntityID
 import sykepengesoeknad
@@ -29,13 +29,13 @@ class SykepengesoeknadHandlerTest :
 
         val dialogportenClientMock = mockk<DialogportenClient>()
         val dialogRepositoryMock = mockk<DialogRepository>()
-        val notifikasjonRepositoryMock = mockk<NotifikasjonRepository>(relaxed = true)
+        val agNotifikasjonServiceMock = mockk<AgNotifikasjonService>(relaxed = true)
         val unleashFeatureTogglesMock = mockk<UnleashFeatureToggles>()
         val sykepengeSoeknadhandler =
             SykepengesoeknadHandler(
                 dialogRepositoryMock,
                 dialogportenClientMock,
-                notifikasjonRepositoryMock,
+                agNotifikasjonServiceMock,
                 unleashFeatureTogglesMock,
             )
 
@@ -80,7 +80,7 @@ class SykepengesoeknadHandlerTest :
             verify(exactly = 1) { dialogRepositoryMock.finnDialogMedSykemeldingId(sykepengesoeknad.sykmeldingId) }
             coVerify(exactly = 0) { dialogportenClientMock.addTransmission(any(), any<TransmissionRequest>()) }
             verify(exactly = 0) { dialogRepositoryMock.oppdaterDialogMedTransmission(any(), any(), any(), any(), any()) }
-            verify(exactly = 0) { notifikasjonRepositoryMock.opprettNotifikasjon(any(), any()) }
+            verify(exactly = 0) { agNotifikasjonServiceMock.opprettAgNotifikasjonsJobb(any(), any()) }
         }
 
         test("skal hoppe over transmission hvis den allerede finnes, men fortsatt legge notifikasjon i kø") {
@@ -99,7 +99,7 @@ class SykepengesoeknadHandlerTest :
             coVerify(exactly = 0) { dialogportenClientMock.addTransmission(any(), any<TransmissionRequest>()) }
             verify(exactly = 0) { dialogRepositoryMock.oppdaterDialogMedTransmission(any(), any(), any(), any(), any()) }
             verify(exactly = 1) {
-                notifikasjonRepositoryMock.opprettNotifikasjon(
+                agNotifikasjonServiceMock.opprettAgNotifikasjonsJobb(
                     dokumentId = sykepengesoeknad.soeknadId,
                     tjeneste = Tjeneste.SOEKNAD,
                 )
@@ -124,7 +124,7 @@ class SykepengesoeknadHandlerTest :
 
             coVerify(exactly = 1) { dialogportenClientMock.addTransmission(dialogId, any<TransmissionRequest>()) }
             verify(exactly = 1) {
-                notifikasjonRepositoryMock.opprettNotifikasjon(
+                agNotifikasjonServiceMock.opprettAgNotifikasjonsJobb(
                     dokumentId = sykepengesoeknad.soeknadId,
                     tjeneste = Tjeneste.SOEKNAD,
                 )

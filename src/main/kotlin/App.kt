@@ -12,6 +12,8 @@ import io.ktor.server.routing.routing
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import no.nav.hag.utils.bakgrunnsjobb.BakgrunnsjobbService
+import no.nav.hag.utils.bakgrunnsjobb.exposed.ExposedBakgrunnsjobRepository
 import no.nav.helsearbeidsgiver.arbeidsgivernotifikasjon.ArbeidsgiverNotifikasjonKlient
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.enums.Sendevindu
 import no.nav.helsearbeidsgiver.auth.AuthClient
@@ -20,7 +22,6 @@ import no.nav.helsearbeidsgiver.brreg.BrregClient
 import no.nav.helsearbeidsgiver.database.Database
 import no.nav.helsearbeidsgiver.database.DialogRepository
 import no.nav.helsearbeidsgiver.database.DokumentkoblingRepository
-import no.nav.helsearbeidsgiver.database.NotifikasjonRepository
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenClient
 import no.nav.helsearbeidsgiver.dialogporten.FritakDialogportenService
 import no.nav.helsearbeidsgiver.dialogporten.SykepengerDialogportenService
@@ -36,6 +37,7 @@ import no.nav.helsearbeidsgiver.helsesjekker.HelsesjekkService
 import no.nav.helsearbeidsgiver.helsesjekker.naisRoutes
 import no.nav.helsearbeidsgiver.kafka.configureKafkaConsumer
 import no.nav.helsearbeidsgiver.metrikk.metrikkRoutes
+import no.nav.helsearbeidsgiver.notifikasjon.AgNotifikasjonService
 import no.nav.helsearbeidsgiver.notifikasjon.AgNotifikasjonsJobb
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.cache.LocalCache
@@ -93,13 +95,19 @@ fun startServer() {
         no.nav.helsearbeidsgiver.database
             .FritakDialogRepository(database.db)
     val dokumentkoblingRepository = DokumentkoblingRepository(db = database.db, maksAntallPerHenting = 5000)
-    val notifikasjonRepository = NotifikasjonRepository(db = database.db, maksAntallPerHenting = 5000)
+    val bakgrunnsjobbRepository = ExposedBakgrunnsjobRepository(database.db)
     val dokumentKoblingService = DokumentkoblingService(dokumentkoblingRepository)
+
+    val bakgrunnsjobbService =
+        BakgrunnsjobbService(
+            bakgrunnsjobbRepository = bakgrunnsjobbRepository,
+        )
+    val agNotifikasjonService = AgNotifikasjonService(bakgrunnsjobbService)
     val sykepengerDialogportenService =
         SykepengerDialogportenService(
             dialogRepository = dialogRepository,
             dialogportenClient = sykePengerdialogportenClient,
-            notifikasjonRepository = notifikasjonRepository,
+            agNotifikasjonService = agNotifikasjonService,
             unleashFeatureToggles = unleashFeatureToggles,
         )
     val fritakDialogportenService =
@@ -107,6 +115,19 @@ fun startServer() {
             fritakDialogRepository = fritakDialogRepository,
             dialogportenClient = fritakDialogportenClient,
         )
+    bakgrunnsjobbService
+        .apply {
+            registrer(
+                AgNotifikasjonsJobb(
+                    dokumentkoblingRepository = dokumentkoblingRepository,
+                    agNotifikasjonKlient = agNotifikasjonKlient,
+                    unleashFeatureToggles = unleashFeatureToggles,
+                    brregClient = brregClient,
+                ),
+            )
+            startAsync(true)
+        }
+
     val jobber =
         listOf(
             SykmeldingJobb(
@@ -148,13 +169,6 @@ fun startServer() {
             ),
             AvbrytVedtakJobb(
                 dokumentkoblingRepository = dokumentkoblingRepository,
-            ),
-            AgNotifikasjonsJobb(
-                notifikasjonRepository = notifikasjonRepository,
-                dokumentkoblingRepository = dokumentkoblingRepository,
-                agNotifikasjonKlient = agNotifikasjonKlient,
-                unleashFeatureToggles = unleashFeatureToggles,
-                brregClient = brregClient,
             ),
         )
 

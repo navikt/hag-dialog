@@ -14,13 +14,13 @@ import io.mockk.verify
 import no.nav.helsearbeidsgiver.arbeidsgivernotifikasjon.Tjeneste
 import no.nav.helsearbeidsgiver.database.DialogEntity
 import no.nav.helsearbeidsgiver.database.DialogRepository
-import no.nav.helsearbeidsgiver.database.NotifikasjonRepository
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenClient
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenClientException
 import no.nav.helsearbeidsgiver.dialogporten.LpsApiExtendedType
 import no.nav.helsearbeidsgiver.dialogporten.domene.CreateDialogRequest
 import no.nav.helsearbeidsgiver.dialogporten.handlers.SykmeldingHandler
 import no.nav.helsearbeidsgiver.kafka.getSykmeldingsPerioderString
+import no.nav.helsearbeidsgiver.notifikasjon.AgNotifikasjonService
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.tilNorskFormat
 import org.junit.jupiter.api.assertThrows
@@ -31,13 +31,13 @@ class SykmeldingHandlerTest :
     FunSpec({
         val dialogportenClientMock = mockk<DialogportenClient>()
         val dialogRepositoryMock = mockk<DialogRepository>()
-        val notifikasjonRepositoryMock = mockk<NotifikasjonRepository>(relaxed = true)
+        val agNotifikasjonServiceMock = mockk<AgNotifikasjonService>(relaxed = true)
         val unleashFeatureTogglesMock = mockk<UnleashFeatureToggles>()
         val sykmeldingHandler =
             SykmeldingHandler(
                 dialogRepositoryMock,
                 dialogportenClientMock,
-                notifikasjonRepositoryMock,
+                agNotifikasjonServiceMock,
                 unleashFeatureTogglesMock,
             )
         beforeTest {
@@ -78,7 +78,7 @@ class SykmeldingHandlerTest :
                 )
             }
             verify(exactly = 1) {
-                notifikasjonRepositoryMock.opprettNotifikasjon(
+                agNotifikasjonServiceMock.opprettAgNotifikasjonsJobb(
                     dokumentId = sykmelding.sykmeldingId,
                     tjeneste = Tjeneste.SYKMELDING,
                 )
@@ -94,7 +94,7 @@ class SykmeldingHandlerTest :
             }
 
             verify(exactly = 0) { dialogRepositoryMock.lagreDialogMedTransmission(any(), any(), any(), any(), any(), any()) }
-            verify(exactly = 0) { notifikasjonRepositoryMock.opprettNotifikasjon(any(), any()) }
+            verify(exactly = 0) { agNotifikasjonServiceMock.opprettAgNotifikasjonsJobb(any(), any()) }
         }
 
         test("skal hoppe over opprettelse av dialog hvis den allerede finnes, men fortsatt legge notifikasjon i kø") {
@@ -107,7 +107,7 @@ class SykmeldingHandlerTest :
             coVerify(exactly = 0) { dialogportenClientMock.createDialog(any()) }
             verify(exactly = 0) { dialogRepositoryMock.lagreDialogMedTransmission(any(), any(), any(), any(), any(), any()) }
             verify(exactly = 1) {
-                notifikasjonRepositoryMock.opprettNotifikasjon(
+                agNotifikasjonServiceMock.opprettAgNotifikasjonsJobb(
                     dokumentId = sykmelding.sykmeldingId,
                     tjeneste = Tjeneste.SYKMELDING,
                 )
