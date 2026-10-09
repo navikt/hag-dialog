@@ -3,6 +3,7 @@ package no.nav.helsearbeidsgiver.notifikasjon
 import no.nav.hag.utils.bakgrunnsjobb.BakgrunnsjobbService
 import no.nav.helsearbeidsgiver.arbeidsgivernotifikasjon.Tjeneste
 import no.nav.helsearbeidsgiver.utils.json.toJson
+import no.nav.helsearbeidsgiver.utils.log.logger
 import java.util.UUID
 
 private const val MAKS_ANTALL_FORSOK = 10
@@ -22,5 +23,6 @@ class AgNotifikasjonService(
                     tjeneste = tjeneste,
                 ).toJson(AgNotifikasjon.serializer()),
         )
+        logger().info("Opprettet AgNotifikasjonsJobb for dokumentId: $dokumentId, tjeneste: $tjeneste")
     }
 }
