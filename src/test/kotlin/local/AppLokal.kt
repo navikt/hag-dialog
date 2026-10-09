@@ -68,7 +68,6 @@ fun startServer() {
         AgNotifikasjonsJobb(
             dokumentkoblingRepository = dokumentkoblingRepository,
             agNotifikasjonKlient = mockk(relaxed = true),
-            unleashFeatureToggles = unleashFeatureToggles,
             brregClient = mockk(relaxed = true),
         )
     bakgrunnsjobbService.apply {

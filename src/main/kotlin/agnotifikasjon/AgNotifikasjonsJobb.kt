@@ -32,7 +32,6 @@ class DokumentIkkeFunnetException(
 class AgNotifikasjonsJobb(
     private val dokumentkoblingRepository: DokumentkoblingRepository,
     private val agNotifikasjonKlient: ArbeidsgiverNotifikasjonKlient,
-    private val unleashFeatureToggles: UnleashFeatureToggles,
     private val brregClient: BrregClient,
 ) : BakgrunnsjobbProsesserer {
     companion object {

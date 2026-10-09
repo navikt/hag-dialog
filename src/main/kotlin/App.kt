@@ -121,7 +121,6 @@ fun startServer() {
                 AgNotifikasjonsJobb(
                     dokumentkoblingRepository = dokumentkoblingRepository,
                     agNotifikasjonKlient = agNotifikasjonKlient,
-                    unleashFeatureToggles = unleashFeatureToggles,
                     brregClient = brregClient,
                 ),
             )
