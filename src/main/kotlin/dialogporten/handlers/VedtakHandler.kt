@@ -83,7 +83,7 @@ fun vedtakTransmissionRequest(
         relatedTransmissionId = relatedTransmissionId,
         attachments =
             listOf(
-//                TODO: Leggg til dette når refusjon er på plass i LPS API
+//                TODO: Leggg til dette når refusjon er klar for prod i LPS API
 //                createApiAttachment(
 //                    "refusjon.json",
 //                    "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/refusjon/$vedtakId",
