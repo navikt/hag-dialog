@@ -102,7 +102,13 @@ fun startServer() {
         BakgrunnsjobbService(
             bakgrunnsjobbRepository = bakgrunnsjobbRepository,
         )
-    val agNotifikasjonService = AgNotifikasjonService(bakgrunnsjobbService)
+    val agNotifikasjonService =
+        AgNotifikasjonService(
+            bakgrunnsjobbService = bakgrunnsjobbService,
+            dokumentkoblingRepository = dokumentkoblingRepository,
+            agNotifikasjonKlient = agNotifikasjonKlient,
+            brregClient = brregClient,
+        )
     val sykepengerDialogportenService =
         SykepengerDialogportenService(
             dialogRepository = dialogRepository,
@@ -119,9 +125,7 @@ fun startServer() {
         .apply {
             registrer(
                 AgNotifikasjonsJobb(
-                    dokumentkoblingRepository = dokumentkoblingRepository,
-                    agNotifikasjonKlient = agNotifikasjonKlient,
-                    brregClient = brregClient,
+                    agNotifikasjonService = agNotifikasjonService,
                 ),
             )
             startAsync(true)

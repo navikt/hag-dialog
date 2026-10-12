@@ -63,13 +63,14 @@ fun startServer() {
     val dokumentkoblingRepository = DokumentkoblingRepository(db = database.db, maksAntallPerHenting = 1000)
     val exposedBakgrunnsjobRepository = ExposedBakgrunnsjobRepository(database.db)
     val bakgrunnsjobbService = BakgrunnsjobbService(exposedBakgrunnsjobRepository)
-    val agNotifikasjonService = AgNotifikasjonService(bakgrunnsjobbService)
-    val agNotifikasjonsJobb =
-        AgNotifikasjonsJobb(
+    val agNotifikasjonService =
+        AgNotifikasjonService(
+            bakgrunnsjobbService = bakgrunnsjobbService,
             dokumentkoblingRepository = dokumentkoblingRepository,
             agNotifikasjonKlient = mockk(relaxed = true),
             brregClient = mockk(relaxed = true),
         )
+    val agNotifikasjonsJobb = AgNotifikasjonsJobb(agNotifikasjonService)
     bakgrunnsjobbService.apply {
         registrer(agNotifikasjonsJobb)
         startAsync(true)
