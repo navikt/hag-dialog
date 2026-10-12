@@ -38,7 +38,6 @@ class SykepengesoeknadHandlerTest :
             SykepengesoeknadHandler(
                 dialogRepositoryMock,
                 dialogportenClientMock,
-                unleashFeatureTogglesMock,
                 agNotifikasjonKlientMock,
                 dokumentkoblingRepositoryMock,
             )

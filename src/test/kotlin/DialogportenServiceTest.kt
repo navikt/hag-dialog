@@ -60,7 +60,6 @@ class DialogportenServiceTest :
                 SykepengerDialogportenService(
                     dialogRepository,
                     dialogportenClient,
-                    unleashFeatureToggles,
                     agNotifikasjonKlient,
                     dokumentkoblingRepository,
                 )
@@ -75,7 +74,6 @@ class DialogportenServiceTest :
                 SykepengerDialogportenService(
                     dialogRepository,
                     dialogportenClient,
-                    unleashFeatureToggles,
                     agNotifikasjonKlient,
                     dokumentkoblingRepository,
                 )
@@ -90,7 +88,6 @@ class DialogportenServiceTest :
                 SykepengerDialogportenService(
                     dialogRepository,
                     dialogportenClient,
-                    unleashFeatureToggles,
                     agNotifikasjonKlient,
                     dokumentkoblingRepository,
                 )
@@ -105,7 +102,6 @@ class DialogportenServiceTest :
                 SykepengerDialogportenService(
                     dialogRepository,
                     dialogportenClient,
-                    unleashFeatureToggles,
                     agNotifikasjonKlient,
                     dokumentkoblingRepository,
                 )
@@ -120,7 +116,6 @@ class DialogportenServiceTest :
                 SykepengerDialogportenService(
                     dialogRepository,
                     dialogportenClient,
-                    unleashFeatureToggles,
                     agNotifikasjonKlient,
                     dokumentkoblingRepository,
                 )
@@ -135,7 +130,6 @@ class DialogportenServiceTest :
                 SykepengerDialogportenService(
                     dialogRepository,
                     dialogportenClient,
-                    unleashFeatureToggles,
                     agNotifikasjonKlient,
                     dokumentkoblingRepository,
                 )

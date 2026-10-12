@@ -88,7 +88,6 @@ fun startServer() {
         SykepengerDialogportenService(
             dialogRepository = dialogRepository,
             dialogportenClient = sykePengerdialogportenClient,
-            unleashFeatureToggles = unleashFeatureToggles,
             agNotifikasjonKlient = agNotifikasjonKlient,
             dokumentkoblingRepository = dokumentkoblingRepository,
         )
