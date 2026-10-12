@@ -59,7 +59,7 @@ class VedtakTransmissionRequest(
     override val isSilentUpdate: Boolean = false,
 ) : TransmissionRequestMedMarkerSomLestFce(VEDTAK) {
     override val dokumentId = vedtakId
-    override val tittel = "Refusjonsvedtak"
+    override val tittel = "Refusjon"
     override val sammendrag = null
     override val type = Transmission.TransmissionType.Information
 }

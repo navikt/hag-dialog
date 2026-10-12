@@ -84,17 +84,17 @@ fun vedtakTransmissionRequest(
         attachments =
             listOf(
                 createApiAttachment(
-                    "vedtak.json",
-                    "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/vedtak/$vedtakId",
+                    "refusjon.json",
+                    "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/refusjon/$vedtakId",
                 ),
                 createApiAttachment(
-                    displayName = "vedtak.pdf",
-                    url = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/vedtak/$vedtakId/pdf",
+                    displayName = "refusjon.pdf",
+                    url = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/refusjon/$vedtakId/pdf",
                     mediaType = "application/pdf",
                 ),
                 createGuiAttachment(
-                    displayName = "vedtak",
-                    url = "${Env.Nav.arbeidsgiverGuiBaseUrl}/dokument/vedtak/$vedtakId.pdf",
+                    displayName = "refusjon",
+                    url = "${Env.Nav.arbeidsgiverGuiBaseUrl}/dokument/refusjon/$vedtakId.pdf",
                     mediaType = "application/pdf",
                 ),
             ),
