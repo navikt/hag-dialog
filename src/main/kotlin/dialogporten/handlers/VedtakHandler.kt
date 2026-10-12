@@ -83,18 +83,19 @@ fun vedtakTransmissionRequest(
         relatedTransmissionId = relatedTransmissionId,
         attachments =
             listOf(
-                createApiAttachment(
-                    "vedtak.json",
-                    "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/vedtak/$vedtakId",
-                ),
-                createApiAttachment(
-                    displayName = "vedtak.pdf",
-                    url = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/vedtak/$vedtakId/pdf",
-                    mediaType = "application/pdf",
-                ),
+//                TODO: Leggg til dette når refusjon er på plass i LPS API
+//                createApiAttachment(
+//                    "refusjon.json",
+//                    "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/refusjon/$vedtakId",
+//                ),
+//                createApiAttachment(
+//                    displayName = "refusjon.pdf",
+//                    url = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/refusjon/$vedtakId/pdf",
+//                    mediaType = "application/pdf",
+//                ),
                 createGuiAttachment(
-                    displayName = "vedtak",
-                    url = "${Env.Nav.arbeidsgiverGuiBaseUrl}/dokument/vedtak/$vedtakId.pdf",
+                    displayName = "refusjon",
+                    url = "${Env.Nav.arbeidsgiverGuiBaseUrl}/dokument/refusjon/$vedtakId.pdf",
                     mediaType = "application/pdf",
                 ),
             ),
