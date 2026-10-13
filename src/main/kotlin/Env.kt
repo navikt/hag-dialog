@@ -46,6 +46,10 @@ object Env {
         val scope = "ARBEIDSGIVER_NOTIFIKASJON_SCOPE".fromEnv()
     }
 
+    object Brreg {
+        val apiUrl = "BRREG_API_URL".fromEnv()
+    }
+
     object Altinn {
         val baseUrl = "ALTINN_3_BASE_URL".fromEnv()
         val sykepengerDialogportenRessurs = "SYKEPENGER_DIALOGPORTEN_RESSURS".fromEnv()

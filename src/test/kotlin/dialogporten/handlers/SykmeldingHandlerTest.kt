@@ -11,7 +11,7 @@ import io.mockk.just
 import io.mockk.mockk
 import io.mockk.slot
 import io.mockk.verify
-import no.nav.helsearbeidsgiver.arbeidsgivernotifikasjon.ArbeidsgiverNotifikasjonKlient
+import no.nav.helsearbeidsgiver.arbeidsgivernotifikasjon.Tjeneste
 import no.nav.helsearbeidsgiver.database.DialogEntity
 import no.nav.helsearbeidsgiver.database.DialogRepository
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenClient
@@ -20,6 +20,7 @@ import no.nav.helsearbeidsgiver.dialogporten.LpsApiExtendedType
 import no.nav.helsearbeidsgiver.dialogporten.domene.CreateDialogRequest
 import no.nav.helsearbeidsgiver.dialogporten.handlers.SykmeldingHandler
 import no.nav.helsearbeidsgiver.kafka.getSykmeldingsPerioderString
+import no.nav.helsearbeidsgiver.notifikasjon.AgNotifikasjonService
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.tilNorskFormat
 import org.junit.jupiter.api.assertThrows
@@ -30,17 +31,18 @@ class SykmeldingHandlerTest :
     FunSpec({
         val dialogportenClientMock = mockk<DialogportenClient>()
         val dialogRepositoryMock = mockk<DialogRepository>()
+        val agNotifikasjonServiceMock = mockk<AgNotifikasjonService>(relaxed = true)
         val unleashFeatureTogglesMock = mockk<UnleashFeatureToggles>()
-        val agNotifikasjonKlientMock = mockk<ArbeidsgiverNotifikasjonKlient>()
         val sykmeldingHandler =
             SykmeldingHandler(
                 dialogRepositoryMock,
                 dialogportenClientMock,
+                agNotifikasjonServiceMock,
                 unleashFeatureTogglesMock,
-                agNotifikasjonKlientMock,
             )
         beforeTest {
             clearAllMocks()
+            every { unleashFeatureTogglesMock.skalOppretteNotifikasjoner() } returns true
         }
 
         test("skal opprette og lagre dialog med riktige data") {
@@ -54,25 +56,6 @@ class SykmeldingHandlerTest :
             } just Runs
             coEvery { dialogportenClientMock.setDialogStatus(any(), any()) } just Runs
             every { dialogRepositoryMock.oppdaterDialogMedTransmission(any(), any(), any(), any()) } just Runs
-            every { unleashFeatureTogglesMock.skalOppretteNotifikasjoner() } returns true
-            coEvery { agNotifikasjonKlientMock.opprettNySak(any(), any(), any(), any(), any(), any(), any(), any(), any()) } returns
-                UUID.randomUUID().toString()
-            coEvery {
-                agNotifikasjonKlientMock.opprettNyBeskjed(
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                )
-            } returns
-                UUID.randomUUID().toString()
 
             sykmeldingHandler.opprettOgLagreDialog(sykmelding)
 
@@ -94,54 +77,40 @@ class SykmeldingHandlerTest :
                     dokumentType = LpsApiExtendedType.SYKMELDING.toString(),
                 )
             }
+            verify(exactly = 1) {
+                agNotifikasjonServiceMock.opprettAgNotifikasjonsJobb(
+                    dokumentId = sykmelding.sykmeldingId,
+                    tjeneste = Tjeneste.SYKMELDING,
+                )
+            }
         }
 
-        test("skal ikke opprette sak eller beskjed hvis opprettelse av dialog feiler") {
+        test("skal ikke legge notifikasjon i kø hvis opprettelse av dialog feiler") {
             every { dialogRepositoryMock.finnDialogMedSykemeldingId(sykmelding.sykmeldingId) } returns null
             coEvery { dialogportenClientMock.createDialog(any()) } throws DialogportenClientException("Dialogporten feil")
-            every { unleashFeatureTogglesMock.skalOppretteNotifikasjoner() } returns true
 
             assertThrows<DialogportenClientException> {
                 sykmeldingHandler.opprettOgLagreDialog(sykmelding)
             }
 
             verify(exactly = 0) { dialogRepositoryMock.lagreDialogMedTransmission(any(), any(), any(), any(), any(), any()) }
-            coVerify(exactly = 0) { agNotifikasjonKlientMock.opprettNySak(any(), any(), any(), any(), any(), any(), any(), any(), any()) }
-            coVerify(exactly = 0) {
-                agNotifikasjonKlientMock.opprettNyBeskjed(any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any())
-            }
+            verify(exactly = 0) { agNotifikasjonServiceMock.opprettAgNotifikasjonsJobb(any(), any()) }
         }
-        test("skal hoppe over opprettelse av dialog hvis den allerede finnes, men fortsatt opprette notifikasjoner") {
+
+        test("skal hoppe over opprettelse av dialog hvis den allerede finnes, men fortsatt legge notifikasjon i kø") {
             val eksisterendeDialog = mockk<DialogEntity>()
             every { eksisterendeDialog.id.value } returns UUID.randomUUID()
             every { dialogRepositoryMock.finnDialogMedSykemeldingId(sykmelding.sykmeldingId) } returns eksisterendeDialog
-            every { unleashFeatureTogglesMock.skalOppretteNotifikasjoner() } returns true
-            coEvery { agNotifikasjonKlientMock.opprettNySak(any(), any(), any(), any(), any(), any(), any(), any(), any()) } returns
-                UUID.randomUUID().toString()
-            coEvery {
-                agNotifikasjonKlientMock.opprettNyBeskjed(
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                    any(),
-                )
-            } returns
-                UUID.randomUUID().toString()
 
             sykmeldingHandler.opprettOgLagreDialog(sykmelding)
 
             coVerify(exactly = 0) { dialogportenClientMock.createDialog(any()) }
             verify(exactly = 0) { dialogRepositoryMock.lagreDialogMedTransmission(any(), any(), any(), any(), any(), any()) }
-            coVerify(exactly = 1) { agNotifikasjonKlientMock.opprettNySak(any(), any(), any(), any(), any(), any(), any(), any(), any()) }
-            coVerify(exactly = 1) {
-                agNotifikasjonKlientMock.opprettNyBeskjed(any(), any(), any(), any(), any(), any(), any(), any(), any(), any(), any())
+            verify(exactly = 1) {
+                agNotifikasjonServiceMock.opprettAgNotifikasjonsJobb(
+                    dokumentId = sykmelding.sykmeldingId,
+                    tjeneste = Tjeneste.SYKMELDING,
+                )
             }
         }
     })

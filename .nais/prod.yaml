@@ -51,6 +51,7 @@ spec:
       external:
         - host: platform.altinn.no
         - host: helsearbeidsgiver-unleash-api.nav.cloud.nais.io
+        - host: data.brreg.no
       rules:
         - application: notifikasjon-produsent-api
           namespace: fager
@@ -105,3 +106,5 @@ spec:
       value: "http://notifikasjon-produsent-api.fager/api/graphql"
     - name: ARBEIDSGIVER_NOTIFIKASJON_SCOPE
       value: "api://prod-gcp.fager.notifikasjon-produsent-api/.default"
+    - name: BRREG_API_URL
+      value: "https://data.brreg.no/enhetsregisteret/api/underenheter"

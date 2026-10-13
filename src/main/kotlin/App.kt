@@ -12,10 +12,13 @@ import io.ktor.server.routing.routing
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import no.nav.hag.utils.bakgrunnsjobb.BakgrunnsjobbService
+import no.nav.hag.utils.bakgrunnsjobb.exposed.ExposedBakgrunnsjobRepository
 import no.nav.helsearbeidsgiver.arbeidsgivernotifikasjon.ArbeidsgiverNotifikasjonKlient
 import no.nav.helsearbeidsgiver.arbeidsgivernotifkasjon.graphql.generated.enums.Sendevindu
 import no.nav.helsearbeidsgiver.auth.AuthClient
 import no.nav.helsearbeidsgiver.auth.dialogportenTokenGetter
+import no.nav.helsearbeidsgiver.brreg.BrregClient
 import no.nav.helsearbeidsgiver.database.Database
 import no.nav.helsearbeidsgiver.database.DialogRepository
 import no.nav.helsearbeidsgiver.database.DokumentkoblingRepository
@@ -34,9 +37,13 @@ import no.nav.helsearbeidsgiver.helsesjekker.HelsesjekkService
 import no.nav.helsearbeidsgiver.helsesjekker.naisRoutes
 import no.nav.helsearbeidsgiver.kafka.configureKafkaConsumer
 import no.nav.helsearbeidsgiver.metrikk.metrikkRoutes
+import no.nav.helsearbeidsgiver.notifikasjon.AgNotifikasjonService
+import no.nav.helsearbeidsgiver.notifikasjon.AgNotifikasjonsJobb
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
+import no.nav.helsearbeidsgiver.utils.cache.LocalCache
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import org.slf4j.LoggerFactory
+import kotlin.time.Duration.Companion.minutes
 
 fun main() {
     startServer()
@@ -76,6 +83,11 @@ fun startServer() {
             getAccessToken = authClient.azureAdTokenGetter(Env.Notifikasjon.scope),
             sendevindu = Sendevindu.NKS_AAPNINGSTID,
         )
+    val brregClient =
+        BrregClient(
+            url = Env.Brreg.apiUrl,
+            cacheConfig = LocalCache.Config(1.minutes, 100),
+        )
 
     logger.info("Setter opp DialogRepository...")
     val dialogRepository = DialogRepository(database.db)
@@ -83,20 +95,42 @@ fun startServer() {
         no.nav.helsearbeidsgiver.database
             .FritakDialogRepository(database.db)
     val dokumentkoblingRepository = DokumentkoblingRepository(db = database.db, maksAntallPerHenting = 5000)
+    val bakgrunnsjobbRepository = ExposedBakgrunnsjobRepository(database.db)
     val dokumentKoblingService = DokumentkoblingService(dokumentkoblingRepository)
+
+    val bakgrunnsjobbService =
+        BakgrunnsjobbService(
+            bakgrunnsjobbRepository = bakgrunnsjobbRepository,
+        )
+    val agNotifikasjonService =
+        AgNotifikasjonService(
+            bakgrunnsjobbService = bakgrunnsjobbService,
+            dokumentkoblingRepository = dokumentkoblingRepository,
+            agNotifikasjonKlient = agNotifikasjonKlient,
+            brregClient = brregClient,
+        )
     val sykepengerDialogportenService =
         SykepengerDialogportenService(
             dialogRepository = dialogRepository,
             dialogportenClient = sykePengerdialogportenClient,
+            agNotifikasjonService = agNotifikasjonService,
             unleashFeatureToggles = unleashFeatureToggles,
-            agNotifikasjonKlient = agNotifikasjonKlient,
-            dokumentkoblingRepository = dokumentkoblingRepository,
         )
     val fritakDialogportenService =
         FritakDialogportenService(
             fritakDialogRepository = fritakDialogRepository,
             dialogportenClient = fritakDialogportenClient,
         )
+    bakgrunnsjobbService
+        .apply {
+            registrer(
+                AgNotifikasjonsJobb(
+                    agNotifikasjonService = agNotifikasjonService,
+                ),
+            )
+            startAsync(true)
+        }
+
     val jobber =
         listOf(
             SykmeldingJobb(

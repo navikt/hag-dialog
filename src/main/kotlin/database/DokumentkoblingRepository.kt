@@ -353,6 +353,11 @@ class DokumentkoblingRepository(
             }
         }
 
+    fun hentSykepengesoeknadMedId(soeknadId: UUID): SykepengesoeknadEntity? =
+        transaction(db) {
+            SykepengesoeknadEntity.findById(soeknadId)
+        }
+
     fun hentSykepengesoeknad(
         soeknadId: UUID,
         sykmeldingId: UUID,
