@@ -70,7 +70,7 @@ class AgNotifikasjonServiceTest :
                         grupperingsid = dokumentId.toString(),
                         tjeneste = tjeneste,
                         lenke = lenke,
-                        tittel = match { it.contains(sykmelding.fulltNavn) && it.contains("Bedrift AS") },
+                        tittel = match { it.contains(sykmelding.fulltNavn) },
                         statusTekst = any(),
                         tilleggsinfo = any(),
                         initiellStatus = SaksStatus.MOTTATT,

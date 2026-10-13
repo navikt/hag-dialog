@@ -68,7 +68,7 @@ class AgNotifikasjonService(
             grupperingsid = grupperingsid,
             tjeneste = Tjeneste.SYKMELDING,
             lenke = lenke,
-            tittel = "Sykmelding for ${sykmelding.fulltNavn} (f. ${sykmelding.foedselsdato.tilNorskFormat()}) hos $virksomhetsnavn",
+            tittel = "Sykmelding for ${sykmelding.fulltNavn} (f. ${sykmelding.foedselsdato.tilNorskFormat()})",
             statusTekst = "Mottatt sykmelding",
             tilleggsinfo =
                 sykmelding.sykmeldingsperioder
@@ -84,7 +84,7 @@ class AgNotifikasjonService(
             tjeneste = Tjeneste.SYKMELDING,
             lenke = lenke,
             tekst = "Ny sykmelding hos $virksomhetsnavn",
-            varslingTittel = "Ny sykmelding for en av dine ansatte hos $virksomhetsnavn",
+            varslingTittel = "Ny sykmelding for en av dine ansatte",
             varslingInnhold =
                 "<p>En ansatt hos $htmlSikkertVirksomhetsnavn (orgnr $orgnr) har sendt inn en ny sykmelding.</p>" +
                     "<p>Logg inn på Altinn eller Nav for å se sykmeldingen.</p>" +
@@ -123,8 +123,7 @@ class AgNotifikasjonService(
             tjeneste = Tjeneste.SOEKNAD,
             lenke = lenke,
             tittel =
-                "Søknad om sykepenger for ${sykmelding.fulltNavn} (f. ${sykmelding.foedselsdato.tilNorskFormat()}) " +
-                    "hos $virksomhetsnavn",
+                "Søknad om sykepenger for ${sykmelding.fulltNavn} (f. ${sykmelding.foedselsdato.tilNorskFormat()})",
             statusTekst = "Mottatt søknad om sykepenger",
             tilleggsinfo = null,
         )
@@ -137,7 +136,7 @@ class AgNotifikasjonService(
             tjeneste = Tjeneste.SOEKNAD,
             lenke = lenke,
             tekst = "Ny søknad om sykepenger hos $virksomhetsnavn",
-            varslingTittel = "Ny søknad om sykepenger for en av dine ansatte hos $virksomhetsnavn",
+            varslingTittel = "Ny søknad om sykepenger for en av dine ansatte",
             varslingInnhold =
                 "<p>En ansatt hos $htmlSikkertVirksomhetsnavn (orgnr $orgnr) har sendt inn en søknad om sykepenger.</p>" +
                     "<p>Logg inn på Altinn eller Nav for å se søknaden.</p>" +
