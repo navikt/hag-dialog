@@ -1,14 +1,10 @@
 package no.nav.helsearbeidsgiver
 
-import dokumentkobling.DokumentkoblingService
-import dokumentkobling.SykepengeSoeknadJobb
-import dokumentkobling.SykmeldingJobb
-import dokumentkobling.VedtakJobb
-import dokumentkobling.startRecurringJobs
-import io.ktor.server.application.ApplicationStopPreparing
-import io.ktor.server.engine.embeddedServer
-import io.ktor.server.netty.Netty
-import io.ktor.server.routing.routing
+import dokumentkobling.*
+import io.ktor.server.application.*
+import io.ktor.server.engine.*
+import io.ktor.server.netty.*
+import io.ktor.server.routing.*
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -26,13 +22,7 @@ import no.nav.helsearbeidsgiver.dialogporten.DialogportenClient
 import no.nav.helsearbeidsgiver.dialogporten.FritakDialogportenService
 import no.nav.helsearbeidsgiver.dialogporten.SykepengerDialogportenService
 import no.nav.helsearbeidsgiver.dialogporten.activity.activityRoutes
-import no.nav.helsearbeidsgiver.dokumentkobling.AvbrytForespoerselJobb
-import no.nav.helsearbeidsgiver.dokumentkobling.AvbrytInntektsmeldingJobb
-import no.nav.helsearbeidsgiver.dokumentkobling.AvbrytSykepengeSoeknadJobb
-import no.nav.helsearbeidsgiver.dokumentkobling.AvbrytSykmeldingJobb
-import no.nav.helsearbeidsgiver.dokumentkobling.AvbrytVedtakJobb
-import no.nav.helsearbeidsgiver.dokumentkobling.ForespoerselJobb
-import no.nav.helsearbeidsgiver.dokumentkobling.InntektsmeldingJobb
+import no.nav.helsearbeidsgiver.dokumentkobling.*
 import no.nav.helsearbeidsgiver.helsesjekker.HelsesjekkService
 import no.nav.helsearbeidsgiver.helsesjekker.naisRoutes
 import no.nav.helsearbeidsgiver.kafka.configureKafkaConsumer
@@ -43,7 +33,7 @@ import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.cache.LocalCache
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import org.slf4j.LoggerFactory
-import kotlin.time.Duration.Companion.days
+import kotlin.time.Duration.Companion.minutes
 
 fun main() {
     startServer()
@@ -86,7 +76,7 @@ fun startServer() {
     val brregClient =
         BrregClient(
             url = Env.Brreg.apiUrl,
-            cacheConfig = LocalCache.Config(7.days, 10_000),
+            cacheConfig = LocalCache.Config(1.minutes, 100),
         )
 
     logger.info("Setter opp DialogRepository...")
