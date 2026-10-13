@@ -19,7 +19,7 @@ import kotlin.time.Duration.Companion.days
 import no.nav.helsearbeidsgiver.kafka.Sykmeldingsperiode as SykmeldingsperiodeKafka
 
 private const val MAKS_ANTALL_FORSOK = 10
-private val HARD_DELETE_OM = 730.days
+private val LEVETID = 730.days
 
 class DokumentIkkeFunnetException(
     melding: String,
@@ -172,7 +172,7 @@ class AgNotifikasjonService(
                     statusTekst = statusTekst,
                     tilleggsinfo = tilleggsinfo,
                     initiellStatus = SaksStatus.MOTTATT,
-                    hardDeleteOm = HARD_DELETE_OM,
+                    hardDeleteOm = LEVETID,
                 )
             logger.info("Opprettet notifikasjon-sak $sakId for $beskrivelse.")
         } catch (e: SakEllerOppgaveDuplikatException) {
@@ -211,7 +211,7 @@ class AgNotifikasjonService(
                     varslingTittel = varslingTittel,
                     varslingInnhold = varslingInnhold,
                     smsVarslingInnhold = smsVarslingInnhold,
-                    hardDeleteOm = HARD_DELETE_OM,
+                    hardDeleteOm = LEVETID,
                 )
             logger.info("Opprettet notifikasjon-beskjed $beskjedId for $beskrivelse.")
         } catch (e: SakEllerOppgaveDuplikatException) {
