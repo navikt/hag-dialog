@@ -86,7 +86,7 @@ fun startServer() {
     val brregClient =
         BrregClient(
             url = Env.Brreg.apiUrl,
-            cacheConfig = LocalCache.Config(1.minutes, 100),
+            cacheConfig = LocalCache.Config(1.minutes, 1000),
         )
 
     logger.info("Setter opp DialogRepository...")
