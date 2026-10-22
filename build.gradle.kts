@@ -77,7 +77,11 @@ dependencies {
     implementation("org.jetbrains.exposed:exposed-json:$exposedVersion")
     implementation("org.postgresql:postgresql:$postgresqlVersion")
     implementation("no.nav.helsearbeidsgiver:brreg-client:$brregClientVersion")
-    implementation(platform("io.netty:netty-bom:$nettyVersion"))
+    constraints {
+        implementation("io.netty:netty-handler:$nettyVersion") {
+            because("Retter en kritisk sårbarhet")
+        }
+    }
     // Test dependencies
     val kotestVersion: String by project
     val mockkVersion: String by project
