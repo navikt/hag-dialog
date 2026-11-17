@@ -3,9 +3,9 @@ import no.nav.helsearbeidsgiver.database.ForespoerselEntity
 import no.nav.helsearbeidsgiver.database.ForespoerselTable
 import no.nav.helsearbeidsgiver.database.InntektsmeldingEntity
 import no.nav.helsearbeidsgiver.database.InntektsmeldingTable
+import no.nav.helsearbeidsgiver.database.RefusjonEntity
 import no.nav.helsearbeidsgiver.database.SykepengesoeknadEntity
 import no.nav.helsearbeidsgiver.database.SykmeldingEntity
-import no.nav.helsearbeidsgiver.database.VedtakEntity
 import no.nav.helsearbeidsgiver.database.VedtaksperiodeSoeknadEntity
 import no.nav.helsearbeidsgiver.database.VedtaksperiodeSoeknadTable
 import org.jetbrains.exposed.sql.Database
@@ -83,10 +83,10 @@ fun hentInntektsmelding(
         InntektsmeldingEntity.findById(inntektsmeldingId)
     }
 
-fun hentVedtak(
+fun hentRefusjon(
     db: Database,
-    vedtakId: UUID,
-): VedtakEntity? =
+    refusjonUtfallId: UUID,
+): RefusjonEntity? =
     transaction(db) {
-        VedtakEntity.findById(vedtakId)
+        RefusjonEntity.findById(refusjonUtfallId)
     }

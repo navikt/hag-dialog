@@ -57,8 +57,8 @@ class DokumentkoblingService(
         dokumentkoblingRepository.opprettInntektmeldingAvvist(inntektsmeldingAvvist)
     }
 
-    fun lagreVedtak(vedtak: Vedtak) {
-        dokumentkoblingRepository.opprettVedtak(vedtak)
+    fun lagreRefusjon(refusjon: Refusjon) {
+        dokumentkoblingRepository.opprettRefusjon(refusjon)
     }
 
     fun hentInntektsmeldingerMedStatusMottatt(): List<DokumentkoblingRepository.InntektsmeldingResultat> =
@@ -116,8 +116,8 @@ class DokumentkoblingService(
                     dokumentkoblingRepository.hentInntektsmelding(dokumentkobling.inntektsmeldingId)
                 }
 
-                is Vedtak -> {
-                    dokumentkoblingRepository.hentVedtak(dokumentkobling.vedtakId)
+                is Refusjon -> {
+                    dokumentkoblingRepository.hentRefusjon(dokumentkobling.refusjonUtfallId)
                 }
             }
         return dokument != null

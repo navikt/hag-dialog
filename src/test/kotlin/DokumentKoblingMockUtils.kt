@@ -3,11 +3,11 @@ import dokumentkobling.ForespoerselUtgaatt
 import dokumentkobling.InnsendingType
 import dokumentkobling.InntektsmeldingAvvist
 import dokumentkobling.InntektsmeldingGodkjent
+import dokumentkobling.Refusjon
 import dokumentkobling.Status
 import dokumentkobling.Sykepengesoeknad
 import dokumentkobling.Sykmelding
 import dokumentkobling.Sykmeldingsperiode
-import dokumentkobling.Vedtak
 import dokumentkobling.VedtaksperiodeSoeknadKobling
 import no.nav.helsearbeidsgiver.database.DokumentkoblingRepository
 import no.nav.helsearbeidsgiver.database.ForespoerselStatus
@@ -76,9 +76,9 @@ object DokumentKoblingMockUtils {
             orgnr = orgnr,
         )
 
-    val vedtak =
-        Vedtak(
-            vedtakId = UUID.randomUUID(),
+    val refusjon =
+        Refusjon(
+            refusjonUtfallId = UUID.randomUUID(),
             sykmeldingId = sykmeldingId,
             inntektsmeldingId = inntektsmeldingId,
             orgnr = orgnr,

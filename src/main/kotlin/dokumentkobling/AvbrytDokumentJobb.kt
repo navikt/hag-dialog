@@ -57,10 +57,10 @@ class AvbrytSykmeldingJobb(
         settTilTidsavbrutt = dokumentkoblingRepository::settSykmeldingerMedStatusMottattTilTidsavbrutt,
     )
 
-class AvbrytVedtakJobb(
+class AvbrytRefusjonJobb(
     dokumentkoblingRepository: DokumentkoblingRepository,
 ) : AvbrytDokumentJobb(
-        dokumentNavn = "vedtak",
+        dokumentNavn = "refusjon",
         antallMinutterFoerTidsavbrudd = ANTALL_MINUTTER_FOER_TIDSAVBRUDD,
-        settTilTidsavbrutt = dokumentkoblingRepository::settVedtakMedStatusMottattTilTidsavbrutt,
+        settTilTidsavbrutt = dokumentkoblingRepository::settRefusjonMedStatusMottattTilTidsavbrutt,
     )

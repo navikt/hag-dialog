@@ -16,9 +16,9 @@ import no.nav.helsearbeidsgiver.database.DokumentkoblingRepository.ForespoerselS
 import no.nav.helsearbeidsgiver.database.ForespoerselEntity
 import no.nav.helsearbeidsgiver.database.ForespoerselStatus
 import no.nav.helsearbeidsgiver.database.InntektsmeldingEntity
+import no.nav.helsearbeidsgiver.database.RefusjonEntity
 import no.nav.helsearbeidsgiver.database.SykepengesoeknadEntity
 import no.nav.helsearbeidsgiver.database.SykmeldingEntity
-import no.nav.helsearbeidsgiver.database.VedtakEntity
 import no.nav.helsearbeidsgiver.database.VedtaksperiodeSoeknadEntity
 import java.time.LocalDateTime
 import java.util.UUID
@@ -341,30 +341,30 @@ class DokumentkoblingServiceTest :
             erDuplikat shouldBe true
         }
 
-        test("erDuplikat returnerer false når vedtaket ikke eksisterer") {
-            val vedtak = DokumentKoblingMockUtils.vedtak
-            every { dokumentkoblingRepository.hentVedtak(vedtak.vedtakId) } returns null
+        test("erDuplikat returnerer false når refusjonen ikke eksisterer") {
+            val refusjon = DokumentKoblingMockUtils.refusjon
+            every { dokumentkoblingRepository.hentRefusjon(refusjon.refusjonUtfallId) } returns null
 
-            val erDuplikat = dokumentkoblingService.erDuplikat(vedtak)
+            val erDuplikat = dokumentkoblingService.erDuplikat(refusjon)
 
             erDuplikat shouldBe false
         }
 
-        test("erDuplikat returnerer true når vedtaket allerede eksisterer") {
-            val vedtak = DokumentKoblingMockUtils.vedtak
-            val vedtakEntity = mockk<VedtakEntity>()
-            every { dokumentkoblingRepository.hentVedtak(vedtak.vedtakId) } returns vedtakEntity
+        test("erDuplikat returnerer true når refusjonen allerede eksisterer") {
+            val refusjon = DokumentKoblingMockUtils.refusjon
+            val refusjonEntity = mockk<RefusjonEntity>()
+            every { dokumentkoblingRepository.hentRefusjon(refusjon.refusjonUtfallId) } returns refusjonEntity
 
-            val erDuplikat = dokumentkoblingService.erDuplikat(vedtak)
+            val erDuplikat = dokumentkoblingService.erDuplikat(refusjon)
 
             erDuplikat shouldBe true
         }
 
-        test("lagreVedtak lagrer vedtaket via repository") {
-            val vedtak = DokumentKoblingMockUtils.vedtak
+        test("lagreRefusjon lagrer refusjonen via repository") {
+            val refusjon = DokumentKoblingMockUtils.refusjon
 
-            dokumentkoblingService.lagreVedtak(vedtak)
+            dokumentkoblingService.lagreRefusjon(refusjon)
 
-            verifySequence { dokumentkoblingRepository.opprettVedtak(vedtak) }
+            verifySequence { dokumentkoblingRepository.opprettRefusjon(refusjon) }
         }
     })

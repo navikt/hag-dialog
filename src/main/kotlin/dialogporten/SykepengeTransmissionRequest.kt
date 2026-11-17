@@ -6,9 +6,9 @@ import no.nav.helsearbeidsgiver.dialogporten.LpsApiExtendedType.FORESPOERSEL_AKT
 import no.nav.helsearbeidsgiver.dialogporten.LpsApiExtendedType.FORESPOERSEL_UTGAATT
 import no.nav.helsearbeidsgiver.dialogporten.LpsApiExtendedType.INNTEKTSMELDING_AVVIST
 import no.nav.helsearbeidsgiver.dialogporten.LpsApiExtendedType.INNTEKTSMELDING_GODKJENT
+import no.nav.helsearbeidsgiver.dialogporten.LpsApiExtendedType.REFUSJON
 import no.nav.helsearbeidsgiver.dialogporten.LpsApiExtendedType.SYKEPENGESOEKNAD
 import no.nav.helsearbeidsgiver.dialogporten.LpsApiExtendedType.SYKMELDING
-import no.nav.helsearbeidsgiver.dialogporten.LpsApiExtendedType.VEDTAK
 import no.nav.helsearbeidsgiver.dialogporten.domene.Attachment
 import no.nav.helsearbeidsgiver.dialogporten.domene.Transmission
 import no.nav.helsearbeidsgiver.dialogporten.domene.TransmissionRequest
@@ -52,13 +52,13 @@ class SykepengesoknadTransmissionRequest(
     override val type = Transmission.TransmissionType.Information
 }
 
-class VedtakTransmissionRequest(
-    vedtakId: UUID,
+class RefusjonTransmissionRequest(
+    refusjonUtfallId: UUID,
     override val relatedTransmissionId: UUID?,
     override val attachments: List<Attachment>,
     override val isSilentUpdate: Boolean = false,
-) : TransmissionRequestMedMarkerSomLestFce(VEDTAK) {
-    override val dokumentId = vedtakId
+) : TransmissionRequestMedMarkerSomLestFce(REFUSJON) {
+    override val dokumentId = refusjonUtfallId
     override val tittel = "Refusjon"
     override val sammendrag = null
     override val type = Transmission.TransmissionType.Information

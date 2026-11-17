@@ -13,9 +13,9 @@ import no.nav.helsearbeidsgiver.database.ForespoerselStatus
 import no.nav.helsearbeidsgiver.database.ForespoerselTable
 import no.nav.helsearbeidsgiver.database.InntektsmeldingStatus
 import no.nav.helsearbeidsgiver.database.InntektsmeldingTable
+import no.nav.helsearbeidsgiver.database.RefusjonTable
 import no.nav.helsearbeidsgiver.database.SykepengesoeknadTable
 import no.nav.helsearbeidsgiver.database.SykmeldingTable
-import no.nav.helsearbeidsgiver.database.VedtakTable
 import no.nav.helsearbeidsgiver.database.VedtaksperiodeSoeknadTable
 import java.time.LocalDateTime
 import java.util.UUID
@@ -28,7 +28,7 @@ class DokumentkoblingTest :
             VedtaksperiodeSoeknadTable,
             ForespoerselTable,
             InntektsmeldingTable,
-            VedtakTable,
+            RefusjonTable,
         ),
         { db ->
             val maksAntallPerHenting = 10
@@ -538,53 +538,53 @@ class DokumentkoblingTest :
                 }
             }
 
-            test("opprette og hente vedtak") {
-                val vedtak = DokumentKoblingMockUtils.vedtak
-                repository.opprettVedtak(vedtak)
+            test("opprette og hente refusjon") {
+                val refusjon = DokumentKoblingMockUtils.refusjon
+                repository.opprettRefusjon(refusjon)
 
-                val hentet = hentVedtak(db = db, vedtakId = vedtak.vedtakId)
+                val hentet = hentRefusjon(db = db, refusjonUtfallId = refusjon.refusjonUtfallId)
 
                 hentet.shouldNotBeNull()
-                hentet.vedtakId shouldBe vedtak.vedtakId
-                hentet.sykmeldingId shouldBe vedtak.sykmeldingId
-                hentet.inntektsmeldingId shouldBe vedtak.inntektsmeldingId
+                hentet.refusjonUtfallId shouldBe refusjon.refusjonUtfallId
+                hentet.sykmeldingId shouldBe refusjon.sykmeldingId
+                hentet.inntektsmeldingId shouldBe refusjon.inntektsmeldingId
                 hentet.status shouldBe Status.MOTTATT
             }
 
-            test("hentVedtakKlareForBehandling returnerer vedtak sammen med status til tilhørende inntektsmelding") {
+            test("hentRefusjonKlareForBehandling returnerer refusjon sammen med status til tilhørende inntektsmelding") {
                 val inntektsmeldingGodkjent = DokumentKoblingMockUtils.inntektsmeldingGodkjent
                 repository.opprettInntektmeldingGodkjent(inntektsmeldingGodkjent)
 
-                val vedtak = DokumentKoblingMockUtils.vedtak.copy(inntektsmeldingId = inntektsmeldingGodkjent.inntektsmeldingId)
-                repository.opprettVedtak(vedtak)
+                val refusjon = DokumentKoblingMockUtils.refusjon.copy(inntektsmeldingId = inntektsmeldingGodkjent.inntektsmeldingId)
+                repository.opprettRefusjon(refusjon)
 
                 repository.settInntektsmeldingJobbTilBehandlet(inntektsmeldingGodkjent.inntektsmeldingId)
 
-                val klareForBehandling = repository.hentVedtakKlareForBehandling()
+                val klareForBehandling = repository.hentRefusjonKlareForBehandling()
                 klareForBehandling.shouldNotBeEmpty()
                 assertSoftly(klareForBehandling[0]) {
-                    vedtakId shouldBe vedtak.vedtakId
-                    sykmeldingId shouldBe vedtak.sykmeldingId
-                    inntektsmeldingId shouldBe vedtak.inntektsmeldingId
-                    vedtakStatus shouldBe Status.MOTTATT
+                    refusjonUtfallId shouldBe refusjon.refusjonUtfallId
+                    sykmeldingId shouldBe refusjon.sykmeldingId
+                    inntektsmeldingId shouldBe refusjon.inntektsmeldingId
+                    refusjonStatus shouldBe Status.MOTTATT
                     inntektsmeldingJobbStatus shouldBe Status.BEHANDLET
                 }
             }
 
-            test("bare mottatte vedtak før tidsavbruddgrense blir satt til tidsavbrutt") {
-                val gammeltVedtak = DokumentKoblingMockUtils.vedtak
-                val nyttVedtak = DokumentKoblingMockUtils.vedtak.copy(vedtakId = UUID.randomUUID())
-                repository.opprettVedtak(gammeltVedtak)
+            test("bare mottatte refusjon før tidsavbruddgrense blir satt til tidsavbrutt") {
+                val gammelRefusjon = DokumentKoblingMockUtils.refusjon
+                val nyRefusjon = DokumentKoblingMockUtils.refusjon.copy(refusjonUtfallId = UUID.randomUUID())
+                repository.opprettRefusjon(gammelRefusjon)
                 val tidsavbruddgrense = LocalDateTime.now()
-                repository.opprettVedtak(nyttVedtak)
+                repository.opprettRefusjon(nyRefusjon)
 
-                val antallOppdatert = repository.settVedtakMedStatusMottattTilTidsavbrutt(tidsavbruddgrense = tidsavbruddgrense)
+                val antallOppdatert = repository.settRefusjonMedStatusMottattTilTidsavbrutt(tidsavbruddgrense = tidsavbruddgrense)
 
                 antallOppdatert shouldBe 1
-                val tidsavbruttVedtak = hentVedtak(db = db, vedtakId = gammeltVedtak.vedtakId)
-                tidsavbruttVedtak.shouldNotBeNull().status shouldBe Status.TIDSAVBRUTT
-                val nyttVedtakEtter = hentVedtak(db = db, vedtakId = nyttVedtak.vedtakId)
-                nyttVedtakEtter.shouldNotBeNull().status shouldBe Status.MOTTATT
+                val tidsavbruttRefusjon = hentRefusjon(db = db, refusjonUtfallId = gammelRefusjon.refusjonUtfallId)
+                tidsavbruttRefusjon.shouldNotBeNull().status shouldBe Status.TIDSAVBRUTT
+                val nyRefusjonEtter = hentRefusjon(db = db, refusjonUtfallId = nyRefusjon.refusjonUtfallId)
+                nyRefusjonEtter.shouldNotBeNull().status shouldBe Status.MOTTATT
             }
         },
     )
