@@ -47,7 +47,7 @@ val antallRefusjonMedStatusMottatt =
     AtomicInteger(0)
         .also {
             Gauge
-                .builder("hag_dialog_antall_vedtak_med_status_mottatt") { it.get().toDouble() }
+                .builder("hag_dialog_antall_refusjon_med_status_mottatt") { it.get().toDouble() }
                 .description("Antall refusjon med status MOTTATT")
                 .register(registry)
         }
