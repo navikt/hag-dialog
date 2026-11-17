@@ -16,9 +16,9 @@ import no.nav.helsearbeidsgiver.database.DokumentkoblingRepository.ForespoerselS
 import no.nav.helsearbeidsgiver.database.ForespoerselEntity
 import no.nav.helsearbeidsgiver.database.ForespoerselStatus
 import no.nav.helsearbeidsgiver.database.InntektsmeldingEntity
+import no.nav.helsearbeidsgiver.database.RefusjonEntity
 import no.nav.helsearbeidsgiver.database.SykepengesoeknadEntity
 import no.nav.helsearbeidsgiver.database.SykmeldingEntity
-import no.nav.helsearbeidsgiver.database.RefusjonEntity
 import no.nav.helsearbeidsgiver.database.VedtaksperiodeSoeknadEntity
 import java.time.LocalDateTime
 import java.util.UUID

@@ -3,11 +3,11 @@ import dokumentkobling.ForespoerselUtgaatt
 import dokumentkobling.InnsendingType
 import dokumentkobling.InntektsmeldingAvvist
 import dokumentkobling.InntektsmeldingGodkjent
+import dokumentkobling.Refusjon
 import dokumentkobling.Status
 import dokumentkobling.Sykepengesoeknad
 import dokumentkobling.Sykmelding
 import dokumentkobling.Sykmeldingsperiode
-import dokumentkobling.Refusjon
 import dokumentkobling.VedtaksperiodeSoeknadKobling
 import no.nav.helsearbeidsgiver.database.DokumentkoblingRepository
 import no.nav.helsearbeidsgiver.database.ForespoerselStatus

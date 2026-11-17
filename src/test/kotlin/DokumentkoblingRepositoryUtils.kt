@@ -3,9 +3,9 @@ import no.nav.helsearbeidsgiver.database.ForespoerselEntity
 import no.nav.helsearbeidsgiver.database.ForespoerselTable
 import no.nav.helsearbeidsgiver.database.InntektsmeldingEntity
 import no.nav.helsearbeidsgiver.database.InntektsmeldingTable
+import no.nav.helsearbeidsgiver.database.RefusjonEntity
 import no.nav.helsearbeidsgiver.database.SykepengesoeknadEntity
 import no.nav.helsearbeidsgiver.database.SykmeldingEntity
-import no.nav.helsearbeidsgiver.database.RefusjonEntity
 import no.nav.helsearbeidsgiver.database.VedtaksperiodeSoeknadEntity
 import no.nav.helsearbeidsgiver.database.VedtaksperiodeSoeknadTable
 import org.jetbrains.exposed.sql.Database

@@ -5,10 +5,10 @@ import dokumentkobling.ForespoerselUtgaatt
 import dokumentkobling.InnsendingType
 import dokumentkobling.InntektsmeldingAvvist
 import dokumentkobling.InntektsmeldingGodkjent
+import dokumentkobling.Refusjon
 import dokumentkobling.Status
 import dokumentkobling.Sykepengesoeknad
 import dokumentkobling.Sykmelding
-import dokumentkobling.Refusjon
 import dokumentkobling.VedtaksperiodeSoeknadKobling
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr

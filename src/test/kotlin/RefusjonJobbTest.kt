@@ -1,5 +1,5 @@
-import dokumentkobling.Status
 import dokumentkobling.RefusjonJobb
+import dokumentkobling.Status
 import dokumentkobling.opprettTransmissionForRefusjon
 import io.kotest.core.spec.style.FunSpec
 import io.ktor.server.plugins.NotFoundException
@@ -52,7 +52,14 @@ class RefusjonJobbTest :
             refusjonJobb.doJob()
 
             verify(exactly = 1) { repository.hentRefusjonKlareForBehandling() }
-            verify(exactly = 1) { sykepengerDialogportenService.oppdaterDialogMedRefusjon(match { it.refusjonUtfallId == refusjon.refusjonUtfallId }) }
+            verify(exactly = 1) {
+                sykepengerDialogportenService.oppdaterDialogMedRefusjon(
+                    match {
+                        it.refusjonUtfallId ==
+                            refusjon.refusjonUtfallId
+                    },
+                )
+            }
             verify(exactly = 1) { repository.settRefusjonJobbTilBehandlet(refusjon.refusjonUtfallId) }
         }
 

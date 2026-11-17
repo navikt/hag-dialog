@@ -13,9 +13,9 @@ import no.nav.helsearbeidsgiver.database.ForespoerselStatus
 import no.nav.helsearbeidsgiver.database.ForespoerselTable
 import no.nav.helsearbeidsgiver.database.InntektsmeldingStatus
 import no.nav.helsearbeidsgiver.database.InntektsmeldingTable
+import no.nav.helsearbeidsgiver.database.RefusjonTable
 import no.nav.helsearbeidsgiver.database.SykepengesoeknadTable
 import no.nav.helsearbeidsgiver.database.SykmeldingTable
-import no.nav.helsearbeidsgiver.database.RefusjonTable
 import no.nav.helsearbeidsgiver.database.VedtaksperiodeSoeknadTable
 import java.time.LocalDateTime
 import java.util.UUID

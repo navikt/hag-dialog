@@ -6,9 +6,9 @@ import no.nav.helsearbeidsgiver.dialogporten.LpsApiExtendedType.FORESPOERSEL_AKT
 import no.nav.helsearbeidsgiver.dialogporten.LpsApiExtendedType.FORESPOERSEL_UTGAATT
 import no.nav.helsearbeidsgiver.dialogporten.LpsApiExtendedType.INNTEKTSMELDING_AVVIST
 import no.nav.helsearbeidsgiver.dialogporten.LpsApiExtendedType.INNTEKTSMELDING_GODKJENT
+import no.nav.helsearbeidsgiver.dialogporten.LpsApiExtendedType.REFUSJON
 import no.nav.helsearbeidsgiver.dialogporten.LpsApiExtendedType.SYKEPENGESOEKNAD
 import no.nav.helsearbeidsgiver.dialogporten.LpsApiExtendedType.SYKMELDING
-import no.nav.helsearbeidsgiver.dialogporten.LpsApiExtendedType.REFUSJON
 import no.nav.helsearbeidsgiver.dialogporten.domene.Attachment
 import no.nav.helsearbeidsgiver.dialogporten.domene.Transmission
 import no.nav.helsearbeidsgiver.dialogporten.domene.TransmissionRequest
