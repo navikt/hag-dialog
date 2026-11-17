@@ -43,12 +43,12 @@ val antallInntektsmeldingerMedStatusMottatt =
                 .register(registry)
         }
 
-val antallVedtakMedStatusMottatt =
+val antallRefusjonMedStatusMottatt =
     AtomicInteger(0)
         .also {
             Gauge
                 .builder("hag_dialog_antall_vedtak_med_status_mottatt") { it.get().toDouble() }
-                .description("Antall vedtak med status MOTTATT")
+                .description("Antall refusjon med status MOTTATT")
                 .register(registry)
         }
 
@@ -68,6 +68,6 @@ fun oppdaterMetrikkForAntallInntektsmeldingerMedStatusMottatt(nyVerdi: Int) {
     antallInntektsmeldingerMedStatusMottatt.set(nyVerdi)
 }
 
-fun oppdaterMetrikkForAntallVedtakMedStatusMottatt(nyVerdi: Int) {
-    antallVedtakMedStatusMottatt.set(nyVerdi)
+fun oppdaterMetrikkForAntallRefusjonMedStatusMottatt(nyVerdi: Int) {
+    antallRefusjonMedStatusMottatt.set(nyVerdi)
 }

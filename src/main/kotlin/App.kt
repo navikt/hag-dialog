@@ -3,7 +3,7 @@ package no.nav.helsearbeidsgiver
 import dokumentkobling.DokumentkoblingService
 import dokumentkobling.SykepengeSoeknadJobb
 import dokumentkobling.SykmeldingJobb
-import dokumentkobling.VedtakJobb
+import dokumentkobling.RefusjonJobb
 import dokumentkobling.startRecurringJobs
 import io.ktor.server.application.ApplicationStopPreparing
 import io.ktor.server.engine.embeddedServer
@@ -30,7 +30,7 @@ import no.nav.helsearbeidsgiver.dokumentkobling.AvbrytForespoerselJobb
 import no.nav.helsearbeidsgiver.dokumentkobling.AvbrytInntektsmeldingJobb
 import no.nav.helsearbeidsgiver.dokumentkobling.AvbrytSykepengeSoeknadJobb
 import no.nav.helsearbeidsgiver.dokumentkobling.AvbrytSykmeldingJobb
-import no.nav.helsearbeidsgiver.dokumentkobling.AvbrytVedtakJobb
+import no.nav.helsearbeidsgiver.dokumentkobling.AvbrytRefusjonJobb
 import no.nav.helsearbeidsgiver.dokumentkobling.ForespoerselJobb
 import no.nav.helsearbeidsgiver.dokumentkobling.InntektsmeldingJobb
 import no.nav.helsearbeidsgiver.helsesjekker.HelsesjekkService
@@ -165,12 +165,12 @@ fun startServer() {
             AvbrytInntektsmeldingJobb(
                 dokumentkoblingRepository = dokumentkoblingRepository,
             ),
-            VedtakJobb(
+            RefusjonJobb(
                 dokumentkoblingRepository = dokumentkoblingRepository,
                 sykepengerDialogportenService = sykepengerDialogportenService,
                 unleashFeatureToggles = unleashFeatureToggles,
             ),
-            AvbrytVedtakJobb(
+            AvbrytRefusjonJobb(
                 dokumentkoblingRepository = dokumentkoblingRepository,
             ),
         )

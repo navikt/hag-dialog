@@ -15,7 +15,7 @@ import no.nav.helsearbeidsgiver.dialogporten.handlers.InntektsmeldingHandler
 import no.nav.helsearbeidsgiver.dialogporten.handlers.SykepengesoeknadHandler
 import no.nav.helsearbeidsgiver.dialogporten.handlers.SykmeldingHandler
 import no.nav.helsearbeidsgiver.dialogporten.handlers.UtgaattForespoerselHandler
-import no.nav.helsearbeidsgiver.dialogporten.handlers.VedtakHandler
+import no.nav.helsearbeidsgiver.dialogporten.handlers.RefusjonHandler
 import no.nav.helsearbeidsgiver.dialogporten.handlers.sykepengesoknadTransmission
 import no.nav.helsearbeidsgiver.dialogporten.handlers.sykmeldingTransmission
 import no.nav.helsearbeidsgiver.kafka.Inntektsmelding
@@ -23,7 +23,7 @@ import no.nav.helsearbeidsgiver.kafka.Inntektsmeldingsforespoersel
 import no.nav.helsearbeidsgiver.kafka.Sykepengesoeknad
 import no.nav.helsearbeidsgiver.kafka.Sykmelding
 import no.nav.helsearbeidsgiver.kafka.UtgaattInntektsmeldingForespoersel
-import no.nav.helsearbeidsgiver.kafka.Vedtak
+import no.nav.helsearbeidsgiver.kafka.Refusjon
 import no.nav.helsearbeidsgiver.notifikasjon.AgNotifikasjonService
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.log.logger
@@ -56,7 +56,7 @@ class SykepengerDialogportenService(
     private val forespoerselHandler = ForespoerselHandler(dialogRepository, dialogportenClient)
     private val inntektsmeldingHandler = InntektsmeldingHandler(dialogRepository, dialogportenClient)
     private val utgaattForespoerselHandler = UtgaattForespoerselHandler(dialogRepository, dialogportenClient)
-    private val vedtakHandler = VedtakHandler(dialogRepository, dialogportenClient)
+    private val refusjonHandler = RefusjonHandler(dialogRepository, dialogportenClient)
 
     fun opprettOgLagreDialog(sykmelding: Sykmelding) {
         sykmeldingHandler.opprettOgLagreDialog(sykmelding)
@@ -98,8 +98,8 @@ class SykepengerDialogportenService(
         inntektsmeldingHandler.oppdaterDialog(inntektsmelding)
     }
 
-    fun oppdaterDialogMedVedtak(vedtak: Vedtak) {
-        vedtakHandler.oppdaterDialog(vedtak)
+    fun oppdaterDialogMedRefusjon(refusjon: Refusjon) {
+        refusjonHandler.oppdaterDialog(refusjon)
     }
 
     suspend fun oppdaterTransmisjonerMedFeilUrl() {

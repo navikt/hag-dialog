@@ -5,45 +5,44 @@ import no.nav.helsearbeidsgiver.Env
 import no.nav.helsearbeidsgiver.database.DialogRepository
 import no.nav.helsearbeidsgiver.dialogporten.DialogportenClient
 import no.nav.helsearbeidsgiver.dialogporten.LpsApiExtendedType
-import no.nav.helsearbeidsgiver.dialogporten.VedtakTransmissionRequest
+import no.nav.helsearbeidsgiver.dialogporten.RefusjonTransmissionRequest
 import no.nav.helsearbeidsgiver.dialogporten.domene.TransmissionRequest
-import no.nav.helsearbeidsgiver.dialogporten.domene.createApiAttachment
 import no.nav.helsearbeidsgiver.dialogporten.domene.createGuiAttachment
-import no.nav.helsearbeidsgiver.kafka.Vedtak
+import no.nav.helsearbeidsgiver.kafka.Refusjon
 import no.nav.helsearbeidsgiver.utils.log.logger
 import java.util.UUID
 
-class VedtakHandler(
+class RefusjonHandler(
     private val dialogRepository: DialogRepository,
     private val dialogportenClient: DialogportenClient,
 ) {
     private val logger = logger()
 
-    fun oppdaterDialog(vedtak: Vedtak) {
+    fun oppdaterDialog(refusjon: Refusjon) {
         val dialog =
-            dialogRepository.finnDialogMedSykemeldingId(sykmeldingId = vedtak.sykmeldingId)
+            dialogRepository.finnDialogMedSykemeldingId(sykmeldingId = refusjon.sykmeldingId)
         if (dialog == null) {
             logger.warn(
-                "Fant ikke dialog for sykmeldingId ${vedtak.sykmeldingId}. " +
-                    "Klarer derfor ikke oppdatere dialogen med vedtak ${vedtak.vedtakId}.",
+                "Fant ikke dialog for sykmeldingId ${refusjon.sykmeldingId}. " +
+                    "Klarer derfor ikke oppdatere dialogen med refusjon ${refusjon.refusjonUtfallId}.",
             )
             return
         }
 
-        val eksisterendeTransmission = dialog.transmissionByDokumentId(vedtak.vedtakId)
+        val eksisterendeTransmission = dialog.transmissionByDokumentId(refusjon.refusjonUtfallId)
         if (eksisterendeTransmission != null) {
             logger.info(
-                "Transmission for vedtak ${vedtak.vedtakId} finnes allerede i dialog ${dialog.dialogId}, hopper over opprettelse.",
+                "Transmission for refusjon ${refusjon.refusjonUtfallId} finnes allerede i dialog ${dialog.dialogId}, hopper over opprettelse.",
             )
             return
         }
 
-        val inntektsmeldingTransmissionId = dialog.transmissionByDokumentId(vedtak.inntektsmeldingId)?.transmissionId
+        val inntektsmeldingTransmissionId = dialog.transmissionByDokumentId(refusjon.inntektsmeldingId)?.transmissionId
         if (inntektsmeldingTransmissionId == null) {
             logger.warn(
-                "Fant ikke transmission for inntektsmeldingId ${vedtak.inntektsmeldingId} " +
-                    "i dialog ${dialog.dialogId} for sykmeldingId ${vedtak.sykmeldingId}. " +
-                    "Oppretter transmission for vedtak ${vedtak.vedtakId} uten relatedTransmissionId.",
+                "Fant ikke transmission for inntektsmeldingId ${refusjon.inntektsmeldingId} " +
+                    "i dialog ${dialog.dialogId} for sykmeldingId ${refusjon.sykmeldingId}. " +
+                    "Oppretter transmission for refusjon ${refusjon.refusjonUtfallId} uten relatedTransmissionId.",
             )
         }
 
@@ -52,50 +51,50 @@ class VedtakHandler(
                 dialogportenClient.addTransmission(
                     dialogId = dialog.dialogId,
                     transmissionRequest =
-                        vedtakTransmissionRequest(
-                            vedtakId = vedtak.vedtakId,
+                        refusjonTransmissionRequest(
+                            refusjonUtfallId = refusjon.refusjonUtfallId,
                             relatedTransmissionId = inntektsmeldingTransmissionId,
                         ),
                 )
             }
 
         dialogRepository.oppdaterDialogMedTransmission(
-            sykmeldingId = vedtak.sykmeldingId,
+            sykmeldingId = refusjon.sykmeldingId,
             transmissionId = transmissionId,
-            dokumentId = vedtak.vedtakId,
-            dokumentType = LpsApiExtendedType.VEDTAK.toString(),
+            dokumentId = refusjon.refusjonUtfallId,
+            dokumentType = LpsApiExtendedType.REFUSJON.toString(),
             relatedTransmissionId = inntektsmeldingTransmissionId,
         )
 
         logger.info(
-            "Oppdaterte dialog ${dialog.dialogId} for sykmelding ${vedtak.sykmeldingId} " +
-                "med vedtak ${vedtak.vedtakId}. Lagt til transmission $transmissionId.",
+            "Oppdaterte dialog ${dialog.dialogId} for sykmelding ${refusjon.sykmeldingId} " +
+                "med refusjon ${refusjon.refusjonUtfallId}. Lagt til transmission $transmissionId.",
         )
     }
 }
 
-fun vedtakTransmissionRequest(
-    vedtakId: UUID,
+fun refusjonTransmissionRequest(
+    refusjonUtfallId: UUID,
     relatedTransmissionId: UUID?,
 ): TransmissionRequest =
-    VedtakTransmissionRequest(
-        vedtakId = vedtakId,
+    RefusjonTransmissionRequest(
+        refusjonUtfallId = refusjonUtfallId,
         relatedTransmissionId = relatedTransmissionId,
         attachments =
             listOf(
 //                TODO: Leggg til dette når refusjon er på plass i LPS API
 //                createApiAttachment(
 //                    "refusjon.json",
-//                    "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/refusjon/$vedtakId",
+//                    "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/refusjon/$refusjonUtfallId",
 //                ),
 //                createApiAttachment(
 //                    displayName = "refusjon.pdf",
-//                    url = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/refusjon/$vedtakId/pdf",
+//                    url = "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/refusjon/$refusjonUtfallId/pdf",
 //                    mediaType = "application/pdf",
 //                ),
                 createGuiAttachment(
                     displayName = "refusjon",
-                    url = "${Env.Nav.arbeidsgiverGuiBaseUrl}/dokument/refusjon/$vedtakId.pdf",
+                    url = "${Env.Nav.arbeidsgiverGuiBaseUrl}/dokument/refusjon/$refusjonUtfallId.pdf",
                     mediaType = "application/pdf",
                 ),
             ),

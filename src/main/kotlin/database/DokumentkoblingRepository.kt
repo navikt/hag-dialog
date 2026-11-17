@@ -8,7 +8,7 @@ import dokumentkobling.InntektsmeldingGodkjent
 import dokumentkobling.Status
 import dokumentkobling.Sykepengesoeknad
 import dokumentkobling.Sykmelding
-import dokumentkobling.Vedtak
+import dokumentkobling.Refusjon
 import dokumentkobling.VedtaksperiodeSoeknadKobling
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
@@ -400,73 +400,73 @@ class DokumentkoblingRepository(
                 .findById(inntektsmeldingId)
         }
 
-    fun opprettVedtak(vedtak: Vedtak) =
+    fun opprettRefusjon(refusjon: Refusjon) =
         try {
             transaction(db) {
-                VedtakTable.insert {
-                    it[id] = vedtak.vedtakId
-                    it[VedtakTable.sykmeldingId] = vedtak.sykmeldingId
-                    it[VedtakTable.inntektsmeldingId] = vedtak.inntektsmeldingId
-                    it[VedtakTable.orgnr] = vedtak.orgnr.verdi
-                    it[VedtakTable.status] = Status.MOTTATT
+                RefusjonTable.insert {
+                    it[id] = refusjon.refusjonUtfallId
+                    it[RefusjonTable.sykmeldingId] = refusjon.sykmeldingId
+                    it[RefusjonTable.inntektsmeldingId] = refusjon.inntektsmeldingId
+                    it[RefusjonTable.orgnr] = refusjon.orgnr.verdi
+                    it[RefusjonTable.status] = Status.MOTTATT
                 }
             }
         } catch (e: ExposedSQLException) {
-            sikkerLogger().error("Klarte ikke å opprette vedtak med id ${vedtak.vedtakId} i databasen", e)
+            sikkerLogger().error("Klarte ikke å opprette refusjon med id ${refusjon.refusjonUtfallId} i databasen", e)
             throw e
         }
 
-    fun hentVedtak(vedtakId: UUID): VedtakEntity? =
+    fun hentRefusjon(refusjonUtfallId: UUID): RefusjonEntity? =
         transaction(db) {
-            VedtakEntity.findById(vedtakId)
+            RefusjonEntity.findById(refusjonUtfallId)
         }
 
-    data class VedtakInntektsmeldingKobling(
-        val vedtakId: UUID,
+    data class RefusjonInntektsmeldingKobling(
+        val refusjonUtfallId: UUID,
         val sykmeldingId: UUID,
         val inntektsmeldingId: UUID,
         val orgnr: Orgnr,
-        val vedtakStatus: Status,
+        val refusjonStatus: Status,
         val inntektsmeldingJobbStatus: Status,
     )
 
-    fun hentVedtakKlareForBehandling(): List<VedtakInntektsmeldingKobling> =
+    fun hentRefusjonKlareForBehandling(): List<RefusjonInntektsmeldingKobling> =
         transaction(db) {
-            VedtakTable
+            RefusjonTable
                 .innerJoin(
                     InntektsmeldingTable,
-                    { VedtakTable.inntektsmeldingId },
+                    { RefusjonTable.inntektsmeldingId },
                     { InntektsmeldingTable.id },
                 ).selectAll()
-                .where { VedtakTable.status eq Status.MOTTATT }
-                .orderBy(VedtakTable.opprettet to SortOrder.ASC)
+                .where { RefusjonTable.status eq Status.MOTTATT }
+                .orderBy(RefusjonTable.opprettet to SortOrder.ASC)
                 .limit(maksAntallPerHenting)
                 .map {
-                    VedtakInntektsmeldingKobling(
-                        vedtakId = it[VedtakTable.id].value,
-                        sykmeldingId = it[VedtakTable.sykmeldingId],
-                        inntektsmeldingId = it[VedtakTable.inntektsmeldingId],
-                        orgnr = Orgnr(it[VedtakTable.orgnr]),
-                        vedtakStatus = it[VedtakTable.status],
+                    RefusjonInntektsmeldingKobling(
+                        refusjonUtfallId = it[RefusjonTable.id].value,
+                        sykmeldingId = it[RefusjonTable.sykmeldingId],
+                        inntektsmeldingId = it[RefusjonTable.inntektsmeldingId],
+                        orgnr = Orgnr(it[RefusjonTable.orgnr]),
+                        refusjonStatus = it[RefusjonTable.status],
                         inntektsmeldingJobbStatus = it[InntektsmeldingTable.status],
                     )
                 }
         }
 
-    fun settVedtakJobbTilBehandlet(vedtakId: UUID) {
+    fun settRefusjonJobbTilBehandlet(refusjonUtfallId: UUID) {
         transaction(db) {
-            VedtakTable.update({ VedtakTable.id eq vedtakId }) {
+            RefusjonTable.update({ RefusjonTable.id eq refusjonUtfallId }) {
                 it[status] = Status.BEHANDLET
             }
         }
     }
 
-    fun settVedtakMedStatusMottattTilTidsavbrutt(tidsavbruddgrense: LocalDateTime): Int =
+    fun settRefusjonMedStatusMottattTilTidsavbrutt(tidsavbruddgrense: LocalDateTime): Int =
         transaction(db) {
-            VedtakTable.update(
+            RefusjonTable.update(
                 where = {
-                    (VedtakTable.status eq Status.MOTTATT) and
-                        (VedtakTable.opprettet less tidsavbruddgrense)
+                    (RefusjonTable.status eq Status.MOTTATT) and
+                        (RefusjonTable.opprettet less tidsavbruddgrense)
                 },
             ) {
                 it[status] = Status.TIDSAVBRUTT

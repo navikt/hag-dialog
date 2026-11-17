@@ -51,9 +51,9 @@ data class UtgaattInntektsmeldingForespoersel(
 ) : Melding()
 
 @Serializable
-@SerialName("Vedtak")
-data class Vedtak(
-    val vedtakId: UUID,
+@SerialName("Refusjon")
+data class Refusjon(
+    val refusjonUtfallId: UUID,
     val sykmeldingId: UUID,
     val inntektsmeldingId: UUID,
     val orgnr: Orgnr,

@@ -4,7 +4,7 @@ import no.nav.helsearbeidsgiver.kafka.Sykepengesoeknad
 import no.nav.helsearbeidsgiver.kafka.Sykmelding
 import no.nav.helsearbeidsgiver.kafka.Sykmeldingsperiode
 import no.nav.helsearbeidsgiver.kafka.UtgaattInntektsmeldingForespoersel
-import no.nav.helsearbeidsgiver.kafka.Vedtak
+import no.nav.helsearbeidsgiver.kafka.Refusjon
 import no.nav.helsearbeidsgiver.utils.test.wrapper.genererGyldig
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import java.time.LocalDate
@@ -65,9 +65,9 @@ val forespoersel_utgaatt =
         orgnr = orgnr,
     )
 
-val vedtak =
-    Vedtak(
-        vedtakId = UUID.randomUUID(),
+val refusjon =
+    Refusjon(
+        refusjonUtfallId = UUID.randomUUID(),
         sykmeldingId = sykmelding.sykmeldingId,
         inntektsmeldingId = inntektsmelding_godkjent.innsendingId,
         orgnr = orgnr,
