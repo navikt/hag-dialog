@@ -93,7 +93,7 @@ fun refusjonTransmissionRequest(
 //                    mediaType = "application/pdf",
 //                ),
                 createGuiAttachment(
-                    displayName = "refusjon",
+                    displayName = "refusjon av sykepenger",
                     url = "${Env.Nav.arbeidsgiverGuiBaseUrl}/dokument/refusjon/$refusjonUtfallId.pdf",
                     mediaType = "application/pdf",
                 ),
