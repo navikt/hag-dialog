@@ -9,7 +9,9 @@ import no.nav.helsearbeidsgiver.dialogporten.RefusjonTransmissionRequest
 import no.nav.helsearbeidsgiver.dialogporten.domene.TransmissionRequest
 import no.nav.helsearbeidsgiver.dialogporten.domene.createGuiAttachment
 import no.nav.helsearbeidsgiver.kafka.Refusjon
+import no.nav.helsearbeidsgiver.utils.REFUSJON_TITTEL
 import no.nav.helsearbeidsgiver.utils.log.logger
+import no.nav.helsearbeidsgiver.utils.tittelMedPeriodeFomOgTom
 import java.util.UUID
 
 class RefusjonHandler(
@@ -54,6 +56,7 @@ class RefusjonHandler(
                         refusjonTransmissionRequest(
                             refusjonUtfallId = refusjon.refusjonUtfallId,
                             relatedTransmissionId = inntektsmeldingTransmissionId,
+                            tittel = refusjon.tittelMedPeriodeFomOgTom(),
                         ),
                 )
             }
@@ -76,13 +79,15 @@ class RefusjonHandler(
 fun refusjonTransmissionRequest(
     refusjonUtfallId: UUID,
     relatedTransmissionId: UUID?,
+    tittel: String,
 ): TransmissionRequest =
     RefusjonTransmissionRequest(
         refusjonUtfallId = refusjonUtfallId,
         relatedTransmissionId = relatedTransmissionId,
+        tittel = tittel,
         attachments =
             listOf(
-//                TODO: Leggg til dette når refusjon er på plass i LPS API
+//                TODO: Legg til API attachment hvis / når refusjon skal gjøres tilgjengelig for LPS
 //                createApiAttachment(
 //                    "refusjon.json",
 //                    "${Env.Nav.arbeidsgiverApiBaseUrl}/v1/refusjon/$refusjonUtfallId",
@@ -93,7 +98,7 @@ fun refusjonTransmissionRequest(
 //                    mediaType = "application/pdf",
 //                ),
                 createGuiAttachment(
-                    displayName = "refusjon",
+                    displayName = REFUSJON_TITTEL,
                     url = "${Env.Nav.arbeidsgiverGuiBaseUrl}/dokument/refusjon/$refusjonUtfallId.pdf",
                     mediaType = "application/pdf",
                 ),

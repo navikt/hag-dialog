@@ -88,6 +88,8 @@ data class Refusjon(
     val sykmeldingId: UUID,
     val inntektsmeldingId: UUID,
     val orgnr: Orgnr,
+    val fom: LocalDate,
+    val tom: LocalDate,
 ) : Dokumentkobling()
 
 enum class InnsendingType {

@@ -11,6 +11,7 @@ import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import java.time.Duration
+import java.time.LocalDate
 import java.util.UUID
 
 class RefusjonJobb(
@@ -37,6 +38,8 @@ class RefusjonJobb(
                         sykmeldingId = refusjon.sykmeldingId,
                         inntektsmeldingId = refusjon.inntektsmeldingId,
                         orgnr = refusjon.orgnr,
+                        fom = refusjon.fom,
+                        tom = refusjon.tom,
                     )
                     dokumentkoblingRepository.settRefusjonJobbTilBehandlet(refusjon.refusjonUtfallId)
                 } else {
@@ -60,6 +63,8 @@ fun SykepengerDialogportenService.opprettTransmissionForRefusjon(
     sykmeldingId: UUID,
     inntektsmeldingId: UUID,
     orgnr: Orgnr,
+    fom: LocalDate,
+    tom: LocalDate,
 ) {
     oppdaterDialogMedRefusjon(
         Refusjon(
@@ -67,6 +72,8 @@ fun SykepengerDialogportenService.opprettTransmissionForRefusjon(
             sykmeldingId = sykmeldingId,
             inntektsmeldingId = inntektsmeldingId,
             orgnr = orgnr,
+            fom = fom,
+            tom = tom,
         ),
     )
 }
