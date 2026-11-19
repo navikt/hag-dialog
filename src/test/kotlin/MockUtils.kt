@@ -49,15 +49,6 @@ val inntektsmelding_godkjent =
         status = Inntektsmelding.Status.GODKJENT,
         kanal = Inntektsmelding.Kanal.HR_SYSTEM_API,
     )
-val inntektsmelding_feilet =
-    Inntektsmelding(
-        forespoerselId = inntektsmeldingsforespoersel.forespoerselId,
-        innsendingId = UUID.randomUUID(),
-        sykmeldingId = sykmelding.sykmeldingId,
-        orgnr = orgnr,
-        status = Inntektsmelding.Status.FEILET,
-        kanal = Inntektsmelding.Kanal.HR_SYSTEM_API,
-    )
 val forespoersel_utgaatt =
     UtgaattInntektsmeldingForespoersel(
         forespoerselId = inntektsmeldingsforespoersel.forespoerselId,
@@ -71,4 +62,6 @@ val refusjon =
         sykmeldingId = sykmelding.sykmeldingId,
         inntektsmeldingId = inntektsmelding_godkjent.innsendingId,
         orgnr = orgnr,
+        fom = LocalDate.of(2021, 1, 1),
+        tom = LocalDate.of(2021, 1, 31),
     )

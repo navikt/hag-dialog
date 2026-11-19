@@ -37,6 +37,8 @@ class RefusjonJobbTest :
                 sykmeldingId = refusjon.sykmeldingId,
                 inntektsmeldingId = refusjon.inntektsmeldingId,
                 orgnr = refusjon.orgnr,
+                fom = refusjon.fom,
+                tom = refusjon.tom,
                 refusjonStatus = Status.MOTTATT,
                 inntektsmeldingJobbStatus = inntektsmeldingJobbStatus,
             )
@@ -85,6 +87,8 @@ class RefusjonJobbTest :
                     sykmeldingId = exceptionKobling.sykmeldingId,
                     inntektsmeldingId = exceptionKobling.inntektsmeldingId,
                     orgnr = exceptionKobling.orgnr,
+                    fom = exceptionKobling.fom,
+                    tom = exceptionKobling.tom,
                 )
             } throws NotFoundException("Fant ikke dialog for refusjon")
 

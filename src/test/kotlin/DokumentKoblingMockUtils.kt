@@ -14,6 +14,7 @@ import no.nav.helsearbeidsgiver.database.ForespoerselStatus
 import no.nav.helsearbeidsgiver.utils.test.date.januar
 import no.nav.helsearbeidsgiver.utils.test.wrapper.genererGyldig
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
 
@@ -82,6 +83,8 @@ object DokumentKoblingMockUtils {
             sykmeldingId = sykmeldingId,
             inntektsmeldingId = inntektsmeldingId,
             orgnr = orgnr,
+            fom = LocalDate.of(2021, 1, 1),
+            tom = LocalDate.of(2021, 1, 31),
         )
 
     val forespoerselSykmeldingKobling =

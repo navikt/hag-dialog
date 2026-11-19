@@ -22,6 +22,7 @@ import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
 import kotlin.random.Random
@@ -408,6 +409,8 @@ class DokumentkoblingRepository(
                     it[RefusjonTable.sykmeldingId] = refusjon.sykmeldingId
                     it[RefusjonTable.inntektsmeldingId] = refusjon.inntektsmeldingId
                     it[RefusjonTable.orgnr] = refusjon.orgnr.verdi
+                    it[RefusjonTable.fom] = refusjon.fom
+                    it[RefusjonTable.tom] = refusjon.tom
                     it[RefusjonTable.status] = Status.MOTTATT
                 }
             }
@@ -426,6 +429,8 @@ class DokumentkoblingRepository(
         val sykmeldingId: UUID,
         val inntektsmeldingId: UUID,
         val orgnr: Orgnr,
+        val fom: LocalDate,
+        val tom: LocalDate,
         val refusjonStatus: Status,
         val inntektsmeldingJobbStatus: Status,
     )
@@ -447,6 +452,8 @@ class DokumentkoblingRepository(
                         sykmeldingId = it[RefusjonTable.sykmeldingId],
                         inntektsmeldingId = it[RefusjonTable.inntektsmeldingId],
                         orgnr = Orgnr(it[RefusjonTable.orgnr]),
+                        fom = it[RefusjonTable.fom],
+                        tom = it[RefusjonTable.tom],
                         refusjonStatus = it[RefusjonTable.status],
                         inntektsmeldingJobbStatus = it[InntektsmeldingTable.status],
                     )
