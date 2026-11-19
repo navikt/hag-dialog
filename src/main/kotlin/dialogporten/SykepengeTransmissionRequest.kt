@@ -59,7 +59,7 @@ class RefusjonTransmissionRequest(
     override val isSilentUpdate: Boolean = false,
 ) : TransmissionRequestMedMarkerSomLestFce(REFUSJON) {
     override val dokumentId = refusjonUtfallId
-    override val tittel = "Refusjon"
+    override val tittel = "Refusjon av sykepenger"
     override val sammendrag = null
     override val type = Transmission.TransmissionType.Information
 }
