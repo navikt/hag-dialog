@@ -39,15 +39,6 @@ class RefusjonHandler(
             return
         }
 
-        val inntektsmeldingTransmissionId = dialog.transmissionByDokumentId(refusjon.inntektsmeldingId)?.transmissionId
-        if (inntektsmeldingTransmissionId == null) {
-            logger.warn(
-                "Fant ikke transmission for inntektsmeldingId ${refusjon.inntektsmeldingId} " +
-                    "i dialog ${dialog.dialogId} for sykmeldingId ${refusjon.sykmeldingId}. " +
-                    "Oppretter transmission for refusjon ${refusjon.refusjonUtfallId} uten relatedTransmissionId.",
-            )
-        }
-
         val transmissionId =
             runBlocking {
                 dialogportenClient.addTransmission(
@@ -55,7 +46,7 @@ class RefusjonHandler(
                     transmissionRequest =
                         refusjonTransmissionRequest(
                             refusjonUtfallId = refusjon.refusjonUtfallId,
-                            relatedTransmissionId = inntektsmeldingTransmissionId,
+                            relatedTransmissionId = null,
                             tittel = refusjon.tittelMedPeriodeFomOgTom(),
                         ),
                 )
@@ -66,7 +57,7 @@ class RefusjonHandler(
             transmissionId = transmissionId,
             dokumentId = refusjon.refusjonUtfallId,
             dokumentType = LpsApiExtendedType.REFUSJON.toString(),
-            relatedTransmissionId = inntektsmeldingTransmissionId,
+            relatedTransmissionId = null,
         )
 
         logger.info(

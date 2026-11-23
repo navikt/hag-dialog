@@ -32,7 +32,9 @@ class RefusjonJobb(
 
         refusjonKlareForBehandling.forEach { refusjon ->
             try {
-                if (refusjon.inntektsmeldingJobbStatus == Status.BEHANDLET) {
+                val sykmelding = dokumentkoblingRepository.hentSykmeldingEntitet(refusjon.sykmeldingId)
+
+                if (sykmelding?.status == Status.BEHANDLET) {
                     sykepengerDialogportenService.opprettTransmissionForRefusjon(
                         refusjonUtfallId = refusjon.refusjonUtfallId,
                         sykmeldingId = refusjon.sykmeldingId,
@@ -44,7 +46,7 @@ class RefusjonJobb(
                     dokumentkoblingRepository.settRefusjonJobbTilBehandlet(refusjon.refusjonUtfallId)
                 } else {
                     logger.info(
-                        "Inntektsmelding med id ${refusjon.inntektsmeldingId} er ikke behandlet enda, " +
+                        "Sykmelding med id ${refusjon.sykmeldingId} er ikke behandlet enda, " +
                             "kan ikke sende refusjon med id ${refusjon.refusjonUtfallId} til Dialogporten.",
                     )
                 }
@@ -61,7 +63,7 @@ class RefusjonJobb(
 fun SykepengerDialogportenService.opprettTransmissionForRefusjon(
     refusjonUtfallId: UUID,
     sykmeldingId: UUID,
-    inntektsmeldingId: UUID,
+    inntektsmeldingId: UUID?,
     orgnr: Orgnr,
     fom: LocalDate,
     tom: LocalDate,
