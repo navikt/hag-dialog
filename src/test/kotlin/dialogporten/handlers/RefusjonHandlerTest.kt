@@ -35,19 +35,13 @@ class RefusjonHandlerTest :
             clearAllMocks()
         }
 
-        test("skal oppdatere dialog med refusjon når inntektsmelding-transmission finnes") {
+        test("skal oppdatere dialog for refusjonens sykmelding uten kobling til inntektsmelding") {
             val dialogId = UUID.randomUUID()
-            val inntektsmeldingTransmissionId = UUID.randomUUID()
             val refusjonTransmissionId = UUID.randomUUID()
-            val inntektsmeldingTransmission =
-                mockk<TransmissionEntity> {
-                    every { transmissionId } returns inntektsmeldingTransmissionId
-                }
             val dialogEntity =
                 mockk<DialogEntity> {
                     every { this@mockk.dialogId } returns dialogId
                     every { transmissionByDokumentId(refusjon.refusjonUtfallId) } returns null
-                    every { transmissionByDokumentId(refusjon.inntektsmeldingId) } returns inntektsmeldingTransmission
                 }
 
             every { dialogRepositoryMock.finnDialogMedSykemeldingId(refusjon.sykmeldingId) } returns dialogEntity
@@ -56,14 +50,16 @@ class RefusjonHandlerTest :
 
             refusjonHandler.oppdaterDialog(refusjon)
 
-            coVerify(exactly = 1) { dialogportenClientMock.addTransmission(dialogId, any<TransmissionRequest>()) }
+            coVerify(exactly = 1) {
+                dialogportenClientMock.addTransmission(dialogId, match<TransmissionRequest> { it.relatedTransmissionId == null })
+            }
             verify(exactly = 1) {
                 dialogRepositoryMock.oppdaterDialogMedTransmission(
                     sykmeldingId = refusjon.sykmeldingId,
                     transmissionId = refusjonTransmissionId,
                     dokumentId = refusjon.refusjonUtfallId,
                     dokumentType = LpsApiExtendedType.REFUSJON.toString(),
-                    relatedTransmissionId = inntektsmeldingTransmissionId,
+                    relatedTransmissionId = null,
                 )
             }
         }
@@ -94,14 +90,14 @@ class RefusjonHandlerTest :
             verify(exactly = 0) { dialogRepositoryMock.oppdaterDialogMedTransmission(any(), any(), any(), any(), any()) }
         }
 
-        test("skal opprette transmission uten relatedTransmissionId når inntektsmelding-transmission ikke finnes") {
+        test("skal opprette transmission når inntektsmeldingId er null") {
+            val refusjon = refusjon.copy(inntektsmeldingId = null)
             val dialogId = UUID.randomUUID()
             val transmissionId = UUID.randomUUID()
             val dialogEntity =
                 mockk<DialogEntity> {
                     every { this@mockk.dialogId } returns dialogId
                     every { transmissionByDokumentId(refusjon.refusjonUtfallId) } returns null
-                    every { transmissionByDokumentId(refusjon.inntektsmeldingId) } returns null
                 }
 
             every { dialogRepositoryMock.finnDialogMedSykemeldingId(refusjon.sykmeldingId) } returns dialogEntity

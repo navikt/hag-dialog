@@ -551,24 +551,24 @@ class DokumentkoblingTest :
                 hentet.status shouldBe Status.MOTTATT
             }
 
-            test("hentRefusjonKlareForBehandling returnerer refusjon sammen med status til tilhørende inntektsmelding") {
-                val inntektsmeldingGodkjent = DokumentKoblingMockUtils.inntektsmeldingGodkjent
-                repository.opprettInntektmeldingGodkjent(inntektsmeldingGodkjent)
-
-                val refusjon = DokumentKoblingMockUtils.refusjon.copy(inntektsmeldingId = inntektsmeldingGodkjent.inntektsmeldingId)
+            test("hentRefusjonKlareForBehandling returnerer refusjon selv om inntektsmelding ikke finnes") {
+                val refusjon = DokumentKoblingMockUtils.refusjon
                 repository.opprettRefusjon(refusjon)
 
-                repository.settInntektsmeldingJobbTilBehandlet(inntektsmeldingGodkjent.inntektsmeldingId)
-
                 val klareForBehandling = repository.hentRefusjonKlareForBehandling()
-                klareForBehandling.shouldNotBeEmpty()
-                assertSoftly(klareForBehandling[0]) {
-                    refusjonUtfallId shouldBe refusjon.refusjonUtfallId
-                    sykmeldingId shouldBe refusjon.sykmeldingId
-                    inntektsmeldingId shouldBe refusjon.inntektsmeldingId
-                    refusjonStatus shouldBe Status.MOTTATT
-                    inntektsmeldingJobbStatus shouldBe Status.BEHANDLET
-                }
+                klareForBehandling shouldBe listOf(refusjon)
+            }
+
+            test("hentRefusjonKlareForBehandling returnerer refusjon uten inntektsmeldingId og utelater behandlede refusjoner") {
+                val refusjon = DokumentKoblingMockUtils.refusjon.copy(inntektsmeldingId = null)
+                val behandletRefusjon = refusjon.copy(refusjonUtfallId = UUID.randomUUID())
+                repository.opprettRefusjon(refusjon)
+                repository.opprettRefusjon(behandletRefusjon)
+                repository.settRefusjonJobbTilBehandlet(behandletRefusjon.refusjonUtfallId)
+
+                val hentet = hentRefusjon(db = db, refusjonUtfallId = refusjon.refusjonUtfallId)
+                hentet.shouldNotBeNull().inntektsmeldingId shouldBe null
+                repository.hentRefusjonKlareForBehandling() shouldBe listOf(refusjon)
             }
 
             test("bare mottatte refusjon før tidsavbruddgrense blir satt til tidsavbrutt") {

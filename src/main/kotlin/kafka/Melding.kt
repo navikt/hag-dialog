@@ -55,7 +55,7 @@ data class UtgaattInntektsmeldingForespoersel(
 data class Refusjon(
     val refusjonUtfallId: UUID,
     val sykmeldingId: UUID,
-    val inntektsmeldingId: UUID,
+    val inntektsmeldingId: UUID? = null,
     val orgnr: Orgnr,
     val fom: LocalDate,
     val tom: LocalDate,

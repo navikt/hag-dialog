@@ -22,7 +22,6 @@ import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.selectAll
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.jetbrains.exposed.sql.update
-import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.UUID
 import kotlin.random.Random
@@ -424,38 +423,21 @@ class DokumentkoblingRepository(
             RefusjonEntity.findById(refusjonUtfallId)
         }
 
-    data class RefusjonInntektsmeldingKobling(
-        val refusjonUtfallId: UUID,
-        val sykmeldingId: UUID,
-        val inntektsmeldingId: UUID,
-        val orgnr: Orgnr,
-        val fom: LocalDate,
-        val tom: LocalDate,
-        val refusjonStatus: Status,
-        val inntektsmeldingJobbStatus: Status,
-    )
-
-    fun hentRefusjonKlareForBehandling(): List<RefusjonInntektsmeldingKobling> =
+    fun hentRefusjonKlareForBehandling(): List<Refusjon> =
         transaction(db) {
             RefusjonTable
-                .innerJoin(
-                    InntektsmeldingTable,
-                    { RefusjonTable.inntektsmeldingId },
-                    { InntektsmeldingTable.id },
-                ).selectAll()
+                .selectAll()
                 .where { RefusjonTable.status eq Status.MOTTATT }
                 .orderBy(RefusjonTable.opprettet to SortOrder.ASC)
                 .limit(maksAntallPerHenting)
                 .map {
-                    RefusjonInntektsmeldingKobling(
+                    Refusjon(
                         refusjonUtfallId = it[RefusjonTable.id].value,
                         sykmeldingId = it[RefusjonTable.sykmeldingId],
                         inntektsmeldingId = it[RefusjonTable.inntektsmeldingId],
                         orgnr = Orgnr(it[RefusjonTable.orgnr]),
                         fom = it[RefusjonTable.fom],
                         tom = it[RefusjonTable.tom],
-                        refusjonStatus = it[RefusjonTable.status],
-                        inntektsmeldingJobbStatus = it[InntektsmeldingTable.status],
                     )
                 }
         }

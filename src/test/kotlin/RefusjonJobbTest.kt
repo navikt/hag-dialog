@@ -10,7 +10,7 @@ import io.mockk.mockk
 import io.mockk.runs
 import io.mockk.verify
 import no.nav.helsearbeidsgiver.database.DokumentkoblingRepository
-import no.nav.helsearbeidsgiver.database.DokumentkoblingRepository.RefusjonInntektsmeldingKobling
+import no.nav.helsearbeidsgiver.database.SykmeldingEntity
 import no.nav.helsearbeidsgiver.dialogporten.SykepengerDialogportenService
 import no.nav.helsearbeidsgiver.utils.UnleashFeatureToggles
 import java.util.UUID
@@ -31,42 +31,35 @@ class RefusjonJobbTest :
 
         val refusjon = DokumentKoblingMockUtils.refusjon
 
-        fun lagKobling(inntektsmeldingJobbStatus: Status) =
-            RefusjonInntektsmeldingKobling(
-                refusjonUtfallId = refusjon.refusjonUtfallId,
-                sykmeldingId = refusjon.sykmeldingId,
-                inntektsmeldingId = refusjon.inntektsmeldingId,
-                orgnr = refusjon.orgnr,
-                fom = refusjon.fom,
-                tom = refusjon.tom,
-                refusjonStatus = Status.MOTTATT,
-                inntektsmeldingJobbStatus = inntektsmeldingJobbStatus,
-            )
+        val sykmeldingEntity = mockk<SykmeldingEntity>()
 
         beforeTest {
             clearAllMocks()
             every { repository.settRefusjonJobbTilBehandlet(any()) } just runs
-            every { repository.hentRefusjonKlareForBehandling() } returns listOf(lagKobling(Status.BEHANDLET))
+            every { repository.hentRefusjonKlareForBehandling() } returns listOf(refusjon)
+            every { repository.hentSykmeldingEntitet(refusjon.sykmeldingId) } returns sykmeldingEntity
+            every { sykmeldingEntity.status } returns Status.BEHANDLET
             every { sykepengerDialogportenService.oppdaterDialogMedRefusjon(any()) } just runs
         }
 
-        test("refusjonJobb skal opprette transmission når inntektsmelding er behandlet") {
+        test("refusjonJobb skal opprette transmission når sykmelding er behandlet") {
             refusjonJobb.doJob()
 
             verify(exactly = 1) { repository.hentRefusjonKlareForBehandling() }
+            verify(exactly = 1) { repository.hentSykmeldingEntitet(refusjon.sykmeldingId) }
             verify(exactly = 1) {
                 sykepengerDialogportenService.oppdaterDialogMedRefusjon(
                     match {
-                        it.refusjonUtfallId ==
-                            refusjon.refusjonUtfallId
+                        it.refusjonUtfallId == refusjon.refusjonUtfallId &&
+                            it.sykmeldingId == refusjon.sykmeldingId
                     },
                 )
             }
             verify(exactly = 1) { repository.settRefusjonJobbTilBehandlet(refusjon.refusjonUtfallId) }
         }
 
-        test("refusjonJobb skal ikke opprette transmission når inntektsmelding ikke er behandlet") {
-            every { repository.hentRefusjonKlareForBehandling() } returns listOf(lagKobling(Status.MOTTATT))
+        test("refusjonJobb skal ikke opprette transmission når sykmelding ikke er behandlet") {
+            every { sykmeldingEntity.status } returns Status.MOTTATT
 
             refusjonJobb.doJob()
 
@@ -75,12 +68,41 @@ class RefusjonJobbTest :
             verify(exactly = 0) { repository.settRefusjonJobbTilBehandlet(any()) }
         }
 
+        test("refusjonJobb skal vente til sykmelding finnes og er behandlet") {
+            every { repository.hentSykmeldingEntitet(refusjon.sykmeldingId) } returns null
+
+            refusjonJobb.doJob()
+
+            verify(exactly = 0) { sykepengerDialogportenService.oppdaterDialogMedRefusjon(any()) }
+            verify(exactly = 0) { repository.settRefusjonJobbTilBehandlet(any()) }
+
+            every { repository.hentSykmeldingEntitet(refusjon.sykmeldingId) } returns sykmeldingEntity
+
+            refusjonJobb.doJob()
+
+            verify(exactly = 1) { sykepengerDialogportenService.oppdaterDialogMedRefusjon(any()) }
+            verify(exactly = 1) { repository.settRefusjonJobbTilBehandlet(refusjon.refusjonUtfallId) }
+        }
+
+        test("refusjonJobb skal opprette transmission uten inntektsmeldingId") {
+            every { repository.hentRefusjonKlareForBehandling() } returns listOf(refusjon.copy(inntektsmeldingId = null))
+
+            refusjonJobb.doJob()
+
+            verify(exactly = 1) {
+                sykepengerDialogportenService.oppdaterDialogMedRefusjon(
+                    match { it.sykmeldingId == refusjon.sykmeldingId && it.inntektsmeldingId == null },
+                )
+            }
+            verify(exactly = 1) { repository.settRefusjonJobbTilBehandlet(refusjon.refusjonUtfallId) }
+        }
+
         test("refusjonJobb skal fortsatt opprette transmission på refusjon #2 når behandling av refusjon #1 kaster exception") {
             val exceptionRefusjonUtfallId = UUID.randomUUID()
-            val exceptionKobling = lagKobling(Status.BEHANDLET).copy(refusjonUtfallId = exceptionRefusjonUtfallId)
+            val exceptionKobling = refusjon.copy(refusjonUtfallId = exceptionRefusjonUtfallId)
 
             every { repository.hentRefusjonKlareForBehandling() } returns
-                listOf(exceptionKobling, lagKobling(Status.BEHANDLET))
+                listOf(exceptionKobling, refusjon)
             every {
                 sykepengerDialogportenService.opprettTransmissionForRefusjon(
                     refusjonUtfallId = exceptionRefusjonUtfallId,
@@ -96,6 +118,7 @@ class RefusjonJobbTest :
 
             verify(exactly = 1) { repository.hentRefusjonKlareForBehandling() }
             verify(exactly = 2) { sykepengerDialogportenService.oppdaterDialogMedRefusjon(any()) }
+            verify(exactly = 0) { repository.settRefusjonJobbTilBehandlet(exceptionRefusjonUtfallId) }
             verify(exactly = 1) { repository.settRefusjonJobbTilBehandlet(refusjon.refusjonUtfallId) }
         }
     })

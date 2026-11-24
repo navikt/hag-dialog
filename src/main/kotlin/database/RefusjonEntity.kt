@@ -13,7 +13,7 @@ import java.util.UUID
 object RefusjonTable : UUIDTable(name = "refusjon", columnName = "refusjon_utfall_id") {
     val refusjonUtfallId get() = id
     val sykmeldingId = uuid("sykmelding_id")
-    val inntektsmeldingId = uuid("inntektsmelding_id")
+    val inntektsmeldingId = uuid("inntektsmelding_id").nullable()
     val orgnr = text("orgnr")
     val fom = date("fom")
     val tom = date("tom")
