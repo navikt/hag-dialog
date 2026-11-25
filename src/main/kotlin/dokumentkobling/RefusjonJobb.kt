@@ -12,6 +12,7 @@ import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import java.time.Duration
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.UUID
 
 class RefusjonJobb(
@@ -34,7 +35,13 @@ class RefusjonJobb(
             try {
                 val sykmelding = dokumentkoblingRepository.hentSykmeldingEntitet(refusjon.sykmeldingId)
 
-                if (sykmelding?.status == Status.BEHANDLET) {
+
+                val inntektsmelding = refusjon.inntektsmeldingId?.let { dokumentkoblingRepository.hentInntektsmelding(it) }
+                val inntektsmeldingErBehandlet = inntektsmelding?.status == Status.BEHANDLET
+                val erGammelSak = LocalDateTime.now().isAfter(refusjon.opprettetDatabase.plusMinutes(30))
+                val skalBehandles = inntektsmeldingErBehandlet || erGammelSak
+
+                if (skalBehandles && sykmelding?.status == Status.BEHANDLET) {
                     sykepengerDialogportenService.opprettTransmissionForRefusjon(
                         refusjonUtfallId = refusjon.refusjonUtfallId,
                         sykmeldingId = refusjon.sykmeldingId,

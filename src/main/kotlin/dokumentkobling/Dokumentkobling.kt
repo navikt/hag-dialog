@@ -1,4 +1,4 @@
-@file:UseSerializers(LocalDateSerializer::class, UuidSerializer::class)
+@file:UseSerializers(LocalDateSerializer::class, LocalDateTimeSerializer::class ,UuidSerializer::class)
 
 package dokumentkobling
 
@@ -9,7 +9,9 @@ import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateSerializer
 import no.nav.helsearbeidsgiver.utils.json.serializer.UuidSerializer
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.UUID
+import no.nav.helsearbeidsgiver.utils.json.serializer.LocalDateTimeSerializer
 
 @Serializable
 sealed class Dokumentkobling
@@ -90,6 +92,7 @@ data class Refusjon(
     val orgnr: Orgnr,
     val fom: LocalDate,
     val tom: LocalDate,
+    val opprettetDatabase: LocalDateTime,
 ) : Dokumentkobling()
 
 enum class InnsendingType {

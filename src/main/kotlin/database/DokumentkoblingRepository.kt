@@ -438,6 +438,7 @@ class DokumentkoblingRepository(
                         orgnr = Orgnr(it[RefusjonTable.orgnr]),
                         fom = it[RefusjonTable.fom],
                         tom = it[RefusjonTable.tom],
+                        opprettetDatabase = it[RefusjonTable.opprettet],
                     )
                 }
         }
