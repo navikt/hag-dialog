@@ -35,13 +35,7 @@ class RefusjonJobb(
             try {
                 val sykmelding = dokumentkoblingRepository.hentSykmeldingEntitet(refusjon.sykmeldingId)
 
-
-                val inntektsmelding = refusjon.inntektsmeldingId?.let { dokumentkoblingRepository.hentInntektsmelding(it) }
-                val inntektsmeldingErBehandlet = inntektsmelding?.status == Status.BEHANDLET
-                val erGammelSak = LocalDateTime.now().isAfter(refusjon.opprettetDatabase.plusMinutes(30))
-                val skalBehandles = inntektsmeldingErBehandlet || erGammelSak
-
-                if (skalBehandles && sykmelding?.status == Status.BEHANDLET) {
+                if (sykmelding?.status == Status.BEHANDLET) {
                     sykepengerDialogportenService.opprettTransmissionForRefusjon(
                         refusjonUtfallId = refusjon.refusjonUtfallId,
                         sykmeldingId = refusjon.sykmeldingId,
