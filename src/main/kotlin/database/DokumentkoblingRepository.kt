@@ -425,23 +425,32 @@ class DokumentkoblingRepository(
 
     fun hentRefusjonKlareForBehandling(): List<Refusjon> =
         transaction(db) {
-            RefusjonTable
-                .selectAll()
-                .where { RefusjonTable.status eq Status.MOTTATT }
+            RefusjonEntity
+                .find { RefusjonTable.status eq Status.MOTTATT }
                 .orderBy(RefusjonTable.opprettet to SortOrder.ASC)
                 .limit(maksAntallPerHenting)
+                .filter { it.erKlarForBehandling() }
                 .map {
                     Refusjon(
-                        refusjonUtfallId = it[RefusjonTable.id].value,
-                        sykmeldingId = it[RefusjonTable.sykmeldingId],
-                        inntektsmeldingId = it[RefusjonTable.inntektsmeldingId],
-                        orgnr = Orgnr(it[RefusjonTable.orgnr]),
-                        fom = it[RefusjonTable.fom],
-                        tom = it[RefusjonTable.tom],
-                        opprettetDatabase = it[RefusjonTable.opprettet],
+                        refusjonUtfallId = it.refusjonUtfallId,
+                        sykmeldingId = it.sykmeldingId,
+                        inntektsmeldingId = it.inntektsmeldingId,
+                        orgnr = Orgnr(it.orgnr),
+                        fom = it.fom,
+                        tom = it.tom,
                     )
                 }
         }
+
+    internal fun RefusjonEntity.erKlarForBehandling(ventegrenseSekunder: Long = 180): Boolean {
+        val inntektsmeldingErBehandlet =
+            inntektsmeldingId
+                ?.let { hentInntektsmelding(it) }
+                ?.status == Status.BEHANDLET
+        val ventetidErUtloept = opprettet < LocalDateTime.now().minusSeconds(ventegrenseSekunder)
+
+        return inntektsmeldingErBehandlet || ventetidErUtloept
+    }
 
     fun settRefusjonJobbTilBehandlet(refusjonUtfallId: UUID) {
         transaction(db) {

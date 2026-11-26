@@ -551,24 +551,45 @@ class DokumentkoblingTest :
                 hentet.status shouldBe Status.MOTTATT
             }
 
-            test("hentRefusjonKlareForBehandling returnerer refusjon selv om inntektsmelding ikke finnes") {
+            test("hentRefusjonKlareForBehandling returnerer refusjon med en gang når inntektsmeldingen er behandlet") {
                 val refusjon = DokumentKoblingMockUtils.refusjon
+                repository.opprettInntektmeldingGodkjent(DokumentKoblingMockUtils.inntektsmeldingGodkjent)
+                repository.settInntektsmeldingJobbTilBehandlet(refusjon.inntektsmeldingId!!)
                 repository.opprettRefusjon(refusjon)
 
-                val klareForBehandling = repository.hentRefusjonKlareForBehandling()
-                klareForBehandling shouldBe listOf(refusjon)
+                repository.hentRefusjonKlareForBehandling() shouldBe listOf(refusjon)
             }
 
-            test("hentRefusjonKlareForBehandling returnerer refusjon uten inntektsmeldingId og utelater behandlede refusjoner") {
-                val refusjon = DokumentKoblingMockUtils.refusjon.copy(inntektsmeldingId = null)
+            test("hentRefusjonKlareForBehandling utelater behandlede refusjoner") {
+                val refusjon = DokumentKoblingMockUtils.refusjon
                 val behandletRefusjon = refusjon.copy(refusjonUtfallId = UUID.randomUUID())
+                repository.opprettInntektmeldingGodkjent(DokumentKoblingMockUtils.inntektsmeldingGodkjent)
+                repository.settInntektsmeldingJobbTilBehandlet(refusjon.inntektsmeldingId!!)
                 repository.opprettRefusjon(refusjon)
                 repository.opprettRefusjon(behandletRefusjon)
                 repository.settRefusjonJobbTilBehandlet(behandletRefusjon.refusjonUtfallId)
 
-                val hentet = hentRefusjon(db = db, refusjonUtfallId = refusjon.refusjonUtfallId)
-                hentet.shouldNotBeNull().inntektsmeldingId shouldBe null
                 repository.hentRefusjonKlareForBehandling() shouldBe listOf(refusjon)
+            }
+
+            test("erKlarForBehandling venter til ventegrensen når inntektsmeldingen ikke er behandlet") {
+                val ubehandletInntektsmelding = DokumentKoblingMockUtils.refusjon
+                val manglendeInntektsmelding =
+                    DokumentKoblingMockUtils.refusjon.copy(refusjonUtfallId = UUID.randomUUID(), inntektsmeldingId = UUID.randomUUID())
+                val utenInntektsmeldingId =
+                    DokumentKoblingMockUtils.refusjon.copy(refusjonUtfallId = UUID.randomUUID(), inntektsmeldingId = null)
+                repository.opprettInntektmeldingGodkjent(DokumentKoblingMockUtils.inntektsmeldingGodkjent)
+
+                listOf(ubehandletInntektsmelding, manglendeInntektsmelding, utenInntektsmeldingId).forEach { refusjon ->
+                    repository.opprettRefusjon(refusjon)
+                    val refusjonEntity = repository.hentRefusjon(refusjon.refusjonUtfallId).shouldNotBeNull()
+
+                    with(repository) {
+                        refusjonEntity.erKlarForBehandling() shouldBe false
+                        refusjonEntity.erKlarForBehandling(ventegrenseSekunder = 0) shouldBe true
+                    }
+                }
+                repository.hentRefusjonKlareForBehandling() shouldBe emptyList()
             }
 
             test("bare mottatte refusjon før tidsavbruddgrense blir satt til tidsavbrutt") {
