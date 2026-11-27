@@ -26,6 +26,8 @@ import java.time.LocalDateTime
 import java.util.UUID
 import kotlin.random.Random
 
+val REFUSJON_VENTEGRENSE_SEKUNDER = 180L
+
 class DokumentkoblingRepository(
     private val db: Database,
     private val maksAntallPerHenting: Int,
@@ -442,12 +444,13 @@ class DokumentkoblingRepository(
                 }
         }
 
-    internal fun RefusjonEntity.erKlarForBehandling(ventegrenseSekunder: Long = 180): Boolean {
+
+    internal fun RefusjonEntity.erKlarForBehandling(ventegrenseSekunder: Long = REFUSJON_VENTEGRENSE_SEKUNDER): Boolean {
         val inntektsmeldingErBehandlet =
             inntektsmeldingId
                 ?.let { hentInntektsmelding(it) }
                 ?.status == Status.BEHANDLET
-        val ventetidErUtloept = opprettet < LocalDateTime.now().minusSeconds(ventegrenseSekunder)
+        val ventetidErUtloept = opprettet.plusSeconds(ventegrenseSekunder) < LocalDateTime.now()
 
         return inntektsmeldingErBehandlet || ventetidErUtloept
     }

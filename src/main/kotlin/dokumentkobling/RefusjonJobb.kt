@@ -12,7 +12,6 @@ import no.nav.helsearbeidsgiver.utils.log.sikkerLogger
 import no.nav.helsearbeidsgiver.utils.wrapper.Orgnr
 import java.time.Duration
 import java.time.LocalDate
-import java.time.LocalDateTime
 import java.util.UUID
 
 class RefusjonJobb(
