@@ -1,0 +1,1 @@
+ALTER TABLE refusjon ADD COLUMN er_revurdering BOOLEAN NOT NULL DEFAULT false;

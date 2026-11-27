@@ -17,6 +17,7 @@ import no.nav.helsearbeidsgiver.dialogporten.LpsApiExtendedType
 import no.nav.helsearbeidsgiver.dialogporten.domene.TransmissionRequest
 import no.nav.helsearbeidsgiver.dialogporten.handlers.RefusjonHandler
 import refusjon
+import java.time.LocalDate
 import java.util.UUID
 
 class RefusjonHandlerTest :
@@ -115,6 +116,38 @@ class RefusjonHandlerTest :
                     dokumentId = refusjon.refusjonUtfallId,
                     dokumentType = LpsApiExtendedType.REFUSJON.toString(),
                     relatedTransmissionId = null,
+                )
+            }
+        }
+
+        test("skal bruke tittel med revurdering i transmission når refusjonen er revurdering") {
+            val refusjon =
+                refusjon.copy(
+                    fom = LocalDate.of(2026, 5, 27),
+                    tom = LocalDate.of(2026, 7, 2),
+                    erRevurdering = true,
+                )
+            val dialogId = UUID.randomUUID()
+            val transmissionId = UUID.randomUUID()
+            val dialogEntity =
+                mockk<DialogEntity> {
+                    every { this@mockk.dialogId } returns dialogId
+                    every { transmissionByDokumentId(refusjon.refusjonUtfallId) } returns null
+                }
+
+            every { dialogRepositoryMock.finnDialogMedSykemeldingId(refusjon.sykmeldingId) } returns dialogEntity
+            coEvery { dialogportenClientMock.addTransmission(any(), any<TransmissionRequest>()) } returns transmissionId
+            every { dialogRepositoryMock.oppdaterDialogMedTransmission(any(), any(), any(), any(), any()) } just Runs
+
+            refusjonHandler.oppdaterDialog(refusjon)
+
+            coVerify(exactly = 1) {
+                dialogportenClientMock.addTransmission(
+                    dialogId,
+                    match<TransmissionRequest> {
+                        it.tittel == "Refusjon av sykepenger 27.05.2026 – 02.07.2026 (revurdering)" &&
+                            it.relatedTransmissionId == null
+                    },
                 )
             }
         }

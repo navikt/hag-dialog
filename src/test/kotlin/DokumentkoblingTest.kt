@@ -551,6 +551,15 @@ class DokumentkoblingTest :
                 hentet.status shouldBe Status.MOTTATT
             }
 
+            test("hentRefusjonKlareForBehandling returnerer erRevurdering") {
+                val refusjon = DokumentKoblingMockUtils.refusjon.copy(erRevurdering = true)
+                repository.opprettInntektmeldingGodkjent(DokumentKoblingMockUtils.inntektsmeldingGodkjent)
+                repository.settInntektsmeldingJobbTilBehandlet(refusjon.inntektsmeldingId!!)
+                repository.opprettRefusjon(refusjon)
+
+                repository.hentRefusjonKlareForBehandling() shouldBe listOf(refusjon)
+            }
+
             test("hentRefusjonKlareForBehandling returnerer refusjon med en gang når inntektsmeldingen er behandlet") {
                 val refusjon = DokumentKoblingMockUtils.refusjon
                 repository.opprettInntektmeldingGodkjent(DokumentKoblingMockUtils.inntektsmeldingGodkjent)

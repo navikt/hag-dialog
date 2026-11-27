@@ -42,6 +42,7 @@ class RefusjonJobb(
                         orgnr = refusjon.orgnr,
                         fom = refusjon.fom,
                         tom = refusjon.tom,
+                        erRevurdering = refusjon.erRevurdering,
                     )
                     dokumentkoblingRepository.settRefusjonJobbTilBehandlet(refusjon.refusjonUtfallId)
                 } else {
@@ -67,6 +68,7 @@ fun SykepengerDialogportenService.opprettTransmissionForRefusjon(
     orgnr: Orgnr,
     fom: LocalDate,
     tom: LocalDate,
+    erRevurdering: Boolean,
 ) {
     oppdaterDialogMedRefusjon(
         Refusjon(
@@ -76,6 +78,7 @@ fun SykepengerDialogportenService.opprettTransmissionForRefusjon(
             orgnr = orgnr,
             fom = fom,
             tom = tom,
+            erRevurdering = erRevurdering,
         ),
     )
 }
