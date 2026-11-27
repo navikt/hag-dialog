@@ -26,7 +26,7 @@ import java.time.LocalDateTime
 import java.util.UUID
 import kotlin.random.Random
 
-val REFUSJON_VENTEGRENSE_SEKUNDER = 180L
+const val REFUSJON_VENTEGRENSE_SEKUNDER = 600L
 
 class DokumentkoblingRepository(
     private val db: Database,
