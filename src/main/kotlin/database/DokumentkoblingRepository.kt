@@ -26,6 +26,8 @@ import java.time.LocalDateTime
 import java.util.UUID
 import kotlin.random.Random
 
+const val REFUSJON_VENTEGRENSE_SEKUNDER = 600L
+
 class DokumentkoblingRepository(
     private val db: Database,
     private val maksAntallPerHenting: Int,
@@ -425,22 +427,32 @@ class DokumentkoblingRepository(
 
     fun hentRefusjonKlareForBehandling(): List<Refusjon> =
         transaction(db) {
-            RefusjonTable
-                .selectAll()
-                .where { RefusjonTable.status eq Status.MOTTATT }
+            RefusjonEntity
+                .find { RefusjonTable.status eq Status.MOTTATT }
                 .orderBy(RefusjonTable.opprettet to SortOrder.ASC)
                 .limit(maksAntallPerHenting)
+                .filter { it.erKlarForBehandling() }
                 .map {
                     Refusjon(
-                        refusjonUtfallId = it[RefusjonTable.id].value,
-                        sykmeldingId = it[RefusjonTable.sykmeldingId],
-                        inntektsmeldingId = it[RefusjonTable.inntektsmeldingId],
-                        orgnr = Orgnr(it[RefusjonTable.orgnr]),
-                        fom = it[RefusjonTable.fom],
-                        tom = it[RefusjonTable.tom],
+                        refusjonUtfallId = it.refusjonUtfallId,
+                        sykmeldingId = it.sykmeldingId,
+                        inntektsmeldingId = it.inntektsmeldingId,
+                        orgnr = Orgnr(it.orgnr),
+                        fom = it.fom,
+                        tom = it.tom,
                     )
                 }
         }
+
+    internal fun RefusjonEntity.erKlarForBehandling(ventegrenseSekunder: Long = REFUSJON_VENTEGRENSE_SEKUNDER): Boolean {
+        val inntektsmeldingErBehandlet =
+            inntektsmeldingId
+                ?.let { hentInntektsmelding(it) }
+                ?.status == Status.BEHANDLET
+        val ventetidErUtloept = opprettet.plusSeconds(ventegrenseSekunder) < LocalDateTime.now()
+
+        return inntektsmeldingErBehandlet || ventetidErUtloept
+    }
 
     fun settRefusjonJobbTilBehandlet(refusjonUtfallId: UUID) {
         transaction(db) {
