@@ -444,7 +444,6 @@ class DokumentkoblingRepository(
                 }
         }
 
-
     internal fun RefusjonEntity.erKlarForBehandling(ventegrenseSekunder: Long = REFUSJON_VENTEGRENSE_SEKUNDER): Boolean {
         val inntektsmeldingErBehandlet =
             inntektsmeldingId
