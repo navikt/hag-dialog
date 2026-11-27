@@ -17,6 +17,7 @@ object RefusjonTable : UUIDTable(name = "refusjon", columnName = "refusjon_utfal
     val orgnr = text("orgnr")
     val fom = date("fom")
     val tom = date("tom")
+    val erRevurdering = bool("er_revurdering")
     val status = enumerationByName(name = "status", length = 50, klass = Status::class)
     val opprettet = datetime("opprettet").clientDefault { LocalDateTime.now() }
 }
@@ -32,6 +33,7 @@ class RefusjonEntity(
     val orgnr by RefusjonTable.orgnr
     val fom by RefusjonTable.fom
     val tom by RefusjonTable.tom
+    val erRevurdering by RefusjonTable.erRevurdering
     val status by RefusjonTable.status
     val opprettet by RefusjonTable.opprettet
 }

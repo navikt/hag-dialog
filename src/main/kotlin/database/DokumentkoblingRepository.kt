@@ -412,6 +412,7 @@ class DokumentkoblingRepository(
                     it[RefusjonTable.orgnr] = refusjon.orgnr.verdi
                     it[RefusjonTable.fom] = refusjon.fom
                     it[RefusjonTable.tom] = refusjon.tom
+                    it[RefusjonTable.erRevurdering] = refusjon.erRevurdering
                     it[RefusjonTable.status] = Status.MOTTATT
                 }
             }
@@ -440,6 +441,7 @@ class DokumentkoblingRepository(
                         orgnr = Orgnr(it.orgnr),
                         fom = it.fom,
                         tom = it.tom,
+                        erRevurdering = it.erRevurdering,
                     )
                 }
         }

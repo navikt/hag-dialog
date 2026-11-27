@@ -97,6 +97,19 @@ class RefusjonJobbTest :
             verify(exactly = 1) { repository.settRefusjonJobbTilBehandlet(refusjon.refusjonUtfallId) }
         }
 
+        test("refusjonJobb skal videreføre erRevurdering til transmission") {
+            every { repository.hentRefusjonKlareForBehandling() } returns listOf(refusjon.copy(erRevurdering = true))
+
+            refusjonJobb.doJob()
+
+            verify(exactly = 1) {
+                sykepengerDialogportenService.oppdaterDialogMedRefusjon(
+                    match { it.refusjonUtfallId == refusjon.refusjonUtfallId && it.erRevurdering },
+                )
+            }
+            verify(exactly = 1) { repository.settRefusjonJobbTilBehandlet(refusjon.refusjonUtfallId) }
+        }
+
         test("refusjonJobb skal fortsatt opprette transmission på refusjon #2 når behandling av refusjon #1 kaster exception") {
             val exceptionRefusjonUtfallId = UUID.randomUUID()
             val exceptionKobling = refusjon.copy(refusjonUtfallId = exceptionRefusjonUtfallId)
@@ -111,6 +124,7 @@ class RefusjonJobbTest :
                     orgnr = exceptionKobling.orgnr,
                     fom = exceptionKobling.fom,
                     tom = exceptionKobling.tom,
+                    erRevurdering = exceptionKobling.erRevurdering,
                 )
             } throws NotFoundException("Fant ikke dialog for refusjon")
 
